@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "title": "Pharmaceutical",
+    "description": "GMP-compliant cleanroom solutions for drug manufacturing facilities.",
+  },
+  {
+    "id": 2,
+    "title": "Semiconductor",
+    "description": "Ultra-clean environments for chip fabrication and electronics production.",
+  },
+  {
+    "id": 3,
+    "title": "Biotechnology",
+    "description": "Controlled environments for life sciences and research laboratories.",
+  },
+  {
+    "id": 4,
+    "title": "Chemical",
+    "description": "Safe and efficient HVAC systems for chemical processing facilities.",
+  },
+  {
+    "id": 5,
+    "title": "Healthcare",
+    "description": "Hospital-grade air quality systems for medical facilities and operating rooms.",
+  },
+  {
+    "id": 6,
+    "title": "Food & Beverage",
+    "description": "Hygienic air systems for food processing and packaging facilities.",
+  }
+]

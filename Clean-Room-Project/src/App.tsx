@@ -1,16 +1,24 @@
+<<<<<<< Updated upstream
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
+=======
+>>>>>>> Stashed changes
 
-function App() {
-  const [count, setCount] = useState(0);
+import Navbar from "./components/navbar"
+import HeroPage from "./components/heroSection/heropage"
 
+
+export default function App() {
   return (
     <>
-      <p>Clean Room Project</p>
+<<<<<<< Updated upstream
+      <p> ------ Clean Room Project ------</p>
+=======
+      <Navbar />
+      <main className="pt-[180px]">
+        <HeroPage />
+      </main>
+>>>>>>> Stashed changes
     </>
-  );
+  )
 }
-
-export default App;

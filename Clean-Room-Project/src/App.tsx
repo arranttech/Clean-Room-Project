@@ -8,7 +8,7 @@ function App() {
 
   return (
     <>
-      <p>Clean Room Project</p>
+      <p> ------ Clean Room Project ------</p>
     </>
   );
 }

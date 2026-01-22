@@ -1,5 +1,7 @@
+import heroDesign from "./heroDesign";
+import { FaArrowRight, FaPlay, FaCheck } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
-import heroDesign from "./heroDesign"
 export default function HeroPage() {
   return (
     <section className={heroDesign.section}>
@@ -24,34 +26,39 @@ export default function HeroPage() {
         </p>
 
         <div className={heroDesign.buttonRow}>
+          {/* Primary Button */}
+
+          <Link to="/dashboard">
           <button className={heroDesign.primaryButton}>
             <span className="text-white">Sign In</span>
-            <span className={heroDesign.primaryArrow}>→</span>
+            <FaArrowRight className={heroDesign.primaryArrow} />
           </button>
+          </Link>
 
+          {/* Secondary Button */}
           <button className={heroDesign.secondaryButton}>
-            <span className={heroDesign.playIcon}>▶</span>
+            <FaPlay className={heroDesign.playIcon} />
             Watch Demo
           </button>
         </div>
 
         <div className={heroDesign.footer}>
           <div className={heroDesign.footerItem}>
-            <span className={heroDesign.checkIcon}>✓</span>
+            <FaCheck className={heroDesign.checkIcon} />
             No credit card required
           </div>
 
           <div className={heroDesign.footerItem}>
-            <span className={heroDesign.checkIcon}>✓</span>
+            <FaCheck className={heroDesign.checkIcon} />
             30-day free trial
           </div>
 
           <div className={heroDesign.footerItem}>
-            <span className={heroDesign.checkIcon}>✓</span>
+            <FaCheck className={heroDesign.checkIcon} />
             Cancel anytime
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }

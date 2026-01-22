@@ -1,5 +1,5 @@
 import navbarDesign from "./navbarDesign";
-
+import { Link } from "react-router-dom";
 export default function Navbar() {
   return (
     <header className={navbarDesign.header}>
@@ -38,9 +38,11 @@ export default function Navbar() {
 
           {/* RIGHT */}
           <div className={navbarDesign.right}>
+            <Link to="/dashboard">
             <a href="/signin" className={navbarDesign.signIn}>
               Sign In
             </a>
+            </Link>
           </div>
         </div>
       </div>

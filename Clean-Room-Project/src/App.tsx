@@ -1,15 +1,16 @@
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/LandingPage";
+import CustomerInfoPage from "./pages/customerInfo/CustomerInfoPage";
 
-import Navbar from "./components/navbar"
-import HeroPage from "./components/heroSection/heropage"
-
-
-export default function App() {
-  return (
-    <>
-      <Navbar />
-      <main className="pt-[180px]">
-        <HeroPage />
-      </main>
-    </>
-  )
+function App() {
+	return (
+		<>
+			<Routes>
+				<Route path="/" element={<Home />} />
+				<Route path="/customer" element={<CustomerInfoPage />} />
+			</Routes>
+		</>
+	);
 }
+
+export default App;

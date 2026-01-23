@@ -1,6 +1,10 @@
-import navbarDesign from "./navbarDesign";
+import navbarDesign from "./navbarDesign"
+import { Link } from "react-router-dom"
+import text from "../../json/constants.json"
 
 export default function Navbar() {
+  const { navbar } = text
+
   return (
     <header className={navbarDesign.header}>
       <div className={navbarDesign.container}>
@@ -16,34 +20,41 @@ export default function Navbar() {
             </div>
 
             <div className={navbarDesign.brandBlock}>
-              <span className={navbarDesign.brandText}>ARRANT</span>
-              <span className={navbarDesign.brandText}>DYNAMICS</span>
+              <span className={navbarDesign.brandText}>
+                {navbar.brand.line1}
+              </span>
+              <span className={navbarDesign.brandText}>
+                {navbar.brand.line2}
+              </span>
             </div>
 
-            <span className={navbarDesign.title}>STERI Clean Air</span>
+            <span className={navbarDesign.title}>{navbar.title}</span>
           </div>
 
           {/* CENTER */}
           <nav className={navbarDesign.center}>
-            <a href="#features" className={navbarDesign.navLink}>
-              Features
-            </a>
-            <a href="#industries" className={navbarDesign.navLink}>
-              Industries
-            </a>
-            <a href="#contact" className={navbarDesign.navLink}>
-              Contact
-            </a>
+            {navbar.links.map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                className={navbarDesign.navLink}
+              >
+                {item.label}
+              </a>
+            ))}
           </nav>
 
           {/* RIGHT */}
           <div className={navbarDesign.right}>
-            <a href="/signin" className={navbarDesign.signIn}>
-              Sign In
-            </a>
+            <Link
+              to="/dashboard"
+              className={navbarDesign.signIn}
+            >
+              {navbar.signIn.label}
+            </Link>
           </div>
         </div>
       </div>
     </header>
-  );
+  )
 }

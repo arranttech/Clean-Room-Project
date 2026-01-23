@@ -1,55 +1,50 @@
-
 import heroDesign from "./heroDesign"
+import { FaArrowRight, FaPlay, FaCheck } from "react-icons/fa"
+import { Link } from "react-router-dom"
+import text from "../../json/constants.json"
+
 export default function HeroPage() {
+  const { hero } = text
+
   return (
     <section className={heroDesign.section}>
       <div className={heroDesign.container}>
         <div className={heroDesign.badgeWrapper}>
-          <div className={heroDesign.badge}>
-            Industry Leading HVAC Matrix Solutions
-          </div>
+          <div className={heroDesign.badge}>{hero.badge}</div>
         </div>
 
-        <h1 className={heroDesign.titleBlue}>STERI Clean Air</h1>
-        <h2 className={heroDesign.titleDark}>HVAC Matrix Platform</h2>
+        <h1 className={heroDesign.titleBlue}>{hero.titleBlue}</h1>
+        <h2 className={heroDesign.titleDark}>{hero.titleDark}</h2>
 
-        <p className={heroDesign.subtitle}>
-          Enterprise-grade cleanroom HVAC design and calculation platform
-        </p>
+        <p className={heroDesign.subtitle}>{hero.subtitle}</p>
 
-        <p className={heroDesign.description}>
-          Arrant Dynamics, a division of Arrant Tech IND, Pvt. Ltd. delivers
-          precision-engineered solutions for pharmaceutical, semiconductor, and
-          biotechnology facilities worldwide.
-        </p>
+        <p className={heroDesign.description}>{hero.description}</p>
 
         <div className={heroDesign.buttonRow}>
-          <button className={heroDesign.primaryButton}>
-            <span className="text-white">Sign In</span>
-            <span className={heroDesign.primaryArrow}>→</span>
-          </button>
+          {/* Primary Button */}
+          <Link to="/dashboard">
+            <button className={heroDesign.primaryButton}>
+              <span className="text-white">
+                {hero.buttons.primary.label}
+              </span>
+              <FaArrowRight className={heroDesign.primaryArrow} />
+            </button>
+          </Link>
 
+          {/* Secondary Button */}
           <button className={heroDesign.secondaryButton}>
-            <span className={heroDesign.playIcon}>▶</span>
-            Watch Demo
+            <FaPlay className={heroDesign.playIcon} />
+            {hero.buttons.secondary.label}
           </button>
         </div>
 
         <div className={heroDesign.footer}>
-          <div className={heroDesign.footerItem}>
-            <span className={heroDesign.checkIcon}>✓</span>
-            No credit card required
-          </div>
-
-          <div className={heroDesign.footerItem}>
-            <span className={heroDesign.checkIcon}>✓</span>
-            30-day free trial
-          </div>
-
-          <div className={heroDesign.footerItem}>
-            <span className={heroDesign.checkIcon}>✓</span>
-            Cancel anytime
-          </div>
+          {hero.footerPoints.map((item) => (
+            <div key={item} className={heroDesign.footerItem}>
+              <FaCheck className={heroDesign.checkIcon} />
+              {item}
+            </div>
+          ))}
         </div>
       </div>
     </section>

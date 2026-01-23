@@ -1,0 +1,38 @@
+{
+  "navbar": {
+    "brand": {
+      "line1": "ARRANT",
+      "line2": "DYNAMICS"
+    },
+    "title": "STERI Clean Air",
+    "links": [
+      { "label": "Features", "href": "#features" },
+      { "label": "Industries", "href": "#industries" },
+      { "label": "Contact", "href": "#contact" }
+    ],
+    "signIn": {
+      "label": "Sign In"
+    }
+  },
+
+  "hero": {
+    "badge": "Industry Leading HVAC Matrix Solutions",
+    "titleBlue": "STERI Clean Air",
+    "titleDark": "HVAC Matrix Platform",
+    "subtitle": "Enterprise-grade cleanroom HVAC design and calculation platform",
+    "description": "Arrant Dynamics, a division of Arrant Tech IND, Pvt. Ltd. delivers precision-engineered solutions for pharmaceutical, semiconductor, and biotechnology facilities worldwide.",
+    "buttons": {
+      "primary": {
+        "label": "Sign In"
+      },
+      "secondary": {
+        "label": "Watch Demo"
+      }
+    },
+    "footerPoints": [
+      "No credit card required",
+      "30-day free trial",
+      "Cancel anytime"
+    ]
+  }
+}

@@ -53,7 +53,7 @@ export default function Dashboard() {
 
             <div className={dashboardDesign.buttonRow}>
               <Link
-                to="/customer"
+                to="/customer-info"
                 className={dashboardDesign.primaryButton}
               >
                 <span className={dashboardDesign.plus}>+</span>

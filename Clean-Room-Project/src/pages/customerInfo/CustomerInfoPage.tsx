@@ -1,4 +1,4 @@
-import React from "react";
+
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 import { Link } from "react-router-dom";
@@ -135,7 +135,7 @@ function CustomerInfo() {
 					Back to Dashboard
 				</Link>
 
-				<Link to="/next-step" className={styles.nextLink}>
+				<Link to="/standards" className={styles.nextLink}>
 					Next Step
 					<FaArrowRight />
 				</Link>

@@ -341,15 +341,15 @@ function CustomerInfo() {
 
 			{/* Footer */}
 			<div className={styles.footer}>
-				<Link
-					to="/dashboard"
-					state={{ minimumTemp: minTemp, maximumTemp: maxTemp }}
-					className={styles.backLink}
-				>
+				<Link to="/dashboard" className={styles.backLink}>
 					<FaArrowLeft /> Back to Dashboard
 				</Link>
 
-				<Link to="/standards" className={styles.nextLink}>
+				<Link
+					to="/standards"
+					state={{ minimumTemp: minTemp, maximumTemp: maxTemp }}
+					className={styles.nextLink}
+				>
 					Next Step <FaArrowRight />
 				</Link>
 			</div>

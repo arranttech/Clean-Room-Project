@@ -6,276 +6,355 @@ import customerInfoDesign from "./customerInfo";
 import { useRef } from "react";
 
 function CustomerInfo() {
-  const styles = customerInfoDesign
+	const styles = customerInfoDesign;
 
-  const [customerName, setCustomerName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [customerAddress, setCustomerAddress] = useState("")
-  const [emailAddress, setEmailAddress] = useState("");
-  const [additionalNotes, setAdditionalNotes] = useState("");
-  const [projectName, setProjectName] = useState("");
-  const [unitBranch, setUnitBranch] = useState("");
-  const [industry, setIndustry] = useState("");
-  const [handling, setHandling] = useState("");
+	const [customerName, setCustomerName] = useState("");
+	const [phoneNumber, setPhoneNumber] = useState("");
+	const [customerAddress, setCustomerAddress] = useState("");
+	const [emailAddress, setEmailAddress] = useState("");
+	const [additionalNotes, setAdditionalNotes] = useState("");
+	const [projectName, setProjectName] = useState("");
+	const [unitBranch, setUnitBranch] = useState("");
+	const [industry, setIndustry] = useState("");
+	const [handling, setHandling] = useState("");
 
-  const [uniqueId, setUniqueId] = useState("");
+	const [uniqueId, setUniqueId] = useState("");
 
-  const [locationQuery, setLocationQuery] = useState("")
-  const [locationResults, setLocationResults] = useState([])
-  const [showResults, setShowResults] = useState(false)
-  const [minTemp, setMinTemp] = useState("")
-  const [maxTemp, setMaxTemp] = useState("")
+	const [locationQuery, setLocationQuery] = useState("");
+	const [locationResults, setLocationResults] = useState([]);
+	const [showResults, setShowResults] = useState(false);
+	const [minTemp, setMinTemp] = useState("");
+	const [maxTemp, setMaxTemp] = useState("");
+	const [relativeHumidityMax, setRelativeHumidityMax] = useState("");
+	const [relativeHumidityMin, setRelativeHumidityMin] = useState("");
 
+	const generateUniqueId = (customerName, projectName) => {
+		if (!customerName || !projectName) return "";
 
+		const slug = (text) =>
+			text
+				.toUpperCase()
+				.trim()
+				.replace(/\s+/g, "-")
+				.replace(/[^A-Z0-9-]/g, "");
 
-  const generateUniqueId = (customerName, projectName) => {
-    if (!customerName || !projectName) return "";
+		// const random = Math.random().toString(36).substring(2, 7).toUpperCase();
 
-    const slug = (text) =>
-      text
-        .toUpperCase()
-        .trim()
-        .replace(/\s+/g, "-")
-        .replace(/[^A-Z0-9-]/g, "");
+		const today = new Date();
+		const day = String(today.getDate()).padStart(2, "0");
+		const month = String(today.getMonth() + 1).padStart(2, "0");
+		const year = String(today.getFullYear()).slice(-2);
 
-    // const random = Math.random().toString(36).substring(2, 7).toUpperCase();
+		return `${slug(customerName)}-${slug(projectName)}-${day}${month}${year}`;
+	};
 
-    const today = new Date()
-    const day = String(today.getDate()).padStart(2, "0")
-    const month = String(today.getMonth() + 1).padStart(2, "0")
-    const year = String(today.getFullYear()).slice(-2)
+	useEffect(() => {
+		const id = generateUniqueId(customerName, projectName);
+		setUniqueId(id);
 
-    return `${slug(customerName)}-${slug(projectName)}-${day}${month}${year}`;
-  };
+		console.group("CUSTOMER INFO");
+		console.log("Customer Name:", customerName);
+		console.log("Phone Number:", phoneNumber);
+		console.log("Customer Address:", customerAddress);
+		console.log("Email Address:", emailAddress);
+		console.log("Additional Notes:", additionalNotes);
+		console.log("Unit/Branch:", unitBranch);
+		console.log("Project Name:", projectName);
+		console.log("Industry:", industry);
+		console.log("Handling:", handling);
+		console.log("Unique ID:", id);
+		console.log("Location Query:", locationQuery);
+		console.log("Min Temp (°C):", minTemp);
+		console.log("Max Temp (°C):", maxTemp);
+		console.log("Generated At:", new Date().toLocaleString());
+		console.groupEnd();
+	}, [
+		customerName,
+		phoneNumber,
+		customerAddress,
+		emailAddress,
+		additionalNotes,
+		unitBranch,
+		projectName,
+		industry,
+		handling,
+		locationQuery,
+		minTemp,
+		maxTemp,
+	]);
 
-  useEffect(() => {
-    const id = generateUniqueId(customerName, projectName)
-    setUniqueId(id)
+	useEffect(() => {
+		setUniqueId(generateUniqueId(customerName, projectName));
+	}, [customerName, projectName]);
 
-    console.group("CUSTOMER INFO")
-    console.log("Customer Name:", customerName)
-    console.log("Phone Number:", phoneNumber)
-    console.log("Customer Address:", customerAddress)
-    console.log("Email Address:", emailAddress)
-    console.log("Additional Notes:", additionalNotes)
-    console.log("Unit/Branch:", unitBranch)
-    console.log("Project Name:", projectName)
-    console.log("Industry:", industry)
-    console.log("Handling:", handling)
-    console.log("Unique ID:", id)
-    console.log("Location Query:", locationQuery)
-    console.log("Min Temp (°C):", minTemp)
-    console.log("Max Temp (°C):", maxTemp)
-    console.log("Generated At:", new Date().toLocaleString())
-    console.groupEnd()
-  }, [customerName, phoneNumber, customerAddress, emailAddress, additionalNotes, unitBranch, projectName, industry, handling, locationQuery, minTemp, maxTemp])
+	const searchLocation = async () => {
+		if (!locationQuery.trim()) return;
 
-  useEffect(() => {
-    setUniqueId(generateUniqueId(customerName, projectName));
-  }, [customerName, projectName]);
+		try {
+			const res = await fetch(
+				`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+					locationQuery
+				)}&limit=5`
+			);
+			const data = await res.json();
+			setLocationResults(data);
+			setShowResults(true);
+		} catch (err) {
+			console.error("Location search failed", err);
+		}
+	};
 
+	const handleSelectLocation = async (place) => {
+		const lat = parseFloat(place.lat);
+		const lng = parseFloat(place.lon);
 
+		setLocationQuery(place.display_name);
+		setShowResults(false);
 
+		try {
+			const endDate = new Date();
+			const startDate = new Date(1940, 0, 1);
 
-  const searchLocation = async () => {
-    if (!locationQuery.trim()) return
+			const response = await fetch(
+				`https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lng}&start_date=${
+					startDate.toISOString().split("T")[0]
+				}&end_date=${
+					endDate.toISOString().split("T")[0]
+				}&daily=temperature_2m_max,temperature_2m_min,relative_humidity_2m_max,relative_humidity_2m_min&timezone=auto`
+			);
 
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-          locationQuery
-        )}&limit=5`
-      )
-      const data = await res.json()
-      setLocationResults(data)
-      setShowResults(true)
-    } catch (err) {
-      console.error("Location search failed", err)
-    }
-  }
+			const data = await response.json();
 
-  const handleSelectLocation = async (place) => {
-    const lat = parseFloat(place.lat)
-    const lng = parseFloat(place.lon)
+			if (data?.daily) {
+				const maxTemps = data.daily.temperature_2m_max.filter(
+					(t) => t !== null && !isNaN(t)
+				);
+				const minTemps = data.daily.temperature_2m_min.filter(
+					(t) => t !== null && !isNaN(t)
+				);
 
-    setLocationQuery(place.display_name)
-    setShowResults(false)
+				const relativehumidity_max =
+					data?.daily?.relative_humidity_2m_max.filter(
+						(t) => t !== null && !isNaN(t)
+					);
 
-    try {
-      const endDate = new Date()
-      const startDate = new Date(1940, 0, 1)
+				const relativehumidity_min =
+					data?.daily?.relative_humidity_2m_min.filter(
+						(t) => t !== null && !isNaN(t)
+					);
 
-      const response = await fetch(
-        `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lng}&start_date=${startDate
-          .toISOString()
-          .split("T")[0]}&end_date=${endDate
-            .toISOString()
-            .split("T")[0]}&daily=temperature_2m_max,temperature_2m_min&timezone=auto`
-      )
+				setMaxTemp(Math.max(...maxTemps).toFixed(1));
+				setMinTemp(Math.min(...minTemps).toFixed(1));
+				setRelativeHumidityMax(Math.max(...relativehumidity_max).toFixed(0));
+				setRelativeHumidityMin(Math.min(...relativehumidity_min).toFixed(0));
+			}
+		} catch (error) {
+			console.error("Failed to fetch temperature data", error);
+		}
+	};
 
-      const data = await response.json()
+	return (
+		<div className={styles.wrapper}>
+			<h3 className={styles.headerText}>
+				Please provide the basic details to get started
+			</h3>
 
-      if (data?.daily) {
-        const maxTemps = data.daily.temperature_2m_max.filter(
-          (t) => t !== null && !isNaN(t)
-        )
-        const minTemps = data.daily.temperature_2m_min.filter(
-          (t) => t !== null && !isNaN(t)
-        )
+			<div className={styles.gridContainer}>
+				{/* Left Card */}
+				<div className={styles.card}>
+					<div className={styles.fieldGroup}>
+						<label className={styles.label}>Customer Name *</label>
+						<input
+							className={styles.input}
+							required
+							value={customerName}
+							onChange={(e) => setCustomerName(e.target.value)}
+							placeholder="Enter Customer Name"
+						/>
 
-        setMaxTemp(Math.max(...maxTemps).toFixed(1))
-        setMinTemp(Math.min(...minTemps).toFixed(1))
-      }
-    } catch (error) {
-      console.error("Failed to fetch temperature data", error)
-    }
-  }
+						<label className={styles.label}>Phone Number</label>
+						<input
+							className={styles.input}
+							onChange={(e) => setPhoneNumber(e.target.value)}
+							placeholder="Enter Phone Number"
+						/>
 
-  return (
-    <div className={styles.wrapper}>
-      <h3 className={styles.headerText}>
-        Please provide the basic details to get started
-      </h3>
+						<label className={styles.label}>Customer Address *</label>
+						<input
+							className={styles.input}
+							required
+							onChange={(e) => setCustomerAddress(e.target.value)}
+							placeholder="Enter Customer Address"
+						/>
 
-      <div className={styles.gridContainer}>
-        {/* Left Card */}
-        <div className={styles.card}>
-          <div className={styles.fieldGroup}>
-            <label className={styles.label}>Customer Name *</label>
-            <input className={styles.input} required value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Enter Customer Name"/>
+						<label className={styles.label}>Email Address</label>
+						<input
+							type="email"
+							className={styles.input}
+							onChange={(e) => setEmailAddress(e.target.value)}
+							placeholder="Enter Email ID"
+						/>
 
-            <label className={styles.label}>Phone Number</label>
-            <input className={styles.input} onChange={(e) => setPhoneNumber(e.target.value)}  placeholder="Enter Phone Number"/>
+						<label className={styles.label}>Additional Notes</label>
+						<input
+							className={styles.input}
+							onChange={(e) => setAdditionalNotes(e.target.value)}
+							placeholder="Enter Additional Notes"
+						/>
+					</div>
+				</div>
 
-            <label className={styles.label}>Customer Address *</label>
-            <input className={styles.input} required onChange={(e) => setCustomerAddress(e.target.value)} placeholder="Enter Customer Address"/>
+				{/* Right Card */}
+				<div className={styles.card}>
+					<div className={styles.cardTitle}>Project Information</div>
+					<hr className={styles.divider} />
 
-            <label className={styles.label}>Email Address</label>
-            <input type="email" className={styles.input} onChange={(e) => setEmailAddress(e.target.value)} placeholder="Enter Email ID"/>
+					<div className={styles.rowGroup}>
+						<div className={styles.fieldGroup + " w-full"}>
+							<label className={styles.label}>Unit/Branch *</label>
+							<input
+								className={styles.input}
+								required
+								onChange={(e) => setUnitBranch(e.target.value)}
+								placeholder="Enter Unit or Branch Name"
+							/>
+						</div>
 
-            <label className={styles.label}>Additional Notes</label>
-            <input className={styles.input} onChange={(e) => setAdditionalNotes(e.target.value)} placeholder="Enter Additional Notes" />
-          </div>
-        </div>
+						<div className={styles.fieldGroup + " w-full"}>
+							<label className={styles.label}>Project Name *</label>
+							<input
+								className={styles.input}
+								required
+								value={projectName}
+								onChange={(e) => setProjectName(e.target.value)}
+								placeholder="Enter Project Name"
+							/>
+						</div>
+					</div>
 
-        {/* Right Card */}
-        <div className={styles.card}>
-          <div className={styles.cardTitle}>Project Information</div>
-          <hr className={styles.divider} />
+					<div className={styles.rowGroup}>
+						<div className={styles.fieldGroup + " w-full"}>
+							<label className={styles.label}>Industry/sector</label>
+							<input
+								type="text"
+								placeholder="Select"
+								className={styles.input}
+								onChange={(e) => setIndustry(e.target.value)}
+							/>
+						</div>
 
-          <div className={styles.rowGroup}>
-            <div className={styles.fieldGroup + " w-full"}>
-              <label className={styles.label}>Unit/Branch *</label>
-              <input className={styles.input} required onChange={(e) => setUnitBranch(e.target.value)} placeholder="Enter Unit or Branch Name"/>
-            </div>
+						<div className={styles.fieldGroup + " w-full"}>
+							<label className={styles.label}>Handling</label>
+							<input
+								type="text"
+								placeholder="Select"
+								className={styles.input}
+								onChange={(e) => setHandling(e.target.value)}
+							/>
+						</div>
+					</div>
 
-            <div className={styles.fieldGroup + " w-full"}>
-              <label className={styles.label}>Project Name *</label>
-              <input className={styles.input} required value={projectName} onChange={(e) => setProjectName(e.target.value)} placeholder="Enter Project Name" />
-            </div>
-          </div>
+					{/* LOCATION */}
+					<div className={styles.fieldGroup}>
+						<label className={styles.label}>Location Selection *</label>
 
-          <div className={styles.rowGroup}>
-            <div className={styles.fieldGroup + " w-full"}>
-              <label className={styles.label}>Industry/sector</label>
-              <input
-                type="text"
-                placeholder="Select"
-                className={styles.input}
-                onChange={(e) => setIndustry(e.target.value)}
-                
-              />
-            </div>
+						<div className={styles.locationWrapper}>
+							<FaLocationDot className={styles.locationIcon} />
+							<input
+								className={styles.locationInput}
+								placeholder="Search Location"
+								value={locationQuery}
+								onChange={(e) => setLocationQuery(e.target.value)}
+							/>
+							<button
+								type="button"
+								className={styles.searchButton}
+								onClick={searchLocation}
+							>
+								Search
+							</button>
+						</div>
 
-            <div className={styles.fieldGroup + " w-full"}>
-              <label className={styles.label}>Handling</label>
-              <input
-                type="text"
-                placeholder="Select"
-                className={styles.input}
-                onChange={(e) => setHandling(e.target.value)}
-              />
-            </div>
-          </div>
+						{showResults && (
+							<div className={styles.locationResults}>
+								{locationResults.map((place) => (
+									<div
+										key={place.place_id}
+										className={styles.locationResultItem}
+										onClick={() => handleSelectLocation(place)}
+									>
+										{place.display_name}
+									</div>
+								))}
+							</div>
+						)}
 
-          {/* LOCATION */}
-          <div className={styles.fieldGroup}>
-            <label className={styles.label}>Location Selection *</label>
+						<label className={styles.label}>Unique ID (Auto-Generated)</label>
+						<input
+							className={styles.disabledInput}
+							value={uniqueId}
+							placeholder="Auto Generated ID"
+							disabled
+						/>
+					</div>
 
-            <div className={styles.locationWrapper}>
-              <FaLocationDot className={styles.locationIcon} />
-              <input
-                className={styles.locationInput}
-                placeholder="Search Location"
-                value={locationQuery}
-                onChange={(e) => setLocationQuery(e.target.value)}
-              />
-              <button
-                type="button"
-                className={styles.searchButton}
-                onClick={searchLocation}
-              >
-                Search
-              </button>
-            </div>
+					{/* TEMPERATURE DISPLAY */}
+					{minTemp && maxTemp && (
+						<div className={styles.rowGroup}>
+							<div className={styles.fieldGroup + " w-full"}>
+								<label className={styles.label}>Minimum Temperature (°C)</label>
+								<input
+									className={styles.disabledInput}
+									value={`${minTemp} °C`}
+									disabled
+								/>
+							</div>
 
-            {showResults && (
-              <div className={styles.locationResults}>
-                {locationResults.map((place) => (
-                  <div
-                    key={place.place_id}
-                    className={styles.locationResultItem}
-                    onClick={() => handleSelectLocation(place)}
-                  >
-                    {place.display_name}
-                  </div>
-                ))}
-              </div>
-            )}
+							<div className={styles.fieldGroup + " w-full"}>
+								<label className={styles.label}>Maximum Temperature (°C)</label>
+								<input
+									className={styles.disabledInput}
+									value={`${maxTemp} °C`}
+									disabled
+								/>
+							</div>
+							<div className={styles.fieldGroup + " w-full"}>
+								<label className={styles.label}>Relative Humidity Min</label>
+								<input
+									className={styles.disabledInput}
+									value={`${relativeHumidityMin}`}
+									disabled
+								/>
+							</div>
+							<div className={styles.fieldGroup + " w-full"}>
+								<label className={styles.label}>Relative Humidity Max</label>
+								<input
+									className={styles.disabledInput}
+									value={`${relativeHumidityMax}`}
+									disabled
+								/>
+							</div>
+						</div>
+					)}
+				</div>
+			</div>
 
-            <label className={styles.label}>Unique ID (Auto-Generated)</label>
-            <input className={styles.disabledInput} value={uniqueId} placeholder="Auto Generated ID" disabled  />
-          </div>
+			{/* Footer */}
+			<div className={styles.footer}>
+				<Link
+					to="/dashboard"
+					state={{ minimumTemp: minTemp, maximumTemp: maxTemp }}
+					className={styles.backLink}
+				>
+					<FaArrowLeft /> Back to Dashboard
+				</Link>
 
-          {/* TEMPERATURE DISPLAY */}
-          {minTemp && maxTemp && (
-            <div className={styles.rowGroup}>
-              <div className={styles.fieldGroup + " w-full"}>
-                <label className={styles.label}>Minimum Temperature (°C)</label>
-                <input
-                  className={styles.disabledInput}
-                  value={`${minTemp} °C`}
-                  disabled
-                 
-                />
-              </div>
-
-              <div className={styles.fieldGroup + " w-full"}>
-                <label className={styles.label}>Maximum Temperature (°C)</label>
-                <input
-                  className={styles.disabledInput}
-                  value={`${maxTemp} °C`}
-                  disabled
-                 
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className={styles.footer}>
-        <Link to="/dashboard" className={styles.backLink}>
-          <FaArrowLeft /> Back to Dashboard
-        </Link>
-
-        <Link to="/standards" className={styles.nextLink}>
-          Next Step <FaArrowRight />
-        </Link>
-      </div>
-    </div>
-  )
+				<Link to="/standards" className={styles.nextLink}>
+					Next Step <FaArrowRight />
+				</Link>
+			</div>
+		</div>
+	);
 }
 
 export default CustomerInfo;

@@ -269,7 +269,7 @@ function CustomerInfo() {
           <FaArrowLeft /> Back to Dashboard
         </Link>
 
-        <Link to="/next-step" className={styles.nextLink}>
+        <Link to="/standards" className={styles.nextLink}>
           Next Step <FaArrowRight />
         </Link>
       </div>

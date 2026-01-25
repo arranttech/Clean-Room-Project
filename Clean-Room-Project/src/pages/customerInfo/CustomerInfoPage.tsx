@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react"
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa"
-import { FaLocationDot } from "react-icons/fa6"
-import { Link } from "react-router-dom"
-import customerInfoDesign from "./customerInfo"
+import { useState, useEffect } from "react";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { FaLocationDot } from "react-icons/fa6";
+import { Link } from "react-router-dom";
+import customerInfoDesign from "./customerInfo";
+import { useRef } from "react";
 
 function CustomerInfo() {
   const styles = customerInfoDesign
@@ -277,4 +278,4 @@ function CustomerInfo() {
   )
 }
 
-export default CustomerInfo
+export default CustomerInfo;

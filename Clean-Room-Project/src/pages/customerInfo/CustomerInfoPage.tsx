@@ -155,9 +155,12 @@ function CustomerInfo() {
 
 	return (
 		<div className={styles.wrapper}>
-			<h3 className={styles.headerText}>
-				Please provide the basic details to get started
-			</h3>
+			<div className={styles.top}>
+				<h1 className={styles.title}>Customer Information</h1>
+				<h3 className={styles.headerText}>
+					Please provide the basic details to get started
+				</h3>
+			</div>
 
 			<div className={styles.gridContainer}>
 				{/* Left Card */}
@@ -347,7 +350,12 @@ function CustomerInfo() {
 
 				<Link
 					to="/standards"
-					state={{ minimumTemp: minTemp, maximumTemp: maxTemp, minRelativeHumidity: relativeHumidityMin, maxRelativeHumidity: relativeHumidityMax }}
+					state={{
+						minimumTemp: minTemp,
+						maximumTemp: maxTemp,
+						minRelativeHumidity: relativeHumidityMin,
+						maxRelativeHumidity: relativeHumidityMax,
+					}}
 					className={styles.nextLink}
 				>
 					Next Step <FaArrowRight />

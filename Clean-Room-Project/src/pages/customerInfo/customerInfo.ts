@@ -1,16 +1,17 @@
 const customerInfoDesign = {
-    wrapper: "bg-gray-100 pt-20 p-4",
+    wrapper: "bg-white-100 pt-20 p-4",
     headerText: "text-center text-gray-600 text-sm mb-6",
     gridContainer: "grid grid-cols-1 md:grid-cols-2 gap-10 px-4 md:px-10",
   
-    card: "bg-white rounded-lg px-6 py-8 shadow-xl shadow-gray-300/70",
+    card: "bg-white rounded-lg px-6 py-8 shadow-xl shadow-gray-300",
     cardTitle: "text-xl text-blue-600 font-bold mb-2",
     divider: "mb-4 border-gray-300",
   
     fieldGroup: "flex flex-col",
     label: "text-base font-medium text-gray-700",
     input: "border border-gray-200 my-2 p-2 rounded-lg mb-4 w-full truncate whitespace-nowrap",
-  
+    title: "text-3xl md:text-4xl font-extrabold text-slate-900",
+    top: "mx-auto max-w-5xl text-center",
     rowGroup: "flex flex-col md:flex-row gap-6",
     
     locationWrapper: "relative flex gap-4 items-center",

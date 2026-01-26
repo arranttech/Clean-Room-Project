@@ -1,0 +1,32 @@
+
+{
+  "header": {
+    "title": "Room Details",
+    "subtitle": "Define room specifications, classification standards, and dimensions for precise HVAC calculations."
+  },
+  "sections": {
+    "roomDetails": "ROOM DETAILS",
+    "roomDimensions": "ROOM DIMENSIONS",
+    "occupancyLoad": "OCCUPANCY AND LOAD",
+    "airflowParameters": "AIRFLOW PARAMETERS"
+  },
+  "fields": {
+    "roomName": { "label": "Room Name", "placeholder": "Room 1", "required": true },
+
+    "length": { "label": "Length (m)", "placeholder": "8" },
+    "width": { "label": "Width (m)", "placeholder": "9" },
+    "height": { "label": "Height (m)", "placeholder": "9" },
+
+    "occupancy": { "label": "Occupancy", "placeholder": "2" },
+    "equipmentLoad": { "label": "Equipment Load (kW)", "placeholder": "3" },
+    "lightingLoad": { "label": "Lighting load in W/m2", "placeholder": "175" },
+
+    "infiltrationsPerHour": { "label": "No. of infiltrations per hour", "placeholder": "15" },
+    "freshAirPercent": { "label": "Fresh air (%)", "placeholder": "10" },
+    "exhaustAir": { "label": "Exhaust air (m3/s)", "placeholder": "200" }
+  },
+  "buttons": {
+    "back": "Back",
+    "save": "Save Room / Generate Calculations"
+  }
+}

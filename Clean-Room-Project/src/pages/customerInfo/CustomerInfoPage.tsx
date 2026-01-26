@@ -347,7 +347,7 @@ function CustomerInfo() {
 
 				<Link
 					to="/standards"
-					state={{ minimumTemp: minTemp, maximumTemp: maxTemp }}
+					state={{ minimumTemp: minTemp, maximumTemp: maxTemp, minRelativeHumidity: relativeHumidityMin, maxRelativeHumidity: relativeHumidityMax }}
 					className={styles.nextLink}
 				>
 					Next Step <FaArrowRight />

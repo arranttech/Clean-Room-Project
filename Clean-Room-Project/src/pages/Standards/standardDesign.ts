@@ -1,4 +1,3 @@
-// src/components/standard/standardDesign.ts
 const standardDesign = {
   page: "min-h-screen bg-slate-50 px-4 py-12",
 
@@ -49,8 +48,20 @@ const standardDesign = {
   quickView: "mt-8 text-sm text-slate-700",
 
   footer: "flex justify-between items-center  mt-10 max-w-5xl mx-auto",
-  backLink: "inline-flex items-center gap-3 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 shadow-lg",
-  nextLink: "inline-flex items-center gap-3 bg-blue-800 text-white px-6 py-2 rounded-lg hover:bg-blue-900 shadow-lg",
+  backLink:
+    "inline-flex items-center gap-3 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 shadow-lg",
+  nextLink:
+    "inline-flex items-center gap-3 bg-blue-800 text-white px-6 py-2 rounded-lg hover:bg-blue-900 shadow-lg",
+
+  unitRow: "mt-6 flex flex-wrap items-center gap-4",
+  unitLabel: "text-sm font-semibold text-slate-700",
+  unitGroup: "flex items-center gap-3",
+  unitOption:
+    "inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 " +
+    "text-sm text-slate-700 hover:bg-slate-200 transition",
+  unitRadio: "h-4 w-4 accent-blue-600",
+  unitHint: "text-xs text-slate-500",
+  tempHelper: "mt-3 text-xs text-slate-500",
 };
 
 export default standardDesign;

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import standardDesign from "./standardDesign";
-import standardsDataJson from "../../json/standardData.json";
+import standardDataJson from "../../json/standardData.json";
 
 type StandardItem = {
   id: number;
@@ -14,12 +14,23 @@ type StandardItem = {
   }[];
 };
 
-const standardsData = standardsDataJson as StandardItem[];
+type StandardJson = {
+  standards: StandardItem[];
+  text: any;
+};
 
-type SystemName = | ""
+const data = standardDataJson as unknown as StandardJson;
+const standardsData = data.standards;
+const t = data.text;
+
+type SystemName =
+  | ""
   | "Air-Heating System"
   | "Air-Cooling System"
-  | "Ventilation System";
+  | "Ventilation System"
+  | "Air Cooling and Ventilation System"
+  | "Air Heating and Ventilation System"
+  | "Air Cooling and Air Heating System";
 
 type CustomerInfoState = {
   minimumTemp?: string;
@@ -28,133 +39,271 @@ type CustomerInfoState = {
   maxRelativeHumidity?: string;
 };
 
+type TempUnit = "C" | "F";
+function celsiusToFahrenheit(c: number): number {
+  return (c * 9) / 5 + 32;
+}
+function fahrenheitToCelsius(f: number): number {
+  return ((f - 32) * 5) / 9;
+}
+function roundTo(n: number, decimals: number): number {
+  const p = Math.pow(10, decimals);
+  return Math.round(n * p) / p;
+}
+function isNumericLike(s: string): boolean {
+  return /^-?\d*\.?\d*$/.test(s);
+}
+function isRealNumberString(s: string): boolean {
+  return /^-?\d+(\.\d+)?$/.test(s);
+}
+
 export default function Standard() {
   const s = standardDesign;
-
-  // read values from previous screen
   const location = useLocation();
   const prev = (location.state || {}) as CustomerInfoState;
-
-  // standards
   const [standard, setStandard] = useState("");
   const [classification, setClassification] = useState("");
   const [acph, setAcph] = useState("");
-
-  // system section
   const [system, setSystem] = useState<SystemName>("");
   const [systemType, setSystemType] = useState("");
-  const [method, setMethod] = useState("");
-
-  // temperature & humidity
-  const [reqInsideTemp, setReqInsideTemp] = useState("");
+  const [heatingMethod, setHeatingMethod] = useState("");
+  const [coolingMethod, setCoolingMethod] = useState("");
+  const [tempUnit, setTempUnit] = useState<TempUnit>("C");
+  const [reqInsideTempC, setReqInsideTempC] = useState("");
+  const [reqInsideTempDisplay, setReqInsideTempDisplay] = useState("");
   const [reqInsideHum, setReqInsideHum] = useState("");
-
-  // these 4 come from page 1 initially, but user can edit anytime
-  const [minTemp, setMinTemp] = useState("");
-  const [maxTemp, setMaxTemp] = useState("");
+  const [minTempC, setMinTempC] = useState("");
+  const [maxTempC, setMaxTempC] = useState("");
   const [rhMin, setRhMin] = useState("");
   const [rhMax, setRhMax] = useState("");
 
-  // derived from standard selection
   const selectedStandard = standardsData.find((x) => x.title === standard);
-  const classifications = selectedStandard ? selectedStandard.classifications : [];
-  const selectedClass = classifications.find((c) => c.name === classification);
+  const classList = selectedStandard ? selectedStandard.classifications : [];
+  const selectedClass = classList.find((c) => c.name === classification);
 
-  const acphDisabled =
-    !selectedClass || selectedClass.minAir == null || selectedClass.maxAir == null;
-
-  // build acph options
   const acphOptions = useMemo(() => {
     const out: number[] = [];
     if (selectedClass?.minAir != null && selectedClass?.maxAir != null) {
-      for (let v = selectedClass.minAir; v <= selectedClass.maxAir; v++) out.push(v);
+      for (let v = selectedClass.minAir; v <= selectedClass.maxAir; v++)
+        out.push(v);
     }
     return out;
   }, [selectedClass]);
 
-  // default acph to max when classification changes
+  const acphDisabled =
+    !selectedClass ||
+    selectedClass.minAir == null ||
+    selectedClass.maxAir == null;
+
   useEffect(() => {
-    if (selectedClass?.maxAir != null) setAcph(String(selectedClass.maxAir));
+    if (!selectedClass) {
+      setAcph("");
+      return;
+    }
+    if (selectedClass.maxAir != null) setAcph(String(selectedClass.maxAir));
     else setAcph("");
-  }, [classification, selectedClass?.maxAir]);
+  }, [classification, selectedClass?.maxAir, selectedClass]);
 
-  // system flags
-  const isHeating = system === "Air-Heating System";
-  const isCooling = system === "Air-Cooling System";
-  const isVentilation = system === "Ventilation System";
+  const isHeating =
+    system === t.options.systems.heating ||
+    system === t.options.systems.heatingVentilation ||
+    system === t.options.systems.heatingCooling;
 
-  const systemTypeLabel = isHeating
-    ? "Air-Heating System Type"
+  const isCooling =
+    system === t.options.systems.cooling ||
+    system === t.options.systems.coolingVentilation ||
+    system === t.options.systems.heatingCooling;
+
+  const isVentilation =
+    system === t.options.systems.ventilation ||
+    system === t.options.systems.coolingVentilation ||
+    system === t.options.systems.heatingVentilation;
+
+  const showHeatingMethod = isHeating;
+  const showCoolingMethod = isCooling;
+  const isHeatingCooling = system === t.options.systems.heatingCooling;
+  const isCoolingVent = system === t.options.systems.coolingVentilation;
+  const isHeatingVent = system === t.options.systems.heatingVentilation;
+
+  const systemTypeLabel = isHeatingCooling
+    ? t.labels.systemTypeGeneric
+    : isHeatingVent
+    ? t.labels.systemTypeHeating
+    : isCoolingVent
+    ? t.labels.systemTypeCooling
+    : isHeating
+    ? t.labels.systemTypeHeating
     : isCooling
-    ? "Air-Cooling System Type"
-    : "Ventilation System Type";
+    ? t.labels.systemTypeCooling
+    : t.labels.systemTypeVentilation;
 
-  const systemTypePlaceholder = isHeating
-    ? "Select Air-Heating System Type..."
+  const systemTypePlaceholder = isHeatingCooling
+    ? t.placeholders.systemTypeGeneric
+    : isHeatingVent
+    ? t.placeholders.systemTypeHeating
+    : isCoolingVent
+    ? t.placeholders.systemTypeCooling
+    : isHeating
+    ? t.placeholders.systemTypeHeating
     : isCooling
-    ? "Select Air-Cooling System Type..."
-    : "Select Ventilation System Type...";
+    ? t.placeholders.systemTypeCooling
+    : t.placeholders.systemTypeVentilation;
 
-  const methodLabel = isHeating ? "Heating Method" : "Cooling Method";
-  const methodPlaceholder = isHeating
-    ? "Select Heating Method..."
-    : "Select Cooling Method...";
+  const systemTypes = useMemo(() => {
+    if (!system) return [];
 
-  const systemTypes = isHeating
-    ? [
-        "Cleanroom Air-Heating System",
-        "Comfort Air-Heating System",
-        "Non-Classified Air-Heating System",
-      ]
-    : isCooling
-    ? [
-        "Cleanroom Air-Cooling System",
-        "Comfort Air-Cooling System",
-        "Non-Classified Air-Cooling System",
-      ]
-    : isVentilation
-    ? ["Cleanroom Ventilation System", "Non-Classified Ventilation System"]
-    : [];
+    if (isHeatingCooling) return t.options.systemTypes.combined || [];
 
-  const methods = isHeating ? ["Hot Water", "Steam"] : isCooling ? ["Chilled Water", "Brine", "DX"] : [];
+    if (isHeatingVent) return t.options.systemTypes.heating || [];
 
+    if (isCoolingVent) return t.options.systemTypes.cooling || [];
+
+    if (system === t.options.systems.heating)
+      return t.options.systemTypes.heating || [];
+
+    if (system === t.options.systems.cooling)
+      return t.options.systemTypes.cooling || [];
+
+    if (system === t.options.systems.ventilation)
+      return t.options.systemTypes.ventilation || [];
+
+    // fallback
+    if (isHeating) return t.options.systemTypes.heating || [];
+    if (isCooling) return t.options.systemTypes.cooling || [];
+    if (isVentilation) return t.options.systemTypes.ventilation || [];
+    return [];
+  }, [
+    system,
+    isHeatingCooling,
+    isHeatingVent,
+    isCoolingVent,
+    isHeating,
+    isCooling,
+    isVentilation,
+  ]);
+
+  const heatingMethods: string[] = t.options.methods.heating || [];
+  const coolingMethods: string[] = t.options.methods.cooling || [];
+
+  const ventilationOnly = isVentilation && !isHeating && !isCooling;
 
   useEffect(() => {
-    if (minTemp === "" && typeof prev.minimumTemp === "string") setMinTemp(prev.minimumTemp);
-    if (maxTemp === "" && typeof prev.maximumTemp === "string") setMaxTemp(prev.maximumTemp);
-    if (rhMin === "" && typeof prev.minRelativeHumidity === "string") setRhMin(prev.minRelativeHumidity);
-    if (rhMax === "" && typeof prev.maxRelativeHumidity === "string") setRhMax(prev.maxRelativeHumidity);
-  }, [prev.minimumTemp, prev.maximumTemp, prev.minRelativeHumidity, prev.maxRelativeHumidity]);
+    if (ventilationOnly) return;
 
+    setMinTempC(typeof prev.minimumTemp === "string" ? prev.minimumTemp : "");
+    setMaxTempC(typeof prev.maximumTemp === "string" ? prev.maximumTemp : "");
+    setRhMin(
+      typeof prev.minRelativeHumidity === "string"
+        ? prev.minRelativeHumidity
+        : ""
+    );
+    setRhMax(
+      typeof prev.maxRelativeHumidity === "string"
+        ? prev.maxRelativeHumidity
+        : ""
+    );
+  }, [
+    ventilationOnly,
+    prev.minimumTemp,
+    prev.maximumTemp,
+    prev.minRelativeHumidity,
+    prev.maxRelativeHumidity,
+  ]);
 
   useEffect(() => {
     setSystemType("");
-    setMethod("");
+    setHeatingMethod("");
+    setCoolingMethod("");
 
-    if (isVentilation) {
-      setReqInsideTemp("Ambient");
-      setReqInsideHum("Ambient");
-      setMinTemp("Ambient");
-      setMaxTemp("Ambient");
-      setRhMin("Ambient");
-      setRhMax("Ambient");
-      setAcph("Ambient");
+    if (ventilationOnly) {
+      setReqInsideTempC(t.misc.ambient);
+      setReqInsideTempDisplay(t.misc.ambient);
+      setReqInsideHum(t.misc.ambient);
+      setMinTempC(t.misc.ambient);
+      setMaxTempC(t.misc.ambient);
+      setRhMin(t.misc.ambient);
+      setRhMax(t.misc.ambient);
     } else {
-      if (reqInsideTemp === "Ambient") setReqInsideTemp("");
-      if (reqInsideHum === "Ambient") setReqInsideHum("");
+      if (reqInsideTempC === t.misc.ambient) setReqInsideTempC("");
+      if (reqInsideTempDisplay === t.misc.ambient) setReqInsideTempDisplay("");
+      if (reqInsideHum === t.misc.ambient) setReqInsideHum("");
 
-      if (minTemp === "Ambient" && typeof prev.minimumTemp === "string") setMinTemp(prev.minimumTemp);
-      if (maxTemp === "Ambient" && typeof prev.maximumTemp === "string") setMaxTemp(prev.maximumTemp);
-      if (rhMin === "Ambient" && typeof prev.minRelativeHumidity === "string") setRhMin(prev.minRelativeHumidity);
-      if (rhMax === "Ambient" && typeof prev.maxRelativeHumidity === "string") setRhMax(prev.maxRelativeHumidity);
-
-      if (acph === "Ambient") setAcph("");
+      setMinTempC(typeof prev.minimumTemp === "string" ? prev.minimumTemp : "");
+      setMaxTempC(typeof prev.maximumTemp === "string" ? prev.maximumTemp : "");
+      setRhMin(
+        typeof prev.minRelativeHumidity === "string"
+          ? prev.minRelativeHumidity
+          : ""
+      );
+      setRhMax(
+        typeof prev.maxRelativeHumidity === "string"
+          ? prev.maxRelativeHumidity
+          : ""
+      );
     }
-  }, [system]);
+  }, [system, ventilationOnly]);
 
-  const inputDisabled = isVentilation;
+  const tempToDisplay = (cStr: string): string => {
+    if (!cStr) return "";
+    if (cStr === t.misc.ambient) return t.misc.ambient;
+    if (!isRealNumberString(cStr)) return cStr;
 
-  //roomPayload
+    const c = parseFloat(cStr);
+    if (Number.isNaN(c)) return cStr;
+
+    return tempUnit === "C"
+      ? String(roundTo(c, 2))
+      : String(roundTo(celsiusToFahrenheit(c), 2));
+  };
+
+  useEffect(() => {
+    if (ventilationOnly) return;
+
+    if (!reqInsideTempC) {
+      setReqInsideTempDisplay("");
+      return;
+    }
+    if (reqInsideTempC === t.misc.ambient) {
+      setReqInsideTempDisplay(t.misc.ambient);
+      return;
+    }
+    if (!isRealNumberString(reqInsideTempC)) {
+      setReqInsideTempDisplay(reqInsideTempC);
+      return;
+    }
+
+    const c = parseFloat(reqInsideTempC);
+    const display =
+      tempUnit === "C"
+        ? String(roundTo(c, 2))
+        : String(roundTo(celsiusToFahrenheit(c), 2));
+    setReqInsideTempDisplay(display);
+  }, [tempUnit, reqInsideTempC, ventilationOnly]);
+
+  const onReqInsideTempChange = (val: string) => {
+    if (ventilationOnly) return;
+
+    if (val === "") {
+      setReqInsideTempDisplay("");
+      setReqInsideTempC("");
+      return;
+    }
+    if (!isNumericLike(val)) return;
+
+    setReqInsideTempDisplay(val);
+
+    if (!isRealNumberString(val)) return;
+
+    const n = parseFloat(val);
+    if (Number.isNaN(n)) return;
+
+    if (tempUnit === "C") setReqInsideTempC(String(roundTo(n, 2)));
+    else setReqInsideTempC(String(roundTo(fahrenheitToCelsius(n), 2)));
+  };
+
+  const tempPlaceholder =
+    tempUnit === "C" ? t.placeholders.reqTempC : t.placeholders.reqTempF;
+
   const roomPayload = useMemo(() => {
     return {
       fromCustomerInfo: prev,
@@ -163,11 +312,16 @@ export default function Standard() {
       acph,
       system,
       systemType,
-      method,
-      reqInsideTemp,
+      heatingMethod,
+      coolingMethod,
+      tempUnit,
+      reqInsideTemp: reqInsideTempDisplay,
+      reqInsideTempC,
       reqInsideHum,
-      minTemp,
-      maxTemp,
+      minTemp: tempToDisplay(minTempC),
+      maxTemp: tempToDisplay(maxTempC),
+      minTempC,
+      maxTempC,
       rhMin,
       rhMax,
     };
@@ -178,32 +332,29 @@ export default function Standard() {
     acph,
     system,
     systemType,
-    method,
-    reqInsideTemp,
+    heatingMethod,
+    coolingMethod,
+    tempUnit,
+    reqInsideTempDisplay,
+    reqInsideTempC,
     reqInsideHum,
-    minTemp,
-    maxTemp,
+    minTempC,
+    maxTempC,
     rhMin,
     rhMax,
   ]);
 
-  useEffect(() => {
-    console.group("STANDARD SCREEN - CURRENT STATE");
-    console.log(roomPayload);
-    console.groupEnd();
-  }, [roomPayload]);
-
   return (
     <div className={s.page}>
       <div className={s.top}>
-        <h1 className={s.title}>Standards and Classification</h1>
-        <p className={s.subtitle}>Select cleanroom classification and air change requirements</p>
+        <h1 className={s.title}>{t.page.title}</h1>
+        <p className={s.subtitle}>{t.page.subtitle}</p>
       </div>
 
       <div className={s.cardWrap}>
         <div className={s.card}>
           <div className={s.cardHeader}>
-            <div className={s.cardHeaderTitle}>Standards and Classification</div>
+            <div className={s.cardHeaderTitle}>{t.page.cardTitle}</div>
           </div>
 
           <div className={s.divider} />
@@ -213,7 +364,7 @@ export default function Standard() {
             <div className={s.grid3}>
               <div className={s.field}>
                 <label className={s.label}>
-                  Standard <span className={s.required}>*</span>
+                  {t.labels.standard} <span className={s.required}>*</span>
                 </label>
                 <select
                   className={s.select}
@@ -224,7 +375,7 @@ export default function Standard() {
                     setAcph("");
                   }}
                 >
-                  <option value="">Select Standard...</option>
+                  <option value="">{t.placeholders.standard}</option>
                   {standardsData.map((item) => (
                     <option key={item.id} value={item.title}>
                       {item.title}
@@ -235,7 +386,8 @@ export default function Standard() {
 
               <div className={s.field}>
                 <label className={s.label}>
-                  Classification <span className={s.required}>*</span>
+                  {t.labels.classification}{" "}
+                  <span className={s.required}>*</span>
                 </label>
                 <select
                   className={selectedStandard ? s.select : s.selectDisabled}
@@ -244,9 +396,11 @@ export default function Standard() {
                   onChange={(e) => setClassification(e.target.value)}
                 >
                   <option value="">
-                    {selectedStandard ? "Select Classification..." : "Select a standard first"}
+                    {selectedStandard
+                      ? t.placeholders.classification
+                      : t.placeholders.classificationDisabled}
                   </option>
-                  {classifications.map((c) => (
+                  {classList.map((c) => (
                     <option key={c.name} value={c.name}>
                       {c.name}
                     </option>
@@ -256,48 +410,71 @@ export default function Standard() {
 
               <div className={s.field}>
                 <label className={s.label}>
-                  ACPH (Air Changes Per Hour) <span className={s.required}>*</span>
+                  {t.labels.acph} <span className={s.required}>*</span>
                 </label>
 
-                {isVentilation ? (
-                  <input className={s.inputDisabled} value="Ambient" disabled />
-                ) : (
-                  <select
-                    className={!acphDisabled ? s.select : s.selectDisabled}
-                    disabled={acphDisabled}
-                    value={acph}
-                    onChange={(e) => setAcph(e.target.value)}
-                  >
-                    {acphDisabled ? (
-                      <option value="">Select class first</option>
-                    ) : (
-                      acphOptions.map((v) => (
-                        <option key={v} value={v}>
-                          {v}
-                        </option>
-                      ))
-                    )}
-                  </select>
-                )}
+                <select
+                  className={!acphDisabled ? s.select : s.selectDisabled}
+                  disabled={acphDisabled}
+                  value={acph}
+                  onChange={(e) => setAcph(e.target.value)}
+                >
+                  {acphDisabled ? (
+                    <option value="">{t.placeholders.acphDisabled}</option>
+                  ) : (
+                    acphOptions.map((v) => (
+                      <option key={v} value={v}>
+                        {v}
+                      </option>
+                    ))
+                  )}
+                </select>
+
+                {selectedClass?.minAir != null &&
+                  selectedClass?.maxAir != null && (
+                    <div className={s.range}>
+                      {t.misc.rangeLabel}{" "}
+                      <span className={s.rangeValue}>
+                        {selectedClass.minAir} - {selectedClass.maxAir}
+                      </span>
+                    </div>
+                  )}
               </div>
             </div>
 
-            {/* System row */}
+            {/* System */}
             <div className={s.sectionSpacer}>
               <div className={s.grid2}>
                 <div className={s.field}>
                   <label className={s.label}>
-                    System <span className={s.required}>*</span>
+                    {t.labels.system} <span className={s.required}>*</span>
                   </label>
                   <select
                     className={s.select}
                     value={system}
                     onChange={(e) => setSystem(e.target.value as SystemName)}
                   >
-                    <option value="">Select System...</option>
-                    <option value="Air-Heating System">Air-Heating System</option>
-                    <option value="Air-Cooling System">Air-Cooling System</option>
-                    <option value="Ventilation System">Ventilation System</option>
+                    <option value="">{t.placeholders.system}</option>
+
+                    <option value={t.options.systems.heating}>
+                      {t.options.systems.heating}
+                    </option>
+                    <option value={t.options.systems.cooling}>
+                      {t.options.systems.cooling}
+                    </option>
+                    <option value={t.options.systems.ventilation}>
+                      {t.options.systems.ventilation}
+                    </option>
+
+                    <option value={t.options.systems.coolingVentilation}>
+                      {t.options.systems.coolingVentilation}
+                    </option>
+                    <option value={t.options.systems.heatingVentilation}>
+                      {t.options.systems.heatingVentilation}
+                    </option>
+                    <option value={t.options.systems.heatingCooling}>
+                      {t.options.systems.heatingCooling}
+                    </option>
                   </select>
                 </div>
 
@@ -312,9 +489,9 @@ export default function Standard() {
                       onChange={(e) => setSystemType(e.target.value)}
                     >
                       <option value="">{systemTypePlaceholder}</option>
-                      {systemTypes.map((t) => (
-                        <option key={t} value={t}>
-                          {t}
+                      {systemTypes.map((v: string) => (
+                        <option key={v} value={v}>
+                          {v}
                         </option>
                       ))}
                     </select>
@@ -322,25 +499,49 @@ export default function Standard() {
                 )}
               </div>
 
-              {(isHeating || isCooling) && (
+              {(showHeatingMethod || showCoolingMethod) && (
                 <div className={"mt-6 " + s.grid2}>
-                  <div className={s.field}>
-                    <label className={s.label}>
-                      {methodLabel} <span className={s.required}>*</span>
-                    </label>
-                    <select
-                      className={s.select}
-                      value={method}
-                      onChange={(e) => setMethod(e.target.value)}
-                    >
-                      <option value="">{methodPlaceholder}</option>
-                      {methods.map((m) => (
-                        <option key={m} value={m}>
-                          {m}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {showHeatingMethod && (
+                    <div className={s.field}>
+                      <label className={s.label}>
+                        {t.labels.heatingMethod}{" "}
+                        <span className={s.required}>*</span>
+                      </label>
+                      <select
+                        className={s.select}
+                        value={heatingMethod}
+                        onChange={(e) => setHeatingMethod(e.target.value)}
+                      >
+                        <option value="">{t.placeholders.heatingMethod}</option>
+                        {heatingMethods.map((m: string) => (
+                          <option key={m} value={m}>
+                            {m}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {showCoolingMethod && (
+                    <div className={s.field}>
+                      <label className={s.label}>
+                        {t.labels.coolingMethod}{" "}
+                        <span className={s.required}>*</span>
+                      </label>
+                      <select
+                        className={s.select}
+                        value={coolingMethod}
+                        onChange={(e) => setCoolingMethod(e.target.value)}
+                      >
+                        <option value="">{t.placeholders.coolingMethod}</option>
+                        {coolingMethods.map((m: string) => (
+                          <option key={m} value={m}>
+                            {m}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -349,100 +550,137 @@ export default function Standard() {
             <div className={s.sectionLine} />
 
             <div className={s.sectionSpacer}>
-              <div className={s.sectionTitle}>Temperature and Humidity</div>
+              <div className={s.sectionTitle}>{t.sections.tempHumTitle}</div>
+
+              <div className={s.unitRow}>
+                <div className={s.unitLabel}>{t.labels.tempUnit}</div>
+
+                <div className={s.unitGroup}>
+                  <label className={s.unitOption}>
+                    <input
+                      className={s.unitRadio}
+                      type="radio"
+                      name="tempUnit"
+                      value="C"
+                      checked={tempUnit === "C"}
+                      onChange={() => setTempUnit("C")}
+                      disabled={ventilationOnly}
+                    />
+                    <span>{t.options.units.c}</span>
+                  </label>
+
+                  <label className={s.unitOption}>
+                    <input
+                      className={s.unitRadio}
+                      type="radio"
+                      name="tempUnit"
+                      value="F"
+                      checked={tempUnit === "F"}
+                      onChange={() => setTempUnit("F")}
+                      disabled={ventilationOnly}
+                    />
+                    <span>{t.options.units.f}</span>
+                  </label>
+                </div>
+
+                {ventilationOnly && (
+                  <div className={s.unitHint}>{t.misc.ventilationUnitHint}</div>
+                )}
+              </div>
 
               <div className={"mt-6 " + s.grid2}>
                 <div className={s.field}>
-                  <label className={s.label}>Required Inside Temperature (C)</label>
+                  <label className={s.label}>
+                    {t.labels.reqInsideTemp} ({tempUnit === "C" ? "°C" : "°F"})
+                  </label>
                   <input
-                    className={inputDisabled ? s.inputDisabled : s.input}
-                    placeholder="eg: 22"
-                    value={reqInsideTemp}
-                    onChange={(e) => setReqInsideTemp(e.target.value)}
-                    disabled={inputDisabled}
+                    className={ventilationOnly ? s.inputDisabled : s.input}
+                    placeholder={tempPlaceholder}
+                    value={reqInsideTempDisplay}
+                    onChange={(e) => onReqInsideTempChange(e.target.value)}
+                    disabled={ventilationOnly}
                   />
                 </div>
 
                 <div className={s.field}>
-                  <label className={s.label}>Required Inside Humidity (RH)</label>
+                  <label className={s.label}>{t.labels.reqInsideHum}</label>
                   <input
-                    className={inputDisabled ? s.inputDisabled : s.input}
-                    placeholder="eg: 55"
+                    className={ventilationOnly ? s.inputDisabled : s.input}
+                    placeholder={t.placeholders.reqHumidity}
                     value={reqInsideHum}
                     onChange={(e) => setReqInsideHum(e.target.value)}
-                    disabled={inputDisabled}
+                    disabled={ventilationOnly}
                   />
                 </div>
               </div>
 
               <div className={"mt-6 " + s.grid4}>
                 <div className={s.field}>
-                  <label className={s.label}>Minimum Temperature (C)</label>
+                  <label className={s.label}>
+                    {t.labels.minTemp} ({tempUnit === "C" ? "°C" : "°F"})
+                  </label>
                   <input
-                    className={inputDisabled ? s.inputDisabled : s.input}
-                    placeholder="eg: 18"
-                    value={minTemp}
-                    onChange={(e) => setMinTemp(e.target.value)}
-                    disabled={inputDisabled}
+                    className={s.inputDisabled}
+                    value={tempToDisplay(minTempC) || "-"}
+                    disabled
                   />
                 </div>
 
                 <div className={s.field}>
-                  <label className={s.label}>Maximum Temperature (C)</label>
+                  <label className={s.label}>
+                    {t.labels.maxTemp} ({tempUnit === "C" ? "°C" : "°F"})
+                  </label>
                   <input
-                    className={inputDisabled ? s.inputDisabled : s.input}
-                    placeholder="eg: 24"
-                    value={maxTemp}
-                    onChange={(e) => setMaxTemp(e.target.value)}
-                    disabled={inputDisabled}
+                    className={s.inputDisabled}
+                    value={tempToDisplay(maxTempC) || "-"}
+                    disabled
                   />
                 </div>
 
                 <div className={s.field}>
-                  <label className={s.label}>Relative Humidity Min</label>
+                  <label className={s.label}>{t.labels.rhMin}</label>
                   <input
-                    className={inputDisabled ? s.inputDisabled : s.input}
-                    placeholder="eg: 40"
-                    value={rhMin}
-                    onChange={(e) => setRhMin(e.target.value)}
-                    disabled={inputDisabled}
+                    className={s.inputDisabled}
+                    value={rhMin || "-"}
+                    disabled
                   />
                 </div>
 
                 <div className={s.field}>
-                  <label className={s.label}>Relative Humidity Max</label>
+                  <label className={s.label}>{t.labels.rhMax}</label>
                   <input
-                    className={inputDisabled ? s.inputDisabled : s.input}
-                    placeholder="eg: 60"
-                    value={rhMax}
-                    onChange={(e) => setRhMax(e.target.value)}
-                    disabled={inputDisabled}
+                    className={s.inputDisabled}
+                    value={rhMax || "-"}
+                    disabled
                   />
                 </div>
               </div>
+
+              {!ventilationOnly &&
+                reqInsideTempC &&
+                reqInsideTempC !== t.misc.ambient && (
+                  <div className={s.tempHelper}>
+                    {t.misc.storedInternally} <b>{reqInsideTempC} °C</b>
+                  </div>
+                )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* footer buttons */}
       <div className={s.footer}>
         <Link to="/customer-info" className={s.backLink}>
-          <FaArrowLeft /> Back to Customer-Info
+          <FaArrowLeft /> {t.buttons.back}
         </Link>
 
-
-        <Link
-          to="/room"
-          className={s.nextLink}
-          state={roomPayload}
-          onClick={() => {
+        <Link to="/room" className={s.nextLink} state={roomPayload}
+           onClick={() => {
             console.group("PASSING TO ROOM");
             console.log(roomPayload);
             console.groupEnd();
-          }}
-        >
-          Next Step <FaArrowRight />
+          }}>
+          {t.buttons.next} <FaArrowRight />
+       
         </Link>
       </div>
     </div>

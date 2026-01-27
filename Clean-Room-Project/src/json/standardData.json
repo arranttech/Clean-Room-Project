@@ -1,144 +1,264 @@
-[
-  {
-    "id": 1,
-    "title": "ISO 14644-4",
-    "classifications": [
-      { "name": "ISO 9", "minAir": 5, "maxAir": 15 },
-      { "name": "ISO 8", "minAir": 20, "maxAir": 60 },
-      { "name": "ISO 7", "minAir": 60, "maxAir": 150 },
-      { "name": "ISO 6", "minAir": 150, "maxAir": 240 },
-      { "name": "ISO 5", "minAir": 240, "maxAir": 500 },
-      { "name": "ISO 4", "minAir": 300, "maxAir": 600 },
-      { "name": "ISO 3", "minAir": 400, "maxAir": 750 },
-      { "name": "ISO 2", "minAir": 500, "maxAir": 750 },
-      { "name": "ISO 1", "minAir": 500, "maxAir": 750 }
-    ]
-  },
-  {
-    "id": 2,
-    "title": "FDA 209E",
-    "classifications": [
-      { "name": "Class100K", "minAir": 12, "maxAir": 25 },
-      { "name": "Class10K", "minAir": 30, "maxAir": 60 },
-      { "name": "Class1K", "minAir": 80, "maxAir": 130 },
-      { "name": "Class 100", "minAir": 150, "maxAir": 300 },
-      { "name": "Class 10", "minAir": 180, "maxAir": 400 },
-      { "name": "Class 1", "minAir": 240, "maxAir": 500 }
-    ]
-  },
-  {
-    "id": 3,
-    "title": "GMP",
-    "classifications": [
-      { "name": "Grade D (ISO 8 at Rest & Not Defined)", "minAir": 20, "maxAir": 40 },
-      { "name": "Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "minAir": 60, "maxAir": 120 },
-      { "name": "Grade B (ISO 5 at Rest & ISO 7 in Oper.)", "minAir": 120, "maxAir": 180 },
-      { "name": "Grade A (ISO 5 at Rest & ISO 5 in Oper.)", "minAir": 180, "maxAir": 240 }
-    ]
-  },
-  {
-    "id": 4,
-    "title": "JIS B 9920",
-    "classifications": [
-      { "name": "JIS Class 9", "minAir": 10, "maxAir": 20 },
-      { "name": "JIS Class 8", "minAir": 20, "maxAir": 60 },
-      { "name": "JIS Class 7", "minAir": 60, "maxAir": 120 },
-      { "name": "JIS Class 6", "minAir": 120, "maxAir": 180 },
-      { "name": "JIS Class 5", "minAir": 180, "maxAir": 240 },
-      { "name": "JIS Class 4", "minAir": 240, "maxAir": 350 },
-      { "name": "JIS Class 3", "minAir": 350, "maxAir": 500 },
-      { "name": "JIS Class 2", "minAir": 400, "maxAir": 600 },
-      { "name": "JIS Class 1", "minAir": 400, "maxAir": 600 }
-    ]
-  },
-  {
-    "id": 5,
-    "title": "EU GMP",
-    "classifications": [
-      { "name": "Grade D (ISO 7 at Rest & ISO 8 in Oper.)", "minAir": 40, "maxAir": 80 },
-      { "name": "Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "minAir": 80, "maxAir": 120 },
-      { "name": "Grade B (ISO 5 at Rest & ISO 7 in Oper.)", "minAir": 120, "maxAir": 180 },
-      { "name": "Grade A (ISO 5 at Rest & ISO 5 in Oper.)", "minAir": 180, "maxAir": 240 }
-    ]
-  },
-  {
-    "id": 6,
-    "title": "TGA",
-    "classifications": [
-      { "name": "3500", "minAir": 15, "maxAir": 40 },
-      { "name": "350", "minAir": 40, "maxAir": 80 },
-      { "name": "35", "minAir": 80, "maxAir": 130 },
-      { "name": "3.5", "minAir": 130, "maxAir": 300 },
-      { "name": "0.35", "minAir": 180, "maxAir": 400 },
-      { "name": "0.035", "minAir": 240, "maxAir": 500 }
-    ]
-  },
-  {
-    "id": 7,
-    "title": "BS 5295",
-    "classifications": [
-      { "name": "K", "minAir": 12, "maxAir": 25 },
-      { "name": "J", "minAir": 30, "maxAir": 80 },
-      { "name": "G or H", "minAir": 120, "maxAir": 180 },
-      { "name": "E or F", "minAir": 240, "maxAir": 350 },
-      { "name": "D", "minAir": 350, "maxAir": 600 },
-      { "name": "C", "minAir": 400, "maxAir": 600 }
-    ]
-  },
-  {
-    "id": 8,
-    "title": "GERMANY VD",
-    "classifications": [
-      { "name": "6", "minAir": 20, "maxAir": 60 },
-      { "name": "5", "minAir": 60, "maxAir": 120 },
-      { "name": "4", "minAir": 120, "maxAir": 180 },
-      { "name": "3", "minAir": 180, "maxAir": 240 },
-      { "name": "2", "minAir": 240, "maxAir": 360 },
-      { "name": "1", "minAir": 360, "maxAir": 550 },
-      { "name": "0", "minAir": 400, "maxAir": 600 }
-    ]
-  },
-  {
-    "id": 9,
-    "title": "AFNOR X44101",
-    "classifications": [
-      { "name": "4000000", "minAir": 20, "maxAir": 50 },
-      { "name": "400000", "minAir": 60, "maxAir": 120 },
-      { "name": "4000", "minAir": 120, "maxAir": 240 }
-    ]
-  },
-  {
-    "id": 10,
-    "title": "NC-Non Classified",
-    "classifications": [
-      { "name": "20", "minAir": 5, "maxAir": 15 },
-      { "name": "15u", "minAir": 5, "maxAir": 20 },
-      { "name": "10u", "minAir": 10, "maxAir": 25 },
-      { "name": "5u", "minAir": 15, "maxAir": 25 },
-      { "name": "1u", "minAir": 15, "maxAir": 25 },
-      { "name": "No-Filtration", "minAir": 5, "maxAir": 10 },
-      { "name": "Positive Pressure", "minAir": 5, "maxAir": 10 },
-      { "name": "Exhaust", "minAir": null, "maxAir": null }
-    ]
-  },
-  {
-    "id": 11,
-    "title": "ISO 14698",
-    "classifications": [
-      { "name": "BSL - 1", "minAir": 6, "maxAir": 12 },
-      { "name": "BSL - 2", "minAir": 10, "maxAir": 15 },
-      { "name": "BSL - 3", "minAir": 15, "maxAir": 20 },
-      { "name": "BSL - 4", "minAir": 20, "maxAir": 30 }
-    ]
-  },
-  {
-    "id": 12,
-    "title": "SCHEDULE M",
-    "classifications": [
-      { "name": "GRADE CLASS A", "minAir": 80, "maxAir": 100 },
-      { "name": "GRADE CLASS B", "minAir": 60, "maxAir": 80 },
-      { "name": "GRADE CLASS C", "minAir": 40, "maxAir": 60 },
-      { "name": "GRADE CLASS D", "minAir": 20, "maxAir": 40 }
-    ]
+{
+  "standards": [
+    {
+      "id": 1,
+      "title": "ISO 14644-4",
+      "classifications": [
+        { "name": "ISO 9", "minAir": 5, "maxAir": 15 },
+        { "name": "ISO 8", "minAir": 20, "maxAir": 60 },
+        { "name": "ISO 7", "minAir": 60, "maxAir": 150 },
+        { "name": "ISO 6", "minAir": 150, "maxAir": 240 },
+        { "name": "ISO 5", "minAir": 240, "maxAir": 500 },
+        { "name": "ISO 4", "minAir": 300, "maxAir": 600 },
+        { "name": "ISO 3", "minAir": 400, "maxAir": 750 },
+        { "name": "ISO 2", "minAir": 500, "maxAir": 750 },
+        { "name": "ISO 1", "minAir": 500, "maxAir": 750 }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "FDA 209E",
+      "classifications": [
+        { "name": "Class100K", "minAir": 12, "maxAir": 25 },
+        { "name": "Class10K", "minAir": 30, "maxAir": 60 },
+        { "name": "Class1K", "minAir": 80, "maxAir": 130 },
+        { "name": "Class 100", "minAir": 150, "maxAir": 300 },
+        { "name": "Class 10", "minAir": 180, "maxAir": 400 },
+        { "name": "Class 1", "minAir": 240, "maxAir": 500 }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "GMP",
+      "classifications": [
+        {
+          "name": "Grade D (ISO 8 at Rest & Not Defined)",
+          "minAir": 20,
+          "maxAir": 40
+        },
+        {
+          "name": "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "minAir": 60,
+          "maxAir": 120
+        },
+        {
+          "name": "Grade B (ISO 5 at Rest & ISO 7 in Oper.)",
+          "minAir": 120,
+          "maxAir": 180
+        },
+        {
+          "name": "Grade A (ISO 5 at Rest & ISO 5 in Oper.)",
+          "minAir": 180,
+          "maxAir": 240
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "JIS B 9920",
+      "classifications": [
+        { "name": "JIS Class 9", "minAir": 10, "maxAir": 20 },
+        { "name": "JIS Class 8", "minAir": 20, "maxAir": 60 },
+        { "name": "JIS Class 7", "minAir": 60, "maxAir": 120 },
+        { "name": "JIS Class 6", "minAir": 120, "maxAir": 180 },
+        { "name": "JIS Class 5", "minAir": 180, "maxAir": 240 },
+        { "name": "JIS Class 4", "minAir": 240, "maxAir": 350 },
+        { "name": "JIS Class 3", "minAir": 350, "maxAir": 500 },
+        { "name": "JIS Class 2", "minAir": 400, "maxAir": 600 },
+        { "name": "JIS Class 1", "minAir": 400, "maxAir": 600 }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "EU GMP",
+      "classifications": [
+        {
+          "name": "Grade D (ISO 7 at Rest & ISO 8 in Oper.)",
+          "minAir": 40,
+          "maxAir": 80
+        },
+        {
+          "name": "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "minAir": 80,
+          "maxAir": 120
+        },
+        {
+          "name": "Grade B (ISO 5 at Rest & ISO 7 in Oper.)",
+          "minAir": 120,
+          "maxAir": 180
+        },
+        {
+          "name": "Grade A (ISO 5 at Rest & ISO 5 in Oper.)",
+          "minAir": 180,
+          "maxAir": 240
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "TGA",
+      "classifications": [
+        { "name": "3500", "minAir": 15, "maxAir": 40 },
+        { "name": "350", "minAir": 40, "maxAir": 80 },
+        { "name": "35", "minAir": 80, "maxAir": 130 },
+        { "name": "3.5", "minAir": 130, "maxAir": 300 },
+        { "name": "0.35", "minAir": 180, "maxAir": 400 },
+        { "name": "0.035", "minAir": 240, "maxAir": 500 }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "BS 5295",
+      "classifications": [
+        { "name": "K", "minAir": 12, "maxAir": 25 },
+        { "name": "J", "minAir": 30, "maxAir": 80 },
+        { "name": "G or H", "minAir": 120, "maxAir": 180 },
+        { "name": "E or F", "minAir": 240, "maxAir": 350 },
+        { "name": "D", "minAir": 350, "maxAir": 600 },
+        { "name": "C", "minAir": 400, "maxAir": 600 }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "GERMANY VD",
+      "classifications": [
+        { "name": "6", "minAir": 20, "maxAir": 60 },
+        { "name": "5", "minAir": 60, "maxAir": 120 },
+        { "name": "4", "minAir": 120, "maxAir": 180 },
+        { "name": "3", "minAir": 180, "maxAir": 240 },
+        { "name": "2", "minAir": 240, "maxAir": 360 },
+        { "name": "1", "minAir": 360, "maxAir": 550 },
+        { "name": "0", "minAir": 400, "maxAir": 600 }
+      ]
+    },
+    {
+      "id": 9,
+      "title": "AFNOR X44101",
+      "classifications": [
+        { "name": "4000000", "minAir": 20, "maxAir": 50 },
+        { "name": "400000", "minAir": 60, "maxAir": 120 },
+        { "name": "4000", "minAir": 120, "maxAir": 240 }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "NC-Non Classified",
+      "classifications": [
+        { "name": "20", "minAir": 5, "maxAir": 15 },
+        { "name": "15u", "minAir": 5, "maxAir": 20 },
+        { "name": "10u", "minAir": 10, "maxAir": 25 },
+        { "name": "5u", "minAir": 15, "maxAir": 25 },
+        { "name": "1u", "minAir": 15, "maxAir": 25 },
+        { "name": "No-Filtration", "minAir": 5, "maxAir": 10 },
+        { "name": "Positive Pressure", "minAir": 5, "maxAir": 10 },
+        { "name": "Exhaust", "minAir": null, "maxAir": null }
+      ]
+    },
+    {
+      "id": 11,
+      "title": "ISO 14698",
+      "classifications": [
+        { "name": "BSL - 1", "minAir": 6, "maxAir": 12 },
+        { "name": "BSL - 2", "minAir": 10, "maxAir": 15 },
+        { "name": "BSL - 3", "minAir": 15, "maxAir": 20 },
+        { "name": "BSL - 4", "minAir": 20, "maxAir": 30 }
+      ]
+    },
+    {
+      "id": 12,
+      "title": "SCHEDULE M",
+      "classifications": [
+        { "name": "GRADE CLASS A", "minAir": 80, "maxAir": 100 },
+        { "name": "GRADE CLASS B", "minAir": 60, "maxAir": 80 },
+        { "name": "GRADE CLASS C", "minAir": 40, "maxAir": 60 },
+        { "name": "GRADE CLASS D", "minAir": 20, "maxAir": 40 }
+      ]
+    }
+  ],
+  "text": {
+    "page": {
+      "title": "Standards and Classification",
+      "subtitle": "Select cleanroom classification and air change requirements",
+      "cardTitle": "Standards and Classification"
+    },
+    "sections": { "tempHumTitle": "Temperature and Humidity" },
+    "labels": {
+      "standard": "Standard",
+      "classification": "Classification",
+      "acph": "ACPH (Air Changes Per Hour)",
+      "system": "System",
+      "systemTypeHeating": "Air-Heating System Type",
+      "systemTypeCooling": "Air-Cooling System Type",
+      "systemTypeVentilation": "Ventilation System Type",
+      "systemTypeGeneric": "System Type",
+      "heatingMethod": "Heating Method",
+      "coolingMethod": "Cooling Method",
+      "tempUnit": "Temperature Unit:",
+      "reqInsideTemp": "Required Inside Temperature",
+      "reqInsideHum": "Required Inside Humidity (RH)",
+      "minTemp": "Minimum Temperature",
+      "maxTemp": "Maximum Temperature",
+      "rhMin": "Relative Humidity Min",
+      "rhMax": "Relative Humidity Max"
+    },
+    "placeholders": {
+      "standard": "Select Standard...",
+      "classification": "Select Classification...",
+      "classificationDisabled": "Select a standard first",
+      "acphDisabled": "Select class first",
+      "system": "Select System...",
+      "systemTypeHeating": "Select Air-Heating System Type...",
+      "systemTypeCooling": "Select Air-Cooling System Type...",
+      "systemTypeVentilation": "Select Ventilation System Type...",
+      "systemTypeGeneric": "Select System Type...",
+      "heatingMethod": "Select Heating Method...",
+      "coolingMethod": "Select Cooling Method...",
+      "reqTempC": "eg: 22",
+      "reqTempF": "eg: 72",
+      "reqHumidity": "eg: 55"
+    },
+    "options": {
+      "units": { "c": "°C", "f": "°F" },
+      "systems": {
+        "heating": "Air-Heating System",
+        "cooling": "Air-Cooling System",
+        "ventilation": "Ventilation System",
+        "coolingVentilation": "Air Cooling and Ventilation System",
+        "heatingVentilation": "Air Heating and Ventilation System",
+        "heatingCooling": "Air Cooling and Air Heating System"
+      },
+      "systemTypes": {
+        "heating": [
+          "Cleanroom Air-Heating System",
+          "Comfort Air-Heating System",
+          "Non-Classified Air-Heating System"
+        ],
+        "cooling": [
+          "Cleanroom Air-Cooling System",
+          "Comfort Air-Cooling System",
+          "Non-Classified Air-Cooling System"
+        ],
+        "ventilation": [
+          "Cleanroom Ventilation System",
+          "Non-Classified Ventilation System"
+        ],
+        "combined": [
+          "Cleanroom Air System (Heating & Cooling)",
+          "Comfort Air System (Heating & Cooling)",
+          "Non-Classified Air System (Heating & Cooling)"
+        ]
+      },
+      "methods": {
+        "heating": ["Hot Water", "Steam"],
+        "cooling": ["Chilled Water", "Brine", "DX"]
+      }
+    },
+    "buttons": { "back": "Back to Customer-Info", "next": "Next Step" },
+    "misc": {
+      "ambient": "Ambient",
+      "rangeLabel": "Range:",
+      "storedInternally": "Stored internally as:",
+      "ventilationUnitHint": "Unit is fixed for Ventilation (Ambient)."
+    }
   }
-]
+}

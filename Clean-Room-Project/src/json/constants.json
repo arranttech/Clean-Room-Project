@@ -14,6 +14,15 @@
       "label": "Sign In"
     }
   },
+  "industry": {
+    "title":"Industries we serve",
+    "subtitle": "Tailored solutions for critical environments across multiple sectors."
+  },
+
+  "powerful": {
+    "title": "Powerful Features",
+    "subtitle": "Everything you need to design, calculate, and optimize cleanroom HVAC systems"
+  },
 
   "hero": {
     "badge": "Industry Leading HVAC Matrix Solutions",

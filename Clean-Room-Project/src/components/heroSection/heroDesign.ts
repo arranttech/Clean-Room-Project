@@ -1,5 +1,5 @@
 const heroDesign = {
-  section: "w-full bg-white relative z-0",
+  section: "w-full bg-white relative z-0 scroll-mt-32",
 
   container: "mx-auto max-w-[1200px] px-6 pb-[96px] text-center",
 

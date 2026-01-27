@@ -1,8 +1,10 @@
+import powerfulDesign from "./powerfulDesign";
 import { PiBatteryChargingFill } from "react-icons/pi";
 import { BiSolidBookmarkStar } from "react-icons/bi";
 import { SiGoogleanalytics, SiWebcomponentsdotorg } from "react-icons/si";
 import { MdArchitecture } from "react-icons/md";
 import { FaCloud } from "react-icons/fa6";
+import text from "../../json/constants.json";
 
 const FEATURES = [
 	{
@@ -38,34 +40,21 @@ const FEATURES = [
 ];
 
 export default function Powerful() {
+	const { powerful } = text;
 	return (
-		<section className="w-full px-6">
-			<div className="mx-auto max-w-[1200px]">
-				<div className="text-center mb-16">
-					<h2 className="text-[40px] font-extrabold tracking-tight text-[#111827] sm:text-[48px]">
-						Powerful Features
-					</h2>
-					<p className="mt-4 text-[18px] leading-relaxed text-[#4B5563] md:text-[20px] max-w-[800px] mx-auto">
-						Everything you need to design, calculate, and optimize cleanroom
-						HVAC systems
-					</p>
+		<section id="features" className={powerfulDesign.section}>
+			<div className={powerfulDesign.container}>
+				<div className={powerfulDesign.headerWrapper}>
+					<h2 className={powerfulDesign.title}>{powerful.title}</h2>
+					<p className={powerfulDesign.subtitle}>{powerful.subtitle}</p>
 				</div>
 
-				<div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+				<div className={powerfulDesign.grid}>
 					{FEATURES.map((feature, index) => (
-						<div
-							key={index}
-							className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all hover:shadow-md"
-						>
-							<div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-[#2563EB] text-white">
-								{feature.icon}
-							</div>
-							<h3 className="text-[20px] font-bold text-[#111827]">
-								{feature.title}
-							</h3>
-							<p className="mt-3 text-[16px] leading-relaxed text-[#4B5563]">
-								{feature.desc}
-							</p>
+						<div key={index} className={powerfulDesign.card}>
+							<div className={powerfulDesign.iconWrapper}>{feature.icon}</div>
+							<h3 className={powerfulDesign.cardTitle}>{feature.title}</h3>
+							<p className={powerfulDesign.cardDesc}>{feature.desc}</p>
 						</div>
 					))}
 				</div>

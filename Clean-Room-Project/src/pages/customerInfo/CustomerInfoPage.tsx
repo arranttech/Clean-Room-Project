@@ -15,11 +15,8 @@ function CustomerInfo() {
 	const [additionalNotes, setAdditionalNotes] = useState("");
 	const [projectName, setProjectName] = useState("");
 	const [unitBranch, setUnitBranch] = useState("");
-	const [industry, setIndustry] = useState("");
 	const [handling, setHandling] = useState("");
-
 	const [uniqueId, setUniqueId] = useState("");
-
 	const [locationQuery, setLocationQuery] = useState("");
 	const [locationResults, setLocationResults] = useState([]);
 	const [showResults, setShowResults] = useState(false);
@@ -27,6 +24,39 @@ function CustomerInfo() {
 	const [maxTemp, setMaxTemp] = useState("");
 	const [relativeHumidityMax, setRelativeHumidityMax] = useState("");
 	const [relativeHumidityMin, setRelativeHumidityMin] = useState("");
+	const [industry, setIndustry] = useState([]);
+	const [industryOpen, setIndustryOpen] = useState(false);
+	const industryRef = useRef(null);
+	const [handlingOpen, setHandlingOpen] = useState(false);
+	const handlingRef = useRef(null);
+
+	const industryOptions = [
+		"Pharmaceuticals & Biotechnology",
+		"Tissue Culture Laboratory",
+		"Chemical & Petrochemical",
+	];
+
+	const handlingOptions = [
+		"Contagious",
+		"Non-Contagious",
+		"Hazardous",
+		"Non-Hazardous",
+		"Flammable Vapors",
+	];
+
+	useEffect(() => {
+		const handleClickOutside = (e) => {
+			if (industryRef.current && !industryRef.current.contains(e.target)) {
+				setIndustryOpen(false);
+			}
+			if (handlingRef.current && !handlingRef.current.contains(e.target)) {
+				setHandlingOpen(false);
+			}
+		};
+
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => document.removeEventListener("mousedown", handleClickOutside);
+	}, []);
 
 	const generateUniqueId = (customerName, projectName) => {
 		if (!customerName || !projectName) return "";
@@ -52,22 +82,36 @@ function CustomerInfo() {
 		const id = generateUniqueId(customerName, projectName);
 		setUniqueId(id);
 
-		console.group("CUSTOMER INFO");
-		console.log("Customer Name:", customerName);
-		console.log("Phone Number:", phoneNumber);
-		console.log("Customer Address:", customerAddress);
-		console.log("Email Address:", emailAddress);
-		console.log("Additional Notes:", additionalNotes);
-		console.log("Unit/Branch:", unitBranch);
-		console.log("Project Name:", projectName);
-		console.log("Industry:", industry);
-		console.log("Handling:", handling);
-		console.log("Unique ID:", id);
-		console.log("Location Query:", locationQuery);
-		console.log("Min Temp (°C):", minTemp);
-		console.log("Max Temp (°C):", maxTemp);
-		console.log("Generated At:", new Date().toLocaleString());
-		console.groupEnd();
+		console.log(
+			"Customer Name:",
+			customerName,
+			"Phone Number:",
+			phoneNumber,
+			"Customer Address:",
+			phoneNumber,
+			"Customer Address:",
+			customerAddress,
+			"Email Address:",
+			emailAddress,
+			"Additional Notes:",
+			additionalNotes,
+			"Unit/Branch:",
+			unitBranch,
+			"Project Name:",
+			projectName,
+			"Industry:",
+			industry,
+			"Handling:",
+			handling,
+			"Location Query:",
+			locationQuery,
+			"Min Temp (°C):",
+			minTemp,
+			"Max Temp (°C):",
+			maxTemp,
+			"Generated At:",
+			new Date().toLocaleString()
+		);
 	}, [
 		customerName,
 		phoneNumber,
@@ -236,24 +280,94 @@ function CustomerInfo() {
 					</div>
 
 					<div className={styles.rowGroup}>
-						<div className={styles.fieldGroup + " w-full"}>
-							<label className={styles.label}>Industry/sector</label>
-							<input
-								type="text"
-								placeholder="Select"
-								className={styles.input}
-								onChange={(e) => setIndustry(e.target.value)}
-							/>
+						<div
+							ref={industryRef}
+							className={styles.fieldGroup + " w-full relative"}
+						>
+							<label className={styles.label}>Industry / Sector</label>
+
+							<div
+								onClick={() => setIndustryOpen(!industryOpen)}
+								className={`${styles.input} cursor-pointer flex items-center gap-2`}
+							>
+								<span className="flex-1 truncate whitespace-nowrap">
+									{industry.length > 0
+										? `${industry.length} selected`
+										: "Select Industry"}
+								</span>
+								<span className={styles.dropdownIcon}>▼</span>
+							</div>
+
+							{industryOpen && (
+								<div className={styles.industryOpen}>
+									<div className={styles.selectIndustry}>Select Industry</div>
+
+									{industryOptions.map((item) => (
+										<label key={item} className={styles.industryOptions}>
+											<input
+												type="checkbox"
+												checked={industry.includes(item)}
+												onChange={() =>
+													setIndustry((prev) =>
+														prev.includes(item)
+															? prev.filter((i) => i !== item)
+															: [...prev, item]
+													)
+												}
+												className={styles.industryCheckbox}
+											/>
+											<span className="text-sm break-words">{item}</span>
+										</label>
+									))}
+								</div>
+							)}
 						</div>
 
-						<div className={styles.fieldGroup + " w-full"}>
+						<div
+							ref={handlingRef}
+							className={styles.fieldGroup + " w-full relative"}
+						>
 							<label className={styles.label}>Handling</label>
-							<input
-								type="text"
-								placeholder="Select"
-								className={styles.input}
-								onChange={(e) => setHandling(e.target.value)}
-							/>
+							<div
+								onClick={() => setHandlingOpen(!handlingOpen)}
+								className={`${styles.input} cursor-pointer flex items-center gap-2`}
+							>
+								<span className="flex-1 truncate whitespace-nowrap">
+									{handling.length > 0
+										? `${handling.length} selected`
+										: "Select Handling"}
+								</span>
+								<span className="text-gray-400 text-xs">▼</span>
+							</div>
+
+							{handlingOpen && (
+								<div className="absolute z-50 mt-2 w-full rounded-xl border border-gray-200 bg-white shadow-xl max-h-64 overflow-y-auto">
+									<div className="px-4 py-3 font-semibold border-b">
+										Select Handling
+									</div>
+
+									{handlingOptions.map((item) => (
+										<label
+											key={item}
+											className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50"
+										>
+											<input
+												type="checkbox"
+												checked={handling.includes(item)}
+												onChange={() =>
+													setHandling((prev) =>
+														prev.includes(item)
+															? prev.filter((i) => i !== item)
+															: [...prev, item]
+													)
+												}
+												className="h-5 w-5 shrink-0 rounded-md border-gray-300 text-blue-600"
+											/>
+											<span className="text-sm break-words">{item}</span>
+										</label>
+									))}
+								</div>
+							)}
 						</div>
 					</div>
 

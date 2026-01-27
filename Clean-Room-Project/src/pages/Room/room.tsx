@@ -1,4 +1,3 @@
-// src/components/room/AddRoom.tsx
 import { useEffect, useState } from "react";
 import addRoomDesign from "./roomDesign";
 import textJson from "../../json/room.json";

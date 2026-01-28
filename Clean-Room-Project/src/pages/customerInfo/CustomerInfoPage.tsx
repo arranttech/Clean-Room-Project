@@ -434,7 +434,7 @@ function CustomerInfo() {
 										onClick={() => handleSelectLocation(place)}
 									>
 										<div className={styles.locationResultText}>
-											<span className={styles.locationText}>Selected Location:</span>
+											<span className={styles.locationText}> Selected Location:</span>
 											<br />
 											<span className={styles.selectedLocation}>  {place.display_name} </span>
 											<br />

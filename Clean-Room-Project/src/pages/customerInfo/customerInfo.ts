@@ -17,11 +17,11 @@ const customerInfoDesign = {
     locationWrapper: "relative flex gap-4 items-center",
     locationIcon: "absolute left-3 text-gray-400",
     locationInput: "border border-gray-200 my-2 p-2 pl-10 rounded-lg mb-4 w-full",
-    locationResultText: "bg-blue-50 text-blue-800 px-3 py-1 rounded-lg text-sm border border-blue-400 ",
-    selectedLocation: "text-[15px] font-lg ",
-    coordinates: "font-semibold text-gray-600",
-    coordinatesText: "ml-5",
-    locationText: "font-semibold text-black",
+    locationResultText: "bg-blue-50 text-blue-800 px-2  rounded-lg text-sm border border-blue-400 cursor-pointer mb-1",
+    selectedLocation: "text-[11px] font-lg ",
+    coordinates: "font-semibold text-[11px] text-gray-600",
+    coordinatesText: "ml-5 text-[11px]",
+    locationText: "font-semibold text-black text-[11px]",
 
     searchButton: "bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-600 h-10",
   

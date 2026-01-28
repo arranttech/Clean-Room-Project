@@ -275,10 +275,8 @@ export default function Standard() {
       heatingMethod,
       coolingMethod,
       tempUnit,
-      //what user typed (for display / UI)
       reqInsideTemp: reqInsideTempDisplay,
       reqInsideHum,
-      // numeric-safe values for calculations in Results page
       reqInsideTempC,
       maxTempC,
       minTemp: tempToDisplay(minTempC),
@@ -621,11 +619,6 @@ export default function Standard() {
           to="/room"
           className={s.nextLink}
           state={roomPayload}
-          onClick={() => {
-            console.group("PASSING TO ROOM");
-            console.log(roomPayload);
-            console.groupEnd();
-          }}
         >
           {t.buttons.next} <FaArrowRight />
         </Link>

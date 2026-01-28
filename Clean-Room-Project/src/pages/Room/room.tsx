@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react";
-import addRoomDesign from "./roomDesign";
-import textJson from "../../json/room.json";
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { FaCalculator, FaArrowLeft, FaSave } from "react-icons/fa";
-import { Link } from "react-router-dom";
-
-type TextJson = typeof textJson;
+import s from "./roomDesign";
+import T from "../../json/room.json";
 
 type FormState = {
   roomName: string;
@@ -19,13 +17,14 @@ type FormState = {
   exhaustAir: string;
 };
 
-const onlyDigits = (value: string) => {
-  return value === "" || /^[0-9]+$/.test(value);
+type StandardsToRoomState = {
+  acph?: number | string;
 };
 
 export default function AddRoom() {
-  const s = addRoomDesign;
-  const T = textJson as TextJson;
+  const location = useLocation();
+  const prev = (location.state || {}) as StandardsToRoomState;
+  const acph = prev.acph ?? "";
 
   const [form, setForm] = useState<FormState>({
     roomName: "",
@@ -37,35 +36,42 @@ export default function AddRoom() {
     lightingLoad: "",
     infiltrationsPerHour: "",
     freshAirPercent: "",
-    exhaustAir: ""
+    exhaustAir: "",
   });
 
   const setField = (key: keyof FormState, value: string) => {
-    const isNumericField = key !== "roomName";
-    if (isNumericField && !onlyDigits(value)) return;
+    if (key === "roomName") {
+      if (value !== "" && !/^[a-zA-Z\s]+$/.test(value)) return;
+    } else {
+      if (value !== "" && !/^\d*\.?\d*$/.test(value)) return;
+    }
 
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  useEffect(() => {
-    console.log("Room Form:", form);
-  }, [form]);
-
-  const onBack = () => {
-    console.log("Back clicked");
-  };
-
-  const onSave = () => {
-    if (T.fields.roomName.required && form.roomName.trim() === "") {
-      alert("Room name is required");
-      return;
-    }
-    console.log("Save Room / Do Calculations:", form);
-  };
+  const renderInput = (
+    key: keyof FormState,
+    mode: "text" | "numeric" = "numeric"
+  ) => (
+    <div className={s.field} key={key}>
+      <div className={s.labelRow}>
+        <label className={s.label}>{(T.fields as any)[key].label}</label>
+        {(T.fields as any)[key].required && (
+          <span className={s.required}>*</span>
+        )}
+      </div>
+      <input
+        className={s.input}
+        inputMode={mode}
+        value={form[key]}
+        placeholder={(T.fields as any)[key].placeholder}
+        onChange={(e) => setField(key, e.target.value)}
+      />
+    </div>
+  );
 
   return (
     <div className={s.page}>
-      {/* HEADER */}
       <div className={s.headerWrap}>
         <div className={s.headerIconWrap}>
           <FaCalculator className="text-white text-2xl" />
@@ -74,172 +80,47 @@ export default function AddRoom() {
         <p className={s.headerSubtitle}>{T.header.subtitle}</p>
       </div>
 
-      {/* CARD */}
       <div className={s.cardWrap}>
         <div className={s.card}>
           <div className={s.cardInner}>
-            {/* ROOM DETAILS */}
             <div className={s.sectionTitle}>{T.sections.roomDetails}</div>
-
-            <div className={s.grid2}>
-              <div className={s.field}>
-                <div className={s.labelRow}>
-                  <label className={s.label}>{T.fields.roomName.label}</label>
-                  {T.fields.roomName.required ? (
-                    <span className={s.required}>*</span>
-                  ) : null}
-                </div>
-
-                <input
-                  className={s.input}
-                  value={form.roomName}
-                  placeholder={T.fields.roomName.placeholder}
-                  onChange={(e) => setField("roomName", e.target.value)}
-                />
-              </div>
-            </div>
-
+            <div className={s.grid2}>{renderInput("roomName", "text")}</div>
             <div className={s.sectionDivider} />
 
-            {/* ROOM DIMENSIONS */}
             <div className={s.sectionTitle}>{T.sections.roomDimensions}</div>
-
             <div className={s.grid3}>
-              <div className={s.field}>
-                <label className={s.label}>{T.fields.length.label}</label>
-                <input
-                  className={s.input}
-                  inputMode="numeric"
-                  value={form.length}
-                  placeholder={T.fields.length.placeholder}
-                  onChange={(e) => setField("length", e.target.value)}
-                />
-              </div>
-
-              <div className={s.field}>
-                <label className={s.label}>{T.fields.width.label}</label>
-                <input
-                  className={s.input}
-                  inputMode="numeric"
-                  value={form.width}
-                  placeholder={T.fields.width.placeholder}
-                  onChange={(e) => setField("width", e.target.value)}
-                />
-              </div>
-
-              <div className={s.field}>
-                <label className={s.label}>{T.fields.height.label}</label>
-                <input
-                  className={s.input}
-                  inputMode="numeric"
-                  value={form.height}
-                  placeholder={T.fields.height.placeholder}
-                  onChange={(e) => setField("height", e.target.value)}
-                />
-              </div>
+              {["length", "width", "height"].map((k) =>
+                renderInput(k as keyof FormState)
+              )}
             </div>
-
             <div className={s.sectionDivider} />
 
             <div className={s.sectionTitle}>{T.sections.occupancyLoad}</div>
-
             <div className={s.grid3}>
-              <div className={s.field}>
-                <label className={s.label}>{T.fields.occupancy.label}</label>
-                <input
-                  className={s.input}
-                  inputMode="numeric"
-                  value={form.occupancy}
-                  placeholder={T.fields.occupancy.placeholder}
-                  onChange={(e) => setField("occupancy", e.target.value)}
-                />
-              
-              </div>
-
-              <div className={s.field}>
-                <label className={s.label}>{T.fields.equipmentLoad.label}</label>
-                <input
-                  className={s.input}
-                  inputMode="numeric"
-                  value={form.equipmentLoad}
-                  placeholder={T.fields.equipmentLoad.placeholder}
-                  onChange={(e) => setField("equipmentLoad", e.target.value)}
-                />
-
-              </div>
-
-              <div className={s.field}>
-                <label className={s.label}>{T.fields.lightingLoad.label}</label>
-                <input
-                  className={s.input}
-                  inputMode="numeric"
-                  value={form.lightingLoad}
-                  placeholder={T.fields.lightingLoad.placeholder}
-                  onChange={(e) => setField("lightingLoad", e.target.value)}
-                />
-            
-              </div>
+              {["occupancy", "equipmentLoad", "lightingLoad"].map((k) =>
+                renderInput(k as keyof FormState)
+              )}
             </div>
-
             <div className={s.sectionDivider} />
 
-
             <div className={s.sectionTitle}>{T.sections.airflowParameters}</div>
-
             <div className={s.grid3}>
-              <div className={s.field}>
-                <label className={s.label}>{T.fields.infiltrationsPerHour.label}</label>
-                <input
-                  className={s.input}
-                  inputMode="numeric"
-                  value={form.infiltrationsPerHour}
-                  placeholder={T.fields.infiltrationsPerHour.placeholder}
-                  onChange={(e) => setField("infiltrationsPerHour", e.target.value)}
-                />
-              </div>
-
-              <div className={s.field}>
-                <label className={s.label}>{T.fields.freshAirPercent.label}</label>
-                <input
-                  className={s.input}
-                  inputMode="numeric"
-                  value={form.freshAirPercent}
-                  placeholder={T.fields.freshAirPercent.placeholder}
-                  onChange={(e) => setField("freshAirPercent", e.target.value)}
-                />
-
-              </div>
-
-              <div className={s.field}>
-                <label className={s.label}>{T.fields.exhaustAir.label}</label>
-                <input
-                  className={s.input}
-                  inputMode="numeric"
-                  value={form.exhaustAir}
-                  placeholder={T.fields.exhaustAir.placeholder}
-                  onChange={(e) => setField("exhaustAir", e.target.value)}
-                />
-               
-              </div>
+              {["infiltrationsPerHour", "freshAirPercent", "exhaustAir"].map(
+                (k) => renderInput(k as keyof FormState)
+              )}
             </div>
           </div>
-
-          {/* FOOTER BUTTONS */}
-      
         </div>
-        <div className={s.footer}>
-          <Link to="/standards"> 
-            <button type="button" className={s.backBtn} onClick={onBack}>
-              <FaArrowLeft />
-              {T.buttons.back}
-            </button>
-            </Link>
 
-            <button type="button" className={s.saveBtn} onClick={onSave}>
-              {T.buttons.save}
-              <FaSave />
-            </button>
-          </div>
+        <div className={s.footer}>
+          <Link to="/standards" className={s.backBtn}>
+            <FaArrowLeft /> {T.buttons.back}
+          </Link>
+
+          <Link to="/results" className={s.saveBtn} state={{ ...form, acph }}>
+            {T.buttons.save} <FaSave />
+          </Link>
+        </div>
       </div>
     </div>
   );

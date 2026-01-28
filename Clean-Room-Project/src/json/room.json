@@ -1,4 +1,3 @@
-
 {
   "header": {
     "title": "Room Details",
@@ -11,19 +10,16 @@
     "airflowParameters": "AIRFLOW PARAMETERS"
   },
   "fields": {
-    "roomName": { "label": "Room Name", "placeholder": "Room 1", "required": true },
-
+    "roomName": { "label": "Room Name", "placeholder": "Enter your Room Name", "required": true },
     "length": { "label": "Length (m)", "placeholder": "8" },
     "width": { "label": "Width (m)", "placeholder": "9" },
-    "height": { "label": "Height (m)", "placeholder": "9" },
-
+    "height": { "label": "Height (m)", "placeholder": "3" },
     "occupancy": { "label": "Occupancy", "placeholder": "2" },
     "equipmentLoad": { "label": "Equipment Load (kW)", "placeholder": "3" },
-    "lightingLoad": { "label": "Lighting load in W/m2", "placeholder": "175" },
-
-    "infiltrationsPerHour": { "label": "No. of infiltrations per hour", "placeholder": "15" },
+    "lightingLoad": { "label": "Lighting (W/m²)", "placeholder": "10" },
+    "infiltrationsPerHour": { "label": "Infiltrations / hr", "placeholder": "0.5" },
     "freshAirPercent": { "label": "Fresh air (%)", "placeholder": "10" },
-    "exhaustAir": { "label": "Exhaust air (m3/s)", "placeholder": "200" }
+    "exhaustAir": { "label": "Exhaust air (m³/s)", "placeholder": "10" }
   },
   "buttons": {
     "back": "Back",

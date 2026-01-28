@@ -2,7 +2,7 @@ const standardDesign = {
   page: "min-h-screen bg-slate-50 px-4 py-12",
 
   top: "mx-auto max-w-5xl text-center",
-  title: "text-3xl md:text-4xl font-extrabold text-slate-900",
+  title: "text-3xl md:text-4xl font-extrabold text-slate-900 text-blue-600",
   subtitle: "mt-2 text-base text-slate-500",
 
   cardWrap: "mx-auto max-w-5xl mt-10",

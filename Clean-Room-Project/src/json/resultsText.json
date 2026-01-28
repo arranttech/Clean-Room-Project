@@ -1,0 +1,45 @@
+{
+    "title": "Form Results",
+    "subtitle": "These values are calculated results.",
+    "fields": {
+      "area": {
+        "label": "Area (ft²)"
+      },
+      "volume": {
+        "label": "Volume (ft³)"
+      },
+      "roomCfm": {
+        "label": "Room CFM"
+      },
+      "freshAir": {
+        "label": "Fresh Air"
+      },
+      "exhaustAir": {
+        "label": "Exhaust Air"
+      },
+      "Dehumidification": {
+        "label": "Dehumidification.CFM"
+    },
+    "ResultantCfm":{
+        "label":"Resultant CFM"
+    },
+    "remWaterVapour":{
+        "label": "Rem Water Vapour (Kg/hr)",
+        "FrAirCal": {
+          "value": 2.04117,
+          "unit": "kg/ft3-hr",
+          "description": "Conversion factor: (0.075 * 60) / 2.20462"
+        },
+        "delTempConst":{
+            "value1":6.1078,
+            "value2":7.5,
+            "value3":237.3
+        },
+        "watConst":{
+            "value1":4354,
+            "value2":1013.25
+        }
+    }
+  }
+}
+  

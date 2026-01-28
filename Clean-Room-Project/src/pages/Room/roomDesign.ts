@@ -13,7 +13,7 @@ const roomDesign = {
   cardInner: "px-8 py-8",
 
   sectionTitle:
-    "mt-6 text-xs font-bold tracking-widest text-slate-500 uppercase",
+    "mt-6 text-xm  font-bold tracking-widest text-slate-500 uppercase",
   sectionDivider: "mt-4 border-t border-slate-200",
 
   grid2: "mt-4 grid grid-cols-1 md:grid-cols-2 gap-6",

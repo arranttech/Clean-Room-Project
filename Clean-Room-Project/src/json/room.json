@@ -11,18 +11,21 @@
   },
   "fields": {
     "roomName": { "label": "Room Name", "placeholder": "Enter your Room Name", "required": true },
-    "length": { "label": "Length (m)", "placeholder": "8" },
-    "width": { "label": "Width (m)", "placeholder": "9" },
-    "height": { "label": "Height (m)", "placeholder": "3" },
-    "occupancy": { "label": "Occupancy", "placeholder": "2" },
-    "equipmentLoad": { "label": "Equipment Load (kW)", "placeholder": "3" },
-    "lightingLoad": { "label": "Lighting (W/m²)", "placeholder": "10" },
-    "infiltrationsPerHour": { "label": "Infiltrations / hr", "placeholder": "0.5" },
-    "freshAirPercent": { "label": "Fresh air (%)", "placeholder": "10" },
-    "exhaustAir": { "label": "Exhaust air (m³/s)", "placeholder": "10" }
+    "length": { "label": "Length (m)", "placeholder": "1" },
+    "width": { "label": "Width (m)", "placeholder": "1" },
+    "height": { "label": "Height (m)", "placeholder": "2" },
+    "occupancy": { "label": "Occupancy", "placeholder": "1" },
+    "equipmentLoad": { "label": "Equipment Load (kW)", "placeholder": "2" },
+    "lightingLoad": { "label": "Lighting (W/m²)", "placeholder": "1.75" },
+    "infiltrationsPerHour": { "label": "Infiltrations / hr", "placeholder": "2" },
+    "freshAirPercent": { "label": "Fresh Air (%)", "placeholder": "10" },
+    "exhaustAir": { "label": "Exhaust Air (m³/s)", "placeholder": "10" }
   },
   "buttons": {
     "back": "Back",
-    "save": "Save Room / Generate Calculations"
+    "addRoom": "Add Room",
+    "saveRoom": "Save Room",
+    "generate": "Generate Calculations",
+    "deleteRoom": "Delete"
   }
 }

@@ -117,7 +117,7 @@ export default function AddRoom() {
             <FaArrowLeft /> {T.buttons.back}
           </Link>
 
-          <Link to="/results" className={s.saveBtn} state={{ ...form, acph }}>
+          <Link to="/results" className={s.saveBtn} state={{ ...prev,...form, acph}}>
             {T.buttons.save} <FaSave />
           </Link>
         </div>

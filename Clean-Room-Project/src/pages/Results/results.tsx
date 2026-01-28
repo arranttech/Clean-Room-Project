@@ -29,8 +29,7 @@ export default function Results() {
     const location = useLocation();
     const props = (location.state || {}) as RoomPayload;
     const roomPayload = useMemo(() => props, [props]);
-
-
+    
     const [area, setArea] = useState(0);
     const [volume, setVolume] = useState(0);
     const [roomCfm, setRoomCfm] = useState(0);
@@ -52,17 +51,14 @@ export default function Results() {
       const maxTemp = Number(roomPayload.maxTemp || 0);
       const rhMax = Number(roomPayload.rhMax || 0);
       const faRaw = Number(roomPayload.freshAirPercent || 0);
+      const faFactor = faRaw > 1 ? faRaw / 100 : faRaw;
       const eaRaw = Number(roomPayload.exhaustAir || 0);
-
-
-
-    //calculations
+      const eaFactor = eaRaw > 1 ? eaRaw / 100 : eaRaw;
       const calculatedArea = L * W * 10.76;
       const calculatedVolume = Math.ceil(calculatedArea * H * 3.28 * 100) / 100;
       const calculatedRoomCfm = (calculatedVolume * ACPH) / 60;
-      const calculatedFreshAir = calculatedRoomCfm * faRaw;
-      const calculatedExhaustAir = calculatedRoomCfm * eaRaw;
-      
+      const calculatedFreshAir = calculatedRoomCfm * faFactor;
+      const calculatedExhaustAir = calculatedRoomCfm * eaFactor;
       const calculatedDehumid = Math.ceil(((occupancy * 200) + (infiltrationsPerHour * 375) + calculatedFreshAir + calculatedRoomCfm) / 25) * 25;
       const frAirCal = t.fields.remWaterVapour.FrAirCal.value; 
       const c1 = t.fields.remWaterVapour.delTempConst;
@@ -75,7 +71,7 @@ export default function Results() {
       const waterIn = humidIn / (c2.value2 - humidIn);
       const delWater = c2.value1 * (waterOut - waterIn);
       const calcRemovedVapor = (calculatedFreshAir * frAirCal) * delWater;
-      const resultant = Math.ceil(Math.max(calculatedRoomCfm + calculatedFreshAir, calculatedDehumid) / 25) * 25;
+      const resultant =Math.ceil(Math.max(calculatedRoomCfm + calculatedFreshAir, calculatedDehumid) / 25) *25;
 
       setArea(Number(calculatedArea.toFixed(2)));
       setVolume(Number(calculatedVolume.toFixed(2)));

@@ -438,7 +438,7 @@ function CustomerInfo() {
 											<br />
 											<span className={styles.selectedLocation}>  {place.display_name} </span>
 											<br />
-											<span> <span className={styles.coordinates}> Lattitude:  </span> {place.lat}</span>
+											<span className="text-[11px]"> <span className={styles.coordinates}> Lattitude:  </span> {place.lat}</span>
 											<span className={styles.coordinatesText}> <span className={styles.coordinates}>Longitude:</span>{place.lon}</span>
 										</div>
 

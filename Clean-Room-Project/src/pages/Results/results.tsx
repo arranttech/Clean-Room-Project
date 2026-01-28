@@ -3,7 +3,7 @@ import resultsText from "../../json/resultsText.json";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
-
+//payload
 type RoomPayload = {
   roomName: string;
   length: number | "";

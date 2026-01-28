@@ -20,6 +20,8 @@ function CustomerInfo() {
 	const [locationQuery, setLocationQuery] = useState("");
 	const [locationResults, setLocationResults] = useState([]);
 	const [showResults, setShowResults] = useState(false);
+	const [selectedLocation, setSelectedLocation] = useState(null);
+	const [showResultsLoctaion, setShowResultsLocation] = useState(false);
 	const [minTemp, setMinTemp] = useState("");
 	const [maxTemp, setMaxTemp] = useState("");
 	const [relativeHumidityMax, setRelativeHumidityMax] = useState("");
@@ -131,22 +133,43 @@ function CustomerInfo() {
 		setUniqueId(generateUniqueId(customerName, projectName));
 	}, [customerName, projectName]);
 
-	const searchLocation = async () => {
-		if (!locationQuery.trim()) return;
+	const searchLocation = async (query) => {
+		if (!query.trim()) return;
 
 		try {
 			const res = await fetch(
 				`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-					locationQuery
-				)}&limit=5`
+					query
+				)}&limit=3`
 			);
 			const data = await res.json();
+
 			setLocationResults(data);
+			setShowResultsLocation(false);
 			setShowResults(true);
 		} catch (err) {
 			console.error("Location search failed", err);
 		}
 	};
+
+
+	useEffect(() => {
+		if (locationQuery.length < 4) {
+			setShowResults(false);
+
+			return;
+		}
+
+
+		const delayDebounce = setTimeout(() => {
+			searchLocation(locationQuery);
+		}, 200);
+
+
+
+
+		return () => clearTimeout(delayDebounce);
+	}, [locationQuery]);
 
 	const handleSelectLocation = async (place) => {
 		const lat = parseFloat(place.lat);
@@ -160,10 +183,8 @@ function CustomerInfo() {
 			const startDate = new Date(1940, 0, 1);
 
 			const response = await fetch(
-				`https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lng}&start_date=${
-					startDate.toISOString().split("T")[0]
-				}&end_date=${
-					endDate.toISOString().split("T")[0]
+				`https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lng}&start_date=${startDate.toISOString().split("T")[0]
+				}&end_date=${endDate.toISOString().split("T")[0]
 				}&daily=temperature_2m_max,temperature_2m_min,relative_humidity_2m_max,relative_humidity_2m_min&timezone=auto`
 			);
 
@@ -383,14 +404,26 @@ function CustomerInfo() {
 								value={locationQuery}
 								onChange={(e) => setLocationQuery(e.target.value)}
 							/>
-							<button
-								type="button"
-								className={styles.searchButton}
-								onClick={searchLocation}
-							>
-								Search
-							</button>
+
 						</div>
+
+						{/* {showResultsLoctaion && (
+							<div className={styles.locationResults}>
+								{locationResults.map((place) => (
+									<div
+										key={place.place_id}
+										className={styles.locationResultItem}
+										onClick={() => handleSelectLocation(place)}
+									>
+
+
+										{place.display_name}
+
+
+									</div>
+								))}
+							</div>
+						)} */}
 
 						{showResults && (
 							<div className={styles.locationResults}>
@@ -400,7 +433,15 @@ function CustomerInfo() {
 										className={styles.locationResultItem}
 										onClick={() => handleSelectLocation(place)}
 									>
-										{place.display_name}
+										<div className={styles.locationResultText}>
+											<span className={styles.locationText}> Selected Location:</span>
+											<br />
+											<span className={styles.selectedLocation}>  {place.display_name} </span>
+											<br />
+											<span> <span className={styles.coordinates}> Lattitude:  </span> {place.lat}</span>
+											<span className={styles.coordinatesText}> <span className={styles.coordinates}>Longitude:</span>{place.lon}</span>
+										</div>
+
 									</div>
 								))}
 							</div>
@@ -435,7 +476,7 @@ function CustomerInfo() {
 									disabled
 								/>
 							</div>
-							<div className={styles.fieldGroup + " w-full"}>
+							<div className={styles.fieldGroup + " w-full mt-5"}>
 								<label className={styles.label}>Relative Humidity Min</label>
 								<input
 									className={styles.disabledInput}
@@ -443,7 +484,7 @@ function CustomerInfo() {
 									disabled
 								/>
 							</div>
-							<div className={styles.fieldGroup + " w-full"}>
+							<div className={styles.fieldGroup + " w-full mt-5"}>
 								<label className={styles.label}>Relative Humidity Max</label>
 								<input
 									className={styles.disabledInput}

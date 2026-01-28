@@ -1,17 +1,19 @@
 const resultsDesign = {
-    wrap: "w-full mt-10 px-10",
-    card: "bg-white border border-slate-200 rounded-2xl p-6 shadow-sm",
-    title: "text-lg font-semibold text-blue-600 text-center",
-    subtitle: "text-sm text-slate-500 mt-1 text-center",
-    grid: "mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5",
-    item: "bg-slate-50 border border-slate-200 rounded-xl p-4",
-    label: "text-xs font-semibold text-slate-600 tracking-wide",
-    value: "mt-2 text-base font-medium text-slate-900",
-    helper: "mt-1 text-xs text-slate-500",
-    footer: "flex justify-center items-center mt-10 max-w-5xl mx-auto",
-    backLink:
-    "inline-flex items-center gap-3 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 shadow-lg",
-  };
-  
-  export default resultsDesign;
-  
+  wrap: "w-full mt-10 px-4 md:px-10 flex justify-center",
+  card: "bg-white rounded-2xl p-8 w-full max-w-5xl",
+  headerSection: "text-center mb-10",
+  title: "text-3xl font-bold text-blue-600",
+  subtitle: "text-base text-slate-500 mt-2",
+  tableWrapper: "mt-6",
+  table: "w-full text-left border-collapse",
+  thead: "bg-slate-50",
+  th: "px-6 py-4 text-sm font-bold text-slate-600 uppercase tracking-widest border-b border-slate-900",
+  tr: "transition-colors",
+  trEven: "bg-slate-50/50",
+  tdLabel: "px-6 py-6 text-base text-slate-800 font-medium border-b border-slate-900",
+  tdValue: "px-6 pr-16 py-6 text-base text-slate-900 font-bold text-right border-b border-slate-900",
+  footer: "mt-12",
+  backLink: "inline-flex items-center gap-2 px-6 py-2 bg-white border border-slate-200 rounded-lg text-slate-700 font-medium hover:bg-slate-50 shadow-sm",
+};
+
+export default resultsDesign;

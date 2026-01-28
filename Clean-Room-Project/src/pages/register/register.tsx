@@ -2,12 +2,12 @@ import React from 'react'
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 import { Link } from "react-router-dom";
-import loginDesign from "./loginCSS";
+import registerDesign from "./registerCSS";
 import navbarDesign from '../../components/navbar/navbarDesign';
 
-function login() {
+function register() {
 
-    const styles = loginDesign;
+    const styles = registerDesign;
 
     return (
         <div className={styles.wrapper}>
@@ -51,15 +51,12 @@ function login() {
 
 
 
-                        <Link to="/register" className={styles.resetPwdLink}>
-                            <span> Forgot Password? </span>
+                       <br />
 
-                        </Link>
+                        <button className={styles.loginButton}> Register </button>
 
-                        <button className={styles.loginButton}>Sign In</button>
-
-                        <Link to="/register" className={styles.nextLink}>
-                            New Customer <span className='text-blue-600 hover:text-blue-400'> Register Here! </span>
+                        <Link to="/login" className={styles.nextLink}>
+                            Alread has account <span className='text-blue-600 hover:text-blue-400'> Login Here! </span>
 
                         </Link>
                     </div>
@@ -73,5 +70,4 @@ function login() {
 
     )
 }
-
-export default login
+export default register

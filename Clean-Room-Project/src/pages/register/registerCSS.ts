@@ -1,4 +1,5 @@
-const loginDesign = {
+
+const registerDesign = {
     wrapper: "bg-gray-100 min-h-screen p-4 flex flex-col justify-center  items-center   ",
     headerText: "text-center text-gray-600 text-sm mb-6",
     gridContainer: "grid grid-cols-1 md:grid-cols-1 gap-10 px-4 md:px-10 ",
@@ -19,10 +20,9 @@ const loginDesign = {
 
     loginButton: "bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-600 h-10 shadow-lg",
 
-    resetPwdLink: "inline-flex items-center gap-1.5 font-medium px-2 py-2 rounded-lg hover:text-gray-700 hover:font-medium ml-auto",
+   
     nextLink: "inline-flex items-center gap-1.5 text-black px-2 py-2 rounded-lg hover:text-gray-800   font-medium ml-auto",
   };
 
-  export default loginDesign;
-  
+  export default registerDesign;
   

@@ -69,6 +69,8 @@ export default function Results() {
       const W = Number(room.width || 0);
       const H = Number(room.height || 0);
       const occupancy = Number(room.occupancy || 0);
+      const equipment = Number(room.equipmentLoad || 0);
+      const lighting = Number(room.lightingLoad || 0);
       const infiltrationsPerHour = Number(room.infiltrationsPerHour || 0);
 
       // Percent Conversion
@@ -92,43 +94,55 @@ export default function Results() {
       // Exhaust Air
       const exhaustAir = roomCfm * eaFactor;
 
-      // Dehumidification
-      const dehumid =
-        Math.ceil(
+      const isTempValid = !isNaN(reqInsideTemp) && payload.reqInsideTempC !== "";
+
+      // Logic for fields that depend on reqInsideTemp
+      let dehumidValue: number | string;
+      let removedWaterValue: number | string;
+      let roomACValue: number | string;
+
+      if (isTempValid) {
+        // --- 1. DEHUMIDIFICATION CALCULATION ---
+        dehumidValue = Math.ceil(
           ((occupancy * 200) +
             (infiltrationsPerHour * 375) +
             freshAir +
             roomCfm) / 25
         ) * 25;
 
-      // Vapor Pressure
-      const peakTempVP =
-        c1.value1 * Math.pow(10, (c1.value2 * maxTemp) / (c1.value3 + maxTemp));
+        // --- 2. WATER VAPOR CALCULATION ---
+        const peakTempVP = c1.value1 * Math.pow(10, (c1.value2 * maxTemp) / (c1.value3 + maxTemp));
+        const roomTempVP = c1.value1 * Math.pow(10, (c1.value2 * reqInsideTemp) / (c1.value3 + reqInsideTemp));
+        const humidOut = (rhMax / 100) * peakTempVP;
+        const humidIn = (reqInsideHum / 100) * roomTempVP;
+        const waterOut = humidOut / (c2.value2 - humidOut);
+        const waterIn = humidIn / (c2.value2 - humidIn);
+        const delWater = c2.value1 * (waterOut - waterIn);
+        removedWaterValue = Number(((freshAir * frAirCal) * (delWater / c2.value3)).toFixed(3));
 
-      const roomTempVP =
-        c1.value1 *
-        Math.pow(10, (c1.value2 * reqInsideTemp) / (c1.value3 + reqInsideTemp));
+        // --- 3. ROOM AC LOAD (TR) CALCULATION ---
+        const roomACconst = t.fields.roomACloadTR;
+        const pc = roomACconst.PeopleConst;
+        const tempdiffer = (roomACconst.TempdiffConst.value * Math.abs(maxTemp - reqInsideTemp));
+        const wallConduction = (roomACconst.WallConst.value * (H * (L + W)));
+        const peopleNAirflow = (pc.value1 * ((occupancy * pc.value2) + (freshAir + exhaustAir)));
+        const equipNlight = (roomACconst.EqupConst.value * (equipment * 1000 + lighting * areaFt2));
+        const infilteration = (infiltrationsPerHour * roomACconst.InfilterConst.value);
+        
+        const ERSH = (tempdiffer * (wallConduction + peopleNAirflow)) + equipNlight + infilteration;
+        roomACValue = Number((Math.ceil((ERSH / roomACconst.TonsConst.value) * 2) / 2).toFixed(2));
+      } else {
+        // If not a number, display the original input string
+        dehumidValue = payload.reqInsideTempC || "Invalid";
+        removedWaterValue = payload.reqInsideTempC || "Invalid";
+        roomACValue = payload.reqInsideTempC || "Invalid";
+      }
 
-      // Humidity
-      const humidOut = (rhMax / 100) * peakTempVP;
-      const humidIn = (reqInsideHum / 100) * roomTempVP;
+      // Final Resultant logic based on whether dehumidValue is a number
+      const resultant = typeof dehumidValue === "number" 
+        ? Math.ceil(Math.max(roomCfm + freshAir, dehumidValue) / 25) * 25
+        : dehumidValue;
 
-      // Moisture Content
-      const waterOut = humidOut / (c2.value2 - humidOut);
-      const waterIn = humidIn / (c2.value2 - humidIn);
-
-      // Water Difference
-      const delWater = c2.value1 * (waterOut - waterIn);
-
-      // Water Removal
-      const removedWaterVapor =
-        (freshAir * frAirCal) * (delWater / c2.value3);
-
-      // Final CFM
-      const resultant =
-        Math.ceil(Math.max(roomCfm + freshAir, dehumid) / 25) * 25;
-
-      // Return Object
       return {
         roomName: room.roomName,
         area: Number(areaFt2.toFixed(2)),
@@ -136,16 +150,17 @@ export default function Results() {
         roomCfm: Number(roomCfm.toFixed(3)),
         freshAir: Number(freshAir.toFixed(3)),
         exhaustAir: Number(exhaustAir.toFixed(3)),
-        dehumid: Number(dehumid.toFixed(0)),
-        removedWaterVapor: Number(removedWaterVapor.toFixed(3)),
-        resultant: Number(resultant.toFixed(0)),
+        dehumid: dehumidValue,
+        removedWaterVapor: removedWaterValue,
+        resultant: resultant,
+        roomACLoadTR: roomACValue
       };
     });
 
     // Store Results
     setAllResults(computed);
 
-  }, [payload, rooms, t.fields.remWaterVapour]);
+  }, [payload, rooms, t.fields.remWaterVapour, t.fields.roomACloadTR]);
 
   // UI
   return (
@@ -177,7 +192,8 @@ export default function Results() {
                 <div>{t.fields.exhaustAir.label}: {r.exhaustAir}</div>
                 <div>{t.fields.Dehumidification.label}: {r.dehumid}</div>
                 <div>{t.fields.remWaterVapour.label}: {r.removedWaterVapor}</div>
-                <div>{t.fields.ResultantCfm.label}: {r.resultant}</div>
+                <div>{t.fields.resultantCfm.label}: {r.resultant}</div>
+                <div>{t.fields.RoomACloadTR.label}: {r.roomACLoadTR}</div>
               </div>
 
             </div>

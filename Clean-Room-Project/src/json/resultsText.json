@@ -20,8 +20,11 @@
       "Dehumidification": {
         "label": "Dehumidification.CFM"
     },
-    "ResultantCfm":{
+    "resultantCfm":{
         "label":"Resultant CFM"
+    },
+    "RoomACloadTR" :{
+        "label":"Room AC load in TR"
     },
     "remWaterVapour":{
         "label": "Rem Water Vapour (Kg/hr)",
@@ -40,6 +43,28 @@
             "value2":1013.25,
             "value3":7000
         }
+    },
+    "roomACloadTR":{
+      "label": "Room AC load in TR",
+      "TempdiffConst":{
+        "value":1.8
+      },
+      "WallConst":{
+        "value":9.684
+      },
+      "PeopleConst":{
+        "value1":1.08,
+        "value2":285
+      },
+      "EqupConst":{
+        "value":3.412
+      },
+      "InfilterConst":{
+        "value":5832
+      },
+      "TonsConst":{
+        "value":12000
+      }
     }
   }
 }

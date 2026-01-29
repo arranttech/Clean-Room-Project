@@ -1,12 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  FaCalculator,
-  FaArrowLeft,
-  FaSave,
-  FaPlus,
-  FaTrash
-} from "react-icons/fa";
+import { FaCalculator, FaRegListAlt, FaArrowLeft, FaSave, FaPlus, FaTrash } from "react-icons/fa";
 
 import s from "./roomDesign";
 import T from "../../json/room.json";
@@ -32,7 +26,6 @@ type StandardsPayload = {
   rhMax?: number | string;
 };
 
-
 const emptyForm: RoomForm = {
   roomName: "",
   length: "",
@@ -43,66 +36,69 @@ const emptyForm: RoomForm = {
   lightingLoad: "",
   infiltrationsPerHour: "",
   freshAirPercent: "",
-  exhaustAir: ""
+  exhaustAir: "",
 };
 
+// allow digits and one decimal point
 const isDecimalLike = (v: string) => /^\d*\.?\d*$/.test(v);
-
 
 export default function Room() {
   const location = useLocation();
   const navigate = useNavigate();
   const standards = (location.state || {}) as StandardsPayload;
+
   const [form, setForm] = useState<RoomForm>(emptyForm);
-  const [rooms, setRooms] = useState<RoomForm[]>([]);
+  const [savedRooms, setSavedRooms] = useState<RoomForm[]>([]);
+  const [isFormVisible, setIsFormVisible] = useState(false);
 
-
-  const setField = (key: keyof RoomForm, value: string) => {
+  // update one field with basic input validation
+  const updateFieldValue = (key: keyof RoomForm, value: string) => {
     if (key === "roomName") {
       if (value && !/^[a-zA-Z\s]+$/.test(value)) return;
     } else {
       if (value && !isDecimalLike(value)) return;
     }
-
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  
-
-  const canSaveRoom = useMemo(() => {
+  // check if all fields are filled so we can save the room
+  const isRoomReadyToSave = useMemo(() => {
     if (!form.roomName.trim()) return false;
-
     return Object.entries(form).every(([k, v]) =>
       k === "roomName" ? v.trim() !== "" : v !== ""
     );
   }, [form]);
 
+  // open the form for a new room
+  const openNewRoomForm = () => {
+    setForm(emptyForm);
+    setIsFormVisible(true);
+  };
 
-
-  const addRoom = () => {
+  // clear all current input fields
+  const resetRoomForm = () => {
     setForm(emptyForm);
   };
 
-  const saveRoom = () => {
-    if (!canSaveRoom) {
+  // save current form into savedRooms list
+  const saveCurrentRoom = () => {
+    if (!isRoomReadyToSave) {
       alert("Please fill all fields.");
       return;
     }
-
-    setRooms((prev) => [...prev, form]);
+    setSavedRooms((prev) => [...prev, form]);
     setForm(emptyForm);
+    setIsFormVisible(false);
   };
 
-  const deleteRoom = (index: number) => {
-    setRooms((prev) => prev.filter((_, i) => i !== index));
+  // remove one saved room by index
+  const removeSavedRoom = (index: number) => {
+    setSavedRooms((prev) => prev.filter((_, i) => i !== index));
   };
 
-  
-  //payload 
-  const generateCalculations = () => {
-    const finalRooms = canSaveRoom ? [...rooms, form] : rooms;
-
-    if (!finalRooms.length) {
+  // go to results page with previous payload + saved rooms
+  const goToResultsPage = () => {
+    if (!savedRooms.length) {
       alert("Please add at least one room.");
       return;
     }
@@ -110,20 +106,17 @@ export default function Room() {
     navigate("/results", {
       state: {
         ...standards,
-        rooms: finalRooms
-      }
+        rooms: savedRooms,
+      },
     });
   };
 
-
-
+  // render one input field based on key
   const renderInput = (key: keyof RoomForm) => (
     <div className={s.field} key={key}>
       <div className={s.labelRow}>
         <label className={s.label}>{(T.fields as any)[key].label}</label>
-        {(T.fields as any)[key].required && (
-          <span className={s.required}>*</span>
-        )}
+        {(T.fields as any)[key].required && <span className={s.required}>*</span>}
       </div>
 
       <input
@@ -131,15 +124,14 @@ export default function Room() {
         inputMode={key === "roomName" ? "text" : "decimal"}
         value={form[key]}
         placeholder={(T.fields as any)[key].placeholder}
-        onChange={(e) => setField(key, e.target.value)}
+        onChange={(e) => updateFieldValue(key, e.target.value)}
       />
     </div>
   );
 
-
   return (
     <div className={s.page}>
-      {/* HEADER */}
+      {/* page header */}
       <div className={s.headerWrap}>
         <div className={s.headerIconWrap}>
           <FaCalculator className="text-white text-2xl" />
@@ -150,97 +142,137 @@ export default function Room() {
       </div>
 
       <div className={s.cardWrap}>
-        {/* FORM CARD */}
+        {/* empty state (form hidden) */}
+        {!isFormVisible && (
+          <div className={s.card}>
+            <div className={s.cardInner}>
+              <div className={s.emptyWrap}>
+                <div className={s.emptyIconBox}>
+                  <FaRegListAlt className={s.emptyIcon} />
+                </div>
+
+                <div className={s.emptyTitle}>
+                  {savedRooms.length ? "Room Details Saved" : "No Rooms Added Yet"}
+                </div>
+
+                <div className={s.emptySubtitle}>
+                  Click "Add Room" to start adding room specifications
+                </div>
+
+                <div className="mt-8">
+                  <button type="button" onClick={openNewRoomForm} className={s.saveBtn}>
+                    <FaPlus /> {T.buttons.addRoom}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* input form (form visible) */}
+        {isFormVisible && (
+          <div className={s.card}>
+            <div className={s.cardInner}>
+              {/* clear inputs */}
+              <div className={s.topActions}>
+                <button type="button" onClick={resetRoomForm} className={s.clrBtn}>
+                  Clear
+                </button>
+              </div>
+
+              <div className={s.sectionTitle}>{T.sections.roomDetails}</div>
+              <div className={s.grid2}>{renderInput("roomName")}</div>
+
+              <div className={s.sectionDivider} />
+
+              <div className={s.sectionTitle}>{T.sections.roomDimensions}</div>
+              <div className={s.grid3}>
+                {renderInput("length")}
+                {renderInput("width")}
+                {renderInput("height")}
+              </div>
+
+              <div className={s.sectionTitle}>{T.sections.occupancyLoad}</div>
+              <div className={s.grid3}>
+                {renderInput("occupancy")}
+                {renderInput("equipmentLoad")}
+                {renderInput("lightingLoad")}
+              </div>
+
+              <div className={s.sectionTitle}>{T.sections.airflowParameters}</div>
+              <div className={s.grid3}>
+                {renderInput("infiltrationsPerHour")}
+                {renderInput("freshAirPercent")}
+                {renderInput("exhaustAir")}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* saved rooms list */}
         <div className={s.card}>
           <div className={s.cardInner}>
-            {/* ADD ROOM */}
-            <div className={s.topActions}>
-              <button onClick={addRoom} className={s.saveBtn}>
-                <FaPlus /> {T.buttons.addRoom}
-              </button>
+            <div className={s.savedHeaderRow}>
+              <div className={s.savedHeaderTitle}>Saved Room Details</div>
+              <div className={s.savedHeaderCount}>
+                {savedRooms.length ? `${savedRooms.length} saved` : "No rooms saved"}
+              </div>
             </div>
 
-            {/* ROOM DETAILS */}
-            <div className={s.sectionTitle}>{T.sections.roomDetails}</div>
-            <div className={s.grid2}>{renderInput("roomName")}</div>
+            <div className={s.divider} />
 
-            <div className={s.sectionDivider} />
+            <div className={s.roomsList}>
+              {savedRooms.length === 0 ? (
+                <div className={s.emptyState}>
+                  No rooms added yet. Click <b>Add Room</b> to begin.
+                </div>
+              ) : (
+                savedRooms.map((r, i) => (
+                  <div key={i} className={s.roomCard}>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className={s.roomCardTitle}>
+                        Room {i + 1}: {r.roomName}
+                      </div>
 
-            {/* DIMENSIONS */}
-            <div className={s.sectionTitle}>{T.sections.roomDimensions}</div>
-            <div className={s.grid3}>
-              {["length", "width", "height"].map((k) =>
-                renderInput(k as keyof RoomForm)
+                      <button
+                        type="button"
+                        onClick={() => removeSavedRoom(i)}
+                        className={s.deleteBtn}
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+
+                    <div className={s.roomCardLine}>
+                      Length:{r.length} | Width:{r.width} | Height:{r.height}
+                    </div>
+
+                    <div className={s.roomCardLine}>
+                      Occupancy:{r.occupancy} | Equipment:{r.equipmentLoad} | Lighting:{r.lightingLoad}
+                    </div>
+
+                    <div className={s.roomCardLine}>
+                      Infil/hr:{r.infiltrationsPerHour} | Fresh Air:{r.freshAirPercent}% | Exhaust:{r.exhaustAir}
+                    </div>
+                  </div>
+                ))
               )}
-            </div>
-
-            <div className={s.sectionDivider} />
-
-            {/* OCCUPANCY */}
-            <div className={s.sectionTitle}>{T.sections.occupancyLoad}</div>
-            <div className={s.grid3}>
-              {["occupancy", "equipmentLoad", "lightingLoad"].map((k) =>
-                renderInput(k as keyof RoomForm)
-              )}
-            </div>
-
-            <div className={s.sectionDivider} />
-
-            {/* AIRFLOW */}
-            <div className={s.sectionTitle}>
-              {T.sections.airflowParameters}
-            </div>
-            <div className={s.grid3}>
-              {[
-                "infiltrationsPerHour",
-                "freshAirPercent",
-                "exhaustAir"
-              ].map((k) => renderInput(k as keyof RoomForm))}
             </div>
           </div>
         </div>
 
-        {/* SAVED ROOMS */}
-        <div className={s.roomsList}>
-          {rooms.map((r, i) => (
-            <div key={i} className={s.roomCard}>
-              <div className="flex justify-between">
-                <div className={s.roomCardTitle}>
-                  Room {i + 1}: {r.roomName}
-                </div>
-
-                <button onClick={() => deleteRoom(i)}>
-                  <FaTrash />
-                </button>
-              </div>
-
-              <div className={s.roomCardLine}>
-                Length:{r.length} | Width:{r.width} | Height:{r.height}
-              </div>
-
-              <div className={s.roomCardLine}>
-                Occupancy:{r.occupancy} | Equipment load:{r.equipmentLoad} | Lighting:{r.lightingLoad}
-              </div>
-
-              <div className={s.roomCardLine}>
-                Infil/hr:{r.infiltrationsPerHour} | Fresh Air:{r.freshAirPercent}% | Exhaust Air:{r.exhaustAir}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* FOOTER */}
+        {/* footer actions */}
         <div className={s.footer}>
           <Link to="/standards" className={s.backBtn}>
             <FaArrowLeft /> {T.buttons.back}
           </Link>
 
           <div className="flex gap-4">
-            <button onClick={saveRoom} className={s.backBtn}>
+            <button type="button" onClick={saveCurrentRoom} className={s.backBtn}>
               {T.buttons.saveRoom}
             </button>
 
-            <button onClick={generateCalculations} className={s.saveBtn}>
+            <button type="button" onClick={goToResultsPage} className={s.saveBtn}>
               {T.buttons.generate} <FaSave />
             </button>
           </div>
@@ -249,3 +281,4 @@ export default function Room() {
     </div>
   );
 }
+

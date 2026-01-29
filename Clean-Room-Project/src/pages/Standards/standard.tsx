@@ -57,12 +57,73 @@ function isRealNumberString(s: string): boolean {
   return /^-?\d+(\.\d+)?$/.test(s);
 }
 
-function allowNumericInput(setter: (v: string) => void, value: string) {
+const temperature_range = { min: -30, max: 60 };
+
+function onReqInsideTempChange(
+  setter: (v: string) => void,
+  value: string,
+  range = temperature_range
+) {
   if (value === "" || isNumericLike(value)) setter(value);
+
+  if (!/^[\d*\.?\d*]{0,3}$/.test(value)) {
+    return;
+  }
+
+  const num = Number(value);
+
+  if (Number.isNaN(num)) return;
+  if (num < range.min || num > range.max) return;
+
+  setter(value);
+}
+
+function validateTemperature(value: string): string {
+  if (!value) return "";
+
+  const num = Number(value);
+  if (Number.isNaN(num)) return "Temperature must be a number";
+
+  if (num < temperature_range.min || num > temperature_range.max)
+    return "Temperature must be between -30°C and 60°C";
+
+  return "";
+}
+
+const humidity_range = { min: 0, max: 100 };
+
+function allowNumericInput(
+  setter: (v: string) => void,
+  value: string,
+  range = humidity_range
+) {
+  if (value === "" || isNumericLike(value)) setter(value);
+
+  if (!/^[\d*\.?\d*]{0,3}$/.test(value)) {
+    return;
+  }
+
+  const num = Number(value);
+
+  if (Number.isNaN(num)) return;
+  if (num < range.min || num > range.max) return;
+
+  setter(value);
+}
+
+function validateHumidity(value: string): string {
+  if (!value) return "";
+
+  const num = Number(value);
+  if (Number.isNaN(num)) return "Humidity must be a number";
+  if (num < 0 || num > 100) return "Humidity must be between 0 and 100";
+
+  return "";
 }
 
 export default function Standard() {
   const s = standardDesign;
+
   const location = useLocation();
   const prev = (location.state || {}) as CustomerInfoState;
 
@@ -85,6 +146,31 @@ export default function Standard() {
   const [rhMin, setRhMin] = useState("");
   const [rhMax, setRhMax] = useState("");
 
+  const [errors, setErrors] = useState({
+    standard: "",
+    classification: "",
+    acph: "",
+    system: "",
+    systemType: "",
+    heatingMethod: "",
+    coolingMethod: "",
+    humidity: "",
+    temperature: "",
+  });
+
+  const isFormValid = (() => {
+    if (!standard || errors.standard) return false;
+    if (!classification || errors.classification) return false;
+    if (!acph || errors.acph) return false;
+    if (!system || errors.system) return false;
+    if (systemType && errors.systemType) return false;
+    if (heatingMethod && errors.heatingMethod) return false;
+    if (coolingMethod && errors.coolingMethod) return false;
+    if (reqInsideHum && errors.humidity) return false;
+    if (reqInsideTempC && errors.temperature) return false;
+    return true;
+  })();
+
   const selectedStandard = standardsData.find((x) => x.title === standard);
   const classList = selectedStandard ? selectedStandard.classifications : [];
   const selectedClass = classList.find((c) => c.name === classification);
@@ -92,13 +178,16 @@ export default function Standard() {
   const acphOptions = useMemo(() => {
     const out: number[] = [];
     if (selectedClass?.minAir != null && selectedClass?.maxAir != null) {
-      for (let v = selectedClass.minAir; v <= selectedClass.maxAir; v++) out.push(v);
+      for (let v = selectedClass.minAir; v <= selectedClass.maxAir; v++)
+        out.push(v);
     }
     return out;
   }, [selectedClass]);
 
   const acphDisabled =
-    !selectedClass || selectedClass.minAir == null || selectedClass.maxAir == null;
+    !selectedClass ||
+    selectedClass.minAir == null ||
+    selectedClass.maxAir == null;
 
   useEffect(() => {
     if (!selectedClass) {
@@ -162,9 +251,12 @@ export default function Standard() {
     if (isHeatingVent) return t.options.systemTypes.heating || [];
     if (isCoolingVent) return t.options.systemTypes.cooling || [];
 
-    if (system === t.options.systems.heating) return t.options.systemTypes.heating || [];
-    if (system === t.options.systems.cooling) return t.options.systemTypes.cooling || [];
-    if (system === t.options.systems.ventilation) return t.options.systemTypes.ventilation || [];
+    if (system === t.options.systems.heating)
+      return t.options.systemTypes.heating || [];
+    if (system === t.options.systems.cooling)
+      return t.options.systemTypes.cooling || [];
+    if (system === t.options.systems.ventilation)
+      return t.options.systemTypes.ventilation || [];
 
     if (isHeating) return t.options.systemTypes.heating || [];
     if (isCooling) return t.options.systemTypes.cooling || [];
@@ -187,9 +279,22 @@ export default function Standard() {
   useEffect(() => {
     setMinTempC(typeof prev.minimumTemp === "string" ? prev.minimumTemp : "");
     setMaxTempC(typeof prev.maximumTemp === "string" ? prev.maximumTemp : "");
-    setRhMin(typeof prev.minRelativeHumidity === "string" ? prev.minRelativeHumidity : "");
-    setRhMax(typeof prev.maxRelativeHumidity === "string" ? prev.maxRelativeHumidity : "");
-  }, [prev.minimumTemp, prev.maximumTemp, prev.minRelativeHumidity, prev.maxRelativeHumidity]);
+    setRhMin(
+      typeof prev.minRelativeHumidity === "string"
+        ? prev.minRelativeHumidity
+        : ""
+    );
+    setRhMax(
+      typeof prev.maxRelativeHumidity === "string"
+        ? prev.maxRelativeHumidity
+        : ""
+    );
+  }, [
+    prev.minimumTemp,
+    prev.maximumTemp,
+    prev.minRelativeHumidity,
+    prev.maxRelativeHumidity,
+  ]);
 
   useEffect(() => {
     setSystemType("");
@@ -259,10 +364,11 @@ export default function Standard() {
     if (Number.isNaN(n)) return;
 
     if (tempUnit === "C") setReqInsideTempC(String(roundTo(n, 2)));
-    else setReqInsideTempC(String(roundTo(fahrenheitToCelsius(n), 2)));
+    else setReqInsideTempC(String(roundTo(fahrenheitToCelsius(n), 4)));
   };
 
-  const tempPlaceholder = tempUnit === "C" ? t.placeholders.reqTempC : t.placeholders.reqTempF;
+  const tempPlaceholder =
+    tempUnit === "C" ? t.placeholders.reqTempC : t.placeholders.reqTempF;
 
   const roomPayload = useMemo(() => {
     return {
@@ -303,7 +409,7 @@ export default function Standard() {
     rhMin,
     rhMax,
   ]);
-  
+
   useEffect(() => {
     console.group("STANDARD SCREEN - CURRENT STATE");
     console.log(roomPayload);
@@ -340,6 +446,7 @@ export default function Standard() {
                     setClassification("");
                     setAcph("");
                   }}
+                  required={true}
                 >
                   <option value="">{t.placeholders.standard}</option>
                   {standardsData.map((item) => (
@@ -352,13 +459,15 @@ export default function Standard() {
 
               <div className={s.field}>
                 <label className={s.label}>
-                  {t.labels.classification} <span className={s.required}>*</span>
+                  {t.labels.classification}{" "}
+                  <span className={s.required}>*</span>
                 </label>
                 <select
                   className={selectedStandard ? s.select : s.selectDisabled}
                   disabled={!selectedStandard}
                   value={classification}
                   onChange={(e) => setClassification(e.target.value)}
+                  required={true}
                 >
                   <option value="">
                     {selectedStandard
@@ -382,6 +491,7 @@ export default function Standard() {
                   disabled={acphDisabled}
                   value={acph}
                   onChange={(e) => setAcph(e.target.value)}
+                  required={true}
                 >
                   {acphDisabled ? (
                     <option value="">{t.placeholders.acphDisabled}</option>
@@ -394,14 +504,15 @@ export default function Standard() {
                   )}
                 </select>
 
-                {selectedClass?.minAir != null && selectedClass?.maxAir != null && (
-                  <div className={s.range}>
-                    {t.misc.rangeLabel}{" "}
-                    <span className={s.rangeValue}>
-                      {selectedClass.minAir} - {selectedClass.maxAir}
-                    </span>
-                  </div>
-                )}
+                {selectedClass?.minAir != null &&
+                  selectedClass?.maxAir != null && (
+                    <div className={s.range}>
+                      {t.misc.rangeLabel}{" "}
+                      <span className={s.rangeValue}>
+                        {selectedClass.minAir} - {selectedClass.maxAir}
+                      </span>
+                    </div>
+                  )}
               </div>
             </div>
 
@@ -416,12 +527,19 @@ export default function Standard() {
                     className={s.select}
                     value={system}
                     onChange={(e) => setSystem(e.target.value as SystemName)}
+                    required={true}
                   >
                     <option value="">{t.placeholders.system}</option>
 
-                    <option value={t.options.systems.heating}>{t.options.systems.heating}</option>
-                    <option value={t.options.systems.cooling}>{t.options.systems.cooling}</option>
-                    <option value={t.options.systems.ventilation}>{t.options.systems.ventilation}</option>
+                    <option value={t.options.systems.heating}>
+                      {t.options.systems.heating}
+                    </option>
+                    <option value={t.options.systems.cooling}>
+                      {t.options.systems.cooling}
+                    </option>
+                    <option value={t.options.systems.ventilation}>
+                      {t.options.systems.ventilation}
+                    </option>
 
                     <option value={t.options.systems.coolingVentilation}>
                       {t.options.systems.coolingVentilation}
@@ -438,12 +556,13 @@ export default function Standard() {
                 {system !== "" && (
                   <div className={s.field}>
                     <label className={s.label}>
-                      {systemTypeLabel} <span className={s.required}>*</span>
+                      {systemTypeLabel} <span className={s.required}></span>
                     </label>
                     <select
                       className={s.select}
                       value={systemType}
                       onChange={(e) => setSystemType(e.target.value)}
+                      required={true}
                     >
                       <option value="">{systemTypePlaceholder}</option>
                       {systemTypes.map((v: string) => (
@@ -461,12 +580,14 @@ export default function Standard() {
                   {showHeatingMethod && (
                     <div className={s.field}>
                       <label className={s.label}>
-                        {t.labels.heatingMethod} <span className={s.required}>*</span>
+                        {t.labels.heatingMethod}{" "}
+                        <span className={s.required}></span>
                       </label>
                       <select
                         className={s.select}
                         value={heatingMethod}
                         onChange={(e) => setHeatingMethod(e.target.value)}
+                        required={true}
                       >
                         <option value="">{t.placeholders.heatingMethod}</option>
                         {heatingMethods.map((m: string) => (
@@ -481,12 +602,14 @@ export default function Standard() {
                   {showCoolingMethod && (
                     <div className={s.field}>
                       <label className={s.label}>
-                        {t.labels.coolingMethod} <span className={s.required}>*</span>
+                        {t.labels.coolingMethod}{" "}
+                        <span className={s.required}></span>
                       </label>
                       <select
                         className={s.select}
                         value={coolingMethod}
                         onChange={(e) => setCoolingMethod(e.target.value)}
+                        required={true}
                       >
                         <option value="">{t.placeholders.coolingMethod}</option>
                         {coolingMethods.map((m: string) => (
@@ -538,7 +661,9 @@ export default function Standard() {
                   </label>
                 </div>
 
-                {ventilationOnly && <div className={s.unitHint}>{t.misc.ventilationUnitHint}</div>}
+                {ventilationOnly && (
+                  <div className={s.unitHint}>{t.misc.ventilationUnitHint}</div>
+                )}
               </div>
 
               <div className={"mt-6 " + s.grid2}>
@@ -548,24 +673,52 @@ export default function Standard() {
                   </label>
                   <input
                     className={ventilationOnly ? s.inputDisabled : s.input}
-                    inputMode="decimal" 
+                    inputMode="decimal"
                     placeholder={tempPlaceholder}
                     value={reqInsideTempDisplay}
-                    onChange={(e) => onReqInsideTempChange(e.target.value)}
+                    maxLength={3}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      onReqInsideTempChange(value);
+
+                      setErrors((prev) => ({
+                        ...prev,
+                        temperature: validateTemperature(value),
+                      }));
+                    }}
                     disabled={ventilationOnly}
                   />
+
+                  {errors.temperature && (
+                    <div className="text-red-500 text-xs mt-1">
+                      {errors.temperature}
+                    </div>
+                  )}
                 </div>
 
                 <div className={s.field}>
                   <label className={s.label}>{t.labels.reqInsideHum}</label>
                   <input
                     className={ventilationOnly ? s.inputDisabled : s.input}
-                    inputMode="decimal" 
+                    inputMode="decimal"
                     placeholder={t.placeholders.reqHumidity}
+                    maxLength={3}
                     value={reqInsideHum}
-                    onChange={(e) => allowNumericInput(setReqInsideHum, e.target.value)} 
+                    onChange={(e) => {
+                      allowNumericInput(setReqInsideHum, e.target.value);
+                      setErrors((prev) => ({
+                        ...prev,
+                        humidity: validateHumidity(e.target.value),
+                      }));
+                    }}
                     disabled={ventilationOnly}
                   />
+
+                  {errors.humidity && (
+                    <div className="text-red-500 text-xs mt-1">
+                      {errors.humidity}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -574,39 +727,57 @@ export default function Standard() {
                   <label className={s.label}>
                     {t.labels.minTemp} ({tempUnit === "C" ? "°C" : "°F"})
                   </label>
-                  <input className={s.inputDisabled} value={tempToDisplay(minTempC) || "-"} disabled />
+                  <input
+                    className={s.inputDisabled}
+                    value={tempToDisplay(minTempC) || "-"}
+                    disabled
+                  />
                 </div>
 
                 <div className={s.field}>
                   <label className={s.label}>
                     {t.labels.maxTemp} ({tempUnit === "C" ? "°C" : "°F"})
                   </label>
-                  <input className={s.inputDisabled} value={tempToDisplay(maxTempC) || "-"} disabled />
+                  <input
+                    className={s.inputDisabled}
+                    value={tempToDisplay(maxTempC) || "-"}
+                    disabled
+                  />
                 </div>
 
                 <div className={s.field}>
                   <label className={s.label}>{t.labels.rhMin}</label>
-                  <input className={s.inputDisabled} value={rhMin || "-"} disabled />
+                  <input
+                    className={s.inputDisabled}
+                    value={rhMin || "-"}
+                    disabled
+                  />
                 </div>
 
                 <div className={s.field}>
                   <label className={s.label}>{t.labels.rhMax}</label>
-                  <input className={s.inputDisabled} value={rhMax || "-"} disabled />
+                  <input
+                    className={s.inputDisabled}
+                    value={rhMax || "-"}
+                    disabled
+                  />
                 </div>
               </div>
 
-              {!ventilationOnly && reqInsideTempC && reqInsideTempC !== t.misc.ambient && (
-                <div className={s.tempHelper}>
-                  {t.misc.storedInternally} <b>{reqInsideTempC} °C</b>
-                </div>
-              )}
+              {!ventilationOnly &&
+                reqInsideTempC &&
+                reqInsideTempC !== t.misc.ambient && (
+                  <div className={s.tempHelper}>
+                    {t.misc.storedInternally} <b>{reqInsideTempC} °C</b>
+                  </div>
+                )}
             </div>
           </div>
         </div>
 
         <div className={s.quickView}>
-          Standard: <b>{standard || "-"}</b> | Classification: <b>{classification || "-"}</b> | ACPH:{" "}
-          <b>{acph || "-"}</b>
+          Standard: <b>{standard || "-"}</b> | Classification:{" "}
+          <b>{classification || "-"}</b> | ACPH: <b>{acph || "-"}</b>
         </div>
       </div>
 
@@ -616,9 +787,17 @@ export default function Standard() {
         </Link>
 
         <Link
-          to="/room"
-          className={s.nextLink}
-          state={roomPayload}
+          to={isFormValid ? "/room" : "#"}
+          className={`${s.nextLink} ${!isFormValid ? s.disabled : ""}`}
+          state={isFormValid ? { roomPayload } : undefined}
+          onClick={(e) => {
+            if (!isFormValid) {
+              e.preventDefault();
+              alert(
+                "Please fill all required fields correctly before proceeding."
+              );
+            }
+          }}
         >
           {t.buttons.next} <FaArrowRight />
         </Link>

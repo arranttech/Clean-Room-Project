@@ -62,6 +62,8 @@ const standardDesign = {
   unitRadio: "h-4 w-4 accent-blue-600",
   unitHint: "text-xs text-slate-500",
   tempHelper: "mt-3 text-xs text-slate-500",
+
+  disabled: "opacity-50 cursor-not-allowed pointer-events-none",
 };
 
 export default standardDesign;

@@ -209,7 +209,7 @@ export default function Results() {
         result = Number(result.toFixed(2));
       }
       console.log("2", result);
-      const roomTermSupply = Math.ceil(result/2)*2;
+      const roomTermSupplyValue = Math.ceil(result/2)*2;
 
       // CFM AC load in TR 
       let cfmACLoadTRValue: number | string = "-";
@@ -237,8 +237,8 @@ export default function Results() {
         removedWaterVapor: removedWaterValue,
         resultant: resultant,
         roomACLoadTR: roomACValue,
-        cfmACLoadTR: cfmACLoadTRValue
-        roomTermSupply: roomTermSupply,
+        cfmACLoadTR: cfmACLoadTRValue,
+        roomTermSupply: roomTermSupplyValue,
       };
     });
 
@@ -276,37 +276,8 @@ export default function Results() {
                 <div>{t.fields.remWaterVapour.label}: {r.removedWaterVapor}</div>
                 <div>{t.fields.resultantCfm.label}: {r.resultant}</div>
                 <div>{t.fields.RoomACloadTR.label}: {r.roomACLoadTR}</div>
+                <div>{t.fields.RoomTerminalSupply.label}: {r.roomTermSupply} </div>
                 <div>{t.fields.cfmACLoadTR.label}: {r.cfmACLoadTR}</div>
-                <div>
-                  {t.fields.area.label}: {r.area}
-                </div>
-                <div>
-                  {t.fields.volume.label}: {r.volume}
-                </div>
-                <div>
-                  {t.fields.roomCfm.label}: {r.roomCfm}
-                </div>
-                <div>
-                  {t.fields.freshAir.label}: {r.freshAir}
-                </div>
-                <div>
-                  {t.fields.exhaustAir.label}: {r.exhaustAir}
-                </div>
-                <div>
-                  {t.fields.Dehumidification.label}: {r.dehumid}
-                </div>
-                <div>
-                  {t.fields.remWaterVapour.label}: {r.removedWaterVapor}
-                </div>
-                <div>
-                  {t.fields.resultantCfm.label}: {r.resultant}
-                </div>
-                <div>
-                  {t.fields.RoomACloadTR.label}: {r.roomACLoadTR}
-                </div>
-                <div>
-                  {t.fields.RoomTerminalSupply.label}: {r.roomTermSupply}
-                </div>
               </div>
             </div>
           ))}

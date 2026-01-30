@@ -20,8 +20,26 @@
     "Dehumidification": {
       "label": "Dehumidification.CFM"
     },
-    "resultantCfm": {
-      "label": "Resultant CFM"
+    "cfmACLoadTR":{
+        "label":"CFM AC load in TR"
+    },
+    "remWaterVapour":{
+        "label": "Rem Water Vapour (Kg/hr)",
+        "FrAirCal": {
+          "value": 2.04117,
+          "unit": "kg/ft3-hr",
+          "description": "Conversion factor: (0.075 * 60) / 2.20462"
+        },
+        "delTempConst":{
+            "value1":6.1078,
+            "value2":7.5,
+            "value3":237.3
+        },
+        "watConst":{
+            "value1":4354,
+            "value2":1013.25,
+            "value3":7000
+        }
     },
     "RoomACloadTR": {
       "label": "Room AC load in TR"

@@ -24,6 +24,8 @@ type StandardsPayload = {
   reqInsideHum?: number | string;
   maxTempC?: number | string;
   rhMax?: number | string;
+  system?: string;
+  coolingMethod?: string;
 };
 
 const emptyForm: RoomForm = {

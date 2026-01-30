@@ -1,30 +1,24 @@
 {
-    "title": "Form Results",
-    "subtitle": "These values are calculated results.",
-    "fields": {
-      "area": {
-        "label": "Area (ft²)"
-      },
-      "volume": {
-        "label": "Volume (ft³)"
-      },
-      "roomCfm": {
-        "label": "Room CFM"
-      },
-      "freshAir": {
-        "label": "Fresh Air"
-      },
-      "exhaustAir": {
-        "label": "Exhaust Air"
-      },
-      "Dehumidification": {
-        "label": "Dehumidification.CFM"
+  "title": "Form Results",
+  "subtitle": "These values are calculated results.",
+  "fields": {
+    "area": {
+      "label": "Area (ft²)"
     },
-    "resultantCfm":{
-        "label":"Resultant CFM"
+    "volume": {
+      "label": "Volume (ft³)"
     },
-    "RoomACloadTR" :{
-        "label":"Room AC load in TR"
+    "roomCfm": {
+      "label": "Room CFM"
+    },
+    "freshAir": {
+      "label": "Fresh Air"
+    },
+    "exhaustAir": {
+      "label": "Exhaust Air"
+    },
+    "Dehumidification": {
+      "label": "Dehumidification.CFM"
     },
     "cfmACLoadTR":{
         "label":"CFM AC load in TR"
@@ -47,28 +41,134 @@
             "value3":7000
         }
     },
-    "roomACloadTR":{
-      "label": "Room AC load in TR",
-      "TempdiffConst":{
-        "value":1.8
+    "RoomACloadTR": {
+      "label": "Room AC load in TR"
+    },
+    "RoomTerminalSupply": {
+      "label": "Room Terminal Supply Module in Sft"
+    },
+    "remWaterVapour": {
+      "label": "Rem Water Vapour (Kg/hr)",
+      "FrAirCal": {
+        "value": 2.04117,
+        "unit": "kg/ft3-hr",
+        "description": "Conversion factor: (0.075 * 60) / 2.20462"
       },
-      "WallConst":{
-        "value":9.684
+      "delTempConst": {
+        "value1": 6.1078,
+        "value2": 7.5,
+        "value3": 237.3
       },
-      "PeopleConst":{
-        "value1":1.08,
-        "value2":285
-      },
-      "EqupConst":{
-        "value":3.412
-      },
-      "InfilterConst":{
-        "value":5832
-      },
-      "TonsConst":{
-        "value":12000
+      "watConst": {
+        "value1": 4354,
+        "value2": 1013.25,
+        "value3": 7000
       }
+    },
+    "roomACloadTR": {
+      "label": "Room AC load in TR",
+      "TempdiffConst": {
+        "value": 1.8
+      },
+      "WallConst": {
+        "value": 9.684
+      },
+      "PeopleConst": {
+        "value1": 1.08,
+        "value2": 285
+      },
+      "EqupConst": {
+        "value": 3.412
+      },
+      "InfilterConst": {
+        "value": 5832
+      },
+      "TonsConst": {
+        "value": 12000
+      }
+    },
+    "roomTerminalSupply": {
+      "label": "Room Terminal Supply Module",
+      "VelocityConst":{
+        "NCVV": 350,
+        "ISO8VV": 250,
+        "ISO6VV": 175,
+        "ISO5VV": 100,
+        "ISO4VV": 90,
+        "ISO3VV": 80,
+        "ISO2VV": 70,
+        "ISO1VV": 60
+      }    
+    },
+    "ClassifiCondition": {
+      "ISO8Cd": [
+        "ISO 8",
+        "CLASS 100K",
+        "GRADE D (ISO 8 AT REST & NOT DEFINED)",
+        "JIS CLASS 8",
+        "GRADE D (ISO 7 AT REST & ISO 8 IN OPER.)",
+        "3500",
+        "K",
+        "4000000"
+      ],
+      "ISO7Cd": [
+        "ISO 7",
+        "CLASS10K",
+        "GRADE C (ISO 7 AT REST & ISO 8 IN OPER.)",
+        "JIS CLASS 7",
+        "GRADE C (ISO 7 AT REST & ISO 7 IN OPER.)",
+        "350",
+        "J",
+        "6",
+        "400000"
+      ],
+      "ISOCd6": [
+        "ISO 6",
+        "CLASS1K",
+        "GRADE B (ISO 5 AT REST & ISO 7 IN OPER.)",
+        "JIS CLASS 6",
+        "GRADE B (ISO 5 AT REST & ISO 7 IN OPER.)",
+        "35",
+        "G or H",
+        "5"
+      ],
+      "ISOCd5": [
+        "ISO 5",
+        "CLASS 100",
+        "GRADE A (ISO 5 AT REST & ISO 5 IN OPER.)",
+        "JIS CLASS 5",
+        "GRADE A (ISO 5 AT REST & ISO 5 IN OPER.)",
+        "3.5",
+        "E or F",
+        "4",
+        "4000"
+      ],
+      "ISOCd4": [
+        "ISO 4",
+        "CLASS 10",
+        "JIS CLASS 4",
+        "0.35",
+        "D",
+        "3"
+      ],
+      "ISOCd3": [
+        "ISO 3",
+        "CLASS 1",
+        "JIS CLASS 3",
+        "0.035",
+        "C",
+        "2"
+      ],
+      "ISOCd2": [
+        "ISO 2",
+        "JIS CLASS 2",
+        "1"
+      ],
+      "ISOCd1": [
+        "ISO 1",
+        "JIS CLASS 1",
+        "0"
+      ]
     }
   }
 }
-  

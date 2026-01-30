@@ -28,11 +28,12 @@ type ResultsPayload = {
   rooms?: RoomForm[];
   system?: string;
   coolingMethod?: string;
+  standard?: string;
+  classification?: string;
 };
 
 // Component
 export default function Results() {
-
   // Styles & Text
   const s = resultsDesign;
   const t = resultsText;
@@ -51,13 +52,13 @@ export default function Results() {
   ////////////////////////////////////////////////////////////////// Calculations//////////////////////////////////////////////////////////////////////////
 
   useEffect(() => {
-
     // System Inputs
     const ACPH = Number(payload.acph || 0);
     const reqInsideTemp = Number(payload.reqInsideTempC || 0);
     const reqInsideHum = Number(payload.reqInsideHum || 0);
     const maxTemp = Number(payload.maxTempC || 0);
     const rhMax = Number(payload.rhMax || 0);
+    const roomClassi = String(payload.classification ?? "").trim();
 
     // Constants
     const frAirCal = t.fields.remWaterVapour.FrAirCal.value;
@@ -66,7 +67,6 @@ export default function Results() {
 
     // Room Loop
     const computed = rooms.map((room) => {
-
       // Room Inputs
       const L = Number(room.length || 0);
       const W = Number(room.width || 0);
@@ -97,7 +97,8 @@ export default function Results() {
       // Exhaust Air
       const exhaustAir = roomCfm * eaFactor;
 
-      const isTempValid = !isNaN(reqInsideTemp) && payload.reqInsideTempC !== "";
+      const isTempValid =
+        !isNaN(reqInsideTemp) && payload.reqInsideTempC !== "";
 
       // Logic for fields that depend on reqInsideTemp
       let dehumidValue: number | string;
@@ -110,34 +111,54 @@ export default function Results() {
       
       if (isTempValid) {
         // --- 1. DEHUMIDIFICATION CALCULATION ---
-        dehumidValue = Math.ceil(
-          ((occupancy * 200) +
-            (infiltrationsPerHour * 375) +
-            freshAir +
-            roomCfm) / 25
-        ) * 25;
+        dehumidValue =
+          Math.ceil(
+            (occupancy * 200 +
+              infiltrationsPerHour * 375 +
+              freshAir +
+              roomCfm) /
+              25,
+          ) * 25;
 
         // --- 2. WATER VAPOR CALCULATION ---
-        const peakTempVP = c1.value1 * Math.pow(10, (c1.value2 * maxTemp) / (c1.value3 + maxTemp));
-        const roomTempVP = c1.value1 * Math.pow(10, (c1.value2 * reqInsideTemp) / (c1.value3 + reqInsideTemp));
+        const peakTempVP =
+          c1.value1 *
+          Math.pow(10, (c1.value2 * maxTemp) / (c1.value3 + maxTemp));
+        const roomTempVP =
+          c1.value1 *
+          Math.pow(
+            10,
+            (c1.value2 * reqInsideTemp) / (c1.value3 + reqInsideTemp),
+          );
         const humidOut = (rhMax / 100) * peakTempVP;
         const humidIn = (reqInsideHum / 100) * roomTempVP;
         const waterOut = humidOut / (c2.value2 - humidOut);
         const waterIn = humidIn / (c2.value2 - humidIn);
         const delWater = c2.value1 * (waterOut - waterIn);
-        removedWaterValue = Number(((freshAir * frAirCal) * (delWater / c2.value3)).toFixed(3));
+        removedWaterValue = Number(
+          (freshAir * frAirCal * (delWater / c2.value3)).toFixed(3),
+        );
 
         // --- 3. ROOM AC LOAD (TR) CALCULATION ---
         const roomACconst = t.fields.roomACloadTR;
         const pc = roomACconst.PeopleConst;
-        const tempdiffer = (roomACconst.TempdiffConst.value * Math.abs(maxTemp - reqInsideTemp));
-        const wallConduction = (roomACconst.WallConst.value * (H * (L + W)));
-        const peopleNAirflow = (pc.value1 * ((occupancy * pc.value2) + (freshAir + exhaustAir)));
-        const equipNlight = (roomACconst.EqupConst.value * (equipment * 1000 + lighting * areaFt2));
-        const infilteration = (infiltrationsPerHour * roomACconst.InfilterConst.value);
-        
-        const ERSH = (tempdiffer * (wallConduction + peopleNAirflow)) + equipNlight + infilteration;
-        roomACValue = Number((Math.ceil((ERSH / roomACconst.TonsConst.value) * 2) / 2).toFixed(2));
+        const tempdiffer =
+          roomACconst.TempdiffConst.value * Math.abs(maxTemp - reqInsideTemp);
+        const wallConduction = roomACconst.WallConst.value * (H * (L + W));
+        const peopleNAirflow =
+          pc.value1 * (occupancy * pc.value2 + (freshAir + exhaustAir));
+        const equipNlight =
+          roomACconst.EqupConst.value * (equipment * 1000 + lighting * areaFt2);
+        const infilteration =
+          infiltrationsPerHour * roomACconst.InfilterConst.value;
+
+        const ERSH =
+          tempdiffer * (wallConduction + peopleNAirflow) +
+          equipNlight +
+          infilteration;
+        roomACValue = Number(
+          (Math.ceil((ERSH / roomACconst.TonsConst.value) * 2) / 2).toFixed(2),
+        );
       } else {
         // If not a number, display the original input string
         dehumidValue = payload.reqInsideTempC || "Invalid";
@@ -146,9 +167,49 @@ export default function Results() {
       }
 
       // Final Resultant logic based on whether dehumidValue is a number
-      const resultant = typeof dehumidValue === "number" 
-        ? Math.ceil(Math.max(roomCfm + freshAir, dehumidValue) / 25) * 25
-        : dehumidValue;
+      const resultant =
+        typeof dehumidValue === "number"
+          ? Math.ceil(Math.max(roomCfm + freshAir, dehumidValue) / 25) * 25
+          : dehumidValue;
+
+      // Room Terminal Supply Module in Sft
+      const V1 = t.fields.ClassifiCondition;
+      const V2 = t.fields.roomTerminalSupply.VelocityConst;
+      let Classifi = String(roomClassi || "").toUpperCase().trim();
+      let Value = parseFloat(String(resultant));
+      console.log("1", Value);
+      let result = 0;
+
+      if (V1.ISO8Cd.includes(Classifi) || (V1.ISO7Cd.includes(Classifi))) {
+        result = Value /V2.ISO8VV ; 
+      }
+      else if (V1.ISOCd6.includes(Classifi)){
+        result = Value/V2.ISO6VV;
+      }
+      else if (V1.ISOCd5.includes(Classifi)){
+        result = Value/V2.ISO5VV;
+      }
+      else if (V1.ISOCd4.includes(Classifi)){
+        result = Value/V2.ISO4VV;
+      }
+      else if (V1.ISOCd3.includes(Classifi)){
+        result = Value/V2.ISO3VV;
+      }
+      else if (V1.ISOCd2.includes(Classifi)){
+        result = Value/V2.ISO2VV;
+      }
+      else if (V1.ISOCd1.includes(Classifi)){
+        result = Value/V2.ISO1VV;
+      }
+      else {
+        result = Value/V2.NCVV;
+      }
+
+      if (result > 0) {
+        result = Number(result.toFixed(2));
+      }
+      console.log("2", result);
+      const roomTermSupply = Math.ceil(result/2)*2;
 
       // CFM AC load in TR 
       let cfmACLoadTRValue: number | string = "-";
@@ -177,19 +238,18 @@ export default function Results() {
         resultant: resultant,
         roomACLoadTR: roomACValue,
         cfmACLoadTR: cfmACLoadTRValue
+        roomTermSupply: roomTermSupply,
       };
     });
 
     // Store Results
     setAllResults(computed);
-
   }, [payload, rooms, t.fields.remWaterVapour, t.fields.roomACloadTR]);
 
   // UI
   return (
     <div className={s.wrap}>
       <div className={s.card}>
-
         {/* Header */}
         <div>
           <div className={s.title}>{t.title}</div>
@@ -200,7 +260,6 @@ export default function Results() {
         <div className="mt-8 space-y-6">
           {allResults.map((r, idx) => (
             <div key={idx} className="rounded-xl border border-slate-200 p-5">
-
               {/* Room Name */}
               <div className="text-lg font-semibold text-slate-900">
                 Room: {r.roomName || `Room ${idx + 1}`}
@@ -218,8 +277,37 @@ export default function Results() {
                 <div>{t.fields.resultantCfm.label}: {r.resultant}</div>
                 <div>{t.fields.RoomACloadTR.label}: {r.roomACLoadTR}</div>
                 <div>{t.fields.cfmACLoadTR.label}: {r.cfmACLoadTR}</div>
+                <div>
+                  {t.fields.area.label}: {r.area}
+                </div>
+                <div>
+                  {t.fields.volume.label}: {r.volume}
+                </div>
+                <div>
+                  {t.fields.roomCfm.label}: {r.roomCfm}
+                </div>
+                <div>
+                  {t.fields.freshAir.label}: {r.freshAir}
+                </div>
+                <div>
+                  {t.fields.exhaustAir.label}: {r.exhaustAir}
+                </div>
+                <div>
+                  {t.fields.Dehumidification.label}: {r.dehumid}
+                </div>
+                <div>
+                  {t.fields.remWaterVapour.label}: {r.removedWaterVapor}
+                </div>
+                <div>
+                  {t.fields.resultantCfm.label}: {r.resultant}
+                </div>
+                <div>
+                  {t.fields.RoomACloadTR.label}: {r.roomACLoadTR}
+                </div>
+                <div>
+                  {t.fields.RoomTerminalSupply.label}: {r.roomTermSupply}
+                </div>
               </div>
-
             </div>
           ))}
 

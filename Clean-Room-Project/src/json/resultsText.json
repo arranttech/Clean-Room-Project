@@ -26,6 +26,9 @@
     "RoomACloadTR" :{
         "label":"Room AC load in TR"
     },
+    "cfmACLoadTR":{
+        "label":"CFM AC load in TR"
+    },
     "remWaterVapour":{
         "label": "Rem Water Vapour (Kg/hr)",
         "FrAirCal": {

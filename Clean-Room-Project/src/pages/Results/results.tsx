@@ -26,6 +26,8 @@ type ResultsPayload = {
   maxTempC?: number | string;
   rhMax?: number | string;
   rooms?: RoomForm[];
+  system?: string;
+  coolingMethod?: string;
 };
 
 // Component
@@ -46,7 +48,8 @@ export default function Results() {
   // Results State
   const [allResults, setAllResults] = useState<any[]>([]);
 
-  // Calculations
+  ////////////////////////////////////////////////////////////////// Calculations//////////////////////////////////////////////////////////////////////////
+
   useEffect(() => {
 
     // System Inputs
@@ -73,7 +76,7 @@ export default function Results() {
       const lighting = Number(room.lightingLoad || 0);
       const infiltrationsPerHour = Number(room.infiltrationsPerHour || 0);
 
-      // Percent Conversion
+      // Percentage Conversion
       const faRaw = Number(room.freshAirPercent || 0);
       const faFactor = faRaw > 1 ? faRaw / 100 : faRaw;
       const eaRaw = Number(room.exhaustAir || 0);
@@ -101,6 +104,10 @@ export default function Results() {
       let removedWaterValue: number | string;
       let roomACValue: number | string;
 
+      function roundUpToHalf(value: number): number {
+        return Math.ceil(value / 0.5) * 0.5;
+      }
+      
       if (isTempValid) {
         // --- 1. DEHUMIDIFICATION CALCULATION ---
         dehumidValue = Math.ceil(
@@ -143,6 +150,21 @@ export default function Results() {
         ? Math.ceil(Math.max(roomCfm + freshAir, dehumidValue) / 25) * 25
         : dehumidValue;
 
+      // CFM AC load in TR 
+      let cfmACLoadTRValue: number | string = "-";
+      if (typeof resultant === "number") {
+      let divisor = 0;
+      if (payload.coolingMethod === "Chilled Water") divisor = 400;
+      else if (payload.coolingMethod === "DX") divisor = 300;
+      else if (payload.coolingMethod === "Brine") divisor = 600;
+
+      if (divisor > 0) {
+       const rawValue = resultant / divisor;
+      cfmACLoadTRValue = roundUpToHalf(rawValue);
+    }
+
+}
+
       return {
         roomName: room.roomName,
         area: Number(areaFt2.toFixed(2)),
@@ -153,7 +175,8 @@ export default function Results() {
         dehumid: dehumidValue,
         removedWaterVapor: removedWaterValue,
         resultant: resultant,
-        roomACLoadTR: roomACValue
+        roomACLoadTR: roomACValue,
+        cfmACLoadTR: cfmACLoadTRValue
       };
     });
 
@@ -194,6 +217,7 @@ export default function Results() {
                 <div>{t.fields.remWaterVapour.label}: {r.removedWaterVapor}</div>
                 <div>{t.fields.resultantCfm.label}: {r.resultant}</div>
                 <div>{t.fields.RoomACloadTR.label}: {r.roomACLoadTR}</div>
+                <div>{t.fields.cfmACLoadTR.label}: {r.cfmACLoadTR}</div>
               </div>
 
             </div>

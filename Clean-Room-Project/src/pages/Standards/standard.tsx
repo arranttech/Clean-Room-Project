@@ -789,7 +789,7 @@ export default function Standard() {
         <Link
           to={isFormValid ? "/room" : "#"}
           className={`${s.nextLink} ${!isFormValid ? s.disabled : ""}`}
-          state={isFormValid ? { roomPayload } : undefined}
+          state={roomPayload}
           onClick={(e) => {
             if (!isFormValid) {
               e.preventDefault();

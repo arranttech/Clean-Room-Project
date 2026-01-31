@@ -24,13 +24,16 @@
       "label":"Resultant CFM"
   },
     "cfmACLoadTR":{
-        "label":"CFM AC load in TR"
+        "label":"Cfm AC load in TR"
     },
     "RoomACloadTR": {
       "label": "Room AC load in TR"
     },
     "RoomTerminalSupply": {
       "label": "Room Terminal Supply Module in Sft"
+    },
+    "ResultCoolLoadTR":{
+      "label":"Resultant Cooling Load in TR"
     },
     "remWaterVapour": {
       "label": "Rem Water Vapour (Kg/hr)",

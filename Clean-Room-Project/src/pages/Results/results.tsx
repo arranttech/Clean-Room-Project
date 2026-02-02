@@ -29,6 +29,7 @@ type ResultsPayload = {
   coolingMethod?: string;
   standard?: string;
   classification?: string;
+  ventilationOnly?: boolean;
 };
 
 // Component
@@ -64,6 +65,7 @@ export default function Results() {
     const c1 = t.fields.remWaterVapour.delTempConst;
     const c2 = t.fields.remWaterVapour.watConst;
 
+
     // Room Loop
     const computed = rooms.map((room) => {
       // Room Inputs
@@ -76,8 +78,13 @@ export default function Results() {
       const infiltrationsPerHour = Number(room.infiltrationsPerHour || 0);
 
       // Percentage Conversion
-      const faRaw = Number(room.freshAirPercent || 0);
-      const faFactor = faRaw > 1 ? faRaw / 100 : faRaw;
+      let faPercent = Number(room.freshAirPercent || 0);
+      const ventilationOnly = Boolean(payload.ventilationOnly);
+      if (ventilationOnly) {
+        faPercent = 100;
+
+      }
+      const faFactor = faPercent / 100;
       const eaRaw = Number(room.exhaustAir || 0);
       const eaFactor = eaRaw > 1 ? eaRaw / 100 : eaRaw;
 
@@ -88,13 +95,17 @@ export default function Results() {
       const volumeFt3 = Math.ceil(areaFt2 * H * 3.28 * 100) / 100;
 
       // Room CFM
-      const roomCfm = (volumeFt3 * ACPH) / 60;
+      const roomCfm = (volumeFt3 * Number(payload.acph || 0)) / 60;
 
       // Fresh Air
-      const freshAir = roomCfm * faFactor;
+      const freshAir = ventilationOnly ? faPercent : roomCfm * faFactor;
 
       // Exhaust Air
       const exhaustAir = roomCfm * eaFactor;
+
+      console.log(
+        `Room: ${room.roomName}, ventilationOnly: ${ventilationOnly}, faPercent: ${faPercent}, roomCfm: ${roomCfm.toFixed(2)}, freshAir: ${freshAir.toFixed(2)}`
+      );
 
       const isTempValid =
         !isNaN(reqInsideTemp) && payload.reqInsideTempC !== "";
@@ -109,14 +120,28 @@ export default function Results() {
 
       if (isTempValid) {
         // --- DEHUMIDIFICATION CALCULATION ---
-        dehumidValue =
+
+
+        if (ventilationOnly) {
+          dehumidValue =
+            Math.ceil(
+              (occupancy * 200 +
+                infiltrationsPerHour * 375 +
+                freshAir) /
+              25
+            ) * 25;
+
+        }
+
+        else {
+          dehumidValue =
           Math.ceil(
             (occupancy * 200 +
               infiltrationsPerHour * 375 +
-              freshAir +
-              roomCfm) /
-              25
+              freshAir + roomCfm) /
+            25
           ) * 25;
+        }
 
         // --- WATER VAPOR CALCULATION ---
         const peakTempVP =

@@ -1,4 +1,3 @@
-// Imports
 import resultsDesign from "./resultsDesign";
 import resultsText from "../../json/resultsText.json";
 import { useEffect, useMemo, useState } from "react";
@@ -116,7 +115,7 @@ export default function Results() {
               infiltrationsPerHour * 375 +
               freshAir +
               roomCfm) /
-              25,
+              25
           ) * 25;
 
         // --- WATER VAPOR CALCULATION ---
@@ -127,7 +126,7 @@ export default function Results() {
           c1.value1 *
           Math.pow(
             10,
-            (c1.value2 * reqInsideTemp) / (c1.value3 + reqInsideTemp),
+            (c1.value2 * reqInsideTemp) / (c1.value3 + reqInsideTemp)
           );
         const humidOut = (rhMax / 100) * peakTempVP;
         const humidIn = (reqInsideHum / 100) * roomTempVP;
@@ -135,7 +134,7 @@ export default function Results() {
         const waterIn = humidIn / (c2.value2 - humidIn);
         const delWater = c2.value1 * (waterOut - waterIn);
         removedWaterValue = Number(
-          (freshAir * frAirCal * (delWater / c2.value3)).toFixed(3),
+          (freshAir * frAirCal * (delWater / c2.value3)).toFixed(3)
         );
 
         // --- ROOM AC LOAD (TR) CALCULATION ---
@@ -156,7 +155,7 @@ export default function Results() {
           equipNlight +
           infilteration;
         roomACValue = Number(
-          (Math.ceil((ERSH / roomACconst.TonsConst.value) * 2) / 2).toFixed(2),
+          (Math.ceil((ERSH / roomACconst.TonsConst.value) * 2) / 2).toFixed(2)
         );
       } else {
         // If not a number, display the original input string
@@ -180,11 +179,8 @@ export default function Results() {
       // Room Terminal Supply Module in Sft
       const V1 = t.fields.ClassifiCondition;
       const V2 = t.fields.roomTerminalSupply.VelocityConst;
-      let Classifi = String(roomClassi || "")
-        .toUpperCase()
-        .trim();
+      let Classifi = String(roomClassi || "").toUpperCase().trim();
       let Value = parseFloat(String(resultant));
-      console.log("1", Value);
       let result = 0;
 
       if (V1.ISO8Cd.includes(Classifi) || V1.ISO7Cd.includes(Classifi)) {
@@ -219,19 +215,16 @@ export default function Results() {
           else if (payload.coolingMethod === "DX") divisor = 300;
           else if (payload.coolingMethod === "Brine") divisor = 600;
 
-          if (divisor > 0) {
-            rawValue = resultant / divisor;
-          }
+          if (divisor > 0) rawValue = resultant / divisor;
         }
         cfmACLoadTRValue = Math.ceil(rawValue / 0.5) * 0.5;
 
         // --- RESULTANT COOLING LOAD IN TR ---
         resultCoolLoadTRValue =
           Math.ceil(
-            Math.max(Number(roomACValue), Number(cfmACLoadTRValue)) / 0.5,
+            Math.max(Number(roomACValue), Number(cfmACLoadTRValue)) / 0.5
           ) * 0.5;
       } else {
-        // If not a number, display the original input string
         cfmACLoadTRValue = payload.reqInsideTempC || "Invalid";
         resultCoolLoadTRValue = payload.reqInsideTempC || "Invalid";
       }
@@ -247,8 +240,8 @@ export default function Results() {
         removedWaterVapor: removedWaterValue,
         resultant: resultant,
         roomACLoadTR: roomACValue,
-        cfmACLoadTR: cfmACLoadTRValue,
         roomTermSupply: roomTermSupplyValue,
+        cfmACLoadTR: cfmACLoadTRValue,
         resultCoolLoadTRValue,
       };
     });
@@ -257,82 +250,80 @@ export default function Results() {
     setAllResults(computed);
   }, [payload, rooms, t.fields.remWaterVapour, t.fields.roomACloadTR]);
 
-  // UI
+  // UI (TABULAR)
   return (
     <div className={s.wrap}>
       <div className={s.card}>
         {/* Header */}
-        <div>
+        <div className={s.headerSection}>
           <div className={s.title}>{t.title}</div>
           <div className={s.subtitle}>{t.subtitle}</div>
         </div>
 
-        {/* List */}
-        <div className="mt-8 space-y-6">
-          {allResults.map((r, idx) => (
-            <div key={idx} className="rounded-xl border border-slate-200 p-5">
-              {/* Room Name */}
-              <div className="text-lg font-semibold text-slate-900">
-                Room: {r.roomName || `Room ${idx + 1}`}
-              </div>
+        {/* TABLE */}
+        <div className={s.tableOuter}>
+          <div className={s.tableScroll}>
+            <table className={s.table}>
+              <thead className={s.thead}>
+                <tr>
+                  <th className={s.thRoom}>Room Name</th>
+                  <th className={s.th}>{t.fields.area.label}</th>
+                  <th className={s.th}>{t.fields.volume.label}</th>
+                  <th className={s.th}>{t.fields.roomCfm.label}</th>
+                  <th className={s.th}>{t.fields.freshAir.label}</th>
+                  <th className={s.th}>{t.fields.exhaustAir.label}</th>
+                  <th className={s.th}>{t.fields.Dehumidification.label}</th>
+                  <th className={s.th}>{t.fields.remWaterVapour.label}</th>
+                  <th className={s.th}>{t.fields.resultantCfm.label}</th>
+                  <th className={s.th}>{t.fields.RoomACloadTR.label}</th>
+                  <th className={s.th}>{t.fields.RoomTerminalSupply.label}</th>
+                  <th className={s.th}>{t.fields.cfmACLoadTR.label}</th>
+                  <th className={s.th}>{t.fields.ResultCoolLoadTR.label}</th>
+                </tr>
+              </thead>
 
-              {/* Values */}
-              <div className="mt-3 text-sm text-slate-700 space-y-1">
-                <div>
-                  {t.fields.area.label}: {r.area}
-                </div>
-                <div>
-                  {t.fields.volume.label}: {r.volume}
-                </div>
-                <div>
-                  {t.fields.roomCfm.label}: {r.roomCfm}
-                </div>
-                <div>
-                  {t.fields.freshAir.label}: {r.freshAir}
-                </div>
-                <div>
-                  {t.fields.exhaustAir.label}: {r.exhaustAir}
-                </div>
-                <div>
-                  {t.fields.Dehumidification.label}: {r.dehumid}
-                </div>
-                <div>
-                  {t.fields.remWaterVapour.label}: {r.removedWaterVapor}
-                </div>
-                <div>
-                  {t.fields.resultantCfm.label}: {r.resultant}
-                </div>
-                <div>
-                  {t.fields.RoomACloadTR.label}: {r.roomACLoadTR}
-                </div>
-                <div>
-                  {t.fields.RoomTerminalSupply.label}: {r.roomTermSupply}{" "}
-                </div>
-                <div>
-                  {t.fields.cfmACLoadTR.label}: {r.cfmACLoadTR}
-                </div>
-                <div>
-                  {t.fields.ResultCoolLoadTR.label}: {r.resultCoolLoadTRValue}
-                </div>
-              </div>
-            </div>
-          ))}
+              <tbody>
+                {allResults.map((r, idx) => (
+                  <tr key={idx} className={s.tr}>
+                    <td className={s.tdRoom}>
+                      {r.roomName || `Room ${idx + 1}`}
+                    </td>
 
-          {/* Empty */}
-          {allResults.length === 0 && (
-            <div className="text-center text-slate-500">
-              No rooms added yet.
-            </div>
-          )}
+                    <td className={s.td}>{r.area}</td>
+                    <td className={s.td}>{r.volume}</td>
+                    <td className={s.td}>{r.roomCfm}</td>
+                    <td className={s.td}>{r.freshAir}</td>
+                    <td className={s.td}>{r.exhaustAir}</td>
+                    <td className={s.td}>{r.dehumid}</td>
+                    <td className={s.td}>{r.removedWaterVapor}</td>
+                    <td className={s.td}>{r.resultant}</td>
+                    <td className={s.td}>{r.roomACLoadTR}</td>
+                    <td className={s.td}>{r.roomTermSupply}</td>
+                    <td className={s.td}>{r.cfmACLoadTR}</td>
+                    <td className={s.td}>{r.resultCoolLoadTRValue}</td>
+                  </tr>
+                ))}
+
+                {allResults.length === 0 && (
+                  <tr>
+                    <td className={s.emptyRow} colSpan={13}>
+                      No rooms added yet.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      {/* Footer */}
-      <div className={s.footer}>
-        <Link to="/room" className={s.backLink}>
-          <FaArrowLeft /> back
-        </Link>
+        {/* Footer */}
+        <div className={s.footer}>
+          <Link to="/room" className={s.backLink}>
+            <FaArrowLeft /> back
+          </Link>
+        </div>
       </div>
     </div>
   );
 }
+

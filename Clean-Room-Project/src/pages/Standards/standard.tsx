@@ -371,6 +371,8 @@ export default function Standard() {
     tempUnit === "C" ? t.placeholders.reqTempC : t.placeholders.reqTempF;
 
   const roomPayload = useMemo(() => {
+
+    const isVentilationOnly = system === t.options.systems.ventilation;
     return {
       fromCustomerInfo: prev,
       standard,
@@ -390,6 +392,7 @@ export default function Standard() {
       minTempC,
       rhMin,
       rhMax,
+      ventilationOnly: isVentilationOnly,
     };
   }, [
     prev,

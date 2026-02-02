@@ -12,7 +12,7 @@
       "label": "Room CFM"
     },
     "freshAir": {
-      "label": "Fresh Air"
+      "label": "Fresh Air CFM"
     },
     "exhaustAir": {
       "label": "Exhaust Air"

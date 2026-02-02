@@ -20,7 +20,10 @@ const roomDesign = {
   labelRow: "flex items-center gap-2",
   label: "text-sm font-semibold text-slate-700",
   required: "text-red-500",
-
+  
+  inputDisabled:
+    "w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm " +
+    "focus:outline-none cursor-not-allowed",
   input:
     "w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm " +
     "focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none",

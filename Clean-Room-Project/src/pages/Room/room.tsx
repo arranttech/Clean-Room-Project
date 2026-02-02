@@ -53,8 +53,21 @@ export default function Room() {
   const [savedRooms, setSavedRooms] = useState<RoomForm[]>([]);
   const [isFormVisible, setIsFormVisible] = useState(false);
 
+
+  const isVentilationOnly = standards.system === "Ventilation System";
+
+
+  const ventilationAllowedFields: (keyof RoomForm)[] = [
+    "roomName",
+    "length",
+    "width",
+    "height",
+    "exhaustAir",
+  ];
+
   // update one field with basic input validation
   const updateFieldValue = (key: keyof RoomForm, value: string) => {
+    if (isVentilationOnly && !ventilationAllowedFields.includes(key)) return;
     if (key === "roomName") {
       if (value && !/^[a-zA-Z\s]+$/.test(value)) return;
     } else {
@@ -64,12 +77,22 @@ export default function Room() {
   };
 
   // check if all fields are filled so we can save the room
+  // const isRoomReadyToSave = useMemo(() => {
+  //   if (!form.roomName.trim()) return false;
+  //   return Object.entries(form).every(([k, v]) =>
+  //     k === "roomName" ? v.trim() !== "" : v !== ""
+  //   );
+  // }, [form]);
+
   const isRoomReadyToSave = useMemo(() => {
-    if (!form.roomName.trim()) return false;
-    return Object.entries(form).every(([k, v]) =>
-      k === "roomName" ? v.trim() !== "" : v !== ""
+    const fieldsToCheck = isVentilationOnly
+      ? ventilationAllowedFields
+      : (Object.keys(form) as (keyof RoomForm)[]);
+
+    return fieldsToCheck.every((key) =>
+      key === "roomName" ? form[key].trim() !== "" : form[key] !== ""
     );
-  }, [form]);
+  }, [form, isVentilationOnly]);
 
   // open the form for a new room
   const openNewRoomForm = () => {
@@ -88,6 +111,13 @@ export default function Room() {
       alert("Please fill all fields.");
       return;
     }
+
+    // const roomToSave = isVentilationOnly
+    //   ? (Object.fromEntries(
+    //     ventilationAllowedFields.map((k) => [k, form[k]])
+    //   ) as RoomForm)
+    //   : form;
+
     setSavedRooms((prev) => [...prev, form]);
     setForm(emptyForm);
     setIsFormVisible(false);
@@ -114,22 +144,46 @@ export default function Room() {
   };
 
   // render one input field based on key
-  const renderInput = (key: keyof RoomForm) => (
-    <div className={s.field} key={key}>
-      <div className={s.labelRow}>
-        <label className={s.label}>{(T.fields as any)[key].label}</label>
-        {(T.fields as any)[key].required && <span className={s.required}>*</span>}
-      </div>
+  // const renderInput = (key: keyof RoomForm) => (
+  //   <div className={s.field} key={key}>
+  //     <div className={s.labelRow}>
+  //       <label className={s.label}>{(T.fields as any)[key].label}</label>
+  //       {(T.fields as any)[key].required && <span className={s.required}>*</span>}
+  //     </div>
 
-      <input
-        className={s.input}
-        inputMode={key === "roomName" ? "text" : "decimal"}
-        value={form[key]}
-        placeholder={(T.fields as any)[key].placeholder}
-        onChange={(e) => updateFieldValue(key, e.target.value)}
-      />
-    </div>
-  );
+  //     <input
+  //       className={s.input}
+  //       inputMode={key === "roomName" ? "text" : "decimal"}
+  //       value={form[key]}
+  //       placeholder={(T.fields as any)[key].placeholder}
+  //       onChange={(e) => updateFieldValue(key, e.target.value)}
+  //     />
+  //   </div>
+  // );
+
+  const renderInput = (key: keyof RoomForm) => {
+    const disabled =
+      isVentilationOnly && !ventilationAllowedFields.includes(key);
+
+    return (
+      <div className={s.field} key={key}>
+        <label className={s.label}>{(T.fields as any)[key].label}</label>
+
+        <input
+          className={disabled ? s.inputDisabled : s.input}
+          inputMode={key === "roomName" ? "text" : "decimal"}
+          value={form[key]}
+          disabled={disabled}
+          placeholder={
+            disabled
+              ? "Not required for ventilation"
+              : (T.fields as any)[key].placeholder
+          }
+          onChange={(e) => updateFieldValue(key, e.target.value)}
+        />
+      </div>
+    );
+  };
 
   return (
     <div className={s.page}>
@@ -194,6 +248,7 @@ export default function Room() {
                 {renderInput("height")}
               </div>
 
+              
               <div className={s.sectionTitle}>{T.sections.occupancyLoad}</div>
               <div className={s.grid3}>
                 {renderInput("occupancy")}
@@ -205,7 +260,11 @@ export default function Room() {
               <div className={s.grid3}>
                 {renderInput("infiltrationsPerHour")}
                 {renderInput("freshAirPercent")}
+               
                 {renderInput("exhaustAir")}
+              
+              
+               
               </div>
             </div>
           </div>
@@ -283,4 +342,3 @@ export default function Room() {
     </div>
   );
 }
-

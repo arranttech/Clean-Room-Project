@@ -43,5 +43,17 @@
       "30-day free trial",
       "Cancel anytime"
     ]
+  },
+  "footer":{
+    "titleWhite":"Ready to Transform Your Cleanroom Design?",
+    "title":"Join hundreds of industry leaders who trust STERI Clean Air for their critical environments",
+    "footerPoints": [
+      "Full access to all features",
+      "No credit card required",
+      "Dedicated onboarding support",
+      "Cancel anytime"
+    ],
+    "contacttext":"Have questions? Contact our sales team at ",
+    "contactlink":"sales@stericleanair.com"
   }
 }

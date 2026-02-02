@@ -48,7 +48,7 @@ export default function Results() {
   // Results State
   const [allResults, setAllResults] = useState<any[]>([]);
 
-  ////////////////////////////////////////////////////////////////// Calculations//////////////////////////////////////////////////////////////////////////
+  ////////Calculations///////////////
 
   useEffect(() => {
     // System Inputs
@@ -158,18 +158,16 @@ export default function Results() {
           (Math.ceil((ERSH / roomACconst.TonsConst.value) * 2) / 2).toFixed(2)
         );
       } else {
-        // If not a number, display the original input string
         dehumidValue = payload.reqInsideTempC || "Invalid";
         removedWaterValue = payload.reqInsideTempC || "Invalid";
         roomACValue = payload.reqInsideTempC || "Invalid";
         cfmACLoadTRValue = payload.reqInsideTempC || "Invalid";
       }
 
-      // Final Resultant logic based on whether dehumidValue is a number
+      // Final Resultant logic
       const baseAirflow = roomCfm + freshAir;
       const baseResultant = Math.ceil(baseAirflow / 25) * 25;
 
-      // --- Resultant Cfm ---
       if (typeof dehumidValue === "number") {
         resultant = Math.ceil(Math.max(baseAirflow, dehumidValue) / 25) * 25;
       } else {
@@ -207,7 +205,6 @@ export default function Results() {
       const roomTermSupplyValue = Math.ceil(result / 2) * 2;
 
       if (isTempValid) {
-        // CFM AC load in TR
         let rawValue = 0;
         if (typeof resultant === "number") {
           let divisor = 0;
@@ -219,7 +216,6 @@ export default function Results() {
         }
         cfmACLoadTRValue = Math.ceil(rawValue / 0.5) * 0.5;
 
-        // --- RESULTANT COOLING LOAD IN TR ---
         resultCoolLoadTRValue =
           Math.ceil(
             Math.max(Number(roomACValue), Number(cfmACLoadTRValue)) / 0.5
@@ -238,29 +234,48 @@ export default function Results() {
         exhaustAir: Number(exhaustAir.toFixed(3)),
         dehumid: dehumidValue,
         removedWaterVapor: removedWaterValue,
-        resultant: resultant,
-        roomACLoadTR: roomACValue,
-        roomTermSupply: roomTermSupplyValue,
-        cfmACLoadTR: cfmACLoadTRValue,
+        resultant,
+        roomACValue,
+        roomTermSupplyValue,
+        cfmACLoadTRValue,
         resultCoolLoadTRValue,
       };
     });
 
-    // Store Results
     setAllResults(computed);
   }, [payload, rooms, t.fields.remWaterVapour, t.fields.roomACloadTR]);
+
+  // --- Calculate Totals ---
+  const totals = useMemo(() => {
+    return allResults.reduce((acc, curr) => ({
+      area: acc.area + (Number(curr.area) || 0),
+      volume: acc.volume + (Number(curr.volume) || 0),
+      roomCfm: acc.roomCfm + (Number(curr.roomCfm) || 0),
+      freshAir: acc.freshAir + (Number(curr.freshAir) || 0),
+      exhaustAir: acc.exhaustAir + (Number(curr.exhaustAir) || 0),
+      dehumid: acc.dehumid + (Number(curr.dehumid) || 0),
+      removedWaterVapor: acc.removedWaterVapor + (Number(curr.removedWaterVapor) || 0),
+      resultant: acc.resultant + (Number(curr.resultant) || 0),
+      roomACValue: acc.roomACValue + (Number(curr.roomACValue) || 0),
+      roomTermSupplyValue: acc.roomTermSupplyValue + (Number(curr.roomTermSupplyValue) || 0),
+      cfmACLoadTRValue: acc.cfmACLoadTRValue + (Number(curr.cfmACLoadTRValue) || 0),
+      resultCoolLoadTRValue: acc.resultCoolLoadTRValue + (Number(curr.resultCoolLoadTRValue) || 0),
+    }), {
+      area: 0, volume: 0, roomCfm: 0, freshAir: 0, exhaustAir: 0,
+      dehumid: 0, removedWaterVapor: 0, resultant: 0, roomACValue: 0,
+      roomTermSupplyValue: 0, cfmACLoadTRValue: 0, resultCoolLoadTRValue: 0
+    });
+  }, [allResults]);
 
   // UI (TABULAR)
   return (
     <div className={s.wrap}>
       <div className={s.card}>
-        {/* Header */}
         <div className={s.headerSection}>
           <div className={s.title}>{t.title}</div>
           <div className={s.subtitle}>{t.subtitle}</div>
         </div>
 
-        {/* TABLE */}
         <div className={s.tableOuter}>
           <div className={s.tableScroll}>
             <table className={s.table}>
@@ -285,10 +300,7 @@ export default function Results() {
               <tbody>
                 {allResults.map((r, idx) => (
                   <tr key={idx} className={s.tr}>
-                    <td className={s.tdRoom}>
-                      {r.roomName || `Room ${idx + 1}`}
-                    </td>
-
+                    <td className={s.tdRoom}>{r.roomName || `Room ${idx + 1}`}</td>
                     <td className={s.td}>{r.area}</td>
                     <td className={s.td}>{r.volume}</td>
                     <td className={s.td}>{r.roomCfm}</td>
@@ -297,18 +309,35 @@ export default function Results() {
                     <td className={s.td}>{r.dehumid}</td>
                     <td className={s.td}>{r.removedWaterVapor}</td>
                     <td className={s.td}>{r.resultant}</td>
-                    <td className={s.td}>{r.roomACLoadTR}</td>
-                    <td className={s.td}>{r.roomTermSupply}</td>
-                    <td className={s.td}>{r.cfmACLoadTR}</td>
+                    <td className={s.td}>{r.roomACValue}</td>
+                    <td className={s.td}>{r.roomTermSupplyValue}</td>
+                    <td className={s.td}>{r.cfmACLoadTRValue}</td>
                     <td className={s.td}>{r.resultCoolLoadTRValue}</td>
                   </tr>
                 ))}
 
+                {/* --- TOTALS ROW --- */}
+                {allResults.length > 0 && (
+                  <tr className={s.tr} style={{fontWeight: 'bold' }}>
+                    <td className={s.tdRoom}>TOTAL</td>
+                    <td className={s.td}>{totals.area.toFixed(2)}</td>
+                    <td className={s.td}>{totals.volume.toFixed(2)}</td>
+                    <td className={s.td}>{totals.roomCfm.toFixed(2)}</td>
+                    <td className={s.td}>{totals.freshAir.toFixed(2)}</td>
+                    <td className={s.td}>{totals.exhaustAir.toFixed(2)}</td>
+                    <td className={s.td}>{totals.dehumid}</td>
+                    <td className={s.td}>{totals.removedWaterVapor.toFixed(3)}</td>
+                    <td className={s.td}>{totals.resultant}</td>
+                    <td className={s.td}>{totals.roomACValue.toFixed(2)}</td>
+                    <td className={s.td}>{totals.roomTermSupplyValue}</td>
+                    <td className={s.td}>{totals.cfmACLoadTRValue.toFixed(2)}</td>
+                    <td className={s.td}>{totals.resultCoolLoadTRValue.toFixed(2)}</td>
+                  </tr>
+                )}
+
                 {allResults.length === 0 && (
                   <tr>
-                    <td className={s.emptyRow} colSpan={13}>
-                      No rooms added yet.
-                    </td>
+                    <td className={s.emptyRow} colSpan={13}>No rooms added yet.</td>
                   </tr>
                 )}
               </tbody>
@@ -316,7 +345,6 @@ export default function Results() {
           </div>
         </div>
 
-        {/* Footer */}
         <div className={s.footer}>
           <Link to="/room" className={s.backLink}>
             <FaArrowLeft /> back
@@ -326,4 +354,3 @@ export default function Results() {
     </div>
   );
 }
-

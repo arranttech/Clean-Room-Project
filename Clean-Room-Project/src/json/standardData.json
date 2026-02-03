@@ -4,7 +4,7 @@
       "id": 1,
       "title": "ISO 14644-4",
       "classifications": [
-        { "name": "ISO 9", "minAir": 5, "maxAir": 15 },
+        { "name": "ISO 9 (Non-Classified)", "minAir": 5, "maxAir": 15 },
         { "name": "ISO 8", "minAir": 20, "maxAir": 60 },
         { "name": "ISO 7", "minAir": 60, "maxAir": 150 },
         { "name": "ISO 6", "minAir": 150, "maxAir": 240 },
@@ -19,6 +19,7 @@
       "id": 2,
       "title": "FDA 209E",
       "classifications": [
+        {"name":"Non-Classified","minAir":"","maxAir":" "},
         { "name": "Class100K", "minAir": 12, "maxAir": 25 },
         { "name": "Class10K", "minAir": 30, "maxAir": 60 },
         { "name": "Class1K", "minAir": 80, "maxAir": 130 },
@@ -31,6 +32,7 @@
       "id": 3,
       "title": "GMP",
       "classifications": [
+        {"name":"Non-Classified","minAir":"","maxAir":" "},
         {
           "name": "Grade D (ISO 8 at Rest & Not Defined)",
           "minAir": 20,
@@ -57,7 +59,7 @@
       "id": 4,
       "title": "JIS B 9920",
       "classifications": [
-        { "name": "JIS Class 9", "minAir": 10, "maxAir": 20 },
+        { "name": "JIS Class 9 (Non-Classified)", "minAir": 10, "maxAir": 20 },
         { "name": "JIS Class 8", "minAir": 20, "maxAir": 60 },
         { "name": "JIS Class 7", "minAir": 60, "maxAir": 120 },
         { "name": "JIS Class 6", "minAir": 120, "maxAir": 180 },
@@ -72,6 +74,7 @@
       "id": 5,
       "title": "EU GMP",
       "classifications": [
+        {"name":"Non-Classified","minAir":"","maxAir":" "},
         {
           "name": "Grade D (ISO 7 at Rest & ISO 8 in Oper.)",
           "minAir": 40,
@@ -98,6 +101,7 @@
       "id": 6,
       "title": "TGA",
       "classifications": [
+        {"name":"Non-Classified","minAir":"","maxAir":" "},
         { "name": "3500", "minAir": 15, "maxAir": 40 },
         { "name": "350", "minAir": 40, "maxAir": 80 },
         { "name": "35", "minAir": 80, "maxAir": 130 },
@@ -110,6 +114,7 @@
       "id": 7,
       "title": "BS 5295",
       "classifications": [
+        {"name":"Non-Classified","minAir":"","maxAir":" "},
         { "name": "K", "minAir": 12, "maxAir": 25 },
         { "name": "J", "minAir": 30, "maxAir": 80 },
         { "name": "G or H", "minAir": 120, "maxAir": 180 },
@@ -122,6 +127,7 @@
       "id": 8,
       "title": "GERMANY VD",
       "classifications": [
+        {"name":"Non-Classified","minAir":"","maxAir":" "},
         { "name": "6", "minAir": 20, "maxAir": 60 },
         { "name": "5", "minAir": 60, "maxAir": 120 },
         { "name": "4", "minAir": 120, "maxAir": 180 },
@@ -135,6 +141,7 @@
       "id": 9,
       "title": "AFNOR X44101",
       "classifications": [
+        {"name":"Non-Classified","minAir":"","maxAir":" "},
         { "name": "4000000", "minAir": 20, "maxAir": 50 },
         { "name": "400000", "minAir": 60, "maxAir": 120 },
         { "name": "4000", "minAir": 120, "maxAir": 240 }
@@ -246,6 +253,18 @@
           "Cleanroom Air System (Heating & Cooling)",
           "Comfort Air System (Heating & Cooling)",
           "Non-Classified Air System (Heating & Cooling)"
+        ],
+        "heatingVent":[
+          "Cleanroom Air-Heating System",
+          "Comfort Air-Heating System",
+          "Non-Classified Air-Heating System",
+          "Ventilation System"
+        ],
+        "coolingVent":[
+          "Cleanroom Air-Cooling System",
+          "Comfort Air-Cooling System",
+          "Non-Classified Air-Cooling System",
+          "Ventilation System"
         ]
       },
       "methods": {

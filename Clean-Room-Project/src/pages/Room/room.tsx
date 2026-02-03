@@ -25,7 +25,9 @@ type StandardsPayload = {
   maxTempC?: number | string;
   rhMax?: number | string;
   system?: string;
+  systemType?: string;
   coolingMethod?: string;
+  heatingMethod?: string;
 };
 
 const emptyForm: RoomForm = {
@@ -54,7 +56,8 @@ export default function Room() {
   const [isFormVisible, setIsFormVisible] = useState(false);
 
 
-  const isVentilationOnly = standards.system === "Ventilation System";
+  const isVentilationOnly = standards.system === "Ventilation System" || 
+  standards.systemType === "Ventilation System";
 
 
   const ventilationAllowedFields: (keyof RoomForm)[] = [
@@ -75,6 +78,7 @@ export default function Room() {
     }
     setForm((prev) => ({ ...prev, [key]: value }));
   };
+
 
   // check if all fields are filled so we can save the room
   // const isRoomReadyToSave = useMemo(() => {

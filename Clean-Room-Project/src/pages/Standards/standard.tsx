@@ -172,7 +172,32 @@ export default function Standard() {
   })();
 
   const selectedStandard = standardsData.find((x) => x.title === standard);
-  const classList = selectedStandard ? selectedStandard.classifications : [];
+  // Determine filtering for "Non classified"
+  const classList = useMemo(() => {
+    if (!selectedStandard) return [];
+    
+    // Check if the current system type is one of the "Non-Classified" variants
+    const isNonClassifiedSystem = 
+      systemType === "Non-Classified Air-Cooling System" || 
+      systemType === "Non-Classified Air-Heating System";
+
+    // List of standards that should all of its classes
+    const exceptedStandards = ["NC-Non Classified", "ISO 14698", "SCHEDULE M"];
+    const isExceptedStandard = exceptedStandards.includes(standard);
+
+    // If it's a non-classified system but NOT one of the excepted standards, filter to "Non classified"
+    if (isNonClassifiedSystem && !isExceptedStandard) {
+      return selectedStandard.classifications.filter((c) => {
+        // This case-insensitive check handles "Non classified", "Non-Classified", etc.
+        const name = c.name.toLowerCase().replace("-", " ");
+        return name.includes("non classified");
+      });
+    }
+
+    // Otherwise, show everything
+    return selectedStandard.classifications;
+  }, [selectedStandard, systemType, standard]);
+
   const selectedClass = classList.find((c) => c.name === classification);
 
   const acphOptions = useMemo(() => {
@@ -213,8 +238,13 @@ export default function Standard() {
     system === t.options.systems.coolingVentilation ||
     system === t.options.systems.heatingVentilation;
 
-  const showHeatingMethod = isHeating;
-  const showCoolingMethod = isCooling;
+  // Logic to treat specific sub-types as Ventilation only
+  const ventilationOnly = 
+    (isVentilation && !isHeating && !isCooling) || 
+    (systemType === t.options.systems.ventilation);
+
+  const showHeatingMethod = isHeating && !ventilationOnly;
+  const showCoolingMethod = isCooling && !ventilationOnly;
 
   const isHeatingCooling = system === t.options.systems.heatingCooling;
   const isCoolingVent = system === t.options.systems.coolingVentilation;
@@ -248,8 +278,8 @@ export default function Standard() {
     if (!system) return [];
 
     if (isHeatingCooling) return t.options.systemTypes.combined || [];
-    if (isHeatingVent) return t.options.systemTypes.heating || [];
-    if (isCoolingVent) return t.options.systemTypes.cooling || [];
+    if (isHeatingVent) return t.options.systemTypes.heatingVent || [];
+    if (isCoolingVent) return t.options.systemTypes.coolingVent || [];
 
     if (system === t.options.systems.heating)
       return t.options.systemTypes.heating || [];
@@ -274,7 +304,6 @@ export default function Standard() {
 
   const heatingMethods: string[] = t.options.methods.heating || [];
   const coolingMethods: string[] = t.options.methods.cooling || [];
-  const ventilationOnly = isVentilation && !isHeating && !isCooling;
 
   useEffect(() => {
     setMinTempC(typeof prev.minimumTemp === "string" ? prev.minimumTemp : "");
@@ -297,11 +326,12 @@ export default function Standard() {
   ]);
 
   useEffect(() => {
-    setSystemType("");
-    setHeatingMethod("");
-    setCoolingMethod("");
-
+    // If we aren't changing the system itself, we don't necessarily want to wipe systemType, 
+    // but the original logic clears them on system change.
+    // However, if ventilationOnly becomes true via systemType, we must clear methods and set Ambient.
     if (ventilationOnly) {
+      setHeatingMethod("");
+      setCoolingMethod("");
       setReqInsideTempC(t.misc.ambient);
       setReqInsideTempDisplay(t.misc.ambient);
       setReqInsideHum(t.misc.ambient);
@@ -310,7 +340,7 @@ export default function Standard() {
       if (reqInsideTempDisplay === t.misc.ambient) setReqInsideTempDisplay("");
       if (reqInsideHum === t.misc.ambient) setReqInsideHum("");
     }
-  }, [system, ventilationOnly]);
+  }, [system, systemType, ventilationOnly]);
 
   const tempToDisplay = (cStr: string): string => {
     if (!cStr) return "";
@@ -347,7 +377,8 @@ export default function Standard() {
         : String(roundTo(celsiusToFahrenheit(c), 2));
     setReqInsideTempDisplay(display);
   }, [tempUnit, reqInsideTempC, ventilationOnly]);
-  const onReqInsideTempChange = (val: string) => {
+
+  const onReqInsideTempChangeLocal = (val: string) => {
     if (ventilationOnly) return;
 
     if (val === "") {
@@ -371,8 +402,6 @@ export default function Standard() {
     tempUnit === "C" ? t.placeholders.reqTempC : t.placeholders.reqTempF;
 
   const roomPayload = useMemo(() => {
-
-    const isVentilationOnly = system === t.options.systems.ventilation;
     return {
       fromCustomerInfo: prev,
       standard,
@@ -392,7 +421,7 @@ export default function Standard() {
       minTempC,
       rhMin,
       rhMax,
-      ventilationOnly: isVentilationOnly,
+      ventilationOnly: ventilationOnly,
     };
   }, [
     prev,
@@ -411,6 +440,7 @@ export default function Standard() {
     maxTempC,
     rhMin,
     rhMax,
+    ventilationOnly
   ]);
 
   useEffect(() => {
@@ -435,7 +465,6 @@ export default function Standard() {
           <div className={s.divider} />
 
           <div className={s.body}>
-            {/* Standard / Classification / ACPH */}
             <div className={s.grid3}>
               <div className={s.field}>
                 <label className={s.label}>
@@ -519,7 +548,6 @@ export default function Standard() {
               </div>
             </div>
 
-            {/* System */}
             <div className={s.sectionSpacer}>
               <div className={s.grid2}>
                 <div className={s.field}>
@@ -529,11 +557,13 @@ export default function Standard() {
                   <select
                     className={s.select}
                     value={system}
-                    onChange={(e) => setSystem(e.target.value as SystemName)}
+                    onChange={(e) => {
+                      setSystem(e.target.value as SystemName);
+                      setSystemType("");
+                    }}
                     required={true}
                   >
                     <option value="">{t.placeholders.system}</option>
-
                     <option value={t.options.systems.heating}>
                       {t.options.systems.heating}
                     </option>
@@ -543,7 +573,6 @@ export default function Standard() {
                     <option value={t.options.systems.ventilation}>
                       {t.options.systems.ventilation}
                     </option>
-
                     <option value={t.options.systems.coolingVentilation}>
                       {t.options.systems.coolingVentilation}
                     </option>
@@ -564,7 +593,8 @@ export default function Standard() {
                     <select
                       className={s.select}
                       value={systemType}
-                      onChange={(e) => setSystemType(e.target.value)}
+                      onChange={(e) => {setSystemType(e.target.value);setClassification("");setAcph("");
+                      }}
                       required={true}
                     >
                       <option value="">{systemTypePlaceholder}</option>
@@ -627,7 +657,6 @@ export default function Standard() {
               )}
             </div>
 
-            {/* Temperature & Humidity */}
             <div className={s.sectionLine} />
 
             <div className={s.sectionSpacer}>
@@ -682,10 +711,10 @@ export default function Standard() {
                     maxLength={3}
                     onChange={(e) => {
                       const value = e.target.value;
-                      onReqInsideTempChange(value);
+                      onReqInsideTempChangeLocal(value);
 
-                      setErrors((prev) => ({
-                        ...prev,
+                      setErrors((prevErr) => ({
+                        ...prevErr,
                         temperature: validateTemperature(value),
                       }));
                     }}
@@ -709,8 +738,8 @@ export default function Standard() {
                     value={reqInsideHum}
                     onChange={(e) => {
                       allowNumericInput(setReqInsideHum, e.target.value);
-                      setErrors((prev) => ({
-                        ...prev,
+                      setErrors((prevErr) => ({
+                        ...prevErr,
                         humidity: validateHumidity(e.target.value),
                       }));
                     }}

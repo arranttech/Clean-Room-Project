@@ -572,16 +572,16 @@ function CustomerInfo() {
                 value={locationQuery}
                 onChange={(e) => setLocationQuery(e.target.value)}
               />
-              {/* Clear Button */
+              {/* Clear Button */}
+              {locationQuery && (
                 <button
                   type="button"
-                  className={styles.locationClear}
                   onClick={() => setLocationQuery("")}
-                  aria-label="Clear location"
+                  className={styles.locationClear}
                 >
                   <FaXmark className={styles.locationClearIcon} />
                 </button>
-              }
+              )}
             </div>
 
             {showResults && (

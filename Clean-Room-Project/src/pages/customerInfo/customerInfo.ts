@@ -11,11 +11,11 @@ const customerInfoDesign = {
   label: "text-base font-medium text-gray-700",
   input: "border border-gray-200 my-2 p-2 rounded-lg mb-4 w-full truncate whitespace-nowrap",
 
-  inputborder: "border border-gray-200 my-2 p-2 pl-10 pr-12 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500",
-  inputWrapper: "relative w-full flex items-center",
+  inputborder: "border border-gray-200 p-4 pl-12 pr-14 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 relative z-0",
+  inputWrapper: "relative w-full flex items-stretch h-[42px] my-2",
   clearButton: "absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10",
-  locationClear: "absolute right-2 top-1/2 -translate-y-1/2 bg-gray-100 border border-gray-400 rounded-md p-1 hover:bg-gray-200 transition-colors flex items-center justify-center",
-  locationClearIcon: "text-black-600 text-sm font-bold",
+  locationClear: "absolute right-2 top-1/2 -translate-y-1/2 bg-[#f3f4f6] border border-gray-200 rounded-full h-[36px] w-[36px] flex items-center justify-center hover:bg-gray-100 transition-colors z-20 cursor-pointer",
+  locationClearIcon: "text-gray-500 text-base font-normal pointer-events-none",
 
 
   title: "text-3xl md:text-4xl font-extrabold text-slate-900",

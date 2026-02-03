@@ -18,6 +18,7 @@ type StandardJson = {
   standards: StandardItem[];
   text: any;
 };
+
 const data = standardDataJson as unknown as StandardJson;
 const standardsData = data.standards;
 const t = data.text;
@@ -59,34 +60,12 @@ function isRealNumberString(s: string): boolean {
 
 const temperature_range = { min: -30, max: 60 };
 
-function onReqInsideTempChange(
-  setter: (v: string) => void,
-  value: string,
-  range = temperature_range
-) {
-  if (value === "" || isNumericLike(value)) setter(value);
-
-  if (!/^[\d*\.?\d*]{0,3}$/.test(value)) {
-    return;
-  }
-
-  const num = Number(value);
-
-  if (Number.isNaN(num)) return;
-  if (num < range.min || num > range.max) return;
-
-  setter(value);
-}
-
 function validateTemperature(value: string): string {
   if (!value) return "";
-
   const num = Number(value);
   if (Number.isNaN(num)) return "Temperature must be a number";
-
   if (num < temperature_range.min || num > temperature_range.max)
     return "Temperature must be between -30°C and 60°C";
-
   return "";
 }
 
@@ -99,12 +78,9 @@ function allowNumericInput(
 ) {
   if (value === "" || isNumericLike(value)) setter(value);
 
-  if (!/^[\d*\.?\d*]{0,3}$/.test(value)) {
-    return;
-  }
+  if (!/^[\d*\.?\d*]{0,3}$/.test(value)) return;
 
   const num = Number(value);
-
   if (Number.isNaN(num)) return;
   if (num < range.min || num > range.max) return;
 
@@ -113,12 +89,25 @@ function allowNumericInput(
 
 function validateHumidity(value: string): string {
   if (!value) return "";
-
   const num = Number(value);
   if (Number.isNaN(num)) return "Humidity must be a number";
   if (num < 0 || num > 100) return "Humidity must be between 0 and 100";
-
   return "";
+}
+
+/* ---------- Flow velocity helpers ---------- */
+function clamp(n: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, n));
+}
+function isSteamMedium(m: string) {
+  return String(m || "").toLowerCase().includes("steam");
+}
+function getFlowVelocityRange(medium: string) {
+
+  return isSteamMedium(medium) ? { min: 3, max: 25 } : { min: 0.5, max: 2.5 };
+}
+function formatMediumLabel(medium: string) {
+  return medium ? medium : "Select Method";
 }
 
 export default function Standard() {
@@ -146,6 +135,9 @@ export default function Standard() {
   const [rhMin, setRhMin] = useState("");
   const [rhMax, setRhMax] = useState("");
 
+  /* ---------- Flow Velocity state ---------- */
+  const [flowVelocity, setFlowVelocity] = useState<number>(1.5);
+
   const [errors, setErrors] = useState({
     standard: "",
     classification: "",
@@ -163,11 +155,16 @@ export default function Standard() {
     if (!classification || errors.classification) return false;
     if (!acph || errors.acph) return false;
     if (!system || errors.system) return false;
-    if (systemType && errors.systemType) return false;
-    if (heatingMethod && errors.heatingMethod) return false;
-    if (coolingMethod && errors.coolingMethod) return false;
+    if (!systemType || errors.systemType) return false;
+    if (!heatingMethod || errors.heatingMethod) return false;
+    if (!coolingMethod || errors.coolingMethod) return false;
     if (reqInsideHum && errors.humidity) return false;
     if (reqInsideTempC && errors.temperature) return false;
+    if (!reqInsideHum || errors.humidity) return false;
+    if (!reqInsideTempC || errors.temperature) return false;  
+    // if(!systemType) return false;
+    // if(!heatingMethod) return false;
+    // if(!coolingMethod) return false;
     return true;
   })();
 
@@ -347,6 +344,7 @@ export default function Standard() {
         : String(roundTo(celsiusToFahrenheit(c), 2));
     setReqInsideTempDisplay(display);
   }, [tempUnit, reqInsideTempC, ventilationOnly]);
+
   const onReqInsideTempChange = (val: string) => {
     if (ventilationOnly) return;
 
@@ -370,9 +368,26 @@ export default function Standard() {
   const tempPlaceholder =
     tempUnit === "C" ? t.placeholders.reqTempC : t.placeholders.reqTempF;
 
-  const roomPayload = useMemo(() => {
+  const flowMedium = useMemo(() => {
+    // Prefer cooling if visible 
+    if (showCoolingMethod && coolingMethod) return coolingMethod;
+    if (showHeatingMethod && heatingMethod) return heatingMethod;
+    // fallback
+    if (showCoolingMethod) return coolingMethod;
+    if (showHeatingMethod) return heatingMethod;
+    return "";
+  }, [showCoolingMethod, showHeatingMethod, coolingMethod, heatingMethod]);
 
+  const flowRange = useMemo(() => getFlowVelocityRange(flowMedium), [flowMedium]);
+
+  useEffect(() => {
+    // keep current value within new range when method changes
+    setFlowVelocity((v) => clamp(v, flowRange.min, flowRange.max));
+  }, [flowRange.min, flowRange.max]);
+
+  const roomPayload = useMemo(() => {
     const isVentilationOnly = system === t.options.systems.ventilation;
+
     return {
       fromCustomerInfo: prev,
       standard,
@@ -393,6 +408,9 @@ export default function Standard() {
       rhMin,
       rhMax,
       ventilationOnly: isVentilationOnly,
+      flowVelocity,
+      flowVelocityUnit: "m/s",
+      flowMedium,
     };
   }, [
     prev,
@@ -411,6 +429,8 @@ export default function Standard() {
     maxTempC,
     rhMin,
     rhMax,
+    flowVelocity,
+    flowMedium,
   ]);
 
   useEffect(() => {
@@ -462,8 +482,7 @@ export default function Standard() {
 
               <div className={s.field}>
                 <label className={s.label}>
-                  {t.labels.classification}{" "}
-                  <span className={s.required}>*</span>
+                  {t.labels.classification} <span className={s.required}>*</span>
                 </label>
                 <select
                   className={selectedStandard ? s.select : s.selectDisabled}
@@ -507,15 +526,14 @@ export default function Standard() {
                   )}
                 </select>
 
-                {selectedClass?.minAir != null &&
-                  selectedClass?.maxAir != null && (
-                    <div className={s.range}>
-                      {t.misc.rangeLabel}{" "}
-                      <span className={s.rangeValue}>
-                        {selectedClass.minAir} - {selectedClass.maxAir}
-                      </span>
-                    </div>
-                  )}
+                {selectedClass?.minAir != null && selectedClass?.maxAir != null && (
+                  <div className={s.range}>
+                    {t.misc.rangeLabel}{" "}
+                    <span className={s.rangeValue}>
+                      {selectedClass.minAir} - {selectedClass.maxAir}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -559,7 +577,7 @@ export default function Standard() {
                 {system !== "" && (
                   <div className={s.field}>
                     <label className={s.label}>
-                      {systemTypeLabel} <span className={s.required}></span>
+                      {systemTypeLabel} <span className={s.required}>*</span>
                     </label>
                     <select
                       className={s.select}
@@ -584,7 +602,7 @@ export default function Standard() {
                     <div className={s.field}>
                       <label className={s.label}>
                         {t.labels.heatingMethod}{" "}
-                        <span className={s.required}></span>
+                        <span className={s.required}>*</span>
                       </label>
                       <select
                         className={s.select}
@@ -606,7 +624,7 @@ export default function Standard() {
                     <div className={s.field}>
                       <label className={s.label}>
                         {t.labels.coolingMethod}{" "}
-                        <span className={s.required}></span>
+                        <span className={s.required}>*</span>
                       </label>
                       <select
                         className={s.select}
@@ -672,7 +690,7 @@ export default function Standard() {
               <div className={"mt-6 " + s.grid2}>
                 <div className={s.field}>
                   <label className={s.label}>
-                    {t.labels.reqInsideTemp} ({tempUnit === "C" ? "°C" : "°F"})
+                    {t.labels.reqInsideTemp} ({tempUnit === "C" ? "°C" : "°F"}) <span className={s.required}>*</span>
                   </label>
                   <input
                     className={ventilationOnly ? s.inputDisabled : s.input}
@@ -680,6 +698,7 @@ export default function Standard() {
                     placeholder={tempPlaceholder}
                     value={reqInsideTempDisplay}
                     maxLength={3}
+                    required={true}
                     onChange={(e) => {
                       const value = e.target.value;
                       onReqInsideTempChange(value);
@@ -691,22 +710,29 @@ export default function Standard() {
                     }}
                     disabled={ventilationOnly}
                   />
-
                   {errors.temperature && (
                     <div className="text-red-500 text-xs mt-1">
                       {errors.temperature}
                     </div>
                   )}
+                  {!ventilationOnly &&
+                reqInsideTempC &&
+                reqInsideTempC !== t.misc.ambient && (
+                  <div className={s.tempHelper}>
+                    {t.misc.storedInternally} <b>{reqInsideTempC} °C</b>
+                  </div>
+                )}
                 </div>
 
                 <div className={s.field}>
-                  <label className={s.label}>{t.labels.reqInsideHum}</label>
+                  <label className={s.label}>{t.labels.reqInsideHum} <span className={s.required}>*</span></label>
                   <input
                     className={ventilationOnly ? s.inputDisabled : s.input}
                     inputMode="decimal"
                     placeholder={t.placeholders.reqHumidity}
                     maxLength={3}
                     value={reqInsideHum}
+                    required={true}
                     onChange={(e) => {
                       allowNumericInput(setReqInsideHum, e.target.value);
                       setErrors((prev) => ({
@@ -750,30 +776,63 @@ export default function Standard() {
 
                 <div className={s.field}>
                   <label className={s.label}>{t.labels.rhMin}</label>
-                  <input
-                    className={s.inputDisabled}
-                    value={rhMin || "-"}
-                    disabled
-                  />
+                  <input className={s.inputDisabled} value={rhMin || "-"} disabled />
                 </div>
 
                 <div className={s.field}>
                   <label className={s.label}>{t.labels.rhMax}</label>
-                  <input
-                    className={s.inputDisabled}
-                    value={rhMax || "-"}
-                    disabled
-                  />
+                  <input className={s.inputDisabled} value={rhMax || "-"} disabled />
                 </div>
               </div>
 
-              {!ventilationOnly &&
-                reqInsideTempC &&
-                reqInsideTempC !== t.misc.ambient && (
-                  <div className={s.tempHelper}>
-                    {t.misc.storedInternally} <b>{reqInsideTempC} °C</b>
+
+              {/* ----------  Flow Velocity block ---------- */}
+              {!ventilationOnly && (showCoolingMethod || showHeatingMethod) && (
+                <div className={s.flowBlock}>
+                  <div className={s.flowLabelRow}>
+                    <div className={s.flowTitle}>
+                      Flow Velocity - {formatMediumLabel(flowMedium)}
+                      <span className={s.required}> *</span>
+                    </div>
+                    <div className={s.flowUnit}>m/s</div>
                   </div>
-                )}
+
+                  <div className={s.flowRow}>
+                    <div className={s.flowMin}>{flowRange.min} m/s</div>
+
+                    <input
+                      className={s.flowSlider}
+                      type="range"
+                      min={flowRange.min}
+                      max={flowRange.max}
+                      step={0.1}
+                      value={flowVelocity}
+                      onChange={(e) => setFlowVelocity(Number(e.target.value))}
+                    />
+
+                    <div className={s.flowMax}>{flowRange.max} m/s</div>
+
+                    <div className={s.flowValueBoxWrap}>
+                      <input
+                        className={s.flowValueBox}
+                        inputMode="decimal"
+                        value={String(flowVelocity)}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          if (v === "" || isNumericLike(v)) {
+                            const n = Number(v);
+                            if (Number.isNaN(n)) return;
+                            setFlowVelocity(clamp(n, flowRange.min, flowRange.max));
+                          }
+                        }}
+                      />
+                    </div>
+
+                    <div className={s.flowUnitSmall}>m/s</div>
+                  </div>
+
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -796,9 +855,7 @@ export default function Standard() {
           onClick={(e) => {
             if (!isFormValid) {
               e.preventDefault();
-              alert(
-                "Please fill all required fields correctly before proceeding."
-              );
+              alert("Please fill all required fields correctly before proceeding.");
             }
           }}
         >

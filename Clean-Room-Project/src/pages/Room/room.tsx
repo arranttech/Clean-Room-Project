@@ -167,7 +167,8 @@ export default function Room() {
 
     return (
       <div className={s.field} key={key}>
-        <label className={s.label}>{(T.fields as any)[key].label}</label>
+        
+        <label className={s.label}>{(T.fields as any)[key].label} <span className={s.required1}>*</span></label>
 
         <input
           className={disabled ? s.inputDisabled : s.input}
@@ -237,7 +238,7 @@ export default function Room() {
               </div>
 
               <div className={s.sectionTitle}>{T.sections.roomDetails}</div>
-              <div className={s.grid2}>{renderInput("roomName")}</div>
+              <div className={s.grid2}>{renderInput("roomName")} <span className={s.required}>*</span></div>
 
               <div className={s.sectionDivider} />
 

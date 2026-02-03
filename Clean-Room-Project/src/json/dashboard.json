@@ -1,0 +1,64 @@
+{
+  "dashboard": {
+    "welcomeTitle": "Welcome back, {{name}}!",
+    "welcomeSubtitle": "Manage your HVAC projects efficiently.",
+    "metric": {
+      "totalProjects": "Total Projects"
+    },
+    "quickActionsTitle": "Quick Actions",
+    "actions": {
+      "createTitle": "Create New Project",
+      "createDesc": "Start a new HVAC project with customer details, classifications, and room specifications.",
+      "createHint": "Start Project Setup",
+      "viewTitle": "View All Projects",
+      "viewDesc": "Browse and manage all your existing projects with complete details.",
+      "viewHint": "Open Project List"
+    },
+    "featuresTitle": "Platform Features",
+    "features": [
+      {
+        "title": "Customer Management",
+        "desc": "Store and manage customer details, contact information, and project locations efficiently.",
+        "bullets": [
+          "Complete customer profile management",
+          "Multiple contact person tracking",
+          "Project location and site details"
+        ]
+      },
+      {
+        "title": "Classification Standards",
+        "desc": "Define cleanroom classifications based on ISO, EU GMP, and other industry standards.",
+        "bullets": [
+          "ISO 14644 standard compliance",
+          "EU GMP Grade classifications",
+          "Custom ACPH range configuration"
+        ]
+      },
+      {
+        "title": "Room Calculations",
+        "desc": "Calculate room specifications, HVAC loads, and airflow parameters with precision.",
+        "bullets": [
+          "Automatic CFM calculations",
+          "Heat load and cooling capacity",
+          "Room volume and area tracking"
+        ]
+      }
+    ]
+  },
+  "projects": {
+    "backToDashboard": "Back to Dashboard",
+    "title": "All Projects",
+    "totalBadge": "{{count}} Total Projects",
+    "meta": "Project ID: {{id}} | Created: {{date}}",
+    "labels": {
+      "customer": "Customer",
+      "location": "Location",
+      "classification": "Classification",
+      "totalRooms": "Total Rooms"
+    },
+    "buttons": {
+      "viewDetails": "View Details",
+      "expand": "Expand"
+    }
+  }
+}

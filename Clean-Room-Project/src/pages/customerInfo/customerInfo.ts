@@ -10,13 +10,22 @@ const customerInfoDesign = {
   fieldGroup: "flex flex-col",
   label: "text-base font-medium text-gray-700",
   input: "border border-gray-200 my-2 p-2 rounded-lg mb-4 w-full truncate whitespace-nowrap",
+
+  inputborder: "border border-gray-200 my-2 p-2 pl-10 pr-12 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500",
+  inputWrapper: "relative w-full flex items-center",
+  clearButton: "absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10",
+  locationClear: "absolute right-2 top-1/2 -translate-y-1/2 bg-gray-100 border border-gray-400 rounded-md p-1 hover:bg-gray-200 transition-colors flex items-center justify-center",
+  locationClearIcon: "text-black-600 text-sm font-bold",
+
+
   title: "text-3xl md:text-4xl font-extrabold text-slate-900",
   top: "mx-auto max-w-5xl text-center",
   rowGroup: "flex flex-col md:flex-row gap-6",
- 
+
   locationWrapper: "relative flex gap-4 items-center",
   locationIcon: "absolute left-3 text-gray-400",
   locationInput: "border border-gray-200 my-2 p-2 pl-10 rounded-lg mb-2 w-full",
+  
   locationResultText: "bg-blue-50 text-blue-800 px-2  rounded-lg text-sm border border-blue-400 cursor-pointer mb-1",
   selectedLocation: "text-[11px] font-lg ",
   coordinates: "font-semibold text-[11px] text-gray-600",
@@ -39,3 +48,13 @@ const customerInfoDesign = {
  
 export default customerInfoDesign;
  
+
+
+
+  
+
+ 
+
+  
+
+  

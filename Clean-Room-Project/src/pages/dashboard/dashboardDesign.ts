@@ -24,7 +24,7 @@ const dashboardDesign = {
 
   /* body spacing */
   contentWrap: "pt-16 pb-10 px-4",
-  container: "mx-auto max-w-7xl",
+  container: "mx-auto ",
 
   /* welcome */
   headerWrap: "mb-5",
@@ -100,7 +100,7 @@ const dashboardDesign = {
     "inline-flex items-center gap-2 border border-slate-300 px-4 py-2 rounded-xl hover:bg-slate-100 shadow-sm bg-white text-[14px] font-medium",
 
   backBtn1:
-    "ml-20 mt-10 inline-flex items-center gap-2 border border-slate-300 px-4 py-2 rounded-xl hover:bg-slate-100 shadow-sm bg-white text-[14px] font-medium",
+    "mt-10 inline-flex items-center gap-2 border border-slate-300 px-4 py-2 rounded-xl hover:bg-slate-100 shadow-sm bg-white text-[14px] font-medium",
 };
 
 export default dashboardDesign;

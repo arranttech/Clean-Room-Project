@@ -56,8 +56,8 @@ export default function Room() {
   const [isFormVisible, setIsFormVisible] = useState(false);
 
 
-  const isVentilationOnly = standards.system === "Ventilation System" || 
-  standards.systemType === "Ventilation System";
+  const isVentilationOnly = standards.system === "Ventilation System" ||
+    standards.systemType === "Ventilation System";
 
 
   const ventilationAllowedFields: (keyof RoomForm)[] = [
@@ -80,13 +80,7 @@ export default function Room() {
   };
 
 
-  // check if all fields are filled so we can save the room
-  // const isRoomReadyToSave = useMemo(() => {
-  //   if (!form.roomName.trim()) return false;
-  //   return Object.entries(form).every(([k, v]) =>
-  //     k === "roomName" ? v.trim() !== "" : v !== ""
-  //   );
-  // }, [form]);
+
 
   const isRoomReadyToSave = useMemo(() => {
     const fieldsToCheck = isVentilationOnly
@@ -116,11 +110,7 @@ export default function Room() {
       return;
     }
 
-    // const roomToSave = isVentilationOnly
-    //   ? (Object.fromEntries(
-    //     ventilationAllowedFields.map((k) => [k, form[k]])
-    //   ) as RoomForm)
-    //   : form;
+
 
     setSavedRooms((prev) => [...prev, form]);
     setForm(emptyForm);
@@ -147,23 +137,6 @@ export default function Room() {
     });
   };
 
-  // render one input field based on key
-  // const renderInput = (key: keyof RoomForm) => (
-  //   <div className={s.field} key={key}>
-  //     <div className={s.labelRow}>
-  //       <label className={s.label}>{(T.fields as any)[key].label}</label>
-  //       {(T.fields as any)[key].required && <span className={s.required}>*</span>}
-  //     </div>
-
-  //     <input
-  //       className={s.input}
-  //       inputMode={key === "roomName" ? "text" : "decimal"}
-  //       value={form[key]}
-  //       placeholder={(T.fields as any)[key].placeholder}
-  //       onChange={(e) => updateFieldValue(key, e.target.value)}
-  //     />
-  //   </div>
-  // );
 
   const renderInput = (key: keyof RoomForm) => {
     const disabled =
@@ -171,7 +144,7 @@ export default function Room() {
 
     return (
       <div className={s.field} key={key}>
-        
+
         <label className={s.label}>{(T.fields as any)[key].label} <span className={s.required1}>*</span></label>
 
         <input
@@ -253,7 +226,7 @@ export default function Room() {
                 {renderInput("height")}
               </div>
 
-              
+
               <div className={s.sectionTitle}>{T.sections.occupancyLoad}</div>
               <div className={s.grid3}>
                 {renderInput("occupancy")}
@@ -265,12 +238,15 @@ export default function Room() {
               <div className={s.grid3}>
                 {renderInput("infiltrationsPerHour")}
                 {renderInput("freshAirPercent")}
-               
                 {renderInput("exhaustAir")}
-              
-              
-               
               </div>
+              <div className={s.acphWrap}>
+                <label className={s.label1}>ACPH Value</label>
+                <input
+                  className={s.acphInput}
+                  value={`${standards.acph ?? "-"}`}
+
+                /></div>
             </div>
           </div>
         )}
@@ -320,12 +296,23 @@ export default function Room() {
                     <div className={s.roomCardLine}>
                       Infil/hr:{r.infiltrationsPerHour} | Fresh Air:{r.freshAirPercent}% | Exhaust:{r.exhaustAir}
                     </div>
+
+
                   </div>
+
+
+
+
+
                 ))
               )}
+
+
             </div>
           </div>
         </div>
+
+
 
         {/* footer actions */}
         <div className={s.footer}>

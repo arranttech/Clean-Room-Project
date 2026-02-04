@@ -62,7 +62,7 @@ const temperature_range = { min: -30, max: 60 };
 function onReqInsideTempChange(
   setter: (v: string) => void,
   value: string,
-  range = temperature_range
+  range = temperature_range,
 ) {
   if (value === "" || isNumericLike(value)) setter(value);
 
@@ -171,65 +171,68 @@ export default function Standard() {
     return true;
   })();
 
-	const selectedStandard = standardsData.find((x) => x.title === standard);
+  const selectedStandard = standardsData.find((x) => x.title === standard);
 
-    const isNonClassifiedSystem = useMemo(() => {
-        return systemType.toLowerCase().includes("non-classified");
-    }, [systemType]);
+  const isNonClassifiedSystem = useMemo(() => {
+    return systemType.toLowerCase().includes("non-classified");
+  }, [systemType]);
 
-    // 2. Filter standards based on your requirements
-    const filteredStandardsData = useMemo(() => {
-        const excludedStandards = ["NC-Non Classified", "ISO 14698", "SCHEDULE M"];
-        
-        // If system is selected and it's NOT Non-Classified, hide those specific standards
-        if (systemType !== "" && !isNonClassifiedSystem) {
-            return standardsData.filter(item => !excludedStandards.includes(item.title));
-        }
-        return standardsData;
-    }, [systemType, isNonClassifiedSystem]);
+  // 2. Filter standards based on your requirements
+  const filteredStandardsData = useMemo(() => {
+    const excludedStandards = ["NC-Non Classified", "ISO 14698", "SCHEDULE M"];
 
-    // 3. Filter Classifications based on system type
-    const classList = useMemo(() => {
-        if (!selectedStandard) return [];
+    // If system is selected and it's NOT Non-Classified, hide those specific standards
+    if (systemType !== "" && !isNonClassifiedSystem) {
+      return standardsData.filter(
+        (item) => !excludedStandards.includes(item.title),
+      );
+    }
+    return standardsData;
+  }, [systemType, isNonClassifiedSystem]);
 
-        return selectedStandard.classifications.filter((c) => {
-            const isNCClass = c.name.toLowerCase().includes("non classified") || 
-                              c.name.toLowerCase().includes("non-classified");
+  // 3. Filter Classifications based on system type
+  const classList = useMemo(() => {
+    if (!selectedStandard) return [];
 
-            if (isNonClassifiedSystem) {
-                // If Non-Classified system, only show Non-Classified classes
-                return isNCClass;
-            } else {
-                // If Classified system (Anything else), hide Non-Classified classes
-                return !isNCClass;
-            }
-        });
-    }, [selectedStandard, isNonClassifiedSystem]);
+    return selectedStandard.classifications.filter((c) => {
+      const isNCClass =
+        c.name.toLowerCase().includes("non classified") ||
+        c.name.toLowerCase().includes("non-classified");
+
+      if (isNonClassifiedSystem) {
+        // If Non-Classified system, only show Non-Classified classes
+        return isNCClass;
+      } else {
+        // If Classified system (Anything else), hide Non-Classified classes
+        return !isNCClass;
+      }
+    });
+  }, [selectedStandard, isNonClassifiedSystem]);
 
   const selectedClass = classList.find((c) => c.name === classification);
 
-  const acphOptions = useMemo(() => {
-    const out: number[] = [];
-    if (selectedClass?.minAir != null && selectedClass?.maxAir != null) {
-      for (let v = selectedClass.minAir; v <= selectedClass.maxAir; v++)
-        out.push(v);
-    }
-    return out;
-  }, [selectedClass]);
+	const acphOptions = useMemo(() => {
+		const out: number[] = [];
+		if (selectedClass?.minAir != null && selectedClass?.maxAir != null) {
+			for (let v = selectedClass.minAir; v <= selectedClass.maxAir; v++)
+				out.push(v);
+		}
+		return out;
+	}, [selectedClass]);
 
-  const acphDisabled =
-    !selectedClass ||
-    selectedClass.minAir == null ||
-    selectedClass.maxAir == null;
+	const acphDisabled =
+		!selectedClass ||
+		selectedClass.minAir == null ||
+		selectedClass.maxAir == null;
 
-  useEffect(() => {
-    if (!selectedClass) {
-      setAcph("");
-      return;
-    }
-    if (selectedClass.maxAir != null) setAcph(String(selectedClass.maxAir));
-    else setAcph("");
-  }, [classification, selectedClass?.maxAir, selectedClass]);
+	useEffect(() => {
+		if (!selectedClass) {
+			setAcph("");
+			return;
+		}
+		if (selectedClass.maxAir != null) setAcph(String(selectedClass.maxAir));
+		else setAcph("");
+	}, [classification, selectedClass?.maxAir, selectedClass]);
 
   const isHeating =
     system === t.options.systems.heating ||
@@ -247,9 +250,9 @@ export default function Standard() {
     system === t.options.systems.heatingVentilation;
 
   // Logic to treat specific sub-types as Ventilation only
-  const ventilationOnly = 
-    (isVentilation && !isHeating && !isCooling) || 
-    (systemType === t.options.systems.ventilation);
+  const ventilationOnly =
+    (isVentilation && !isHeating && !isCooling) ||
+    systemType === t.options.systems.ventilation;
 
   const showHeatingMethod = isHeating && !ventilationOnly;
   const showCoolingMethod = isCooling && !ventilationOnly;
@@ -261,26 +264,26 @@ export default function Standard() {
   const systemTypeLabel = isHeatingCooling
     ? t.labels.systemTypeGeneric
     : isHeatingVent
-    ? t.labels.systemTypeHeating
-    : isCoolingVent
-    ? t.labels.systemTypeCooling
-    : isHeating
-    ? t.labels.systemTypeHeating
-    : isCooling
-    ? t.labels.systemTypeCooling
-    : t.labels.systemTypeVentilation;
+      ? t.labels.systemTypeHeating
+      : isCoolingVent
+        ? t.labels.systemTypeCooling
+        : isHeating
+          ? t.labels.systemTypeHeating
+          : isCooling
+            ? t.labels.systemTypeCooling
+            : t.labels.systemTypeVentilation;
 
   const systemTypePlaceholder = isHeatingCooling
     ? t.placeholders.systemTypeGeneric
     : isHeatingVent
-    ? t.placeholders.systemTypeHeating
-    : isCoolingVent
-    ? t.placeholders.systemTypeCooling
-    : isHeating
-    ? t.placeholders.systemTypeHeating
-    : isCooling
-    ? t.placeholders.systemTypeCooling
-    : t.placeholders.systemTypeVentilation;
+      ? t.placeholders.systemTypeHeating
+      : isCoolingVent
+        ? t.placeholders.systemTypeCooling
+        : isHeating
+          ? t.placeholders.systemTypeHeating
+          : isCooling
+            ? t.placeholders.systemTypeCooling
+            : t.placeholders.systemTypeVentilation;
 
   const systemTypes = useMemo(() => {
     if (!system) return [];
@@ -319,12 +322,12 @@ export default function Standard() {
     setRhMin(
       typeof prev.minRelativeHumidity === "string"
         ? prev.minRelativeHumidity
-        : ""
+        : "",
     );
     setRhMax(
       typeof prev.maxRelativeHumidity === "string"
         ? prev.maxRelativeHumidity
-        : ""
+        : "",
     );
   }, [
     prev.minimumTemp,
@@ -334,7 +337,7 @@ export default function Standard() {
   ]);
 
   useEffect(() => {
-    // If we aren't changing the system itself, we don't necessarily want to wipe systemType, 
+    // If we aren't changing the system itself, we don't necessarily want to wipe systemType,
     // but the original logic clears them on system change.
     // However, if ventilationOnly becomes true via systemType, we must clear methods and set Ambient.
     if (ventilationOnly) {
@@ -448,7 +451,7 @@ export default function Standard() {
     maxTempC,
     rhMin,
     rhMax,
-    ventilationOnly
+    ventilationOnly,
   ]);
 
   useEffect(() => {
@@ -472,30 +475,30 @@ export default function Standard() {
 
           <div className={s.divider} />
 
-					<div className={s.body}>
-						<div className={s.grid3}>
-							<div className={s.field}>
-								<label className={s.label}>
-									{t.labels.standard} <span className={s.required}>*</span>
-								</label>
-								<select
-									className={s.select}
-									value={standard}
-									onChange={(e) => {
-										setStandard(e.target.value);
-										setClassification("");
-										setAcph("");
-									}}
-									required={true}
-								>
-									<option value="">{t.placeholders.standard}</option>
-									{filteredStandardsData.map((item) => (
-                                        <option key={item.id} value={item.title}>
-                                            {item.title}
-                                        </option>
-                                    ))}
-								</select>
-							</div>
+          <div className={s.body}>
+            <div className={s.grid3}>
+              <div className={s.field}>
+                <label className={s.label}>
+                  {t.labels.standard} <span className={s.required}>*</span>
+                </label>
+                <select
+                  className={s.select}
+                  value={standard}
+                  onChange={(e) => {
+                    setStandard(e.target.value);
+                    setClassification("");
+                    setAcph("");
+                  }}
+                  required={true}
+                >
+                  <option value="">{t.placeholders.standard}</option>
+                  {filteredStandardsData.map((item) => (
+                    <option key={item.id} value={item.title}>
+                      {item.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <div className={s.field}>
                 <label className={s.label}>
@@ -537,7 +540,7 @@ export default function Standard() {
                     <option value="">{t.placeholders.acphDisabled}</option>
                   ) : (
                     acphOptions.map((v) => (
-                      <option key={v} value={v}>
+                      <option key={v} value={(v)}>
                         {v}
                       </option>
                     ))
@@ -601,7 +604,10 @@ export default function Standard() {
                     <select
                       className={s.select}
                       value={systemType}
-                      onChange={(e) => {setSystemType(e.target.value);setClassification("");setAcph("");
+                      onChange={(e) => {
+                        setSystemType(e.target.value);
+                        setClassification("");
+                        setAcph("");
                       }}
                       required={true}
                     >
@@ -834,7 +840,7 @@ export default function Standard() {
             if (!isFormValid) {
               e.preventDefault();
               alert(
-                "Please fill all required fields correctly before proceeding."
+                "Please fill all required fields correctly before proceeding.",
               );
             }
           }}

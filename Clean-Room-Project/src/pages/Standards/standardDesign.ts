@@ -5,7 +5,7 @@ const standardDesign = {
   title: "text-3xl md:text-4xl font-extrabold text-slate-900 text-blue-600",
   subtitle: "mt-2 text-base text-slate-500",
 
-  cardWrap: "mx-auto mt-10",
+  cardWrap: "mx-auto mt-10 max-w-7xl",
   card: "bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden",
 
   cardHeader: "px-8 pt-8 pb-4",
@@ -47,7 +47,7 @@ const standardDesign = {
 
   quickView: "mt-8 text-sm text-slate-700",
 
-  footer: "flex justify-between items-center  mt-10 mx-auto",
+  footer: "flex justify-between items-center max-w-7xl mt-10 mx-auto",
   backLink:
     "inline-flex items-center gap-3 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 shadow-lg",
   nextLink:

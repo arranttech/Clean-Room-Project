@@ -59,6 +59,7 @@ const dashboardDesign = {
   actionHint: "mt-3 text-sm font-semibold text-blue-700",
 
   /* platform features */
+  container1: "mx-auto",
   featuresCard: "mt-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-6",
   featuresTitle: "text-[18px] font-bold text-slate-900",
   featuresGrid: "mt-5 grid grid-cols-1 gap-5 md:grid-cols-3",

@@ -268,7 +268,13 @@ export default function Room() {
                
                 {renderInput("exhaustAir")}
               
-              
+                <div className={s.acphWrap}>
+                <label className={s.label1}>ACPH Value</label>
+                <input
+                  className={s.acphInput}
+                  value={`${standards.acph ?? "-"}`}
+                  
+                /></div>
                
               </div>
             </div>

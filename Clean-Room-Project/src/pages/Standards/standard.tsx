@@ -171,32 +171,40 @@ export default function Standard() {
     return true;
   })();
 
-  const selectedStandard = standardsData.find((x) => x.title === standard);
-  // Determine filtering for "Non classified"
-  const classList = useMemo(() => {
-    if (!selectedStandard) return [];
-    
-    // Check if the current system type is one of the "Non-Classified" variants
-    const isNonClassifiedSystem = 
-      systemType === "Non-Classified Air-Cooling System" || 
-      systemType === "Non-Classified Air-Heating System";
+	const selectedStandard = standardsData.find((x) => x.title === standard);
 
-    // List of standards that should all of its classes
-    const exceptedStandards = ["NC-Non Classified", "ISO 14698", "SCHEDULE M"];
-    const isExceptedStandard = exceptedStandards.includes(standard);
+    const isNonClassifiedSystem = useMemo(() => {
+        return systemType.toLowerCase().includes("non-classified");
+    }, [systemType]);
 
-    // If it's a non-classified system but NOT one of the excepted standards, filter to "Non classified"
-    if (isNonClassifiedSystem && !isExceptedStandard) {
-      return selectedStandard.classifications.filter((c) => {
-        // This case-insensitive check handles "Non classified", "Non-Classified", etc.
-        const name = c.name.toLowerCase().replace("-", " ");
-        return name.includes("non classified");
-      });
-    }
+    // 2. Filter standards based on your requirements
+    const filteredStandardsData = useMemo(() => {
+        const excludedStandards = ["NC-Non Classified", "ISO 14698", "SCHEDULE M"];
+        
+        // If system is selected and it's NOT Non-Classified, hide those specific standards
+        if (systemType !== "" && !isNonClassifiedSystem) {
+            return standardsData.filter(item => !excludedStandards.includes(item.title));
+        }
+        return standardsData;
+    }, [systemType, isNonClassifiedSystem]);
 
-    // Otherwise, show everything
-    return selectedStandard.classifications;
-  }, [selectedStandard, systemType, standard]);
+    // 3. Filter Classifications based on system type
+    const classList = useMemo(() => {
+        if (!selectedStandard) return [];
+
+        return selectedStandard.classifications.filter((c) => {
+            const isNCClass = c.name.toLowerCase().includes("non classified") || 
+                              c.name.toLowerCase().includes("non-classified");
+
+            if (isNonClassifiedSystem) {
+                // If Non-Classified system, only show Non-Classified classes
+                return isNCClass;
+            } else {
+                // If Classified system (Anything else), hide Non-Classified classes
+                return !isNCClass;
+            }
+        });
+    }, [selectedStandard, isNonClassifiedSystem]);
 
   const selectedClass = classList.find((c) => c.name === classification);
 
@@ -464,30 +472,30 @@ export default function Standard() {
 
           <div className={s.divider} />
 
-          <div className={s.body}>
-            <div className={s.grid3}>
-              <div className={s.field}>
-                <label className={s.label}>
-                  {t.labels.standard} <span className={s.required}>*</span>
-                </label>
-                <select
-                  className={s.select}
-                  value={standard}
-                  onChange={(e) => {
-                    setStandard(e.target.value);
-                    setClassification("");
-                    setAcph("");
-                  }}
-                  required={true}
-                >
-                  <option value="">{t.placeholders.standard}</option>
-                  {standardsData.map((item) => (
-                    <option key={item.id} value={item.title}>
-                      {item.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
+					<div className={s.body}>
+						<div className={s.grid3}>
+							<div className={s.field}>
+								<label className={s.label}>
+									{t.labels.standard} <span className={s.required}>*</span>
+								</label>
+								<select
+									className={s.select}
+									value={standard}
+									onChange={(e) => {
+										setStandard(e.target.value);
+										setClassification("");
+										setAcph("");
+									}}
+									required={true}
+								>
+									<option value="">{t.placeholders.standard}</option>
+									{filteredStandardsData.map((item) => (
+                                        <option key={item.id} value={item.title}>
+                                            {item.title}
+                                        </option>
+                                    ))}
+								</select>
+							</div>
 
               <div className={s.field}>
                 <label className={s.label}>

@@ -71,6 +71,7 @@ const dashboardDesign = {
   featureBullet: "flex items-start gap-2",
 
   /* all projects page */
+  container1: "mx-auto max-w-7xl",
   listTopRow: "pt-6 flex items-center justify-between gap-4 flex-wrap",
   backBtn:
     "inline-flex items-center gap-2 border border-slate-300 px-4 py-2 rounded-xl hover:bg-slate-100 shadow-sm bg-white text-[14px] font-medium",

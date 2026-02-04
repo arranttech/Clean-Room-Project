@@ -149,13 +149,11 @@ function CustomerInfo() {
     setUniqueId(id);
 
     console.log(
-      "Customer Name:",
+      "Company Name:",
       customerName,
       "Phone Number:",
       phoneNumber,
-      "Customer Address:",
-      phoneNumber,
-      "Customer Address:",
+      "Company Address:",
       customerAddress,
       "Email Address:",
       emailAddress,
@@ -283,7 +281,7 @@ function CustomerInfo() {
   return (
     <div className={styles.wrapper}>
       <div className={styles.top}>
-        <h1 className={styles.title}>Customer Information</h1>
+        <h1 className={styles.title}>Company Information</h1>
         <h3 className={styles.headerText}>
           Please provide the basic details to get started
         </h3>
@@ -294,7 +292,7 @@ function CustomerInfo() {
         <div className={styles.card}>
           <div className={styles.fieldGroup}>
             <label className={styles.label}>
-              Customer Name <span className="text-red-600">*</span>
+              Company Name <span className="text-red-600">*</span>
             </label>
 
             <input
@@ -311,7 +309,7 @@ function CustomerInfo() {
               }}
               minLength={3}
               maxLength={30}
-              placeholder="Enter Customer Name"
+              placeholder="Enter Company Name"
             />
 
             {errors.name && (
@@ -341,7 +339,7 @@ function CustomerInfo() {
             )}
 
             <label className={styles.label}>
-              Customer Address <span className="text-red-600">*</span>
+              Company Address <span className="text-red-600">*</span>
             </label>
 
             <input

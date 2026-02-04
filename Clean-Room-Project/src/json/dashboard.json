@@ -8,7 +8,7 @@
     "quickActionsTitle": "Quick Actions",
     "actions": {
       "createTitle": "Create New Project",
-      "createDesc": "Start a new HVAC project with customer details, classifications, and room specifications.",
+      "createDesc": "Start a new HVAC project with custcompany details, classifications, and room specifications.",
       "createHint": "Start Project Setup",
       "viewTitle": "View All Projects",
       "viewDesc": "Browse and manage all your existing projects with complete details.",
@@ -17,8 +17,8 @@
     "featuresTitle": "Platform Features",
     "features": [
       {
-        "title": "Customer Management",
-        "desc": "Store and manage customer details, contact information, and project locations efficiently.",
+        "title": "Company Management",
+        "desc": "Store and manage company details, contact information, and project locations efficiently.",
         "bullets": [
           "Complete customer profile management",
           "Multiple contact person tracking",

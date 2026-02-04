@@ -1,5 +1,5 @@
 const footerDesign = {
-    section: "w-full px-6 py-16 bg-[#0B1221]",
+    section: "w-full px-6 py-4 bg-[#0B1221]",
     container: "mx-auto max-w-[1200px]",
     headerWrapper: "text-center mb-10",
     title: "text-[40px] font-bold tracking-tight text-white sm:text-[48px] mb-2",

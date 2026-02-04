@@ -1,5 +1,5 @@
 const industryDesign = {
-    section: "w-full px-6 py-16 scroll-mt-20",
+    section: "w-full px-6 py-10 scroll-mt-20",
     container: "mx-auto max-w-[1200px]",
     headerWrapper: "text-center mb-16",
     title:

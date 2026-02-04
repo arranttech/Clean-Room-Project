@@ -107,7 +107,7 @@ export default function AllProjects() {
       </header>
 
       <div className={s.contentWrap}>
-        <div className={s.container}>
+        <div className={s.container1}>
           <div className={s.listTopRow}>
             <div className={s.listTitleWrap}>
               <div className={s.listTitle}>{text.projects.title}</div>

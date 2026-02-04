@@ -171,49 +171,52 @@ export default function Standard() {
 
   const selectedStandard = standardsData.find((x) => x.title === standard);
 
+  // 1. Define the standards that should bypass filtering
+  const SPECIAL_STANDARDS = ["NC-Non Classified", "ISO 14698", "SCHEDULE M"];
+
   const isNonClassifiedSystem = useMemo(() => {
     return systemType.toLowerCase().includes("non-classified");
   }, [systemType]);
 
-  // 2. Filter standards based on your requirements
+  // 2. Filter standards (Keeping your existing logic here)
   const filteredStandardsData = useMemo(() => {
-    const excludedStandards = ["NC-Non Classified", "ISO 14698", "SCHEDULE M"];
-
-    // If system is selected and it's NOT Non-Classified, hide those specific standards
     if (systemType !== "" && !isNonClassifiedSystem) {
       return standardsData.filter(
-        (item) => !excludedStandards.includes(item.title),
+        (item) => !SPECIAL_STANDARDS.includes(item.title),
       );
     }
     return standardsData;
-  }, [systemType, isNonClassifiedSystem]);
+  }, [systemType, isNonClassifiedSystem, standardsData]);
 
-  // 3. Filter Classifications based on system type
+  // 3. Filter Classifications
   const classList = useMemo(() => {
     if (!selectedStandard) return [];
 
+    // FIX: If the selected standard is one of the special ones, show all classes
+    if (SPECIAL_STANDARDS.includes(selectedStandard.title)) {
+      return selectedStandard.classifications;
+    }
+
+    // Otherwise, apply the existing Non-Classified filtering logic
     return selectedStandard.classifications.filter((c) => {
       const isNCClass =
         c.name.toLowerCase().includes("non classified") ||
         c.name.toLowerCase().includes("non-classified");
 
-      if (isNonClassifiedSystem) {
-        // If Non-Classified system, only show Non-Classified classes
-        return isNCClass;
-      } else {
-        // If Classified system (Anything else), hide Non-Classified classes
-        return !isNCClass;
-      }
+      return isNonClassifiedSystem ? isNCClass : !isNCClass;
     });
   }, [selectedStandard, isNonClassifiedSystem]);
 
+  // 4. ACPH Calculation (Remains largely the same, ensuring it maps to the UI)
   const selectedClass = classList.find((c) => c.name === classification);
 
   const acphOptions = useMemo(() => {
-    const out: number[] = [];
+    const out = [];
     if (selectedClass?.minAir != null && selectedClass?.maxAir != null) {
-      for (let v = selectedClass.minAir; v <= selectedClass.maxAir; v++)
+      // Generates a range from min to max (e.g., 20 to 30)
+      for (let v = selectedClass.minAir; v <= selectedClass.maxAir; v++) {
         out.push(v);
+      }
     }
     return out;
   }, [selectedClass]);
@@ -500,199 +503,199 @@ export default function Standard() {
           <div className={s.divider} />
 
           <div className={s.body}>
-              <div className={s.grid2}>
+            <div className={s.grid2}>
+              <div className={s.field}>
+                <label className={s.label}>
+                  {t.labels.system} <span className={s.required}>*</span>
+                </label>
+                <select
+                  className={s.select}
+                  value={system}
+                  onChange={(e) => {
+                    setSystem(e.target.value as SystemName);
+                    setSystemType("");
+                  }}
+                  required={true}
+                >
+                  <option value="">{t.placeholders.system}</option>
+                  <option value={t.options.systems.heating}>
+                    {t.options.systems.heating}
+                  </option>
+                  <option value={t.options.systems.cooling}>
+                    {t.options.systems.cooling}
+                  </option>
+                  <option value={t.options.systems.ventilation}>
+                    {t.options.systems.ventilation}
+                  </option>
+                  <option value={t.options.systems.coolingVentilation}>
+                    {t.options.systems.coolingVentilation}
+                  </option>
+                  <option value={t.options.systems.heatingVentilation}>
+                    {t.options.systems.heatingVentilation}
+                  </option>
+                  <option value={t.options.systems.heatingCooling}>
+                    {t.options.systems.heatingCooling}
+                  </option>
+                </select>
+              </div>
+
+              {system !== "" && (
                 <div className={s.field}>
                   <label className={s.label}>
-                    {t.labels.system} <span className={s.required}>*</span>
+                    {systemTypeLabel} <span className={s.required}>*</span>
                   </label>
                   <select
                     className={s.select}
-                    value={system}
+                    value={systemType}
                     onChange={(e) => {
-                      setSystem(e.target.value as SystemName);
-                      setSystemType("");
+                      setSystemType(e.target.value);
+                      setClassification("");
+                      setAcph("");
                     }}
                     required={true}
                   >
-                    <option value="">{t.placeholders.system}</option>
-                    <option value={t.options.systems.heating}>
-                      {t.options.systems.heating}
-                    </option>
-                    <option value={t.options.systems.cooling}>
-                      {t.options.systems.cooling}
-                    </option>
-                    <option value={t.options.systems.ventilation}>
-                      {t.options.systems.ventilation}
-                    </option>
-                    <option value={t.options.systems.coolingVentilation}>
-                      {t.options.systems.coolingVentilation}
-                    </option>
-                    <option value={t.options.systems.heatingVentilation}>
-                      {t.options.systems.heatingVentilation}
-                    </option>
-                    <option value={t.options.systems.heatingCooling}>
-                      {t.options.systems.heatingCooling}
-                    </option>
+                    <option value="">{systemTypePlaceholder}</option>
+                    {systemTypes.map((v: string) => (
+                      <option key={v} value={v}>
+                        {v}
+                      </option>
+                    ))}
                   </select>
                 </div>
+              )}
+            </div>
 
-                {system !== "" && (
+            {(showHeatingMethod || showCoolingMethod) && (
+              <div className={"mt-6 " + s.grid2}>
+                {showHeatingMethod && (
                   <div className={s.field}>
                     <label className={s.label}>
-                      {systemTypeLabel} <span className={s.required}>*</span>
+                      {t.labels.heatingMethod}{" "}
+                      <span className={s.required}>*</span>
                     </label>
                     <select
                       className={s.select}
-                      value={systemType}
-                      onChange={(e) => {
-                        setSystemType(e.target.value);
-                        setClassification("");
-                        setAcph("");
-                      }}
+                      value={heatingMethod}
+                      onChange={(e) => setHeatingMethod(e.target.value)}
                       required={true}
                     >
-                      <option value="">{systemTypePlaceholder}</option>
-                      {systemTypes.map((v: string) => (
-                        <option key={v} value={v}>
-                          {v}
+                      <option value="">{t.placeholders.heatingMethod}</option>
+                      {heatingMethods.map((m: string) => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {showCoolingMethod && (
+                  <div className={s.field}>
+                    <label className={s.label}>
+                      {t.labels.coolingMethod}{" "}
+                      <span className={s.required}>*</span>
+                    </label>
+                    <select
+                      className={s.select}
+                      value={coolingMethod}
+                      onChange={(e) => setCoolingMethod(e.target.value)}
+                      required={true}
+                    >
+                      <option value="">{t.placeholders.coolingMethod}</option>
+                      {coolingMethods.map((m: string) => (
+                        <option key={m} value={m}>
+                          {m}
                         </option>
                       ))}
                     </select>
                   </div>
                 )}
               </div>
-
-              {(showHeatingMethod || showCoolingMethod) && (
-                <div className={"mt-6 " + s.grid2}>
-                  {showHeatingMethod && (
-                    <div className={s.field}>
-                      <label className={s.label}>
-                        {t.labels.heatingMethod}{" "}
-                        <span className={s.required}>*</span>
-                      </label>
-                      <select
-                        className={s.select}
-                        value={heatingMethod}
-                        onChange={(e) => setHeatingMethod(e.target.value)}
-                        required={true}
-                      >
-                        <option value="">{t.placeholders.heatingMethod}</option>
-                        {heatingMethods.map((m: string) => (
-                          <option key={m} value={m}>
-                            {m}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-
-                  {showCoolingMethod && (
-                    <div className={s.field}>
-                      <label className={s.label}>
-                        {t.labels.coolingMethod}{" "}
-                        <span className={s.required}>*</span>
-                      </label>
-                      <select
-                        className={s.select}
-                        value={coolingMethod}
-                        onChange={(e) => setCoolingMethod(e.target.value)}
-                        required={true}
-                      >
-                        <option value="">{t.placeholders.coolingMethod}</option>
-                        {coolingMethods.map((m: string) => (
-                          <option key={m} value={m}>
-                            {m}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                </div>
-              )}
+            )}
             <div className={s.sectionSpacer}>
-			<div className={s.grid3}>
-              <div className={s.field}>
-                <label className={s.label}>
-                  {t.labels.standard} <span className={s.required}>*</span>
-                </label>
-                <select
-                  className={s.select}
-                  value={standard}
-                  onChange={(e) => {
-                    setStandard(e.target.value);
-                    setClassification("");
-                    setAcph("");
-                  }}
-                  required={true}
-                >
-                  <option value="">{t.placeholders.standard}</option>
-                  {filteredStandardsData.map((item) => (
-                    <option key={item.id} value={item.title}>
-                      {item.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className={s.field}>
-                <label className={s.label}>
-                  {t.labels.classification}{" "}
-                  <span className={s.required}>*</span>
-                </label>
-                <select
-                  className={selectedStandard ? s.select : s.selectDisabled}
-                  disabled={!selectedStandard}
-                  value={classification}
-                  onChange={(e) => setClassification(e.target.value)}
-                  required={true}
-                >
-                  <option value="">
-                    {selectedStandard
-                      ? t.placeholders.classification
-                      : t.placeholders.classificationDisabled}
-                  </option>
-                  {classList.map((c) => (
-                    <option key={c.name} value={c.name}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className={s.field}>
-                <label className={s.label}>
-                  {t.labels.acph} <span className={s.required}>*</span>
-                </label>
-                <select
-                  className={!acphDisabled ? s.select : s.selectDisabled}
-                  disabled={acphDisabled}
-                  value={acph}
-                  onChange={(e) => setAcph(e.target.value)}
-                  required={true}
-                >
-                  {acphDisabled ? (
-                    <option value="">{t.placeholders.acphDisabled}</option>
-                  ) : (
-                    acphOptions.map((v) => (
-                      <option key={v} value={v}>
-                        {v}
+              <div className={s.grid3}>
+                <div className={s.field}>
+                  <label className={s.label}>
+                    {t.labels.standard} <span className={s.required}>*</span>
+                  </label>
+                  <select
+                    className={s.select}
+                    value={standard}
+                    onChange={(e) => {
+                      setStandard(e.target.value);
+                      setClassification("");
+                      setAcph("");
+                    }}
+                    required={true}
+                  >
+                    <option value="">{t.placeholders.standard}</option>
+                    {filteredStandardsData.map((item) => (
+                      <option key={item.id} value={item.title}>
+                        {item.title}
                       </option>
-                    ))
-                  )}
-                </select>
+                    ))}
+                  </select>
+                </div>
 
-                {selectedClass?.minAir != null &&
-                  selectedClass?.maxAir != null && (
-                    <div className={s.range}>
-                      {t.misc.rangeLabel}{" "}
-                      <span className={s.rangeValue}>
-                        {selectedClass.minAir} - {selectedClass.maxAir}
-                      </span>
-                    </div>
-                  )}
+                <div className={s.field}>
+                  <label className={s.label}>
+                    {t.labels.classification}{" "}
+                    <span className={s.required}>*</span>
+                  </label>
+                  <select
+                    className={selectedStandard ? s.select : s.selectDisabled}
+                    disabled={!selectedStandard}
+                    value={classification}
+                    onChange={(e) => setClassification(e.target.value)}
+                    required={true}
+                  >
+                    <option value="">
+                      {selectedStandard
+                        ? t.placeholders.classification
+                        : t.placeholders.classificationDisabled}
+                    </option>
+                    {classList.map((c) => (
+                      <option key={c.name} value={c.name}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={s.field}>
+                  <label className={s.label}>
+                    {t.labels.acph} <span className={s.required}>*</span>
+                  </label>
+                  <select
+                    className={!acphDisabled ? s.select : s.selectDisabled}
+                    disabled={acphDisabled}
+                    value={acph}
+                    onChange={(e) => setAcph(e.target.value)}
+                    required={true}
+                  >
+                    {acphDisabled ? (
+                      <option value="">{t.placeholders.acphDisabled}</option>
+                    ) : (
+                      acphOptions.map((v) => (
+                        <option key={v} value={v}>
+                          {v}
+                        </option>
+                      ))
+                    )}
+                  </select>
+
+                  {selectedClass?.minAir != null &&
+                    selectedClass?.maxAir != null && (
+                      <div className={s.range}>
+                        {t.misc.rangeLabel}{" "}
+                        <span className={s.rangeValue}>
+                          {selectedClass.minAir} - {selectedClass.maxAir}
+                        </span>
+                      </div>
+                    )}
+                </div>
               </div>
             </div>
-			</div>
 
             <div className={s.sectionLine} />
 

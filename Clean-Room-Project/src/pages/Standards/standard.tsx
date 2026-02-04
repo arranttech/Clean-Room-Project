@@ -157,8 +157,8 @@ export default function Standard() {
     if (!acph || errors.acph) return false;
     if (!system || errors.system) return false;
     if (!systemType || errors.systemType) return false;
-    if (!heatingMethod || errors.heatingMethod) return false;
-    if (!coolingMethod || errors.coolingMethod) return false;
+    //if (!heatingMethod || errors.heatingMethod) return false;
+    //if (!coolingMethod || errors.coolingMethod) return false;
     if (reqInsideHum && errors.humidity) return false;
     if (reqInsideTempC && errors.temperature) return false;
     if (!reqInsideHum || errors.humidity) return false;

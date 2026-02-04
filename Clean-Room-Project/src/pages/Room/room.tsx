@@ -242,7 +242,7 @@ export default function Room() {
               </div>
 
               <div className={s.sectionTitle}>{T.sections.roomDetails}</div>
-              <div className={s.grid2}>{renderInput("roomName")} <span className={s.required}>*</span></div>
+              <div className={s.grid2}>{renderInput("roomName")}</div>
 
               <div className={s.sectionDivider} />
 

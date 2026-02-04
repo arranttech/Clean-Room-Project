@@ -18,8 +18,6 @@ export default function HeroPage() {
 
 				<p className={heroDesign.subtitle}>{hero.subtitle}</p>
 
-				<p className={heroDesign.description}>{hero.description}</p>
-
 				<div className={heroDesign.buttonRow}>
 					{/* Primary Button */}
 					<Link to="/dashboard">

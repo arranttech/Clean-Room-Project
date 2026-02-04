@@ -1,5 +1,5 @@
 const powerfulDesign = {
-    section: "px-6 py-16 scroll-mt-20",
+    section: "px-6 py--160 scroll-mt-28",
     container: "mx-auto max-w-[1200px]",
   
     headerWrapper: "text-center mb-16",

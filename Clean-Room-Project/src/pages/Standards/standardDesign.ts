@@ -64,6 +64,28 @@ const standardDesign = {
   tempHelper: "mt-3 text-xs text-slate-500",
 
   disabled: "opacity-50 cursor-not-allowed pointer-events-none",
+
+  /* ---------- Flow Velocity styles ---------- */
+  flowBlock: "mt-8",
+  flowLabelRow: "flex items-center justify-between",
+  flowTitle: "text-sm font-semibold text-slate-700",
+  flowUnit: "text-xs font-semibold text-slate-500",
+
+  flowRow:
+    "mt-3 flex flex-wrap items-center gap-4 border-b border-slate-200 pb-4",
+  flowMin: "text-xs text-slate-500 w-12",
+  flowMax: "text-xs text-slate-500 w-12 text-right",
+
+  flowSlider:
+    "flex-1 min-w-[240px] accent-blue-600",
+
+  flowValueBoxWrap: "flex items-center",
+  flowValueBox:
+    "w-20 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm " +
+    "focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none",
+  flowUnitSmall: "text-xs text-slate-600",
+
+  flowHint: "mt-2 text-xs text-slate-500",
 };
 
 export default standardDesign;

@@ -19,7 +19,8 @@ const roomDesign = {
   field: "flex flex-col gap-2",
   labelRow: "flex items-center gap-2",
   label: "text-sm font-semibold text-slate-700",
-  required: "text-red-500",
+  required: "text-red-500 ml-[-87%]",
+  required1: "text-red-500",
   
   inputDisabled:
     "w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm " +

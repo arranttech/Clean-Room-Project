@@ -740,8 +740,7 @@ export default function Standard() {
 										required={true}
 										onChange={(e) => {
 											const value = e.target.value;
-											onReqInsideTempChangeLocal(value);
-
+											onReqInsideTempChange(value);
 											setErrors((prevErr) => ({
 												...prevErr,
 												temperature: validateTemperature(value),

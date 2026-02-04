@@ -3,24 +3,24 @@ const dashboardDesign = {
   page: "min-h-screen bg-slate-50",
 
   header: "w-full bg-white border-b border-slate-200 shadow-sm",
-   headerInner: "mx-auto max-w-7xl px-30 h-20 flex items-center",
-  
-    // Left area 
-    left: "flex items-center gap-4 flex-1",
-    logoTile: "h-12 w-12 rounded-2xl flex items-center justify-center shadow",
-    logoImg: "h-15 w-15 object-contain",
-    brand: "text-xs tracking-[0.22em] font-bold text-slate-700 leading-tight",
-  
-    // Center title
-    center: "flex-1 text-center",
-    title1: "text-lg font-extrabold text-blue-600 leading-tight",
-    subtitle1: "text-sm font-bold text-slate-700",
-  
-    // Right area (logout)
-    right: "flex-1 flex justify-end items-center",
-  
-    logout:
-      "inline-flex items-center gap-2 text-slate-700 text-[16px] font-medium px-3 py-2 rounded-lg hover:bg-slate-100 hover:text-slate-900 transition",
+  headerInner: "mx-auto max-w-7xl px-30 h-20 flex items-center",
+
+  // Left area
+  left: "flex items-center gap-4 flex-1",
+  logoTile: "h-12 w-12 rounded-2xl flex items-center justify-center shadow",
+  logoImg: "h-15 w-15 object-contain",
+  brand: "text-xs tracking-[0.22em] font-bold text-slate-700 leading-tight",
+
+  // Center title
+  center: "flex-1 text-center",
+  title1: "text-lg font-extrabold text-blue-600 leading-tight",
+  subtitle1: "text-sm font-bold text-slate-700",
+
+  // Right area (logout)
+  right: "flex-1 flex justify-end items-center",
+
+  logout:
+    "inline-flex items-center gap-2 text-slate-700 text-[16px] font-medium px-3 py-2 rounded-lg hover:bg-slate-100 hover:text-slate-900 transition",
 
   /* body spacing */
   contentWrap: "pt-16 pb-10 px-4",
@@ -35,14 +35,12 @@ const dashboardDesign = {
   metricsRow: "mt-6 grid grid-cols-1 gap-6 md:grid-cols-3",
   metricCard:
     "bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex items-center gap-4 md:col-span-1",
-  metricIconWrap:
-    "h-11 w-11 rounded-xl flex items-center justify-center",
+  metricIconWrap: "h-11 w-11 rounded-xl flex items-center justify-center",
   metricNumber: "text-2xl font-extrabold text-slate-900 leading-none",
   metricLabel: "mt-0.5 text-sm text-slate-500",
 
   /* section */
-  sectionCard:
-    "mt-7 bg-white rounded-xl border border-slate-200 shadow-sm p-6",
+  sectionCard: "mt-7 bg-white rounded-xl border border-slate-200 shadow-sm p-6",
   sectionTitle: "text-lg font-bold text-slate-900",
 
   /* quick actions */
@@ -61,12 +59,10 @@ const dashboardDesign = {
   actionHint: "mt-3 text-sm font-semibold text-blue-700",
 
   /* platform features */
-  featuresCard:
-    "mt-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-6",
+  featuresCard: "mt-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-6",
   featuresTitle: "text-[18px] font-bold text-slate-900",
   featuresGrid: "mt-5 grid grid-cols-1 gap-5 md:grid-cols-3",
-  featureItem:
-    "rounded-2xl border border-slate-200 bg-white p-6 shadow-sm",
+  featureItem: "rounded-2xl border border-slate-200 bg-white p-6 shadow-sm",
   featureIconWrap:
     "h-14 w-14 rounded-2xl bg-blue-100 flex items-center justify-center",
   featureTitle: "mt-5 text-[18px] font-bold text-slate-900",
@@ -78,8 +74,9 @@ const dashboardDesign = {
   listTopRow: "pt-6 flex items-center justify-between gap-4 flex-wrap",
   backBtn:
     "inline-flex items-center gap-2 border border-slate-300 px-4 py-2 rounded-xl hover:bg-slate-100 shadow-sm bg-white text-[14px] font-medium",
-listTitleWrap: "w-full flex flex-col items-center justify-center gap-2 text-center",
-listTitle: "text-2xl md:text-3xl font-extrabold text-slate-900 text-center",
+  listTitleWrap:
+    "w-full flex flex-col items-center justify-center gap-2 text-center",
+  listTitle: "text-2xl md:text-3xl font-extrabold text-slate-900 text-center",
 
   badge:
     "inline-flex items-center rounded-full bg-slate-100 text-slate-700 px-3 py-1 text-[13px] font-semibold",
@@ -101,8 +98,9 @@ listTitle: "text-2xl md:text-3xl font-extrabold text-slate-900 text-center",
     "inline-flex items-center gap-2 bg-blue-700 text-white px-4 py-2 rounded-xl hover:bg-blue-800 shadow-sm text-[14px] font-medium",
   secondaryBtn:
     "inline-flex items-center gap-2 border border-slate-300 px-4 py-2 rounded-xl hover:bg-slate-100 shadow-sm bg-white text-[14px] font-medium",
-    backBtn1:
-    "ml-48 mt-5 inline-flex items-center gap-2 border border-slate-300 px-4 py-2 rounded-xl hover:bg-slate-100 shadow-sm bg-white text-[14px] font-medium",
+
+  backBtn1:
+    "ml-20 mt-10 inline-flex items-center gap-2 border border-slate-300 px-4 py-2 rounded-xl hover:bg-slate-100 shadow-sm bg-white text-[14px] font-medium",
 };
 
 export default dashboardDesign;

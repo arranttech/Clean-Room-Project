@@ -65,7 +65,10 @@ const roomDesign = {
   emptyIcon: "text-slate-400 text-3xl",
   emptyTitle: "text-xl font-extrabold text-slate-900",
   emptySubtitle: "mt-2 text-base text-slate-500",
-
+  label1: "text-sm font-semibold text-slate-700 mb-2 ml-1 ",
+  acphInput:
+    " p-[13px] border border-gray-300 rounded-lg w-[32%] h-18  focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 ",
+  acphWrap: "flex flex-col items-start justify-start mt-7 ",
 };
 
 export default roomDesign;

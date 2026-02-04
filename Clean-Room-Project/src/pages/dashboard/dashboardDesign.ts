@@ -24,7 +24,7 @@ const dashboardDesign = {
 
   /* body spacing */
   contentWrap: "pt-16 pb-10 px-4",
-  container: "mx-auto",
+  container: "mx-auto max-w-7xl",
 
   /* welcome */
   headerWrap: "mb-5",

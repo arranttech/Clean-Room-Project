@@ -6,7 +6,7 @@ const roomDesign = {
   headerTitle: "text-4xl font-extrabold text-slate-900",
   headerSubtitle: "mt-2 text-base text-slate-500",
 
-  cardWrap: "mx-auto max-w-5xl",
+  cardWrap: "mx-auto",
   card: "mt-6 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden",
   cardInner: "px-8 py-8",
 
@@ -38,7 +38,7 @@ const roomDesign = {
 
   // saveBtn:
   //   "inline-flex items-center gap-3 bg-blue-800 text-white px-6 py-3 rounded-xl hover:bg-blue-900 shadow-lg",
-  footer: "flex justify-between  mt-10 max-w-5xl mx-auto",
+  footer: "flex justify-between  mt-10 mx-auto",
   backBtn:
     "inline-flex items-center gap-3 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 shadow-lg",
   saveBtn:

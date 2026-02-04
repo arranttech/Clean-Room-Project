@@ -500,90 +500,6 @@ export default function Standard() {
           <div className={s.divider} />
 
           <div className={s.body}>
-            <div className={s.grid3}>
-              <div className={s.field}>
-                <label className={s.label}>
-                  {t.labels.standard} <span className={s.required}>*</span>
-                </label>
-                <select
-                  className={s.select}
-                  value={standard}
-                  onChange={(e) => {
-                    setStandard(e.target.value);
-                    setClassification("");
-                    setAcph("");
-                  }}
-                  required={true}
-                >
-                  <option value="">{t.placeholders.standard}</option>
-                  {filteredStandardsData.map((item) => (
-                    <option key={item.id} value={item.title}>
-                      {item.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className={s.field}>
-                <label className={s.label}>
-                  {t.labels.classification}{" "}
-                  <span className={s.required}>*</span>
-                </label>
-                <select
-                  className={selectedStandard ? s.select : s.selectDisabled}
-                  disabled={!selectedStandard}
-                  value={classification}
-                  onChange={(e) => setClassification(e.target.value)}
-                  required={true}
-                >
-                  <option value="">
-                    {selectedStandard
-                      ? t.placeholders.classification
-                      : t.placeholders.classificationDisabled}
-                  </option>
-                  {classList.map((c) => (
-                    <option key={c.name} value={c.name}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className={s.field}>
-                <label className={s.label}>
-                  {t.labels.acph} <span className={s.required}>*</span>
-                </label>
-                <select
-                  className={!acphDisabled ? s.select : s.selectDisabled}
-                  disabled={acphDisabled}
-                  value={acph}
-                  onChange={(e) => setAcph(e.target.value)}
-                  required={true}
-                >
-                  {acphDisabled ? (
-                    <option value="">{t.placeholders.acphDisabled}</option>
-                  ) : (
-                    acphOptions.map((v) => (
-                      <option key={v} value={v}>
-                        {v}
-                      </option>
-                    ))
-                  )}
-                </select>
-
-                {selectedClass?.minAir != null &&
-                  selectedClass?.maxAir != null && (
-                    <div className={s.range}>
-                      {t.misc.rangeLabel}{" "}
-                      <span className={s.rangeValue}>
-                        {selectedClass.minAir} - {selectedClass.maxAir}
-                      </span>
-                    </div>
-                  )}
-              </div>
-            </div>
-
-            <div className={s.sectionSpacer}>
               <div className={s.grid2}>
                 <div className={s.field}>
                   <label className={s.label}>
@@ -693,7 +609,90 @@ export default function Standard() {
                   )}
                 </div>
               )}
+            <div className={s.sectionSpacer}>
+			<div className={s.grid3}>
+              <div className={s.field}>
+                <label className={s.label}>
+                  {t.labels.standard} <span className={s.required}>*</span>
+                </label>
+                <select
+                  className={s.select}
+                  value={standard}
+                  onChange={(e) => {
+                    setStandard(e.target.value);
+                    setClassification("");
+                    setAcph("");
+                  }}
+                  required={true}
+                >
+                  <option value="">{t.placeholders.standard}</option>
+                  {filteredStandardsData.map((item) => (
+                    <option key={item.id} value={item.title}>
+                      {item.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={s.field}>
+                <label className={s.label}>
+                  {t.labels.classification}{" "}
+                  <span className={s.required}>*</span>
+                </label>
+                <select
+                  className={selectedStandard ? s.select : s.selectDisabled}
+                  disabled={!selectedStandard}
+                  value={classification}
+                  onChange={(e) => setClassification(e.target.value)}
+                  required={true}
+                >
+                  <option value="">
+                    {selectedStandard
+                      ? t.placeholders.classification
+                      : t.placeholders.classificationDisabled}
+                  </option>
+                  {classList.map((c) => (
+                    <option key={c.name} value={c.name}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className={s.field}>
+                <label className={s.label}>
+                  {t.labels.acph} <span className={s.required}>*</span>
+                </label>
+                <select
+                  className={!acphDisabled ? s.select : s.selectDisabled}
+                  disabled={acphDisabled}
+                  value={acph}
+                  onChange={(e) => setAcph(e.target.value)}
+                  required={true}
+                >
+                  {acphDisabled ? (
+                    <option value="">{t.placeholders.acphDisabled}</option>
+                  ) : (
+                    acphOptions.map((v) => (
+                      <option key={v} value={v}>
+                        {v}
+                      </option>
+                    ))
+                  )}
+                </select>
+
+                {selectedClass?.minAir != null &&
+                  selectedClass?.maxAir != null && (
+                    <div className={s.range}>
+                      {t.misc.rangeLabel}{" "}
+                      <span className={s.rangeValue}>
+                        {selectedClass.minAir} - {selectedClass.maxAir}
+                      </span>
+                    </div>
+                  )}
+              </div>
             </div>
+			</div>
 
             <div className={s.sectionLine} />
 

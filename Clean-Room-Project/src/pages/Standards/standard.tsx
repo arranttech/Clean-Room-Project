@@ -151,23 +151,7 @@ export default function Standard() {
     temperature: "",
   });
 
-  // const isFormValid = (() => {
-  //   if (!standard || errors.standard) return false;
-  //   if (!classification || errors.classification) return false;
-  //   if (!acph || errors.acph) return false;
-  //   if (!system || errors.system) return false;
-  //   if (!systemType || errors.systemType) return false;
-  //   //if (!heatingMethod || errors.heatingMethod) return false;
-  //   //if (!coolingMethod || errors.coolingMethod) return false;
-  //   if (reqInsideHum && errors.humidity) return false;
-  //   if (reqInsideTempC && errors.temperature) return false;
-  //   if (!reqInsideHum || errors.humidity) return false;
-  //   if (!reqInsideTempC || errors.temperature) return false;
-  //   // if(!systemType) return false;
-  //   // if(!heatingMethod) return false;
-  //   // if(!coolingMethod) return false;
-  //   return true;
-  // })();
+ 
 
   const selectedStandard = standardsData.find((x) => x.title === standard);
 
@@ -414,7 +398,7 @@ export default function Standard() {
     tempUnit === "C" ? t.placeholders.reqTempC : t.placeholders.reqTempF;
 
   const flowMedium = useMemo(() => {
-    // Prefer cooling if visible
+   
     if (showCoolingMethod && coolingMethod) return coolingMethod;
     if (showHeatingMethod && heatingMethod) return heatingMethod;
     // fallback
@@ -429,7 +413,7 @@ export default function Standard() {
   );
 
   useEffect(() => {
-    // keep current value within new range when method changes
+    
     setFlowVelocity((v) => clamp(v, flowRange.min, flowRange.max));
   }, [flowRange.min, flowRange.max]);
 

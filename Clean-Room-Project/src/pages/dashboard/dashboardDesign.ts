@@ -77,7 +77,7 @@ const dashboardDesign = {
     "inline-flex items-center gap-2 border border-slate-300 px-4 py-2 rounded-xl hover:bg-slate-100 shadow-sm bg-white text-[14px] font-medium",
   listTitleWrap:
     "w-full flex flex-col items-center justify-center gap-2 text-center",
-  listTitle: "text-2xl md:text-3xl font-extrabold text-slate-900 text-center",
+  listTitle: "text-2xl md:text-3xl font-extrabold text-slate-900 text-center -mt-12",
 
   badge:
     "inline-flex items-center rounded-full bg-slate-100 text-slate-700 px-3 py-1 text-[13px] font-semibold",

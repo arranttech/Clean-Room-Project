@@ -19,7 +19,11 @@ type RoomForm = {
 };
 
 type StandardsPayload = {
+  standard?: number | string;
+  classification?: number | string;
   acph?: number | string;
+  acphMin?: number | null;
+  acphMax?: number | null;
   reqInsideTempC?: number | string;
   reqInsideHum?: number | string;
   maxTempC?: number | string;
@@ -56,8 +60,8 @@ export default function Room() {
   const [isFormVisible, setIsFormVisible] = useState(false);
 
 
-  const isVentilationOnly = standards.system === "Ventilation System" || 
-  standards.systemType === "Ventilation System";
+  const isVentilationOnly = standards.system === "Ventilation System" ||
+    standards.systemType === "Ventilation System";
 
 
   const ventilationAllowedFields: (keyof RoomForm)[] = [
@@ -87,6 +91,22 @@ export default function Room() {
   //     k === "roomName" ? v.trim() !== "" : v !== ""
   //   );
   // }, [form]);
+
+  const acphOptions = useMemo(() => {
+    if (
+      standards.acphMin == null ||
+      standards.acphMax == null
+    ) {
+      return [];
+    }
+
+    const opts: number[] = [];
+    for (let v = standards.acphMin; v <= standards.acphMax; v++) {
+      opts.push(v);
+    }
+    return opts;
+  }, [standards.acphMin, standards.acphMax]);
+
 
   const isRoomReadyToSave = useMemo(() => {
     const fieldsToCheck = isVentilationOnly
@@ -171,7 +191,7 @@ export default function Room() {
 
     return (
       <div className={s.field} key={key}>
-        
+
         <label className={s.label}>{(T.fields as any)[key].label} <span className={s.required1}>*</span></label>
 
         <input
@@ -253,7 +273,7 @@ export default function Room() {
                 {renderInput("height")}
               </div>
 
-              
+
               <div className={s.sectionTitle}>{T.sections.occupancyLoad}</div>
               <div className={s.grid3}>
                 {renderInput("occupancy")}
@@ -265,19 +285,63 @@ export default function Room() {
               <div className={s.grid3}>
                 {renderInput("infiltrationsPerHour")}
                 {renderInput("freshAirPercent")}
-               
+
                 {renderInput("exhaustAir")}
-              
-                <div className={s.acphWrap}>
+
+                {/* <div className={s.acphWrap}>
                 <label className={s.label1}>ACPH Value</label>
                 <input
                   className={s.acphInput}
                   value={`${standards.acph ?? "-"}`}
                   
-                /></div>
-               
+                /></div> */}
+
+                <div>
+                  <label className={s.label}>
+                    ACPH Value <span className={s.required1}>*</span>
+                  </label>
+                  <div>
+                    <select
+                      className={acphOptions.length ? s.select : s.selectDisabled }
+                      value={standards.acph ?? ""}
+                      disabled={!acphOptions.length}
+                      required={true}
+                    >
+                      {!acphOptions.length && (
+                        <option value="">ACPH not available</option>
+                      )}
+
+                      {acphOptions.map((v) => (
+                        <option key={v} value={v}>
+                          {v}
+                        </option>
+                      ))}
+                    </select>
+
+                  </div>
+
+                  {acphOptions.length > 0 && (
+                    <div>
+                      Range: <span className={s.range}> {standards.acphMin}–{standards.acphMax} </span>
+                    </div>
+                  )}
+                </div>
+
+
+
+
               </div>
+               <div className={s.acphBanner}>
+                <div className={s.acphBannerStyle}>
+                    <p className={s.bannerTitle}> Default ACPH from Classification: <span className={s.bannerValue}> {standards.acphMin} – {standards.acphMax}</span> </p>
+                  <p className={s.bannerText}> Pre-filled with Maximum</p>
+                </div>
+                   <span className={s.bannerValue}> ({standards.standard} – {standards.classification})</span>
+
+
             </div>
+            </div>
+           
           </div>
         )}
 

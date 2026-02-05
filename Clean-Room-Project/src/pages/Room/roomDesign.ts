@@ -66,9 +66,16 @@ const roomDesign = {
   emptyTitle: "text-xl font-extrabold text-slate-900",
   emptySubtitle: "mt-2 text-base text-slate-500",
   label1: "text-sm font-semibold text-slate-700 mb-2 ml-1 ",
-  acphInput:
-    " p-[13px] border border-gray-300 rounded-lg w-full h-18  focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 ",
-  acphWrap: "flex flex-col items-start justify-start mt-7 ",
+  
+  select: "w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none",
+  selectDisabled: "w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm focus:outline-none cursor-not-allowed",
+   
+  acphBanner: "mt-6 rounded-xl bg-blue-50 border border-blue-200 p-4 text-sm text-blue-700",
+  bannerTitle: "font-bold text-blue-900",
+  bannerText: "font-bold text-blue-500 ml-auto bg-blue-100 px-3 py-1 rounded-lg",
+  bannerValue: "font-mono text-blue-600",
+  acphBannerStyle: "flex flex-row gap-2",
+  range:" font-mono text-blue-600 ",
 };
 
 export default roomDesign;

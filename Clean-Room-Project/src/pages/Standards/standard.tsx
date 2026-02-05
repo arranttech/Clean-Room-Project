@@ -151,23 +151,23 @@ export default function Standard() {
     temperature: "",
   });
 
-  const isFormValid = (() => {
-    if (!standard || errors.standard) return false;
-    if (!classification || errors.classification) return false;
-    if (!acph || errors.acph) return false;
-    if (!system || errors.system) return false;
-    if (!systemType || errors.systemType) return false;
-    //if (!heatingMethod || errors.heatingMethod) return false;
-    //if (!coolingMethod || errors.coolingMethod) return false;
-    if (reqInsideHum && errors.humidity) return false;
-    if (reqInsideTempC && errors.temperature) return false;
-    if (!reqInsideHum || errors.humidity) return false;
-    if (!reqInsideTempC || errors.temperature) return false;
-    // if(!systemType) return false;
-    // if(!heatingMethod) return false;
-    // if(!coolingMethod) return false;
-    return true;
-  })();
+  // const isFormValid = (() => {
+  //   if (!standard || errors.standard) return false;
+  //   if (!classification || errors.classification) return false;
+  //   if (!acph || errors.acph) return false;
+  //   if (!system || errors.system) return false;
+  //   if (!systemType || errors.systemType) return false;
+  //   //if (!heatingMethod || errors.heatingMethod) return false;
+  //   //if (!coolingMethod || errors.coolingMethod) return false;
+  //   if (reqInsideHum && errors.humidity) return false;
+  //   if (reqInsideTempC && errors.temperature) return false;
+  //   if (!reqInsideHum || errors.humidity) return false;
+  //   if (!reqInsideTempC || errors.temperature) return false;
+  //   // if(!systemType) return false;
+  //   // if(!heatingMethod) return false;
+  //   // if(!coolingMethod) return false;
+  //   return true;
+  // })();
 
   const selectedStandard = standardsData.find((x) => x.title === standard);
 
@@ -441,6 +441,8 @@ export default function Standard() {
       standard,
       classification,
       acph,
+      acphMin: selectedClass?.minAir ?? null,
+      acphMax: selectedClass?.maxAir ?? null,
       system,
       systemType,
       heatingMethod,
@@ -465,6 +467,7 @@ export default function Standard() {
     standard,
     classification,
     acph,
+    selectedClass,
     system,
     systemType,
     heatingMethod,
@@ -486,6 +489,32 @@ export default function Standard() {
     console.log(roomPayload);
     console.groupEnd();
   }, [roomPayload]);
+
+  const isFormValid = (() => {
+    if (!standard || errors.standard) return false;
+    if (!classification || errors.classification) return false;
+    if (!acph || errors.acph) return false;
+    if (!system || errors.system) return false;
+    if (!systemType || errors.systemType) return false;
+
+     if (!ventilationOnly) {
+    if (!heatingMethod && showHeatingMethod) return false;
+    if (!coolingMethod && showCoolingMethod) return false;
+
+    if (!reqInsideHum || errors.humidity) return false;
+    if (!reqInsideTempC || errors.temperature) return false;
+  }
+    // //if (!heatingMethod || errors.heatingMethod) return false;
+    // //if (!coolingMethod || errors.coolingMethod) return false;
+    // if (reqInsideHum && errors.humidity) return false;
+    // if (reqInsideTempC && errors.temperature) return false;
+    // if (!reqInsideHum || errors.humidity) return false;
+    // if (!reqInsideTempC || errors.temperature) return false;
+    // // if(!systemType) return false;
+    // // if(!heatingMethod) return false;
+    // // if(!coolingMethod) return false;
+    return true;
+  })();
 
   return (
     <div className={s.page}>
@@ -855,7 +884,7 @@ export default function Standard() {
                       Flow Velocity - {formatMediumLabel(flowMedium)}
                       <span className={s.required}> *</span>
                     </div>
-                    <div className={s.flowUnit}>m/s</div>
+                   
                   </div>
 
                   <div className={s.flowRow}>

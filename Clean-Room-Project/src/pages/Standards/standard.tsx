@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import standardDesign from "./standardDesign";
 import standardDataJson from "../../json/standardData.json";
-
+ 
 type StandardItem = {
   id: number;
   title: string;
@@ -13,16 +13,16 @@ type StandardItem = {
     maxAir: number | null;
   }[];
 };
-
+ 
 type StandardJson = {
   standards: StandardItem[];
   text: any;
 };
-
+ 
 const data = standardDataJson as unknown as StandardJson;
 const standardsData = data.standards;
 const t = data.text;
-
+ 
 type SystemName =
   | ""
   | "Air-Heating System"
@@ -31,14 +31,14 @@ type SystemName =
   | "Air Cooling and Ventilation System"
   | "Air Heating and Ventilation System"
   | "Air Cooling and Air Heating System";
-
+ 
 type CustomerInfoState = {
   minimumTemp?: string;
   maximumTemp?: string;
   minRelativeHumidity?: string;
   maxRelativeHumidity?: string;
 };
-
+ 
 type TempUnit = "C" | "F";
 function celsiusToFahrenheit(c: number): number {
   return (c * 9) / 5 + 32;
@@ -50,16 +50,16 @@ function roundTo(n: number, decimals: number): number {
   const p = Math.pow(10, decimals);
   return Math.round(n * p) / p;
 }
-
+ 
 function isNumericLike(s: string): boolean {
   return /^-?\d*\.?\d*$/.test(s);
 }
 function isRealNumberString(s: string): boolean {
   return /^-?\d+(\.\d+)?$/.test(s);
 }
-
+ 
 const temperature_range = { min: -30, max: 60 };
-
+ 
 function validateTemperature(value: string): string {
   if (!value) return "";
   const num = Number(value);
@@ -68,25 +68,25 @@ function validateTemperature(value: string): string {
     return "Temperature must be between -30°C and 60°C";
   return "";
 }
-
+ 
 const humidity_range = { min: 0, max: 100 };
-
+ 
 function allowNumericInput(
   setter: (v: string) => void,
   value: string,
-  range = humidity_range
+  range = humidity_range,
 ) {
   if (value === "" || isNumericLike(value)) setter(value);
-
+ 
   if (!/^[\d*\.?\d*]{0,3}$/.test(value)) return;
-
+ 
   const num = Number(value);
   if (Number.isNaN(num)) return;
   if (num < range.min || num > range.max) return;
-
+ 
   setter(value);
 }
-
+ 
 function validateHumidity(value: string): string {
   if (!value) return "";
   const num = Number(value);
@@ -94,7 +94,7 @@ function validateHumidity(value: string): string {
   if (num < 0 || num > 100) return "Humidity must be between 0 and 100";
   return "";
 }
-
+ 
 /* ---------- Flow velocity helpers ---------- */
 function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
@@ -110,37 +110,37 @@ function getFlowVelocityRange(medium: string) {
 function formatMediumLabel(medium: string) {
   return medium ? medium : "Select Method";
 }
-
+ 
 export default function Standard() {
   const s = standardDesign;
-
+ 
   const location = useLocation();
   const prev = (location.state || {}) as CustomerInfoState;
-
+ 
   const [standard, setStandard] = useState("");
   const [classification, setClassification] = useState("");
   const [acph, setAcph] = useState("");
-
+ 
   const [system, setSystem] = useState<SystemName>("");
   const [systemType, setSystemType] = useState("");
   const [heatingMethod, setHeatingMethod] = useState("");
   const [coolingMethod, setCoolingMethod] = useState("");
-
+ 
   const [tempUnit, setTempUnit] = useState<TempUnit>("C");
   const [reqInsideTempC, setReqInsideTempC] = useState("");
   const [reqInsideTempDisplay, setReqInsideTempDisplay] = useState("");
   const [reqInsideHum, setReqInsideHum] = useState("");
-
+ 
   const [minTempC, setMinTempC] = useState("");
   const [maxTempC, setMaxTempC] = useState("");
   const [rhMin, setRhMin] = useState("");
   const [rhMax, setRhMax] = useState("");
-
+ 
   /* ---------- Flow Velocity state ---------- */
   const [flowVelocity, setFlowVelocity] = useState<number>(1.5);
   const [heatingFlowVelocity, setHeatingFlowVelocity] = useState<number>(1.5);
   const [coolingFlowVelocity, setCoolingFlowVelocity] = useState<number>(1.5);
-
+ 
   const [errors, setErrors] = useState({
     standard: "",
     classification: "",
@@ -152,66 +152,50 @@ export default function Standard() {
     humidity: "",
     temperature: "",
   });
-
-  const isFormValid = (() => {
-    if (!standard || errors.standard) return false;
-    if (!classification || errors.classification) return false;
-    if (!acph || errors.acph) return false;
-    if (!system || errors.system) return false;
-    if (!systemType || errors.systemType) return false;
-    if (!heatingMethod || errors.heatingMethod) return false;
-    if (!coolingMethod || errors.coolingMethod) return false;
-    if (reqInsideHum && errors.humidity) return false;
-    if (reqInsideTempC && errors.temperature) return false;
-    if (!reqInsideHum || errors.humidity) return false;
-    if (!reqInsideTempC || errors.temperature) return false;
-    // if(!systemType) return false;
-    // if(!heatingMethod) return false;
-    // if(!coolingMethod) return false;
-    return true;
-  })();
-
+ 
+ 
+ 
   const selectedStandard = standardsData.find((x) => x.title === standard);
-
+ 
   // 1. Define the standards that should bypass filtering
   const SPECIAL_STANDARDS = ["NC-Non Classified", "ISO 14698", "SCHEDULE M"];
-
+ 
   const isNonClassifiedSystem = useMemo(() => {
     return systemType.toLowerCase().includes("non-classified");
   }, [systemType]);
-
+ 
   // 2. Filter standards (Keeping your existing logic here)
   const filteredStandardsData = useMemo(() => {
     if (systemType !== "" && !isNonClassifiedSystem) {
       return standardsData.filter(
-        (item) => !SPECIAL_STANDARDS.includes(item.title)
+        (item) => !SPECIAL_STANDARDS.includes(item.title),
       );
     }
     return standardsData;
   }, [systemType, isNonClassifiedSystem, standardsData]);
-
+ 
   // 3. Filter Classifications
   const classList = useMemo(() => {
     if (!selectedStandard) return [];
-
+ 
     // FIX: If the selected standard is one of the special ones, show all classes
     if (SPECIAL_STANDARDS.includes(selectedStandard.title)) {
       return selectedStandard.classifications;
     }
-
+ 
     // Otherwise, apply the existing Non-Classified filtering logic
     return selectedStandard.classifications.filter((c) => {
       const isNCClass =
         c.name.toLowerCase().includes("non classified") ||
         c.name.toLowerCase().includes("non-classified");
-
+ 
       return isNonClassifiedSystem ? isNCClass : !isNCClass;
     });
   }, [selectedStandard, isNonClassifiedSystem]);
-
+ 
   // 4. ACPH Calculation (Remains largely the same, ensuring it maps to the UI)
   const selectedClass = classList.find((c) => c.name === classification);
-
+ 
   const acphOptions = useMemo(() => {
     const out = [];
     if (selectedClass?.minAir != null && selectedClass?.maxAir != null) {
@@ -222,12 +206,12 @@ export default function Standard() {
     }
     return out;
   }, [selectedClass]);
-
+ 
   const acphDisabled =
     !selectedClass ||
     selectedClass.minAir == null ||
     selectedClass.maxAir == null;
-
+ 
   useEffect(() => {
     if (!selectedClass) {
       setAcph("");
@@ -236,72 +220,72 @@ export default function Standard() {
     if (selectedClass.maxAir != null) setAcph(String(selectedClass.maxAir));
     else setAcph("");
   }, [classification, selectedClass?.maxAir, selectedClass]);
-
+ 
   const isHeating =
     system === t.options.systems.heating ||
     system === t.options.systems.heatingVentilation ||
     system === t.options.systems.heatingCooling;
-
+ 
   const isCooling =
     system === t.options.systems.cooling ||
     system === t.options.systems.coolingVentilation ||
     system === t.options.systems.heatingCooling;
-
+ 
   const isVentilation =
     system === t.options.systems.ventilation ||
     system === t.options.systems.coolingVentilation ||
     system === t.options.systems.heatingVentilation;
-
+ 
   // Logic to treat specific sub-types as Ventilation only
   const ventilationOnly =
     (isVentilation && !isHeating && !isCooling) ||
     systemType === t.options.systems.ventilation;
-
+ 
   const showHeatingMethod = isHeating && !ventilationOnly;
   const showCoolingMethod = isCooling && !ventilationOnly;
-
+ 
   const isHeatingCooling = system === t.options.systems.heatingCooling;
   const isCoolingVent = system === t.options.systems.coolingVentilation;
   const isHeatingVent = system === t.options.systems.heatingVentilation;
-
+ 
   const systemTypeLabel = isHeatingCooling
     ? t.labels.systemTypeGeneric
     : isHeatingVent
-    ? t.labels.systemTypeHeating
-    : isCoolingVent
-    ? t.labels.systemTypeCooling
-    : isHeating
-    ? t.labels.systemTypeHeating
-    : isCooling
-    ? t.labels.systemTypeCooling
-    : t.labels.systemTypeVentilation;
-
+      ? t.labels.systemTypeHeating
+      : isCoolingVent
+        ? t.labels.systemTypeCooling
+        : isHeating
+          ? t.labels.systemTypeHeating
+          : isCooling
+            ? t.labels.systemTypeCooling
+            : t.labels.systemTypeVentilation;
+ 
   const systemTypePlaceholder = isHeatingCooling
     ? t.placeholders.systemTypeGeneric
     : isHeatingVent
-    ? t.placeholders.systemTypeHeating
-    : isCoolingVent
-    ? t.placeholders.systemTypeCooling
-    : isHeating
-    ? t.placeholders.systemTypeHeating
-    : isCooling
-    ? t.placeholders.systemTypeCooling
-    : t.placeholders.systemTypeVentilation;
-
+      ? t.placeholders.systemTypeHeating
+      : isCoolingVent
+        ? t.placeholders.systemTypeCooling
+        : isHeating
+          ? t.placeholders.systemTypeHeating
+          : isCooling
+            ? t.placeholders.systemTypeCooling
+            : t.placeholders.systemTypeVentilation;
+ 
   const systemTypes = useMemo(() => {
     if (!system) return [];
-
+ 
     if (isHeatingCooling) return t.options.systemTypes.combined || [];
     if (isHeatingVent) return t.options.systemTypes.heatingVent || [];
     if (isCoolingVent) return t.options.systemTypes.coolingVent || [];
-
+ 
     if (system === t.options.systems.heating)
       return t.options.systemTypes.heating || [];
     if (system === t.options.systems.cooling)
       return t.options.systemTypes.cooling || [];
     if (system === t.options.systems.ventilation)
       return t.options.systemTypes.ventilation || [];
-
+ 
     if (isHeating) return t.options.systemTypes.heating || [];
     if (isCooling) return t.options.systemTypes.cooling || [];
     if (isVentilation) return t.options.systemTypes.ventilation || [];
@@ -315,22 +299,22 @@ export default function Standard() {
     isCooling,
     isVentilation,
   ]);
-
+ 
   const heatingMethods: string[] = t.options.methods.heating || [];
   const coolingMethods: string[] = t.options.methods.cooling || [];
-
+ 
   useEffect(() => {
     setMinTempC(typeof prev.minimumTemp === "string" ? prev.minimumTemp : "");
     setMaxTempC(typeof prev.maximumTemp === "string" ? prev.maximumTemp : "");
     setRhMin(
       typeof prev.minRelativeHumidity === "string"
         ? prev.minRelativeHumidity
-        : ""
+        : "",
     );
     setRhMax(
       typeof prev.maxRelativeHumidity === "string"
         ? prev.maxRelativeHumidity
-        : ""
+        : "",
     );
   }, [
     prev.minimumTemp,
@@ -338,7 +322,7 @@ export default function Standard() {
     prev.minRelativeHumidity,
     prev.maxRelativeHumidity,
   ]);
-
+ 
   useEffect(() => {
     // If we aren't changing the system itself, we don't necessarily want to wipe systemType,
     // but the original logic clears them on system change.
@@ -355,22 +339,22 @@ export default function Standard() {
       if (reqInsideHum === t.misc.ambient) setReqInsideHum("");
     }
   }, [system, systemType, ventilationOnly]);
-
+ 
   const tempToDisplay = (cStr: string): string => {
     if (!cStr) return "";
     if (!isRealNumberString(cStr)) return cStr;
-
+ 
     const c = parseFloat(cStr);
     if (Number.isNaN(c)) return cStr;
-
+ 
     return tempUnit === "C"
       ? String(roundTo(c, 2))
       : String(roundTo(celsiusToFahrenheit(c), 2));
   };
-
+ 
   useEffect(() => {
     if (ventilationOnly) return;
-
+ 
     if (!reqInsideTempC) {
       setReqInsideTempDisplay("");
       return;
@@ -383,7 +367,7 @@ export default function Standard() {
       setReqInsideTempDisplay(reqInsideTempC);
       return;
     }
-
+ 
     const c = parseFloat(reqInsideTempC);
     const display =
       tempUnit === "C"
@@ -391,32 +375,32 @@ export default function Standard() {
         : String(roundTo(celsiusToFahrenheit(c), 2));
     setReqInsideTempDisplay(display);
   }, [tempUnit, reqInsideTempC, ventilationOnly]);
-
+ 
   const onReqInsideTempChange = (val: string) => {
     if (ventilationOnly) return;
-
+ 
     if (val === "") {
       setReqInsideTempDisplay("");
       setReqInsideTempC("");
       return;
     }
     if (!isNumericLike(val)) return;
-
+ 
     setReqInsideTempDisplay(val);
     if (!isRealNumberString(val)) return;
-
+ 
     const n = parseFloat(val);
     if (Number.isNaN(n)) return;
-
+ 
     if (tempUnit === "C") setReqInsideTempC(String(roundTo(n, 2)));
     else setReqInsideTempC(String(roundTo(fahrenheitToCelsius(n), 4)));
   };
-
+ 
   const tempPlaceholder =
     tempUnit === "C" ? t.placeholders.reqTempC : t.placeholders.reqTempF;
-
+ 
   const flowMedium = useMemo(() => {
-    // Prefer cooling if visible
+   
     if (showCoolingMethod && coolingMethod) return coolingMethod;
     if (showHeatingMethod && heatingMethod) return heatingMethod;
     // fallback
@@ -424,7 +408,7 @@ export default function Standard() {
     if (showHeatingMethod) return heatingMethod;
     return "";
   }, [showCoolingMethod, showHeatingMethod, coolingMethod, heatingMethod]);
-
+ 
   const flowRange = useMemo(
     () => getFlowVelocityRange(flowMedium),
     [flowMedium]
@@ -443,15 +427,17 @@ export default function Standard() {
     // keep current value within new range when method changes
     setFlowVelocity((v) => clamp(v, flowRange.min, flowRange.max));
   }, [flowRange.min, flowRange.max]);
-
+ 
   const roomPayload = useMemo(() => {
     const isVentilationOnly = system === t.options.systems.ventilation;
-
+ 
     return {
       fromCustomerInfo: prev,
       standard,
       classification,
       acph,
+      acphMin: selectedClass?.minAir ?? null,
+      acphMax: selectedClass?.maxAir ?? null,
       system,
       systemType,
       heatingMethod,
@@ -471,13 +457,14 @@ export default function Standard() {
       flowVelocityUnit: "m/s",
       flowMedium,
       heatingFlowVelocity,
-      coolingFlowVelocity,
+      coolingFlowVelocity
     };
   }, [
     prev,
     standard,
     classification,
     acph,
+    selectedClass,
     system,
     systemType,
     heatingMethod,
@@ -493,30 +480,56 @@ export default function Standard() {
     flowVelocity,
     flowMedium,
     heatingFlowVelocity,
-    coolingFlowVelocity,
+    coolingFlowVelocity
   ]);
-
+ 
   useEffect(() => {
     console.group("STANDARD SCREEN - CURRENT STATE");
     console.log(roomPayload);
     console.groupEnd();
   }, [roomPayload]);
-
+ 
+  const isFormValid = (() => {
+    if (!standard || errors.standard) return false;
+    if (!classification || errors.classification) return false;
+    if (!acph || errors.acph) return false;
+    if (!system || errors.system) return false;
+    if (!systemType || errors.systemType) return false;
+ 
+     if (!ventilationOnly) {
+    if (!heatingMethod && showHeatingMethod) return false;
+    if (!coolingMethod && showCoolingMethod) return false;
+ 
+    if (!reqInsideHum || errors.humidity) return false;
+    if (!reqInsideTempC || errors.temperature) return false;
+  }
+    // //if (!heatingMethod || errors.heatingMethod) return false;
+    // //if (!coolingMethod || errors.coolingMethod) return false;
+    // if (reqInsideHum && errors.humidity) return false;
+    // if (reqInsideTempC && errors.temperature) return false;
+    // if (!reqInsideHum || errors.humidity) return false;
+    // if (!reqInsideTempC || errors.temperature) return false;
+    // // if(!systemType) return false;
+    // // if(!heatingMethod) return false;
+    // // if(!coolingMethod) return false;
+    return true;
+  })();
+ 
   return (
     <div className={s.page}>
       <div className={s.top}>
         <h1 className={s.title}>{t.page.title}</h1>
         <p className={s.subtitle}>{t.page.subtitle}</p>
       </div>
-
+ 
       <div className={s.cardWrap}>
         <div className={s.card}>
           <div className={s.cardHeader}>
             <div className={s.cardHeaderTitle}>{t.page.cardTitle}</div>
           </div>
-
+ 
           <div className={s.divider} />
-
+ 
           <div className={s.body}>
             <div className={s.grid2}>
               <div className={s.field}>
@@ -553,7 +566,7 @@ export default function Standard() {
                   </option>
                 </select>
               </div>
-
+ 
               {system !== "" && (
                 <div className={s.field}>
                   <label className={s.label}>
@@ -579,7 +592,7 @@ export default function Standard() {
                 </div>
               )}
             </div>
-
+ 
             {(showHeatingMethod || showCoolingMethod) && (
               <div className={"mt-6 " + s.grid2}>
                 {showHeatingMethod && (
@@ -603,7 +616,7 @@ export default function Standard() {
                     </select>
                   </div>
                 )}
-
+ 
                 {showCoolingMethod && (
                   <div className={s.field}>
                     <label className={s.label}>
@@ -651,7 +664,7 @@ export default function Standard() {
                     ))}
                   </select>
                 </div>
-
+ 
                 <div className={s.field}>
                   <label className={s.label}>
                     {t.labels.classification}{" "}
@@ -676,7 +689,7 @@ export default function Standard() {
                     ))}
                   </select>
                 </div>
-
+ 
                 <div className={s.field}>
                   <label className={s.label}>
                     {t.labels.acph} <span className={s.required}>*</span>
@@ -698,7 +711,7 @@ export default function Standard() {
                       ))
                     )}
                   </select>
-
+ 
                   {selectedClass?.minAir != null &&
                     selectedClass?.maxAir != null && (
                       <div className={s.range}>
@@ -711,15 +724,15 @@ export default function Standard() {
                 </div>
               </div>
             </div>
-
+ 
             <div className={s.sectionLine} />
-
+ 
             <div className={s.sectionSpacer}>
               <div className={s.sectionTitle}>{t.sections.tempHumTitle}</div>
-
+ 
               <div className={s.unitRow}>
                 <div className={s.unitLabel}>{t.labels.tempUnit}</div>
-
+ 
                 <div className={s.unitGroup}>
                   <label className={s.unitOption}>
                     <input
@@ -733,7 +746,7 @@ export default function Standard() {
                     />
                     <span>{t.options.units.c}</span>
                   </label>
-
+ 
                   <label className={s.unitOption}>
                     <input
                       className={s.unitRadio}
@@ -747,12 +760,12 @@ export default function Standard() {
                     <span>{t.options.units.f}</span>
                   </label>
                 </div>
-
+ 
                 {ventilationOnly && (
                   <div className={s.unitHint}>{t.misc.ventilationUnitHint}</div>
                 )}
               </div>
-
+ 
               <div className={"mt-6 " + s.grid2}>
                 <div className={s.field}>
                   <label className={s.label}>
@@ -789,7 +802,7 @@ export default function Standard() {
                       </div>
                     )}
                 </div>
-
+ 
                 <div className={s.field}>
                   <label className={s.label}>
                     {t.labels.reqInsideHum}{" "}
@@ -811,7 +824,7 @@ export default function Standard() {
                     }}
                     disabled={ventilationOnly}
                   />
-
+ 
                   {errors.humidity && (
                     <div className="text-red-500 text-xs mt-1">
                       {errors.humidity}
@@ -819,7 +832,7 @@ export default function Standard() {
                   )}
                 </div>
               </div>
-
+ 
               <div className={"mt-6 " + s.grid4}>
                 <div className={s.field}>
                   <label className={s.label}>
@@ -831,7 +844,7 @@ export default function Standard() {
                     disabled
                   />
                 </div>
-
+ 
                 <div className={s.field}>
                   <label className={s.label}>
                     {t.labels.maxTemp} ({tempUnit === "C" ? "°C" : "°F"})
@@ -842,7 +855,7 @@ export default function Standard() {
                     disabled
                   />
                 </div>
-
+ 
                 <div className={s.field}>
                   <label className={s.label}>{t.labels.rhMin}</label>
                   <input
@@ -851,7 +864,7 @@ export default function Standard() {
                     disabled
                   />
                 </div>
-
+ 
                 <div className={s.field}>
                   <label className={s.label}>{t.labels.rhMax}</label>
                   <input
@@ -861,9 +874,10 @@ export default function Standard() {
                   />
                 </div>
               </div>
-              {/* ---------- Dual Flow Velocity for Heating + Cooling ---------- */}
+ 
+             {/* ---------- Dual Flow Velocity for Heating + Cooling ---------- */}
 
-              {!ventilationOnly &&
+             {!ventilationOnly &&
                 system === t.options.systems.heatingCooling &&
                 showHeatingMethod &&
                 showCoolingMethod && (
@@ -1062,18 +1076,18 @@ export default function Standard() {
             </div>
           </div>
         </div>
-
+ 
         <div className={s.quickView}>
           Standard: <b>{standard || "-"}</b> | Classification:{" "}
           <b>{classification || "-"}</b> | ACPH: <b>{acph || "-"}</b>
         </div>
       </div>
-
+ 
       <div className={s.footer}>
         <Link to="/customer-info" className={s.backLink}>
           <FaArrowLeft /> {t.buttons.back}
         </Link>
-
+ 
         <Link
           to={isFormValid ? "/room" : "#"}
           className={`${s.nextLink} ${!isFormValid ? s.disabled : ""}`}
@@ -1082,7 +1096,7 @@ export default function Standard() {
             if (!isFormValid) {
               e.preventDefault();
               alert(
-                "Please fill all required fields correctly before proceeding."
+                "Please fill all required fields correctly before proceeding.",
               );
             }
           }}

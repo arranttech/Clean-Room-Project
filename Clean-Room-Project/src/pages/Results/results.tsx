@@ -95,7 +95,7 @@ export default function Results() {
       const volumeFt3 = Math.ceil(areaFt2 * H * 3.28 * 100) / 100;
 
       // Room CFM
-      const roomCfm = (volumeFt3 * Number(payload.acph || 0)) / 60;
+      const roomCfm = (volumeFt3 * ACPH) / 60;
 
       // Fresh Air
       const freshAir = ventilationOnly ? faPercent : roomCfm * faFactor;

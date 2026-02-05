@@ -12,7 +12,7 @@ const standardDesign = {
   cardHeaderTitle: "text-xl font-bold text-blue-600",
   divider: "border-t border-slate-200",
 
-  body: "px-8 py-8",
+  body1: "px-8 py-8",
 
   sectionTitle: "text-xl font-bold text-blue-600",
   sectionSpacer: "mt-10",

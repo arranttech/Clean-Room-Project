@@ -515,7 +515,7 @@ export default function Standard() {
 
           <div className={s.divider} />
 
-          <div className={s.body}>
+          <div className={s.body1}>
             <div className={s.grid2}>
               <div className={s.field}>
                 <label className={s.label}>

@@ -86,6 +86,36 @@ const standardDesign = {
   flowUnitSmall: "text-xs text-slate-600",
 
   flowHint: "mt-2 text-xs text-slate-500",
+  
+  /* ---------- Dual Flow Velocity (Heating + Cooling) ---------- */
+dualFlowBlock: "mt-8",
+dualFlowGrid: "grid grid-cols-1 md:grid-cols-2 gap-6",
+
+dualFlowCard:
+  "rounded-xl border border-slate-200 bg-slate-50 p-4",
+
+dualFlowTitle:
+  "text-sm font-semibold text-slate-700 mb-3",
+
+dualFlowRow:
+  "flex items-center gap-3",
+
+dualFlowMin:
+  "text-xs text-slate-500 w-10",
+
+dualFlowMax:
+  "text-xs text-slate-500 w-10 text-right",
+
+dualFlowSlider:
+  "flex-1 accent-blue-600 min-w-[140px]",
+
+dualFlowValueBox:
+  "w-16 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm " +
+  "focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none",
+
+dualFlowUnit:
+  "text-xs text-slate-600",
+
 };
 
 export default standardDesign;

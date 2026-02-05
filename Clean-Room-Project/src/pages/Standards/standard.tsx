@@ -74,7 +74,7 @@ const humidity_range = { min: 0, max: 100 };
 function allowNumericInput(
   setter: (v: string) => void,
   value: string,
-  range = humidity_range,
+  range = humidity_range
 ) {
   if (value === "" || isNumericLike(value)) setter(value);
 
@@ -138,6 +138,8 @@ export default function Standard() {
 
   /* ---------- Flow Velocity state ---------- */
   const [flowVelocity, setFlowVelocity] = useState<number>(1.5);
+  const [heatingFlowVelocity, setHeatingFlowVelocity] = useState<number>(1.5);
+  const [coolingFlowVelocity, setCoolingFlowVelocity] = useState<number>(1.5);
 
   const [errors, setErrors] = useState({
     standard: "",
@@ -151,23 +153,23 @@ export default function Standard() {
     temperature: "",
   });
 
-  // const isFormValid = (() => {
-  //   if (!standard || errors.standard) return false;
-  //   if (!classification || errors.classification) return false;
-  //   if (!acph || errors.acph) return false;
-  //   if (!system || errors.system) return false;
-  //   if (!systemType || errors.systemType) return false;
-  //   //if (!heatingMethod || errors.heatingMethod) return false;
-  //   //if (!coolingMethod || errors.coolingMethod) return false;
-  //   if (reqInsideHum && errors.humidity) return false;
-  //   if (reqInsideTempC && errors.temperature) return false;
-  //   if (!reqInsideHum || errors.humidity) return false;
-  //   if (!reqInsideTempC || errors.temperature) return false;
-  //   // if(!systemType) return false;
-  //   // if(!heatingMethod) return false;
-  //   // if(!coolingMethod) return false;
-  //   return true;
-  // })();
+  const isFormValid = (() => {
+    if (!standard || errors.standard) return false;
+    if (!classification || errors.classification) return false;
+    if (!acph || errors.acph) return false;
+    if (!system || errors.system) return false;
+    if (!systemType || errors.systemType) return false;
+    if (!heatingMethod || errors.heatingMethod) return false;
+    if (!coolingMethod || errors.coolingMethod) return false;
+    if (reqInsideHum && errors.humidity) return false;
+    if (reqInsideTempC && errors.temperature) return false;
+    if (!reqInsideHum || errors.humidity) return false;
+    if (!reqInsideTempC || errors.temperature) return false;
+    // if(!systemType) return false;
+    // if(!heatingMethod) return false;
+    // if(!coolingMethod) return false;
+    return true;
+  })();
 
   const selectedStandard = standardsData.find((x) => x.title === standard);
 
@@ -182,7 +184,7 @@ export default function Standard() {
   const filteredStandardsData = useMemo(() => {
     if (systemType !== "" && !isNonClassifiedSystem) {
       return standardsData.filter(
-        (item) => !SPECIAL_STANDARDS.includes(item.title),
+        (item) => !SPECIAL_STANDARDS.includes(item.title)
       );
     }
     return standardsData;
@@ -265,26 +267,26 @@ export default function Standard() {
   const systemTypeLabel = isHeatingCooling
     ? t.labels.systemTypeGeneric
     : isHeatingVent
-      ? t.labels.systemTypeHeating
-      : isCoolingVent
-        ? t.labels.systemTypeCooling
-        : isHeating
-          ? t.labels.systemTypeHeating
-          : isCooling
-            ? t.labels.systemTypeCooling
-            : t.labels.systemTypeVentilation;
+    ? t.labels.systemTypeHeating
+    : isCoolingVent
+    ? t.labels.systemTypeCooling
+    : isHeating
+    ? t.labels.systemTypeHeating
+    : isCooling
+    ? t.labels.systemTypeCooling
+    : t.labels.systemTypeVentilation;
 
   const systemTypePlaceholder = isHeatingCooling
     ? t.placeholders.systemTypeGeneric
     : isHeatingVent
-      ? t.placeholders.systemTypeHeating
-      : isCoolingVent
-        ? t.placeholders.systemTypeCooling
-        : isHeating
-          ? t.placeholders.systemTypeHeating
-          : isCooling
-            ? t.placeholders.systemTypeCooling
-            : t.placeholders.systemTypeVentilation;
+    ? t.placeholders.systemTypeHeating
+    : isCoolingVent
+    ? t.placeholders.systemTypeCooling
+    : isHeating
+    ? t.placeholders.systemTypeHeating
+    : isCooling
+    ? t.placeholders.systemTypeCooling
+    : t.placeholders.systemTypeVentilation;
 
   const systemTypes = useMemo(() => {
     if (!system) return [];
@@ -323,12 +325,12 @@ export default function Standard() {
     setRhMin(
       typeof prev.minRelativeHumidity === "string"
         ? prev.minRelativeHumidity
-        : "",
+        : ""
     );
     setRhMax(
       typeof prev.maxRelativeHumidity === "string"
         ? prev.maxRelativeHumidity
-        : "",
+        : ""
     );
   }, [
     prev.minimumTemp,
@@ -425,7 +427,16 @@ export default function Standard() {
 
   const flowRange = useMemo(
     () => getFlowVelocityRange(flowMedium),
-    [flowMedium],
+    [flowMedium]
+  );
+  const heatingFlowRange = useMemo(
+    () => getFlowVelocityRange(heatingMethod),
+    [heatingMethod]
+  );
+
+  const coolingFlowRange = useMemo(
+    () => getFlowVelocityRange(coolingMethod),
+    [coolingMethod]
   );
 
   useEffect(() => {
@@ -441,8 +452,6 @@ export default function Standard() {
       standard,
       classification,
       acph,
-      acphMin: selectedClass?.minAir ?? null,
-      acphMax: selectedClass?.maxAir ?? null,
       system,
       systemType,
       heatingMethod,
@@ -461,13 +470,14 @@ export default function Standard() {
       flowVelocity,
       flowVelocityUnit: "m/s",
       flowMedium,
+      heatingFlowVelocity,
+      coolingFlowVelocity,
     };
   }, [
     prev,
     standard,
     classification,
     acph,
-    selectedClass,
     system,
     systemType,
     heatingMethod,
@@ -482,6 +492,8 @@ export default function Standard() {
     rhMax,
     flowVelocity,
     flowMedium,
+    heatingFlowVelocity,
+    coolingFlowVelocity,
   ]);
 
   useEffect(() => {
@@ -489,32 +501,6 @@ export default function Standard() {
     console.log(roomPayload);
     console.groupEnd();
   }, [roomPayload]);
-
-  const isFormValid = (() => {
-    if (!standard || errors.standard) return false;
-    if (!classification || errors.classification) return false;
-    if (!acph || errors.acph) return false;
-    if (!system || errors.system) return false;
-    if (!systemType || errors.systemType) return false;
-
-     if (!ventilationOnly) {
-    if (!heatingMethod && showHeatingMethod) return false;
-    if (!coolingMethod && showCoolingMethod) return false;
-
-    if (!reqInsideHum || errors.humidity) return false;
-    if (!reqInsideTempC || errors.temperature) return false;
-  }
-    // //if (!heatingMethod || errors.heatingMethod) return false;
-    // //if (!coolingMethod || errors.coolingMethod) return false;
-    // if (reqInsideHum && errors.humidity) return false;
-    // if (reqInsideTempC && errors.temperature) return false;
-    // if (!reqInsideHum || errors.humidity) return false;
-    // if (!reqInsideTempC || errors.temperature) return false;
-    // // if(!systemType) return false;
-    // // if(!heatingMethod) return false;
-    // // if(!coolingMethod) return false;
-    return true;
-  })();
 
   return (
     <div className={s.page}>
@@ -875,55 +861,204 @@ export default function Standard() {
                   />
                 </div>
               </div>
+              {/* ---------- Dual Flow Velocity for Heating + Cooling ---------- */}
 
-              {/* ----------  Flow Velocity block ---------- */}
-              {!ventilationOnly && (showCoolingMethod || showHeatingMethod) && (
-                <div className={s.flowBlock}>
-                  <div className={s.flowLabelRow}>
-                    <div className={s.flowTitle}>
-                      Flow Velocity - {formatMediumLabel(flowMedium)}
-                      <span className={s.required}> *</span>
+              {!ventilationOnly &&
+                system === t.options.systems.heatingCooling &&
+                showHeatingMethod &&
+                showCoolingMethod && (
+                  <div className={s.dualFlowBlock}>
+                    <div className={s.dualFlowGrid}>
+                      {/* Heating Flow */}
+                      <div className={s.dualFlowCard}>
+                        <div className={s.dualFlowTitle}>
+                          Heating Flow Velocity –{" "}
+                          {formatMediumLabel(heatingMethod)}
+                          <span className={s.required}>*</span>
+                        </div>
+                       
+                        <div className={s.dualFlowRow}>
+                          <div className={s.dualFlowMin}>
+                            {heatingFlowRange.min}
+                          </div>
+
+                          <input
+                            type="range"
+                            className={s.dualFlowSlider}
+                            min={heatingFlowRange.min}
+                            max={heatingFlowRange.max}
+                            step={0.1}
+                            value={heatingFlowVelocity}
+                            onChange={(e) =>
+                              setHeatingFlowVelocity(
+                                clamp(
+                                  Number(e.target.value),
+                                  heatingFlowRange.min,
+                                  heatingFlowRange.max
+                                )
+                              )
+                            }
+                          />
+
+                          <div className={s.dualFlowMax}>
+                            {heatingFlowRange.max}
+                          </div>
+                          <input
+                            className={s.dualFlowValueBox}
+                           
+                            value={heatingFlowVelocity}
+                            required={true}
+                            onChange={(e) => {
+                              const v = Number(e.target.value);
+                              if (!Number.isNaN(v)) {
+                                setHeatingFlowVelocity(
+                                  clamp(
+                                    v,
+                                    heatingFlowRange.min,
+                                    heatingFlowRange.max
+                                  )
+                                );
+                              }
+                            }}
+                           
+                          />
+                          
+
+                          <div className={s.dualFlowUnit}>m/s</div>
+                        </div>
+                      </div>
+
+                      {/* Cooling Flow */}
+                      <div className={s.dualFlowCard}>
+                        <div className={s.dualFlowTitle}>
+                          Cooling Flow Velocity -{" "}
+                          {formatMediumLabel(coolingMethod)}
+                          <span className={s.required}>*</span>
+                        </div>
+
+                        <div className={s.dualFlowRow}>
+                          <div className={s.dualFlowMin}>
+                            {coolingFlowRange.min}
+                          </div>
+
+                          <input
+                            type="range"
+                            className={s.dualFlowSlider}
+                            min={coolingFlowRange.min}
+                            max={coolingFlowRange.max}
+                            step={0.1}
+                            value={coolingFlowVelocity}
+                            onChange={(e) =>
+                              setCoolingFlowVelocity(
+                                clamp(
+                                  Number(e.target.value),
+                                  coolingFlowRange.min,
+                                  coolingFlowRange.max
+                                )
+                              )
+                            }
+                          />
+
+                          <div className={s.dualFlowMax}>
+                            {coolingFlowRange.max}
+                          </div>
+
+                          {/* <input
+                            className={s.dualFlowValueBox}
+                            value={coolingFlowVelocity}
+                            onChange={(e) => {
+                              const v = Number(e.target.value);
+                              if (!Number.isNaN(v)) {
+                                setCoolingFlowVelocity(
+                                  clamp(
+                                    v,
+                                    coolingFlowRange.min,
+                                    coolingFlowRange.max
+                                  )
+                                );
+                              }
+                            }}
+                          /> */}
+                          <input
+                            className={s.dualFlowValueBox}
+                            inputMode="decimal"
+                            value={String(coolingFlowVelocity)}
+                            required={true}
+                            onChange={(e) => {
+                              const v = e.target.value;
+                              if (v === "" || isNumericLike(v)) {
+                                const n = Number(v);
+                                if (Number.isNaN(n)) return;
+                                setCoolingFlowVelocity(
+                                  clamp(
+                                    n,
+                                    coolingFlowRange.min,
+                                    coolingFlowRange.max
+                                  )
+                                );
+                              }
+                            }}
+                          />
+
+                          <div className={s.dualFlowUnit}>m/s</div>
+                        </div>
+                      </div>
                     </div>
-                   
                   </div>
+                )}
 
-                  <div className={s.flowRow}>
-                    <div className={s.flowMin}>{flowRange.min} m/s</div>
+              {/* ----------  Single Flow Velocity block ---------- */}
+              {!ventilationOnly &&
+                system !== t.options.systems.heatingCooling &&
+                (showCoolingMethod || showHeatingMethod) && (
+                  <div className={s.flowBlock}>
+                    <div className={s.flowLabelRow}>
+                      <div className={s.flowTitle}>
+                        Flow Velocity - {formatMediumLabel(flowMedium)}
+                        <span className={s.required}> *</span>
+                      </div>
+                      <div className={s.flowUnit}></div>
+                    </div>
 
-                    <input
-                      className={s.flowSlider}
-                      type="range"
-                      min={flowRange.min}
-                      max={flowRange.max}
-                      step={0.1}
-                      value={flowVelocity}
-                      onChange={(e) => setFlowVelocity(Number(e.target.value))}
-                    />
+                    <div className={s.flowRow}>
+                      <div className={s.flowMin}>{flowRange.min} m/s</div>
 
-                    <div className={s.flowMax}>{flowRange.max} m/s</div>
-
-                    <div className={s.flowValueBoxWrap}>
                       <input
-                        className={s.flowValueBox}
-                        inputMode="decimal"
-                        value={String(flowVelocity)}
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          if (v === "" || isNumericLike(v)) {
-                            const n = Number(v);
-                            if (Number.isNaN(n)) return;
-                            setFlowVelocity(
-                              clamp(n, flowRange.min, flowRange.max),
-                            );
-                          }
-                        }}
+                        className={s.flowSlider}
+                        type="range"
+                        min={flowRange.min}
+                        max={flowRange.max}
+                        step={0.1}
+                        value={flowVelocity}
+                        onChange={(e) =>
+                          setFlowVelocity(Number(e.target.value))
+                        }
                       />
-                    </div>
 
-                    <div className={s.flowUnitSmall}>m/s</div>
+                      <div className={s.flowMax}>{flowRange.max} m/s</div>
+
+                      <div className={s.flowValueBoxWrap}>
+                        <input
+                          className={s.flowValueBox}
+                          inputMode="decimal"
+                          value={String(flowVelocity)}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            if (v === "" || isNumericLike(v)) {
+                              const n = Number(v);
+                              if (Number.isNaN(n)) return;
+                              setFlowVelocity(
+                                clamp(n, flowRange.min, flowRange.max)
+                              );
+                            }
+                          }}
+                        />
+                      </div>
+
+                      <div className={s.flowUnitSmall}>m/s</div>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           </div>
         </div>
@@ -947,7 +1082,7 @@ export default function Standard() {
             if (!isFormValid) {
               e.preventDefault();
               alert(
-                "Please fill all required fields correctly before proceeding.",
+                "Please fill all required fields correctly before proceeding."
               );
             }
           }}

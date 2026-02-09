@@ -8,7 +8,7 @@ const customerInfoDesign = {
   divider: "mb-4 border-gray-300",
  
   fieldGroup: "flex flex-col",
-  label: "text-base font-medium text-gray-700 mt-4",
+  label: "text-base font-medium text-gray-700 mt-4 mb-1",
   input: "border border-gray-200 p-2 rounded-lg w-full truncate whitespace-nowrap",
 
   inputborder: "border border-gray-200 p-4 pl-12 pr-14 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 relative z-0",

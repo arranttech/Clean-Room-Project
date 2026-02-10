@@ -23,6 +23,10 @@
     "title": "Powerful Features",
     "subtitle": "Everything you need to design, calculate, and optimize cleanroom HVAC systems"
   },
+  "constcolors":{
+    "bluecolor":"indigo-900",
+    "orangecolor":"orange-500"
+  },
 
   "hero": {
     "badge": "Industry Leading HVAC Matrix Solutions",

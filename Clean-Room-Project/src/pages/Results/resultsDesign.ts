@@ -22,6 +22,7 @@ const resultsDesign = {
     "sticky left-0 z-40 bg-slate-50 px-6 py-4 text-base font-extrabold text-blue-600 text-left " +
     "border-b border-r border-slate-200 whitespace-nowrap align-middle",
 
+  headerSubTitle: "sticky left-0 z-40 px-6 py-4 font-semibold text-indigo-900 text-2xl",
  
   tr: "bg-white",
 

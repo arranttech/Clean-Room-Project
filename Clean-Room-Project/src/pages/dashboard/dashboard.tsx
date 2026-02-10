@@ -1,7 +1,9 @@
-import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAppDispatch } from "../../redux/hooks";
+import { handleLogout } from "../../utils/logout";
 import { FiLogOut } from "react-icons/fi";
-import { FaFolderOpen, FaPlus, FaBuilding, FaLayerGroup, FaCalculator, FaCheck } from "react-icons/fa";
+import { FaFolderOpen, FaPlus, FaBuilding, FaLayerGroup, FaCalculator, FaCheck, FaArrowRight  } from "react-icons/fa";
 
 import s from "./dashboardDesign";
 import text from "../../json/dashboard.json";
@@ -62,10 +64,17 @@ export default function Dashboard() {
     if (decoded.email) return decoded.email.split("@")[0];
     return "User";
   }, []);
+  const dispatch = useAppDispatch();  // Redux dispatch
+  const navigate = useNavigate();     // Router navigate
 
-  const counts = useMemo(() => ({ total: projects.length }), [projects]);
-
+  const counts = { total: projects.length };
   const features = text.dashboard.features;
+
+  // Redux: clear state + redirect
+  const onLogout = () => {
+    handleLogout(dispatch);
+    navigate("/");
+  };
 
   return (
     <div className={s.page}>
@@ -88,12 +97,11 @@ export default function Dashboard() {
           </div>
 
           <div className={s.right}>
-            <Link to="/">
-              <button type="button" className={s.logout}>
-                <FiLogOut className="text-[18px]" />
-                Logout
-              </button>
-            </Link>
+            {/* Redux: logout button */}
+            <button type="button" className={s.logout} onClick={onLogout}>
+              <FiLogOut className="text-[18px]" />
+              Logout
+            </button>
           </div>
         </div>
       </header>
@@ -121,20 +129,49 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* Projects In Progress */}
+
+          <div className={s.sectionCard}>
+            <div className={s.cardHeader}>
+               <div className={s.sectionTitle}>{text.dashboard.projectsTitle}</div>
+            <div className={s.pendingProjects}>{text.dashboard.pendingProjects}</div>
+            </div>
+           
+            <div className={s.cardWrap}>
+
+              <div className={s.cardContent}>
+                <div className={s.projectTitle}>{text.dashboard.progress.projectTitle}</div>
+                <div className={s.projectCompany}><span>Company: </span>{text.dashboard.progress.Company}</div>
+                <div className={s.cardStyle}>
+                  <div className={s.projectPendingStage}>{text.dashboard.progress.pendingStage}</div>
+                  <div className={s.projectPendingPage}><span>On:</span> {text.dashboard.progress.pendingPage}</div>
+                  <div className={s.projectModifiedDate}><span>Last Modified:</span> {text.dashboard.progress.modifiedDate}</div>
+
+                </div>
+
+              </div>
+
+                 <div className={s.buttonStyle}>
+              <Link to="/projects" className={s.viewAllButton}>
+                {text.dashboard.progress.buttonText} <FaArrowRight />
+              </Link>
+
+            </div>
+
+            </div>
+
+
+
+          </div>
+
           {/* quick actions */}
           <div className={s.sectionCard}>
             <div className={s.sectionTitle}>{text.dashboard.quickActionsTitle}</div>
-
             <div className={s.quickGrid}>
-              {/* create -> route */}
-              <Link
-                to="/customer-info"
-                className={`${s.actionCardBase} ${s.actionCardHover}`}
-              >
+              <Link to="/customer-info" className={`${s.actionCardBase} ${s.actionCardHover}`}>
                 <div className={`${s.actionIconWrap} bg-blue-700`}>
                   <FaPlus className="text-white text-2xl" />
                 </div>
-
                 <div>
                   <div className={s.actionTitle}>{text.dashboard.actions.createTitle}</div>
                   <div className={s.actionDesc}>{text.dashboard.actions.createDesc}</div>
@@ -142,15 +179,10 @@ export default function Dashboard() {
                 </div>
               </Link>
 
-              {/* view projects -> another screen */}
-              <Link
-                to="/projects"
-                className={`${s.actionCardBase} ${s.actionCardHover}`}
-              >
+              <Link to="/projects" className={`${s.actionCardBase} ${s.actionCardHover}`}>
                 <div className={`${s.actionIconWrap} bg-blue-100`}>
                   <FaFolderOpen className="text-blue-700 text-2xl" />
                 </div>
-
                 <div>
                   <div className={s.actionTitle}>{text.dashboard.actions.viewTitle}</div>
                   <div className={s.actionDesc}>{text.dashboard.actions.viewDesc}</div>
@@ -160,10 +192,11 @@ export default function Dashboard() {
             </div>
           </div>
 
+
+
           {/* platform features */}
           <div className={s.featuresCard}>
             <div className={s.featuresTitle}>{text.dashboard.featuresTitle}</div>
-
             <div className={s.featuresGrid}>
               <div className={s.featureItem}>
                 <div className={s.featureIconWrap}>
@@ -172,7 +205,7 @@ export default function Dashboard() {
                 <div className={s.featureTitle}>{features[0].title}</div>
                 <div className={s.featureDesc}>{features[0].desc}</div>
                 <div className={s.featureList}>
-                  {features[0].bullets.map((b, i) => (
+                  {features[0].bullets.map((b: string, i: number) => (
                     <div key={i} className={s.featureBullet}>
                       <FaCheck className="mt-1 text-black-700" />
                       <div>{b}</div>
@@ -188,7 +221,7 @@ export default function Dashboard() {
                 <div className={s.featureTitle}>{features[1].title}</div>
                 <div className={s.featureDesc}>{features[1].desc}</div>
                 <div className={s.featureList}>
-                  {features[1].bullets.map((b, i) => (
+                  {features[1].bullets.map((b: string, i: number) => (
                     <div key={i} className={s.featureBullet}>
                       <FaCheck className="mt-1 text-black-700" />
                       <div>{b}</div>
@@ -204,7 +237,7 @@ export default function Dashboard() {
                 <div className={s.featureTitle}>{features[2].title}</div>
                 <div className={s.featureDesc}>{features[2].desc}</div>
                 <div className={s.featureList}>
-                  {features[2].bullets.map((b, i) => (
+                  {features[2].bullets.map((b: string, i: number) => (
                     <div key={i} className={s.featureBullet}>
                       <FaCheck className="mt-1 text-black-600" />
                       <div>{b}</div>

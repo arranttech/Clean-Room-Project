@@ -20,11 +20,11 @@
     "Dehumidification": {
       "label": "Dehumidification.CFM"
     },
-    "resultantCfm":{
-      "label":"Resultant CFM"
-  },
-    "cfmACLoadTR":{
-        "label":"Cfm AC load in TR"
+    "resultantCfm": {
+      "label": "Resultant CFM"
+    },
+    "cfmACLoadTR": {
+      "label": "Cfm AC load in TR"
     },
     "RoomACloadTR": {
       "label": "Room AC load in TR"
@@ -32,8 +32,29 @@
     "RoomTerminalSupply": {
       "label": "Room Terminal Supply Module in Sft"
     },
-    "ResultCoolLoadTR":{
-      "label":"Resultant Cooling Load in TR"
+    "ResultCoolLoadTR": {
+      "label": "Resultant Cooling Load in TR"
+    },
+    "AddWaterVapour": {
+      "label": "Add Water Vapour (Kg/hr)"
+    },
+    "Humidification":{
+      "label":"Humidification Cfm"
+    },
+    "HeatResultantCfm":{
+      "label":"Resultant CFM"
+    },
+    "HeatRoomTerminalSupply":{
+      "label":"Room Terminal Supply Module in Sft"
+    },
+    "ResHeatingLoadinTR":{
+      "label":"Resultant Heating Load in TR"
+    },
+    "RoomHeatingLoadinTR":{
+      "label":"Room Heating Load in TR"
+    },
+    "CfmHeatingLoadTR":{
+      "label":"Cfm Heating Load in TR"
     },
     "remWaterVapour": {
       "label": "Rem Water Vapour (Kg/hr)",
@@ -75,9 +96,15 @@
         "value": 12000
       }
     },
+    "roomHeatLoadTR":{
+        "value1": 4.842,
+        "value2": 69.7248,
+        "value3": 83.65,
+        "value4": 1000
+    },
     "roomTerminalSupply": {
       "label": "Room Terminal Supply Module",
-      "VelocityConst":{
+      "VelocityConst": {
         "NCVV": 350,
         "ISO8VV": 250,
         "ISO6VV": 175,
@@ -86,7 +113,7 @@
         "ISO3VV": 80,
         "ISO2VV": 70,
         "ISO1VV": 60
-      }    
+      }
     },
     "ClassifiCondition": {
       "ISO8Cd": [
@@ -156,6 +183,22 @@
         "ISO 1",
         "JIS CLASS 1",
         "0"
+      ]
+    },
+    "SystemCond":{
+      "cooling":[
+        "AIR-COOLING SYSTEM",
+        "AIR COOLING AND VENTILATION SYSTEM"
+      ],
+      "heating":[
+        "AIR-HEATING SYSTEM",
+        "AIR HEATING AND VENTILATION SYSTEM"
+      ],
+      "heatandcold":[
+        "AIR COOLING AND AIR HEATING SYSTEM"
+      ],
+      "ventilation":[
+        "VENTILATION SYSTEM"
       ]
     }
   }

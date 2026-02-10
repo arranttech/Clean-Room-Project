@@ -123,7 +123,10 @@ export default function Dashboard() {
           {/* Projects In Progress */}
 
           <div className={s.sectionCard}>
-            <div className={s.sectionTitle}>{text.dashboard.projectsTitle}</div>
+            <div className={s.cardHeader}>
+               <div className={s.sectionTitle}>{text.dashboard.projectsTitle}</div>
+            <div className={s.pendingProjects}>{text.dashboard.pendingProjects}</div>
+            </div>
             <div className={s.cardWrap}>
 
               <div className={s.cardContent}>

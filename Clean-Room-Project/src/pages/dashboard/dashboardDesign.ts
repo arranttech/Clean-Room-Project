@@ -45,7 +45,9 @@ const dashboardDesign = {
 
   /* Pending projects */
   cardWrap: " flex flex-row border border-slate-200 rounded-xl p-6 mt-5 items-center",
+  cardHeader:"flex items-center justify-between gap-4 flex-wrap",
   projectTitle: "text-[19px] font-bold text-black",
+  pendingProjects: "text-[14px] text-gray-700 font-semibold mr-5",
   projectCompany: "mt-1 text-[17px] text-gray-500 font-semibold",
   cardStyle: "flex flex-col md:flex-row md:items-center gap-6 mt-3 ",
   projectPendingStage: "text-[16px] text-blue-700 font-bold bg-blue-200 inline-block px-3 py-1 rounded-[5px] font-semibold px-4 ",

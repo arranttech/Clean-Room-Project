@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import { handleLogout } from "../../utils/logout";
 import { FiLogOut } from "react-icons/fi";
-import { FaFolderOpen, FaPlus, FaBuilding, FaLayerGroup, FaCalculator, FaCheck } from "react-icons/fa";
+import { FaFolderOpen, FaPlus, FaBuilding, FaLayerGroup, FaCalculator, FaCheck, FaArrowRight  } from "react-icons/fa";
 
 import s from "./dashboardDesign";
 import text from "../../json/dashboard.json";
@@ -120,6 +120,37 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* Projects In Progress */}
+
+          <div className={s.sectionCard}>
+            <div className={s.sectionTitle}>{text.dashboard.projectsTitle}</div>
+            <div className={s.cardWrap}>
+
+              <div className={s.cardContent}>
+                <div className={s.projectTitle}>{text.dashboard.progress.projectTitle}</div>
+                <div className={s.projectCompany}><span>Company: </span>{text.dashboard.progress.Company}</div>
+                <div className={s.cardStyle}>
+                  <div className={s.projectPendingStage}>{text.dashboard.progress.pendingStage}</div>
+                  <div className={s.projectPendingPage}><span>On:</span> {text.dashboard.progress.pendingPage}</div>
+                  <div className={s.projectModifiedDate}><span>Last Modified:</span> {text.dashboard.progress.modifiedDate}</div>
+
+                </div>
+
+              </div>
+
+                 <div className={s.buttonStyle}>
+              <Link to="/projects" className={s.viewAllButton}>
+                {text.dashboard.progress.buttonText} <FaArrowRight />
+              </Link>
+
+            </div>
+
+            </div>
+
+
+
+          </div>
+
           {/* quick actions */}
           <div className={s.sectionCard}>
             <div className={s.sectionTitle}>{text.dashboard.quickActionsTitle}</div>
@@ -147,6 +178,8 @@ export default function Dashboard() {
               </Link>
             </div>
           </div>
+
+
 
           {/* platform features */}
           <div className={s.featuresCard}>

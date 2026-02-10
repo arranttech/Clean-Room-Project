@@ -46,11 +46,13 @@ const dashboardDesign = {
   /* Pending projects */
   cardWrap: " flex flex-row border border-slate-200 rounded-xl p-6 mt-5 items-center",
   projectTitle: "text-[19px] font-bold text-black",
+  cardHeader:"flex items-center justify-between gap-4 flex-wrap",
+  pendingProjects: "text-[14px] text-gray-700 font-semibold mr-5",
   projectCompany: "mt-1 text-[17px] text-gray-500 font-semibold",
   cardStyle: "flex flex-col md:flex-row md:items-center gap-6 mt-3 ",
   projectPendingStage: "text-[16px] text-blue-700 font-bold bg-blue-200 inline-block px-3 py-1 rounded-[5px] font-semibold px-4 ",
   projectPendingPage: "text-[17px] text-gray-500 font-semibold",
-  projectModifiedDate: "text-[14px] text-gray-500 font-medium ",
+  projectModifiedDate: "text-[14px] text-gray-500 font-medium mt-1 ",
   buttonStyle: "ml-auto mt-5 items-center",
   viewAllButton: "bg-blue-700 text-white px-6 py-[12px] rounded-xl hover:bg-blue-800 shadow-sm text-[17px] font-medium  flex flex-row gap-4 items-center",
 

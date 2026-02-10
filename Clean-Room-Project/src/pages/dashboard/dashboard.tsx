@@ -7,6 +7,7 @@ import { FaFolderOpen, FaPlus, FaBuilding, FaLayerGroup, FaCalculator, FaCheck, 
 
 import s from "./dashboardDesign";
 import text from "../../json/dashboard.json";
+import { parseJwt } from "../../utils/auth";
 
 type Project = {
   id: string;
@@ -54,7 +55,15 @@ function tmpl(str: string, vars: Record<string, string | number>) {
 
 export default function Dashboard() {
   const [projects] = useState<Project[]>(demoProjects);
-  const userName = "ARRANT USER";
+  const userName = useMemo(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return "User";
+    const decoded = parseJwt(token) as { name?: string; email?: string } | null;
+    if (!decoded) return "User";
+    if (decoded.name) return decoded.name;
+    if (decoded.email) return decoded.email.split("@")[0];
+    return "User";
+  }, []);
   const dispatch = useAppDispatch();  // Redux dispatch
   const navigate = useNavigate();     // Router navigate
 

@@ -25,7 +25,8 @@ const customerInfoDesign = {
   locationWrapper: "relative flex gap-4 items-center",
   locationIcon: "absolute left-3 text-gray-400",
   locationInput: "border border-gray-200 my-2 p-2 pl-10 rounded-lg mb-2 w-full",
-  
+  locationResults: "absolute z-40 mt-2 w-full rounded-xl border border-gray-200 bg-white shadow-xl max-h-64 overflow-y-auto",
+  locationResultItem: "px-4 py-3 cursor-pointer hover:bg-gray-50",
   locationResultText: "bg-blue-50 text-blue-800 px-2  rounded-lg text-sm border border-blue-400 cursor-pointer mb-1",
   selectedLocation: "text-[11px] font-lg ",
   coordinates: "font-semibold text-[11px] text-gray-600",

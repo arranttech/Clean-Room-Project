@@ -35,7 +35,7 @@ const demoProjects: Project[] = [
     location: "Austin, TX, US",
     classification: "ISO Class 7",
     totalRooms: 8,
-    status: "Active" || "Inactive",
+    status: "Active",
   },
   {
     id: "PRJ-1002",

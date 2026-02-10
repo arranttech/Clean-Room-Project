@@ -17,7 +17,7 @@ const loginDesign = {
 
     mailIcon: "absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 ",
 
-    loginButton: "bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-600 h-10 shadow-lg",
+    loginButton: "bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-600 h-10 shadow-lg w-full",
 
     resetPwdLink: "inline-flex items-center gap-1.5 font-medium px-2 py-2 rounded-lg hover:text-gray-700 hover:font-medium ml-auto",
     nextLink: "inline-flex items-center gap-1.5 text-black px-2 py-2 rounded-lg hover:text-gray-800   font-medium ml-auto",

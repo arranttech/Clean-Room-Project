@@ -1,9 +1,6 @@
-import React from 'react'
 import { FaEnvelope, FaLock } from "react-icons/fa";
-import { FaLocationDot } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import registerDesign from "./registerCSS";
-import navbarDesign from '../../components/navbar/navbarDesign';
 
 function register() {
 

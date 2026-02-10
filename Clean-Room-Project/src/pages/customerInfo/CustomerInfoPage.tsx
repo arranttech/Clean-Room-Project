@@ -15,22 +15,21 @@ function CustomerInfo() {
   const [additionalNotes, setAdditionalNotes] = useState("");
   const [projectName, setProjectName] = useState("");
   const [unitBranch, setUnitBranch] = useState("");
-  const [handling, setHandling] = useState("");
+  const [handling, setHandling] = useState<string[]>([]);
   const [uniqueId, setUniqueId] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
-  const [locationResults, setLocationResults] = useState([]);
+  const [locationResults, setLocationResults] = useState<any[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
-  const [showResultsLoctaion, setShowResultsLocation] = useState(false);
   const [minTemp, setMinTemp] = useState("");
   const [maxTemp, setMaxTemp] = useState("");
   const [relativeHumidityMax, setRelativeHumidityMax] = useState("");
   const [relativeHumidityMin, setRelativeHumidityMin] = useState("");
-  const [industry, setIndustry] = useState([]);
+  const [industry, setIndustry] = useState<string[]>([]);
   const [industryOpen, setIndustryOpen] = useState(false);
-  const industryRef = useRef(null);
+  const industryRef = useRef<HTMLDivElement>(null);
   const [handlingOpen, setHandlingOpen] = useState(false);
-  const handlingRef = useRef(null);
+  const handlingRef = useRef<HTMLDivElement>(null);
 
   const industryOptions = [
     "Pharmaceuticals & Biotechnology",
@@ -74,47 +73,47 @@ function CustomerInfo() {
     return true;
   })();
 
-  const validateCustomerName = (name) =>
+  const validateCustomerName = (name: string) =>
     /^[A-Za-z\s]{3,30}$/.test(name)
       ? ""
       : "Name must be 3–30 characters and contain only letters and spaces";
 
-  const validateAddress = (address) =>
+  const validateAddress = (address: string) =>
     /^.{1,50}$/.test(address) ? "" : "Address must be 1–50 characters";
 
-  const validateNotes = (notes) =>
+  const validateNotes = (notes: string) =>
     /^.{0,200}$/.test(notes)
       ? ""
       : "Additional notes cannot exceed 200 characters";
 
-  const validatePhone = (phone) => {
+  const validatePhone = (phone: string) => {
     if (!phone) return ""; // optional
     const regex = /^\+?[0-9\s\-()]{7,20}$/;
     return regex.test(phone) ? "" : "Invalid phone number";
   };
 
-  const validateEmail = (email) => {
+  const validateEmail = (email: string) => {
     if (!email) return ""; // optional
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email) ? "" : "Invalid email address";
   };
 
-  const validateBranch = (branch) =>
+  const validateBranch = (branch: string) =>
     /^[A-Za-z0-9\s]{1,20}$/.test(branch)
       ? ""
       : "Branch must be 1–20 characters and contain only letters, numbers, and spaces";
 
-  const validateProject = (project) =>
+  const validateProject = (project: string) =>
     /^[A-Za-z-_0-9\s]{1,20}$/.test(project)
       ? ""
       : "Project Name must be 1–20 characters and contain only letters, numbers, and spaces";
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (industryRef.current && !industryRef.current.contains(e.target)) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (industryRef.current && !industryRef.current.contains(e.target as Node)) {
         setIndustryOpen(false);
       }
-      if (handlingRef.current && !handlingRef.current.contains(e.target)) {
+      if (handlingRef.current && !handlingRef.current.contains(e.target as Node)) {
         setHandlingOpen(false);
       }
     };
@@ -123,10 +122,10 @@ function CustomerInfo() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const generateUniqueId = (customerName, projectName) => {
+  const generateUniqueId = (customerName: string, projectName: string) => {
     if (!customerName || !projectName) return "";
 
-    const slug = (text) =>
+    const slug = (text: string) =>
       text
         .toUpperCase()
         .trim()
@@ -195,7 +194,7 @@ function CustomerInfo() {
     setUniqueId(generateUniqueId(customerName, projectName));
   }, [customerName, projectName]);
 
-  const searchLocation = async (query) => {
+  const searchLocation = async (query: string) => {
     if (!query.trim()) return;
 
     try {
@@ -207,7 +206,6 @@ function CustomerInfo() {
       const data = await res.json();
 
       setLocationResults(data);
-      setShowResultsLocation(false);
       setShowResults(true);
     } catch (err) {
       console.error("Location search failed", err);
@@ -228,7 +226,7 @@ function CustomerInfo() {
     return () => clearTimeout(delayDebounce);
   }, [locationQuery]);
 
-  const handleSelectLocation = async (place) => {
+  const handleSelectLocation = async (place: any) => {
     const lat = parseFloat(place.lat);
     const lng = parseFloat(place.lon);
 
@@ -252,20 +250,20 @@ function CustomerInfo() {
 
       if (data?.daily) {
         const maxTemps = data.daily.temperature_2m_max.filter(
-          (t) => t !== null && !isNaN(t),
+          (t: number) => t !== null && !isNaN(t),
         );
         const minTemps = data.daily.temperature_2m_min.filter(
-          (t) => t !== null && !isNaN(t),
+          (t: number) => t !== null && !isNaN(t),
         );
 
         const relativehumidity_max =
           data?.daily?.relative_humidity_2m_max.filter(
-            (t) => t !== null && !isNaN(t),
+            (t: number) => t !== null && !isNaN(t),
           );
 
         const relativehumidity_min =
           data?.daily?.relative_humidity_2m_min.filter(
-            (t) => t !== null && !isNaN(t),
+            (t: number) => t !== null && !isNaN(t),
           );
 
         setMaxTemp(Math.max(...maxTemps).toFixed(1));
@@ -541,7 +539,7 @@ function CustomerInfo() {
                         onChange={() =>
                           setHandling((prev) =>
                             prev.includes(item)
-                              ? prev.filter((i) => i !== item)
+                              ? prev.filter((i: string) => i !== item)
                               : [...prev, item],
                           )
                         }

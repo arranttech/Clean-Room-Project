@@ -50,7 +50,7 @@ export default function Navbar() {
 
 					{/* RIGHT */}
 					<div className={navbarDesign.right}>
-						<Link to="/dashboard" className={navbarDesign.signIn}>
+						<Link to="/login" className={navbarDesign.signIn}>
 							{navbar.signIn.label}
 						</Link>
 					</div>

@@ -5,6 +5,19 @@
     "metric": {
       "totalProjects": "Total Projects"
     },
+
+    "projectsTitle": "Projects In Progress",
+    "progress": {
+      "projectTitle": "Pharma Lab - Cleanroom Design",
+      "Company": "Acme Pharmaceuticals",
+      "pendingStage": "Step 2 of 3",
+      "pendingPage":"Classification",
+      "modifiedDate": "Feb 3, 2026",
+      "buttonText": "Continue"
+
+    },
+
+
     "quickActionsTitle": "Quick Actions",
     "actions": {
       "createTitle": "Create New Project",

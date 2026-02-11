@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../redux/hooks";
 import { handleLogout } from "../../utils/logout";
@@ -139,7 +139,7 @@ export default function Dashboard() {
            
             <div className={s.cardWrap}>
 
-              <div className={s.cardContent}>
+              <div>
                 <div className={s.projectTitle}>{text.dashboard.progress.projectTitle}</div>
                 <div className={s.projectCompany}><span>Company: </span>{text.dashboard.progress.Company}</div>
                 <div className={s.cardStyle}>

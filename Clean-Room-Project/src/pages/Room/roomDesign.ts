@@ -45,6 +45,7 @@ const roomDesign = {
     "inline-flex items-center gap-3 bg-blue-800 text-white px-6 py-2 rounded-lg hover:bg-blue-900 shadow-lg",
   clrBtn:
   "inline-flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 shadow-sm",
+zoneBtn:"inline-flex items-center  bg-blue-800 text-white px-6 py-2 rounded-lg hover:bg-blue-900 shadow-lg mr-auto gap-2 ml-5",
 
   roomsList: "mt-6 flex flex-col gap-4",
   roomCard: "rounded-xl border border-slate-200 bg-white p-4",

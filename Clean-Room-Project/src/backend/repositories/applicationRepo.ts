@@ -4,25 +4,15 @@ export const ApplicationRepository = {
   createApplication: async (payload: any) => {
     try {
       const [result] = await database.execute(
-        `INSERT INTO customerInfo 
-        (customerName, phoneNumber, customerAddress, emailAddress, additionalNotes, projectName, unitBranch, handling, industry, uniqueId, selectedLocation, minTemp, maxTemp, relativeHumidityMin, relativeHumidityMax)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO tCustomers 
+        (customer_name, customer_phone, customer_address, customer_additional_notes, customer_email_id)
+        VALUES (?, ?, ?, ?, ?)`,
         [
           payload.customerName,
           payload.phoneNumber,
           payload.customerAddress,
-          payload.emailAddress,
           payload.additionalNotes,
-          payload.projectName,
-          payload.unitBranch,
-          JSON.stringify(payload.handling || []),
-          JSON.stringify(payload.industry || []),
-          payload.uniqueId,
-          JSON.stringify(payload.selectedLocation || {}),
-          payload.minTemp || null,
-          payload.maxTemp || null,
-          payload.relativeHumidityMin || null,
-          payload.relativeHumidityMax || null,
+          payload.emailAddress,
         ]
       );
 
@@ -33,4 +23,5 @@ export const ApplicationRepository = {
       throw err; // this will trigger Hapi 500
     }
   },
+  
 };

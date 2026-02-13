@@ -12,6 +12,17 @@ dist
 dist-ssr
 *.local
 
+# Environment variables (VERY IMPORTANT)
+.env
+.env.*
+src/backend/.env
+
+# Production builds
+build/
+
+# TypeScript
+*.tsbuildinfo
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

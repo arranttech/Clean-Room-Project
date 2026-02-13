@@ -20,7 +20,7 @@ export default function HeroPage() {
 
 				<div className={heroDesign.buttonRow}>
 					{/* Primary Button */}
-					<Link to="/login">
+					<Link to="/dashboard">
 						<button className={heroDesign.primaryButton}>
 							<span className="text-white">{hero.buttons.primary.label}</span>
 							<FaArrowRight className={heroDesign.primaryArrow} />

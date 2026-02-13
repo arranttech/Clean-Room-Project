@@ -8,6 +8,7 @@ import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { FaLocationDot, FaXmark } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import customerInfoDesign from "./customerInfo";
+import {customerInfo} from "../../api"; // API function to save customer info
 
 function CustomerInfo() {
 	const styles = customerInfoDesign;
@@ -250,6 +251,36 @@ function CustomerInfo() {
 			console.error("Failed to fetch temperature data", error);
 		}
 	};
+
+
+
+const saveCustomerInfo = async () => {
+  const payload = {
+    customerName,
+    phoneNumber,
+    customerAddress,
+    emailAddress,
+    additionalNotes,
+    projectName,
+    unitBranch,
+    handling,
+    industry,
+    uniqueId,
+    selectedLocation,
+    minTemp,
+    maxTemp,
+    relativeHumidityMin,
+    relativeHumidityMax,
+  };
+
+ try {
+  const data = await customerInfo(payload);
+  console.log(data);
+} catch (error) {
+  console.error((error as Error).message);
+}
+};
+
 
 	return (
 		<div className={styles.wrapper}>
@@ -652,6 +683,9 @@ function CustomerInfo() {
 							alert(
 								"Please fill all required fields correctly before proceeding."
 							);
+						}
+						else{
+							saveCustomerInfo(); // Save data to backend before navigating
 						}
 					}}
 				>

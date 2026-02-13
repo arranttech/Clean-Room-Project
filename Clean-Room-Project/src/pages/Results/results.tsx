@@ -1,8 +1,8 @@
 import resultsDesign from "./resultsDesign";
 import resultsText from "../../json/resultsText.json";
 import { useEffect, useMemo, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { FaArrowLeft } from "react-icons/fa";
+import { useLocation } from "react-router-dom";
+
 
 // Types
 type RoomForm = {
@@ -16,6 +16,8 @@ type RoomForm = {
   infiltrationsPerHour: string;
   freshAirPercent: string;
   exhaustAir: string;
+  acph?: number;
+  id?: string;
 };
 
 type ResultsPayload = {
@@ -42,13 +44,34 @@ export default function Results() {
   const s = resultsDesign;
   const t = resultsText;
 
-  // Router State
+  // Router State (NO Redux — reads from location.state sent by Room page)
   const location = useLocation();
   const props = (location.state || {}) as ResultsPayload;
 
   // Memoized Data
   const payload = useMemo(() => props, [props]);
   const rooms = payload.rooms || [];
+
+  // ─── Console Debug: Log all incoming values ───
+  useEffect(() => {
+    console.log("=== RESULTS PAGE DEBUG ===");
+    console.log("Full Payload:", payload);
+    console.log("System:", payload.system);
+    console.log("Classification:", payload.classification);
+    console.log("Cooling Method:", payload.coolingMethod);
+    console.log("Heating Method:", payload.heatingMethod);
+    console.log("Req Inside Temp:", payload.reqInsideTempC);
+    console.log("Req Inside Hum:", payload.reqInsideHum);
+    console.log("Min Temp:", payload.minTempC);
+    console.log("Max Temp:", payload.maxTempC);
+    console.log("RH Min:", payload.rhMin);
+    console.log("RH Max:", payload.rhMax);
+    console.log("Rooms count:", rooms.length);
+    rooms.forEach((room, i) => {
+      console.log(`  Room ${i + 1}: ${room.roomName} | ACPH: ${room.acph} | ID: ${room.id}`);
+    });
+    console.log("=========================");
+  }, [payload, rooms]);
 
   // Results State
   const [allResults, setAllResults] = useState<any[]>([]);
@@ -72,8 +95,9 @@ export default function Results() {
   /////////////////////////////// ------ CALCULATIONS ------////////////////////////////////////////////
 
   useEffect(() => {
-    // System Inputs
-    const ACPH = Number(payload.acph || 0);
+    if (!rooms.length) return;
+
+    // System Inputs (shared across rooms — ACPH is per-room, read inside loop)
     const reqInsideTemp = Number(payload.reqInsideTempC || 0);
     const reqInsideHum = Number(payload.reqInsideHum || 0);
     const minTemp = Number(payload.minTempC || 0);
@@ -83,7 +107,6 @@ export default function Results() {
     const roomClassi = String(payload.classification ?? "").trim();
 
     // Constants
-
     const frAirCal = t.fields.remWaterVapour.FrAirCal.value;
     const c1 = t.fields.remWaterVapour.delTempConst;
     const c2 = t.fields.remWaterVapour.watConst;
@@ -98,6 +121,9 @@ export default function Results() {
 
     // Room Loop
     const computed = rooms.map((room) => {
+      // ★ Per-room ACPH — each room carries its own acph value
+      const ACPH = Number(room.acph || payload.acph || 0);
+
       // Room Inputs
       const L = Number(room.length || 0);
       const W = Number(room.width || 0);

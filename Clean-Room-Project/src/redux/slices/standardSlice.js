@@ -1,10 +1,11 @@
-import { createSlice } from "@reduxjs/toolkit"; // Redux toolkit
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  zoneId: "1", // Default zone
   standard: "",
   classification: "",
   acph: "",
+  acphMin: null,
+  acphMax: null,
   system: "",
   systemType: "",
   heatingMethod: "",
@@ -16,24 +17,27 @@ const initialState = {
   flowVelocity: 1.5,
   heatingFlowVelocity: 1.5,
   coolingFlowVelocity: 1.5,
-}; // Initial state
+  zoneId: "1",
+};
 
 const standardsSlice = createSlice({
-  name: "standards", // Slice name
-  initialState, // Default state
+  name: "standards",
+  initialState,
   reducers: {
     updateStandardsField: (state, action) => {
-      const { field, value } = action.payload; // Action payload
-      state[field] = value; // Update field
+      const { field, value } = action.payload;
+      state[field] = value;
     },
-
     updateMultipleStandardsFields: (state, action) => {
       Object.entries(action.payload).forEach(([key, value]) => {
-        state[key] = value; // Batch update
+        state[key] = value;
       });
     },
-
-    resetStandards: () => initialState, // Reset state
+    resetStandards: (state) => {
+      const keepZoneId = state.zoneId;
+      Object.assign(state, { ...initialState, zoneId: keepZoneId });
+    },
+    fullResetStandards: () => initialState,
   },
 });
 
@@ -41,6 +45,7 @@ export const {
   updateStandardsField,
   updateMultipleStandardsFields,
   resetStandards,
-} = standardsSlice.actions; // Export actions
+  fullResetStandards,
+} = standardsSlice.actions;
 
-export default standardsSlice.reducer; // Export reducer
+export default standardsSlice.reducer;

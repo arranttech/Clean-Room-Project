@@ -158,7 +158,7 @@
         { "name": "1u", "minAir": 15, "maxAir": 25 },
         { "name": "No-Filtration", "minAir": 5, "maxAir": 10 },
         { "name": "Positive Pressure", "minAir": 5, "maxAir": 10 },
-        { "name": "Exhaust", "minAir": null, "maxAir": null }
+        { "name": "Exhaust", "minAir": "0", "maxAir": "0"}
       ]
     },
     {

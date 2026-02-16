@@ -1,5 +1,5 @@
 import { ServerRoute, Request, ResponseToolkit } from '@hapi/hapi';
-import { ApplicationRepository } from '../repositories/applicationRepo';
+import { ApplicationRepository } from '../repositories/repository';
 
 const applicationRoutes: ServerRoute[] = [
   {

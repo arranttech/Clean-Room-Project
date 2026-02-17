@@ -1,6 +1,6 @@
 // Correct for ES modules
 import Hapi from '@hapi/hapi';
-import applicationRoutes from './routes/application.js'; // must include .js extension in Node ESM
+import applicationRoutes from './routes/routes.js'; // must include .js extension in Node ESM
 
 
 

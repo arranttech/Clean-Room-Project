@@ -31,13 +31,7 @@ const roomDesign = {
 
   topActions: "flex justify-end mb-4",
 
-  // footer: "flex justify-between mt-10 max-w-5xl mx-auto",
 
-  // backBtn:
-  //   "inline-flex items-center gap-3 border border-gray-300 px-5 py-3 rounded-xl hover:bg-gray-100 shadow-lg",
-
-  // saveBtn:
-  //   "inline-flex items-center gap-3 bg-blue-800 text-white px-6 py-3 rounded-xl hover:bg-blue-900 shadow-lg",
   footer: "flex justify-between max-w-7xl  mt-10 mx-auto",
   backBtn:
     "inline-flex items-center gap-3 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 shadow-lg",
@@ -77,6 +71,13 @@ zoneBtn:"inline-flex items-center  bg-blue-800 text-white px-6 py-2 rounded-lg h
   bannerValue: "font-mono text-blue-600",
   acphBannerStyle: "flex flex-row gap-2",
   range:" font-mono text-blue-600 ",
+
+   deviationBox: "flex  items-center gap-2  border border-gray-200 rounded-lg px-3 py-2",
+  deviationValue: "font-mono text-blue-600",
+  deviationBtn: "px-6 rounded-lg  text-gray-500 hover:bg-gray-100 ",
+  deviationInput: " w-80 text-center  bg-white px-2 py-1 text-sm outline-none focus:outline-none border-none focus:ring-0",
+
+  rangeText: "text-sm text-slate-500 mt-1",
 };
 
 export default roomDesign;

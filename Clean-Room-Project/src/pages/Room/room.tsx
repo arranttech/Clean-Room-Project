@@ -72,7 +72,8 @@ export default function Room() {
   const isFormVisible = useAppSelector((state: any) => state.room.isFormVisible) as boolean;
 
   // ─── Standards slice ───
-  const zoneId = useAppSelector((state: any) => state.standards.zoneId ?? "1");
+  const rawZoneId = useAppSelector((state: any) => state.standards.zoneId ?? "1");
+  const zoneId = savedRooms.length === 0 ? "1" : rawZoneId;
   const standard = useAppSelector((state: any) => state.standards.standard);
   const classification = useAppSelector((state: any) => state.standards.classification);
   const standardsAcph = useAppSelector((state: any) => state.standards.acph);
@@ -186,7 +187,7 @@ export default function Room() {
       return;
     }
 
-    // ★ Each room carries its zone's standards so Results knows which system logic to use
+    //  Each room carries its zone's standards 
     const roomToSave = {
       ...form,
       id: generateId(),
@@ -211,7 +212,14 @@ export default function Room() {
     setSelectedAcph(standardsAcph ?? "");
   };
 
-  const removeSavedRoomById = (id: string) => dispatch(removeRoom(id));
+  // Reset zoneId to "1" when all rooms are deleted ───
+  const removeSavedRoomById = (id: string) => {
+    dispatch(removeRoom(id));
+    const remainingRooms = savedRooms.filter((r: any) => r.id !== id);
+    if (remainingRooms.length === 0) {
+      dispatch(updateStandardsField({ field: "zoneId", value: "1" }));
+    }
+  };
 
   // ─── Navigate to Results — ALL rooms, ALL zones ───
   const goToResultsPage = () => {
@@ -226,7 +234,7 @@ export default function Room() {
       maxTempC,
       rhMin,
       rhMax,
-      rooms: savedRooms, // Each room has zoneSystem, zoneCoolingMethod, etc.
+      rooms: savedRooms, 
     };
 
     console.log("=== NAVIGATING TO RESULTS ===");

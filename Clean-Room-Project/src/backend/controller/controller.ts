@@ -5,8 +5,8 @@ const BASE_URL = "http://localhost:3000";
 /**
  * Generic request handler
  */
-async function request(endpoint, method = "GET", payload = null) {
-  const options = {
+async function request(endpoint: string, method: string = "GET", payload: object | null = null) {
+  const options: RequestInit = {
     method,
     headers: {
       "Content-Type": "application/json",
@@ -31,5 +31,12 @@ async function request(endpoint, method = "GET", payload = null) {
    🔹 CUSTOMER APIs
 ================================ */
 
-export const customerInfo = (payload) =>
-  request("/api/customerInfo", "POST", payload);
+export const customerInfo = (payload: object) =>
+  request("/v1/customerInfo", "POST", payload);
+
+/* ================================
+   🔹 ROOM STANDARDS APIs
+================================ */
+
+export const roomStandards = (payload: object) =>
+  request("/v1/roomStandards", "POST", payload);

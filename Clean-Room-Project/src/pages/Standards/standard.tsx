@@ -8,6 +8,7 @@ import {
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import standardDesign from "./standardDesign";
 import standardDataJson from "../../json/standardData.json";
+import { roomStandards } from "../../backend/controller/controller";
 
 type StandardItem = {
   id: number;
@@ -261,26 +262,26 @@ export default function Standard() {
   const systemTypeLabel = isHeatingCooling
     ? t.labels.systemTypeGeneric
     : isHeatingVent
-    ? t.labels.systemTypeHeating
-    : isCoolingVent
-    ? t.labels.systemTypeCooling
-    : isHeating
-    ? t.labels.systemTypeHeating
-    : isCooling
-    ? t.labels.systemTypeCooling
-    : t.labels.systemTypeVentilation;
+      ? t.labels.systemTypeHeating
+      : isCoolingVent
+        ? t.labels.systemTypeCooling
+        : isHeating
+          ? t.labels.systemTypeHeating
+          : isCooling
+            ? t.labels.systemTypeCooling
+            : t.labels.systemTypeVentilation;
 
   const systemTypePlaceholder = isHeatingCooling
     ? t.placeholders.systemTypeGeneric
     : isHeatingVent
-    ? t.placeholders.systemTypeHeating
-    : isCoolingVent
-    ? t.placeholders.systemTypeCooling
-    : isHeating
-    ? t.placeholders.systemTypeHeating
-    : isCooling
-    ? t.placeholders.systemTypeCooling
-    : t.placeholders.systemTypeVentilation;
+      ? t.placeholders.systemTypeHeating
+      : isCoolingVent
+        ? t.placeholders.systemTypeCooling
+        : isHeating
+          ? t.placeholders.systemTypeHeating
+          : isCooling
+            ? t.placeholders.systemTypeCooling
+            : t.placeholders.systemTypeVentilation;
 
   const systemTypes = useMemo(() => {
     if (!system) return [];
@@ -537,6 +538,35 @@ export default function Standard() {
     }
     return true;
   })();
+
+  const saveroomStandards = async () => {
+    const payload = {
+      system,
+      systemType,
+      heatingMethod,
+      coolingMethod,
+      standard,
+      classification,
+      acph,
+      tempUnit,
+      reqInsideTempC,
+      reqInsideHum,
+      maxTempC,
+      minTempC,
+      rhMin,
+      rhMax,
+      flowVelocity,
+      flowMedium,
+      heatingFlowVelocity,
+      coolingFlowVelocity,
+    };
+    try {
+      const data = await roomStandards(payload);
+      console.log(data);
+    } catch (error) {
+      console.error("Failed to save room standards:", error);
+    }
+  };
 
   return (
     <div className={s.page}>
@@ -1210,8 +1240,10 @@ export default function Standard() {
             if (!isFormValid) {
               e.preventDefault();
               alert(
-                "Please fill all required fields correctly before proceeding."
+                "Please fill all required fields correctly before proceeding.",
               );
+            } else {
+              saveroomStandards();
             }
           }}
         >

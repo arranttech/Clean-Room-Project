@@ -66,10 +66,15 @@ export default function Room() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
+
+
   // ─── Room slice ───
   const form = useAppSelector((state: any) => state.room.form) as RoomForm;
   const savedRooms = useAppSelector((state: any) => state.room.savedRooms) as any[];
   const isFormVisible = useAppSelector((state: any) => state.room.isFormVisible) as boolean;
+
+  
+  const [acphDeviation, setAcphDeviation] = useState<number>(0);
 
   // ─── Standards slice ───
   const rawZoneId = useAppSelector((state: any) => state.standards.zoneId ?? "1");
@@ -261,6 +266,15 @@ export default function Room() {
     navigate("/standards");
   };
 
+    const increaseDeviation = () => {
+    setAcphDeviation((prev) => (prev < 20 ? prev + 5 : prev));
+  };
+
+  const decreaseDeviation = () => {
+    setAcphDeviation((prev) => (prev > -20 ? prev - 5 : prev));
+  };
+
+
   // ─── Console Debug ───
   useEffect(() => {
     console.log("=== ROOM PAGE DEBUG ===");
@@ -376,7 +390,46 @@ export default function Room() {
                     </div>
                   )}
                 </div>
+      
+                 {/* ACPH Deviation Field */}
+              <div>
+                <label className={s.label}>
+                  ACPH Deviation
+                </label>
+
+                <div className={s.deviationBox}>
+                  <button
+                    type="button"
+                    onClick={decreaseDeviation}
+                    disabled={acphDeviation <= -20}
+                    className={s.deviationBtn}
+                  >
+                    −
+                  </button>
+
+                  <input
+                    type="text"
+                    value={`${acphDeviation}%`}
+                    readOnly
+                    className={s.deviationInput}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={increaseDeviation}
+                    disabled={acphDeviation >= 20}
+                    className={s.deviationBtn}
+                  >
+                    +
+                  </button>
+                </div>
+                <div className={s.rangeText}>
+                  Range: -20% to +20%
+                </div>
               </div>
+            </div>
+              </div>
+
               <div className={s.acphBanner}>
                 <div className={s.acphBannerStyle}>
                   <p className={s.bannerTitle}>
@@ -388,7 +441,7 @@ export default function Room() {
                 <span className={s.bannerValue}>({standard} - {classification})</span>
               </div>
             </div>
-          </div>
+          
         )}
 
         {/* saved rooms list — ALL zones */}

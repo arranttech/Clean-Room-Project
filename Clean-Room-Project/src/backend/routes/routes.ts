@@ -3,6 +3,13 @@ import { ApplicationRepository } from '../repositories/repository';
 
 const applicationRoutes: ServerRoute[] = [
   {
+    method: 'GET',
+    path: '/',
+    handler: () => {
+      return 'API is running!';
+    },
+  },
+  {
     method: 'POST',
     path: '/api/customerInfo',
     handler: async (request: Request, h: ResponseToolkit) => {

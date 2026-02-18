@@ -6,28 +6,35 @@
     },
     "title": "STERI Clean Air",
     "links": [
-      { "label": "Features", "href": "#features" },
-      { "label": "Industries", "href": "#industries" },
-      { "label": "Contact", "href": "#contact" }
+      {
+        "label": "Features",
+        "href": "#features"
+      },
+      {
+        "label": "Industries",
+        "href": "#industries"
+      },
+      {
+        "label": "Contact",
+        "href": "#contact"
+      }
     ],
     "signIn": {
       "label": "Sign In"
     }
   },
   "industry": {
-    "title":"Industries we serve",
+    "title": "Industries we serve",
     "subtitle": "Tailored solutions for critical environments across multiple sectors."
   },
-
   "powerful": {
     "title": "Powerful Features",
     "subtitle": "Everything you need to design, calculate, and optimize cleanroom HVAC systems"
   },
-  "constcolors":{
-    "bluecolor":"indigo-900",
-    "orangecolor":"orange-500"
+  "constcolors": {
+    "bluecolor": "indigo-900",
+    "orangecolor": "orange-500"
   },
-
   "hero": {
     "badge": "Industry Leading HVAC Matrix Solutions",
     "titleBlue": "STERI Clean Air",
@@ -47,16 +54,41 @@
       "Cancel anytime"
     ]
   },
-  "footer":{
-    "titleWhite":"Ready to Transform Your Cleanroom Design?",
-    "title":"Join hundreds of industry leaders who trust STERI Clean Air for their critical environments",
+  "footer": {
+    "titleWhite": "Ready to Transform Your Cleanroom Design?",
+    "title": "Join hundreds of industry leaders who trust STERI Clean Air for their critical environments",
     "footerPoints": [
       "Full access to all features",
       "No credit card required",
       "Dedicated onboarding support",
       "Cancel anytime"
     ],
-    "contacttext":"Have questions? Contact our sales team at ",
-    "contactlink":"sales@stericleanair.com"
+    "contacttext": "Have questions? Contact our sales team at ",
+    "contactlink": "sales@stericleanair.com"
+  },
+  "Tooltip": {
+    "standardTooltip": "Select the applicable cleanroom standard (e.g., ISO, FDA, GMP) for your facility.",
+    "classificationTooltip": "Choose the specific cleanroom class based on your application's particle control requirements.",
+    "acphTooltip": "Defines how many times the entire room air volume is replaced each hour.",
+    "heatingSystemTypeTooltip": "Select the category that best describes the environment where this air-heating system will be used.",
+    "coolingSystemTypeTooltip": "Select the environment type where this cooling system will be installed.",
+    "heatingMethodTooltip": "Select the heat transfer medium (Hot Water or Steam) used by your heating coils.",
+    "coolingMethodTooltip": "Choose the cooling medium (e.g., Chilled Water or Brine or DX) used to lower the air temperature.",
+    "systemTooltip": "Select the system you are looking for",
+    "ventilationSystemTypeTooltip": "Select the environment type to determine airflow standards.",
+    "requiredTemperatureTooltip": "Set the target indoor air temperature required to maintain environmental stability or occupant comfort.",
+    "requiredHumidityTooltip": "Specify the desired relative humidity percentage to prevent static, condensation, or material degradation.",
+    "roomNameTooltip": "Enter a unique, descriptive name for this room or zone. This name will appear in all reports, calculations, and zone listings.",
+    "roomDimensionsTooltip": "Tip: Measure from interior wall to interior wall for accurate calculations.",
+    "lengthTooltip": "The length of the room in meters.",
+    "widthTooltip": "The width of the room in meters.",
+    "heightTooltip": "The ceiling height in meters",
+    "occupancyTooltip": "The maximum number of people expected to occupy this room simultaneously during normal operations.",
+    "equipmentLoadTooltip": "Total electrical load from all equipment in the room, measured in kilowatts (kW)",
+    "lightingLoadTooltip": "Lighting power density in Watts per square meter.",
+    "infiltrationsTooltip": "The estimated number of times the total volume of air in the room is replaced by uncontrolled air leaking in from outside or adjacent spaces.",
+    "freshAirTooltip": "The percentage of the total supply airflow that is drawn from the outside to ensure adequate oxygen levels and indoor air quality.",
+    "exhaustAirTooltip": "The volume of air intentionally removed from the space per second to maintain pressure balance or remove contaminants.",
+    "acphValueTooltip": "The total number of times the entire volume of air in the room is replaced by filtered supply air every hour."
   }
 }

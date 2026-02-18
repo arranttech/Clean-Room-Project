@@ -2,19 +2,19 @@ import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { combineReducers } from "redux";
-import customerInfoReducer from "./slices/customerInfoSlice";
+import projectInfoReducer from "./slices/projectInfoSlice";
 import standardsReducer from "./slices/standardSlice";
 import roomReducer from "./slices/roomSlice";
 // --- Persist Config ---
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["customerInfo","standards","room"], // only persist these slices
+  whitelist: ["projectInfo","standards","room"], // only persist these slices
 };
 
 // --- Root Reducer ---
 const rootReducer = combineReducers({
-  customerInfo: customerInfoReducer,
+  projectInfo: projectInfoReducer,
   standards: standardsReducer,
   room: roomReducer,
 });

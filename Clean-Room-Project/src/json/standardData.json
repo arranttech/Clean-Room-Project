@@ -272,7 +272,7 @@
         "cooling": ["Chilled Water", "Brine", "DX"]
       }
     },
-    "buttons": { "back": "Back to Customer-Info", "next": "Next Step" },
+    "buttons": { "back": "Back to Project-Info", "next": "Next Step" },
     "misc": {
       "ambient": "Ambient",
       "rangeLabel": "Range:",

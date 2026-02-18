@@ -10,24 +10,26 @@
     "pendingProjects": "4 Incomplete Projects",
     "progress": {
       "projectTitle": "Pharma Lab - Cleanroom Design",
-      "Company": "Acme Pharmaceuticals",
+      "Customer": "Acme Pharmaceuticals",
       "pendingStage": "Step 2 of 3",
-      "pendingPage":"Classification",
+      "pendingPage": "Classification",
       "modifiedDate": "Feb 3, 2026",
       "buttonText": "Continue"
-
     },
-
 
     "quickActionsTitle": "Quick Actions",
     "actions": {
       "createTitle": "Create New Project",
-      "createDesc": "Start a new HVAC project with custcompany details, classifications, and room specifications.",
+      "createDesc": "Start a new HVAC project with company details, classifications, and room specifications.",
       "createHint": "Start Project Setup",
       "viewTitle": "View All Projects",
       "viewDesc": "Browse and manage all your existing projects with complete details.",
-      "viewHint": "Open Project List"
+      "viewHint": "Open Project List",
+      "customerTitle": "Customer Profile",
+      "customerDesc": "Configure your company details. This information will be used across all projects.",
+      "customerHint": "Go to Customer Profile"
     },
+
     "featuresTitle": "Platform Features",
     "features": [
       {

@@ -1,61 +1,56 @@
+// customerInfoDesign.ts — Design tokens for the CustomerInfo page
+
 const customerInfoDesign = {
-  wrapper: "bg-white-100 pt-20 p-4",
-  headerText: "text-center text-gray-600 text-sm mb-6",
-  gridContainer: "grid grid-cols-1 md:grid-cols-2 gap-10 px-4 md:px-10",
- 
-  card: "bg-white rounded-lg px-6 py-8 shadow-xl shadow-gray-300",
-  cardTitle: "text-xl text-blue-600 font-bold mb-2",
-  divider: "mb-4 border-gray-300",
- 
-  fieldGroup: "flex flex-col",
-  label: "text-base font-medium text-gray-700 mt-4 mb-1",
-  input: "border border-gray-200 p-2 rounded-lg w-full truncate whitespace-nowrap",
+	// Page layout
+	wrapper: "min-h-screen bg-gray-100 flex flex-col items-center px-8 py-10 font-sans",
 
-  inputborder: "border border-gray-200 p-4 pl-12 pr-14 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 relative z-0",
-  inputWrapper: "relative w-full flex items-stretch h-[42px] my-2",
-  clearButton: "absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10",
-  locationClear: "absolute right-2 top-1/2 -translate-y-1/2 bg-[#f3f4f6] border border-gray-200 rounded-full h-[36px] w-[36px] flex items-center justify-center hover:bg-gray-100 transition-colors z-20 cursor-pointer",
-  locationClearIcon: "text-gray-500 text-base font-normal pointer-events-none",
+	// Header
+	top: "mb-8 text-center w-full max-w-3xl",
+	headerRow: "flex items-center justify-center gap-3 mb-1",
+	headerIcon:
+		"w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 text-xl shrink-0",
+	title: "text-2xl font-bold text-gray-900 tracking-tight",
+	headerText: "text-sm text-blue-800",
 
+	// Card
+	card: "bg-white rounded-2xl shadow-sm border border-gray-200 p-8 w-full max-w-3xl",
+	cardTitle: "text-lg font-semibold text-blue-600 mb-3",
+	divider: "border-gray-200 mb-6",
 
-  title: "text-3xl md:text-4xl font-extrabold text-slate-900",
-  top: "mx-auto max-w-5xl text-center",
-  rowGroup: "flex flex-col md:flex-row gap-6",
+	// Form field groups
+	fieldGroup: "flex flex-col gap-1 mb-5",
 
-  locationWrapper: "relative flex gap-4 items-center",
-  locationIcon: "absolute left-3 text-gray-400",
-  locationInput: "border border-gray-200 my-2 p-2 pl-10 rounded-lg mb-2 w-full",
-  locationResults: "absolute z-40 mt-2 w-full rounded-xl border border-gray-200 bg-white shadow-xl max-h-64 overflow-y-auto",
-  locationResultItem: "px-4 py-3 cursor-pointer hover:bg-gray-50",
-  locationResultText: "bg-blue-50 text-blue-800 px-2  rounded-lg text-sm border border-blue-400 cursor-pointer mb-1",
-  selectedLocation: "text-[11px] font-lg ",
-  coordinates: "font-semibold text-[11px] text-gray-600",
-  coordinatesText: "ml-5 text-[11px]",
-  locationText: "font-semibold text-black text-[11px]",
- 
-  searchButton: "bg-blue-800 text-white px-4 py-2 rounded-lg hover:bg-blue-600 h-10",
- 
-  disabledInput: "bg-gray-100 border border-gray-200 my-2 p-2 rounded-lg mb-4 w-full",
-  industryOpen: "absolute z-50 mt-2 w-full rounded-xl border border-gray-200 bg-white shadow-xl max-h-64 overflow-y-auto",
-  industryOptions: "flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50",
-  industryCheckbox: "h-5 w-5 shrink-0 rounded-md border-gray-300 text-blue-600",
-  footer: "flex justify-between items-center px-10 mt-10",
-  selectIndustry: "px-4 py-3 font-semibold border-b",
-  dropdownIcon: "text-gray-400 text-xs",
-  backLink: "inline-flex items-center gap-3 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 shadow-lg",
-  nextLink: "inline-flex items-center gap-3 bg-blue-800 text-white px-6 py-2 rounded-lg hover:bg-blue-900 shadow-lg",
-  disabled: "opacity-50 cursor-not-allowed pointer-events-none",
-  };
- 
+	// Labels
+	label: "text-sm font-semibold text-gray-800 mb-1",
+
+	// Inputs — rounded bordered style matching screenshot
+	input:
+		"w-full border border-gray-200 rounded-xl bg-white py-3 px-4 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all",
+
+	// Textarea for address and notes (matching screenshot)
+	textarea:
+		"w-full border border-gray-200 rounded-xl bg-white py-3 px-4 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none",
+
+	disabledInput:
+		"w-full border border-gray-200 rounded-xl bg-gray-100 py-3 px-4 text-sm text-gray-500 cursor-not-allowed",
+
+	// Footer
+	footer: "flex items-center justify-between w-full max-w-3xl mt-6",
+	cancelLink:
+		"px-8 py-4 border border-gray-300 rounded-2xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm",
+	nextLink:
+		"flex items-center gap-3 bg-blue-600 text-white text-sm font-semibold px-8 py-4 rounded-2xl hover:bg-blue-700 transition-colors shadow-md",
+	disabled: "opacity-50 cursor-not-allowed pointer-events-none",
+
+	// Success Popup
+	popupOverlay: "fixed inset-0 flex items-center justify-center z-50",
+	popupBackdrop: "absolute inset-0 bg-black/30 backdrop-blur-sm",
+	popupCard: "relative bg-white rounded-2xl shadow-2xl px-10 py-8 flex flex-col items-center gap-4 max-w-sm w-full mx-4",
+	popupIcon: "text-green-500 text-5xl",
+	popupTitle: "text-xl font-bold text-gray-900",
+	popupMessage: "text-sm text-gray-500 text-center",
+	popupProgressWrap: "w-full bg-gray-100 rounded-full h-1 mt-2 overflow-hidden",
+	popupProgressBar: "bg-green-500 h-1 rounded-full animate-[shrink_2s_linear_forwards]",
+};
+
 export default customerInfoDesign;
- 
-
-
-
-  
-
- 
-
-  
-
-  

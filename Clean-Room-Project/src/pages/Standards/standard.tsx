@@ -9,6 +9,8 @@ import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import standardDesign from "./standardDesign";
 import standardDataJson from "../../json/standardData.json";
 import { roomStandards } from "../../backend/controller/controller";
+import { Tooltip } from "../../components/Tooltip";
+import constants from "../../json/constants.json";
 
 type StandardItem = {
   id: number;
@@ -588,6 +590,7 @@ export default function Standard() {
               <div className={s.field}>
                 <label className={s.label}>
                   {t.labels.system} <span className={s.required}>*</span>
+                  <Tooltip id="system" content={constants.Tooltip.systemTooltip} />
                 </label>
                 <select
                   className={s.select}
@@ -631,6 +634,15 @@ export default function Standard() {
                 <div className={s.field}>
                   <label className={s.label}>
                     {systemTypeLabel} <span className={s.required}>*</span>
+                    <Tooltip
+                      id="systemType"
+                      content={
+                        systemTypeLabel === t.labels.systemTypeGeneric ? constants.Tooltip.heatingSystemTypeTooltip :
+                          systemTypeLabel === t.labels.systemTypeHeating ? constants.Tooltip.heatingSystemTypeTooltip :
+                            systemTypeLabel === t.labels.systemTypeCooling ? constants.Tooltip.coolingSystemTypeTooltip :
+                              constants.Tooltip.ventilationSystemTypeTooltip
+                      }
+                    />
                   </label>
                   <select
                     className={s.select}
@@ -672,6 +684,7 @@ export default function Standard() {
                     <label className={s.label}>
                       {t.labels.heatingMethod}{" "}
                       <span className={s.required}>*</span>
+                      <Tooltip id="heatingMethod" content={constants.Tooltip.heatingMethodTooltip} />
                     </label>
                     <select
                       className={s.select}
@@ -702,6 +715,7 @@ export default function Standard() {
                     <label className={s.label}>
                       {t.labels.coolingMethod}{" "}
                       <span className={s.required}>*</span>
+                      <Tooltip id="coolingMethod" content={constants.Tooltip.coolingMethodTooltip} />
                     </label>
                     <select
                       className={s.select}
@@ -733,6 +747,7 @@ export default function Standard() {
                 <div className={s.field}>
                   <label className={s.label}>
                     {t.labels.standard} <span className={s.required}>*</span>
+                    <Tooltip id="standard" content={constants.Tooltip.standardTooltip} />
                   </label>
                   <select
                     className={s.select}
@@ -769,6 +784,7 @@ export default function Standard() {
                   <label className={s.label}>
                     {t.labels.classification}{" "}
                     <span className={s.required}>*</span>
+                    <Tooltip id="classification" content={constants.Tooltip.classificationTooltip} />
                   </label>
                   <select
                     className={selectedStandard ? s.select : s.selectDisabled}
@@ -801,6 +817,7 @@ export default function Standard() {
                 <div className={s.field}>
                   <label className={s.label}>
                     {t.labels.acph} <span className={s.required}>*</span>
+                    <Tooltip id="acph" content={constants.Tooltip.acphTooltip} />
                   </label>
                   <select
                     className={!acphDisabled ? s.select : s.selectDisabled}
@@ -903,6 +920,7 @@ export default function Standard() {
                   <label className={s.label}>
                     {t.labels.reqInsideTemp} ({tempUnit === "C" ? "°C" : "°F"}){" "}
                     <span className={s.required}>*</span>
+                    <Tooltip id="requiredTemperature" content={constants.Tooltip.requiredTemperatureTooltip} />
                   </label>
                   <input
                     className={ventilationOnly ? s.inputDisabled : s.input}
@@ -939,6 +957,7 @@ export default function Standard() {
                   <label className={s.label}>
                     {t.labels.reqInsideHum}{" "}
                     <span className={s.required}>*</span>
+                    <Tooltip id="requiredHumidity" content={constants.Tooltip.requiredHumidityTooltip} />
                   </label>
                   <input
                     className={ventilationOnly ? s.inputDisabled : s.input}

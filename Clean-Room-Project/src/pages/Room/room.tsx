@@ -25,6 +25,8 @@ import {
 import s from "./roomDesign";
 import T from "../../json/room.json";
 import standardDataJson from "../../json/standardData.json";
+import { Tooltip } from "../../components/Tooltip";
+import constants from "../../json/constants.json";
 
 type StandardItem = {
   id: number;
@@ -73,7 +75,7 @@ export default function Room() {
   const savedRooms = useAppSelector((state: any) => state.room.savedRooms) as any[];
   const isFormVisible = useAppSelector((state: any) => state.room.isFormVisible) as boolean;
 
-  
+
   const [acphDeviation, setAcphDeviation] = useState<number>(0);
 
   // ─── Standards slice ───
@@ -239,7 +241,7 @@ export default function Room() {
       maxTempC,
       rhMin,
       rhMax,
-      rooms: savedRooms, 
+      rooms: savedRooms,
     };
 
     console.log("=== NAVIGATING TO RESULTS ===");
@@ -266,7 +268,7 @@ export default function Room() {
     navigate("/standards");
   };
 
-    const increaseDeviation = () => {
+  const increaseDeviation = () => {
     setAcphDeviation((prev) => (prev < 20 ? prev + 5 : prev));
   };
 
@@ -289,6 +291,22 @@ export default function Room() {
       <div className={s.field} key={key}>
         <label className={s.label}>
           {(T.fields as any)[key].label} <span className={s.required1}>*</span>
+          <Tooltip
+            id={key}
+            content={
+              key === "roomName" ? constants.Tooltip.roomNameTooltip :
+                key === "length" ? constants.Tooltip.lengthTooltip :
+                  key === "width" ? constants.Tooltip.widthTooltip :
+                    key === "height" ? constants.Tooltip.heightTooltip :
+                      key === "occupancy" ? constants.Tooltip.occupancyTooltip :
+                        key === "equipmentLoad" ? constants.Tooltip.equipmentLoadTooltip :
+                          key === "lightingLoad" ? constants.Tooltip.lightingLoadTooltip :
+                            key === "infiltrationsPerHour" ? constants.Tooltip.infiltrationsTooltip :
+                              key === "freshAirPercent" ? constants.Tooltip.freshAirTooltip :
+                                key === "exhaustAir" ? constants.Tooltip.exhaustAirTooltip :
+                                  ""
+            }
+          />
         </label>
         <input
           className={disabled ? s.inputDisabled : s.input}
@@ -349,7 +367,10 @@ export default function Room() {
               <div className={s.grid2}>{renderInput("roomName")}</div>
               <div className={s.sectionDivider} />
 
-              <div className={s.sectionTitle}>{T.sections.roomDimensions}</div>
+              <div className={s.sectionTitle}>
+                {T.sections.roomDimensions}
+                <Tooltip id="roomDimensions" content={constants.Tooltip.roomDimensionsTooltip} />
+              </div>
               <div className={s.grid3}>
                 {renderInput("length")}
                 {renderInput("width")}
@@ -371,6 +392,7 @@ export default function Room() {
                 <div>
                   <label className={s.label}>
                     ACPH Value <span className={s.required1}>*</span>
+                    <Tooltip id="acphValue" content={constants.Tooltip.acphValueTooltip} />
                   </label>
                   <select
                     className={acphOptions.length ? s.select : s.selectDisabled}
@@ -390,58 +412,58 @@ export default function Room() {
                     </div>
                   )}
                 </div>
-      
-                 {/* ACPH Deviation Field */}
-              <div>
-                <label className={s.label}>
-                  ACPH Deviation
-                </label>
 
-                <div className={s.deviationBox}>
-                  <button
-                    type="button"
-                    onClick={decreaseDeviation}
-                    disabled={acphDeviation <= -20}
-                    className={s.deviationBtn}
-                  >
-                    −
-                  </button>
+                {/* ACPH Deviation Field */}
+                <div>
+                  <label className={s.label}>
+                    ACPH Deviation
+                  </label>
 
-                  <input
-                    type="text"
-                    value={`${acphDeviation}%`}
-                    readOnly
-                    className={s.deviationInput}
-                  />
+                  <div className={s.deviationBox}>
+                    <button
+                      type="button"
+                      onClick={decreaseDeviation}
+                      disabled={acphDeviation <= -20}
+                      className={s.deviationBtn}
+                    >
+                      −
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={increaseDeviation}
-                    disabled={acphDeviation >= 20}
-                    className={s.deviationBtn}
-                  >
-                    +
-                  </button>
-                </div>
-                <div className={s.rangeText}>
-                  Range: -20% to +20%
+                    <input
+                      type="text"
+                      value={`${acphDeviation}%`}
+                      readOnly
+                      className={s.deviationInput}
+                    />
+
+                    <button
+                      type="button"
+                      onClick={increaseDeviation}
+                      disabled={acphDeviation >= 20}
+                      className={s.deviationBtn}
+                    >
+                      +
+                    </button>
+                  </div>
+                  <div className={s.rangeText}>
+                    Range: -20% to +20%
+                  </div>
                 </div>
               </div>
             </div>
-              </div>
 
-              <div className={s.acphBanner}>
-                <div className={s.acphBannerStyle}>
-                  <p className={s.bannerTitle}>
-                    Default ACPH from Classification:{" "}
-                    <span className={s.bannerValue}>{acphMin} - {acphMax}</span>
-                  </p>
-                  <p className={s.bannerText}> Pre-filled with Maximum</p>
-                </div>
-                <span className={s.bannerValue}>({standard} - {classification})</span>
+            <div className={s.acphBanner}>
+              <div className={s.acphBannerStyle}>
+                <p className={s.bannerTitle}>
+                  Default ACPH from Classification:{" "}
+                  <span className={s.bannerValue}>{acphMin} - {acphMax}</span>
+                </p>
+                <p className={s.bannerText}> Pre-filled with Maximum</p>
               </div>
+              <span className={s.bannerValue}>({standard} - {classification})</span>
             </div>
-          
+          </div>
+
         )}
 
         {/* saved rooms list — ALL zones */}

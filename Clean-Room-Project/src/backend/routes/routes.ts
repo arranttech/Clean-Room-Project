@@ -26,13 +26,11 @@ const applicationRoutes: ServerRoute[] = [
   },  
   {
     method: 'POST',
-    path: '/v1/customerInfo',
+    path: '/v1/customerinfo',
     handler: async (request: Request, h: ResponseToolkit) => {
       try {
         const payload = request.payload as any;
-        console.log('Received payload in handler:', payload);
-        const id = await ApplicationRepository.createApplication(payload);
-        console.log('Created application with ID:', id);
+        const id = await ApplicationRepository.createCustomer(payload);
         return h.response({ applicationId: id }).code(201);
       } catch (err) {
         console.error('Failed to save customer info:', err);
@@ -42,13 +40,27 @@ const applicationRoutes: ServerRoute[] = [
       }
     },
   },
+  {
+    method: 'POST',
+    path: '/v1/projectinfo',
+    handler: async (request: Request, h: ResponseToolkit) => {
+      try {
+        const payload = request.payload as any; // Full project data
+        const id = await ApplicationRepository.createProject(payload);
+        return h.response({ projectId: id }).code(201);
+      } catch (err) {
+        console.error('Failed to save project info:', err);
+        return h.response({ error: 'Internal Server Error' }).code(500);
+      }
+    },
+  },
    {
     method: 'POST',
     path: '/v1/standards',
     handler: async (request: Request, h: ResponseToolkit) => {
       try {
         const payload = request.payload as any;
-        const id = await ApplicationRepository.roomStandards(payload);
+        const id = await ApplicationRepository.createRoomStandards(payload);
         return h.response({ roomStandardsId: id }).code(201);
       } catch (err) {
         console.error('Failed to save room standards info:', err);

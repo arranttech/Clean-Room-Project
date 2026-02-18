@@ -27,13 +27,16 @@ async function request(endpoint: string, method: string = "GET", payload: object
   return response.json();
 }
 
+const customerid = '779CC3717DF1';
 
 export const customerInfo = (payload: object) =>
-  request("/v1/customerInfo", "POST", payload);
-
+  request("/v1/customerinfo", "POST", payload);
 
 export const roomStandards = (payload: object) =>
-  request("/v1/roomStandards", "POST", payload);
+  request("/v1/roomstandards", "POST", payload);
 
 export const customerDetails = (adminId?: number) =>
   request(`/v1/customers${adminId ? `?admin_id=${adminId}` : ""}`, "GET");
+
+export const projectInfo = (payload: object) =>
+  request("/v1/projectinfo", "POST", payload);

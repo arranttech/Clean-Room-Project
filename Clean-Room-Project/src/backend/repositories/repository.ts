@@ -20,19 +20,19 @@ export const ApplicationRepository = {
     }
   },
   // Create a new customer/application
-  createApplication: async (payload: any) => {
-    console.log('payload in repository:', payload);
+  createCustomer: async (payload: any) => {
     try {
       const [result] = await database.execute(
         `INSERT INTO tCustomers 
-          (customer_name, customer_phone, customer_address, customers_additional_notes, customer_email_id)
-         VALUES (?, ?, ?, ?, ?)`,
+          (admin_id, customer_name, customer_phone, customer_address, customer_email_id,customers_additional_notes)
+         VALUES (?, ?, ?, ?, ?, ?)`,
         [
+          payload.admin_id || 10001,
           payload.customerName,
           payload.phoneNumber,
           payload.customerAddress,
-          payload.additionalNotes,
           payload.emailAddress,
+          payload.additionalNotes,
         ]
       );
 
@@ -43,8 +43,65 @@ export const ApplicationRepository = {
     }
   },
 
+  createProject: async (payload: any) => {
+    const customer_id = "779CC3717DF1";
+    // Validate required fields
+    if (
+      !customer_id ||
+      !payload.uniqueId ||
+      !payload.projectName ||
+      !payload.unitBranch ||
+      !payload.selectedLocation?.display_name ||
+      payload.maxTemp === undefined ||
+      payload.minTemp === undefined ||
+      payload.relativeHumidityMin === undefined ||
+      payload.relativeHumidityMax === undefined
+    ) {
+      throw new Error("Missing required project fields");
+    }
+    try {
+      const [result] = await database.execute(
+        `INSERT INTO tProjects
+          (
+            customer_id,
+            project_unique_id,
+            project_name,
+            project_unit_branch,
+            project_Industry,
+            project_Handling,
+            project_Location,
+            project_max_temp,
+            project_min_temp,
+            project_relative_min_humid,
+            project_relative_max_humid
+          )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          customer_id,
+          payload.uniqueId,
+          payload.projectName,
+          payload.unitBranch,
+          JSON.stringify(payload.industry),
+          JSON.stringify(payload.handling),
+          payload.selectedLocation.display_name,
+          parseFloat(payload.maxTemp),
+          parseFloat(payload.minTemp),
+          parseFloat(payload.relativeHumidityMin),
+          parseFloat(payload.relativeHumidityMax)
+        ]
+      );
+  
+      return (result as any).insertId;
+    } catch (error) {
+      console.error('Create Project Error: ', error);
+      throw error;
+    }
+  },
+    
+  
+
   // Insert room standards
-  roomStandards: async (payload: any) => {
+  createRoomStandards: async (payload: any) => {
     try {
       const [result] = await database.execute(
         `INSERT INTO tRoomStandards 

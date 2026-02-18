@@ -27,16 +27,13 @@ async function request(endpoint: string, method: string = "GET", payload: object
   return response.json();
 }
 
-/* ================================
-   🔹 CUSTOMER APIs
-================================ */
 
 export const customerInfo = (payload: object) =>
   request("/v1/customerInfo", "POST", payload);
 
-/* ================================
-   🔹 ROOM STANDARDS APIs
-================================ */
 
 export const roomStandards = (payload: object) =>
   request("/v1/roomStandards", "POST", payload);
+
+export const customerDetails = (adminId?: number) =>
+  request(`/v1/customers${adminId ? `?admin_id=${adminId}` : ""}`, "GET");

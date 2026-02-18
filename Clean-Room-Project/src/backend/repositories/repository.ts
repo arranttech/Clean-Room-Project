@@ -1,13 +1,32 @@
 import { database } from '../dbConnection/connections';
 
 export const ApplicationRepository = {
+  // Get all customers
+  getCustomerDetails: async (payload?: { admin_id?: number }) => {
+    try {
+      let query = `SELECT * FROM tCustomers`;
+      const params: any[] = [];
+  
+      if (payload?.admin_id) {
+        query += ` WHERE admin_id = ?`;
+        params.push(payload.admin_id);
+      }
+  
+      const [result] = await database.execute(query, params);
+      return result;
+    } catch (err) {
+      console.error('Error in getCustomerDetails:', err);
+      throw err;
+    }
+  },
+  // Create a new customer/application
   createApplication: async (payload: any) => {
     console.log('payload in repository:', payload);
     try {
       const [result] = await database.execute(
         `INSERT INTO tCustomers 
-        (customer_name, customer_phone, customer_address, customers_additional_notes, customer_email_id)
-        VALUES (?, ?, ?, ?, ?)`,
+          (customer_name, customer_phone, customer_address, customers_additional_notes, customer_email_id)
+         VALUES (?, ?, ?, ?, ?)`,
         [
           payload.customerName,
           payload.phoneNumber,
@@ -17,19 +36,20 @@ export const ApplicationRepository = {
         ]
       );
 
-
-      return result.insertId;
+      return (result as any).insertId; // insertId from MySQL
     } catch (err) {
       console.error('Error in createApplication:', err);
       throw err;
     }
   },
 
-    roomStandards: async (payload: any) => {
+  // Insert room standards
+  roomStandards: async (payload: any) => {
     try {
       const [result] = await database.execute(
         `INSERT INTO tRoomStandards 
-            (project_system,
+          (
+            project_system,
             project_system_type,
             project_heating_method,
             project_cooling_method,
@@ -43,8 +63,12 @@ export const ApplicationRepository = {
             project_min_temp,
             project_relative_min_humid,
             project_relative_max_humid,
-            flow_velocity) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            flow_velocity,
+            flow_medium,
+            heating_flow_velocity,
+            cooling_flow_velocity
+          )
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           payload.system || null,
           payload.systemType || null,
@@ -67,11 +91,10 @@ export const ApplicationRepository = {
         ]
       );
 
-      return result.insertId;
+      return (result as any).insertId;
     } catch (err) {
-      console.error('Error in createApplication:', err);
+      console.error('Error in roomStandards:', err);
       throw err; // this will trigger Hapi 500
     }
   },
-
 };

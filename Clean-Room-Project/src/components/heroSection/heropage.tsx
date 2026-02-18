@@ -2,9 +2,26 @@ import heroDesign from "./heroDesign";
 import { FaArrowRight, FaPlay, FaCheck } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import text from "../../json/constants.json";
+import { useEffect } from "react";
+import { customerDetails } from "../../backend/controller/controller";
 
 export default function HeroPage() {
 	const { hero } = text;
+
+	const adminId = 10001;
+
+	useEffect(() => {
+		const fetchCustomerDetails = async () => {
+			try {
+				const data = await customerDetails(adminId); // number is allowed
+				console.log("Customer data:", data);
+			} catch (error) {
+				console.error((error as Error).message);
+			}
+		};
+
+		fetchCustomerDetails();
+	}, [adminId]);
 
 	return (
 		<section id="stericleanair" className={heroDesign.section}>

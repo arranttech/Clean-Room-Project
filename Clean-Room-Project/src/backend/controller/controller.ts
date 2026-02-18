@@ -40,3 +40,10 @@ export const customerInfo = (payload: object) =>
 
 export const roomStandards = (payload: object) =>
   request("/v1/roomStandards", "POST", payload);
+
+/* ================================
+   🔹 AIRFLOW APIs
+================================ */
+
+export const airflow = (payload: object) =>
+  request("/v1/airflow", "POST", payload);

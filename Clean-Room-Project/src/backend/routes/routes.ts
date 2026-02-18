@@ -1,5 +1,6 @@
 import { ServerRoute, Request, ResponseToolkit } from '@hapi/hapi';
 import { ApplicationRepository } from '../repositories/repository';
+import { airflowService, RoomPayload } from '../service/service';
 
 const applicationRoutes: ServerRoute[] = [
   {
@@ -27,9 +28,9 @@ const applicationRoutes: ServerRoute[] = [
       }
     },
   },
-   {
+  {
     method: 'POST',
-    path: '/v1/standards',
+    path: '/v1/RoomStandards',
     handler: async (request: Request, h: ResponseToolkit) => {
       try {
         const payload = request.payload as any;
@@ -37,6 +38,22 @@ const applicationRoutes: ServerRoute[] = [
         return h.response({ roomStandardsId: id }).code(201);
       } catch (err) {
         console.error('Failed to save room standards info:', err);
+        return h
+          .response({ error: 'Internal Server Error' })
+          .code(500);
+      }
+    },
+  },
+  {
+    method: 'POST',
+    path: '/v1/airflow',
+    handler: async (request: Request, h: ResponseToolkit) => {
+      try {
+        const payload = request.payload as RoomPayload;
+        const data = airflowService(payload);
+        return h.response(data).code(200);
+      } catch (err) {
+        console.error('Failed to calculate airflow:', err);
         return h
           .response({ error: 'Internal Server Error' })
           .code(500);

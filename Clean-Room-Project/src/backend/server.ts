@@ -2,9 +2,6 @@
 import Hapi from '@hapi/hapi';
 import applicationRoutes from './routes/routes.ts'; // must include .js extension in Node ESM
 
-
-
-
 const server = Hapi.server({
   port: 3000,
   host: 'localhost',
@@ -16,10 +13,8 @@ const server = Hapi.server({
   },
 });
 
-
 // Register all application routes
 server.route(applicationRoutes);
-
 
 const startServer = async () => {
   try {
@@ -30,5 +25,11 @@ const startServer = async () => {
     process.exit(1);
   }
 };
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err) => {
+  console.error(err);
+  process.exit(1);
+});
 
 startServer();

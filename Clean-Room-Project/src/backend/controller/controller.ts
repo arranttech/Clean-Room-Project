@@ -27,7 +27,6 @@ async function request(endpoint: string, method: string = "GET", payload: object
   return response.json();
 }
 
-const customerid = '779CC3717DF1';
 
 export const customerInfo = (payload: object) =>
   request("/v1/customerinfo", "POST", payload);

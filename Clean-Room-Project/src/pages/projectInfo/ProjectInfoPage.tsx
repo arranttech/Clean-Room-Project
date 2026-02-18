@@ -8,7 +8,7 @@ import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { FaLocationDot, FaXmark } from "react-icons/fa6";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import styles from "./projectInfoDesign";
-import { customerInfo } from "../../backend/controller/controller";
+import { customerInfo, projectInfo } from "../../backend/controller/controller";
 
 function ProjectInfoPage() {
 	const dispatch = useAppDispatch();
@@ -25,7 +25,9 @@ function ProjectInfoPage() {
 	} = (location.state as any) || {};
 
 	// customerName: router state takes priority, fall back to Redux (persisted)
-	const customerNameFromRedux = useAppSelector((s: any) => s.projectInfo.customerName);
+	const customerNameFromRedux = useAppSelector(
+		(s: any) => s.projectInfo.customerName
+	);
 	const customerName = customerNameFromState || customerNameFromRedux;
 
 	// --- Redux State (project fields only) ---
@@ -221,11 +223,6 @@ function ProjectInfoPage() {
 	// --- Save full combined payload to backend ---
 	const saveProjectInfo = async () => {
 		const payload = {
-			customerName,
-			phoneNumber,
-			customerAddress,
-			emailAddress,
-			additionalNotes,
 			projectName,
 			unitBranch,
 			handling,
@@ -237,17 +234,17 @@ function ProjectInfoPage() {
 			relativeHumidityMin,
 			relativeHumidityMax,
 		};
-		// Navigate immediately, save to DB in background
-		navigate("/standards", {
-			state: {
-				minimumTemp: minTemp,
-				maximumTemp: maxTemp,
-				minRelativeHumidity: relativeHumidityMin,
-				maxRelativeHumidity: relativeHumidityMax,
-			},
-		});
 		try {
-			const data = await customerInfo(payload);
+			const data = await projectInfo(payload);
+			// Navigate immediately, save to DB in background
+			navigate("/standards", {
+				state: {
+					minimumTemp: minTemp,
+					maximumTemp: maxTemp,
+					minRelativeHumidity: relativeHumidityMin,
+					maxRelativeHumidity: relativeHumidityMax,
+				},
+			});
 			console.log(data);
 		} catch (error) {
 			console.error((error as Error).message);
@@ -435,9 +432,7 @@ function ProjectInfoPage() {
 							<button
 								type="button"
 								onClick={() =>
-									dispatch(
-										updateField({ field: "locationQuery", value: "" })
-									)
+									dispatch(updateField({ field: "locationQuery", value: "" }))
 								}
 								className={styles.locationClear}
 							>
@@ -531,7 +526,9 @@ function ProjectInfoPage() {
 					<FaArrowLeft /> Back
 				</Link>
 				<button
-					className={`${styles.nextLink} ${!isFormValid ? styles.disabled : ""}`}
+					className={`${styles.nextLink} ${
+						!isFormValid ? styles.disabled : ""
+					}`}
 					onClick={() => {
 						if (!isFormValid) {
 							alert(

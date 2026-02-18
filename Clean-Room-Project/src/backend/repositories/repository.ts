@@ -44,7 +44,7 @@ export const ApplicationRepository = {
   },
 
   createProject: async (payload: any) => {
-    const customer_id = "779CC3717DF1";
+    const customer_id = "8A6DCD23849B";
     // Validate required fields
     if (
       !customer_id ||

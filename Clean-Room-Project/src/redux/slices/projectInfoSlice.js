@@ -1,13 +1,8 @@
-
 import { createSlice } from "@reduxjs/toolkit";
 
 // --- Initial State ---
 const initialState = {
   customerName: "",
-  phoneNumber: "",
-  customerAddress: "",
-  emailAddress: "",
-  additionalNotes: "",
   projectName: "",
   unitBranch: "",
   handling: [],
@@ -22,8 +17,8 @@ const initialState = {
 };
 
 // --- Slice (actions + reducers combined) ---
-const customerInfoSlice = createSlice({
-  name: "customerInfo",
+const projectInfoSlice = createSlice({
+  name: "projectInfo",
   initialState,
   reducers: {
     // Update single field
@@ -39,12 +34,11 @@ const customerInfoSlice = createSlice({
       });
     },
 
-    // Reset entire slice (logout)
-    resetCustomerInfo: () => initialState,
+    // Reset entire slice
+    resetProjectInfo: () => initialState,
   },
 });
 
-export const { updateField, updateMultipleFields, resetCustomerInfo } =
-  customerInfoSlice.actions;
+export const { updateField, updateMultipleFields, resetProjectInfo } = projectInfoSlice.actions;
 
-export default customerInfoSlice.reducer;
+export default projectInfoSlice.reducer;

@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { handleLogout } from "../../utils/logout";
 import { FiLogOut } from "react-icons/fi";
-import { FaFolderOpen, FaPlus, FaBuilding, FaLayerGroup, FaCalculator, FaCheck, FaArrowRight  } from "react-icons/fa";
+import { FaFolderOpen, FaPlus, FaBuilding, FaLayerGroup, FaCalculator, FaCheck, FaArrowRight, FaExclamationCircle } from "react-icons/fa";
+import { MdApartment } from "react-icons/md";
 
 import s from "./dashboardDesign";
 import text from "../../json/dashboard.json";
@@ -55,6 +56,8 @@ function tmpl(str: string, vars: Record<string, string | number>) {
 
 export default function Dashboard() {
   const [projects] = useState<Project[]>(demoProjects);
+  const [showProfileAlert, setShowProfileAlert] = useState(false);
+  const customerName = useAppSelector((state: any) => state.projectInfo.customerName);
   const userName = useMemo(() => {
     const token = localStorage.getItem("token");
     if (!token) return "User";
@@ -130,7 +133,6 @@ export default function Dashboard() {
           </div>
 
           {/* Projects In Progress */}
-
           <div className={s.sectionCard}>
             <div className={s.cardHeader}>
                <div className={s.sectionTitle}>{text.dashboard.projectsTitle}</div>
@@ -138,37 +140,41 @@ export default function Dashboard() {
             </div>
            
             <div className={s.cardWrap}>
-
               <div>
                 <div className={s.projectTitle}>{text.dashboard.progress.projectTitle}</div>
-                <div className={s.projectCompany}><span>Company: </span>{text.dashboard.progress.Company}</div>
+                <div className={s.projectCustomer}><span>Customer: </span>{text.dashboard.progress.Customer}</div>
                 <div className={s.cardStyle}>
                   <div className={s.projectPendingStage}>{text.dashboard.progress.pendingStage}</div>
                   <div className={s.projectPendingPage}><span>On:</span> {text.dashboard.progress.pendingPage}</div>
                   <div className={s.projectModifiedDate}><span>Last Modified:</span> {text.dashboard.progress.modifiedDate}</div>
-
                 </div>
-
               </div>
 
-                 <div className={s.buttonStyle}>
-              <Link to="/projects" className={s.viewAllButton}>
-                {text.dashboard.progress.buttonText} <FaArrowRight />
-              </Link>
-
+              <div className={s.buttonStyle}>
+                <Link to="/projects" className={s.viewAllButton}>
+                  {text.dashboard.progress.buttonText} <FaArrowRight />
+                </Link>
+              </div>
             </div>
-
-            </div>
-
-
-
           </div>
 
           {/* quick actions */}
           <div className={s.sectionCard}>
             <div className={s.sectionTitle}>{text.dashboard.quickActionsTitle}</div>
             <div className={s.quickGrid}>
-              <Link to="/customer-info" className={`${s.actionCardBase} ${s.actionCardHover}`}>
+
+              {/* Create New Project → checks customer profile first */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (!customerName) {
+                    setShowProfileAlert(true);
+                  } else {
+                    navigate("/project-info");
+                  }
+                }}
+                className={`${s.actionCardBase} ${s.actionCardHover} text-left`}
+              >
                 <div className={`${s.actionIconWrap} bg-blue-700`}>
                   <FaPlus className="text-white text-2xl" />
                 </div>
@@ -177,8 +183,9 @@ export default function Dashboard() {
                   <div className={s.actionDesc}>{text.dashboard.actions.createDesc}</div>
                   <div className={s.actionHint}>{text.dashboard.actions.createHint}</div>
                 </div>
-              </Link>
+              </button>
 
+              {/* View All Projects → /projects */}
               <Link to="/projects" className={`${s.actionCardBase} ${s.actionCardHover}`}>
                 <div className={`${s.actionIconWrap} bg-blue-100`}>
                   <FaFolderOpen className="text-blue-700 text-2xl" />
@@ -189,10 +196,21 @@ export default function Dashboard() {
                   <div className={s.actionHint}>{text.dashboard.actions.viewHint}</div>
                 </div>
               </Link>
+
+              {/* Customer Profile → /customer-info */}
+              <Link to="/customer-info" className={`${s.actionCardBase} ${s.actionCardHover}`}>
+                <div className={`${s.actionIconWrap} bg-slate-100`}>
+                  <MdApartment className="text-blue-700 text-2xl" />
+                </div>
+                <div>
+                  <div className={s.actionTitle}>{text.dashboard.actions.customerTitle}</div>
+                  <div className={s.actionDesc}>{text.dashboard.actions.customerDesc}</div>
+                  <div className={s.actionHint}>{text.dashboard.actions.customerHint}</div>
+                </div>
+              </Link>
+
             </div>
           </div>
-
-
 
           {/* platform features */}
           <div className={s.featuresCard}>
@@ -250,6 +268,40 @@ export default function Dashboard() {
 
         </div>
       </div>
+
+      {/* Customer Profile Required Popup */}
+      {showProfileAlert && (
+        <div className={s.popupOverlay}>
+          <div className={s.popupBackdrop} onClick={() => setShowProfileAlert(false)} />
+          <div className={s.popupCard}>
+            <div className={s.popupHeader}>
+              <div className={s.popupIconWrap}>
+                <FaExclamationCircle className={s.popupIcon} />
+              </div>
+              <h2 className={s.popupTitle}>Customer Profile Required</h2>
+            </div>
+            <p className={s.popupDesc}>
+              Before creating a project, you need to set up your customer profile first. This is a one-time setup that will be used for all your projects.
+            </p>
+            <div className={s.popupInfoBox}>
+              <p className={s.popupInfoTitle}>Required Information:</p>
+              <ul className={s.popupInfoList}>
+                <li className={s.popupInfoItem}>* Customer Name</li>
+                <li className={s.popupInfoItem}>* Customer Address</li>
+                <li className={s.popupInfoItem}>* Contact Details (Optional)</li>
+              </ul>
+            </div>
+            <div className={s.popupFooter}>
+              <button type="button" onClick={() => setShowProfileAlert(false)} className={s.popupCancelBtn}>
+                Back to Dashboard
+              </button>
+              <button type="button" onClick={() => { setShowProfileAlert(false); navigate("/customer-info"); }} className={s.popupConfirmBtn}>
+                Setup Customer Profile
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

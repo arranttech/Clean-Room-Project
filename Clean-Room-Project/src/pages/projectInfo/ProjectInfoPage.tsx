@@ -237,14 +237,17 @@ function ProjectInfoPage() {
 		try {
 			const data = await projectInfo(payload);
 			// Navigate immediately, save to DB in background
-			navigate("/standards", {
-				state: {
-					minimumTemp: minTemp,
-					maximumTemp: maxTemp,
-					minRelativeHumidity: relativeHumidityMin,
-					maxRelativeHumidity: relativeHumidityMax,
-				},
-			});
+			if (data) {
+				navigate("/standards", {
+					state: {
+						minimumTemp: minTemp,
+						maximumTemp: maxTemp,
+						minRelativeHumidity: relativeHumidityMin,
+						maxRelativeHumidity: relativeHumidityMax,
+						projectId: data?.projectId,
+					},
+				});
+			}
 			console.log(data);
 		} catch (error) {
 			console.error((error as Error).message);

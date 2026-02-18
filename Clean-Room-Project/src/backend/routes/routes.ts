@@ -46,8 +46,8 @@ const applicationRoutes: ServerRoute[] = [
     handler: async (request: Request, h: ResponseToolkit) => {
       try {
         const payload = request.payload as any; // Full project data
-        const id = await ApplicationRepository.createProject(payload);
-        return h.response({ projectId: id }).code(201);
+        const projectId = await ApplicationRepository.createProject(payload);
+        return h.response({ projectId }).code(201);
       } catch (err) {
         console.error('Failed to save project info:', err);
         return h.response({ error: 'Internal Server Error' }).code(500);

@@ -42,24 +42,27 @@ export const ApplicationRepository = {
       throw err;
     }
   },
-
+    
   createProject: async (payload: any) => {
-    const customer_id = "8A6DCD23849B";
-    // Validate required fields
-    if (
-      !customer_id ||
-      !payload.uniqueId ||
-      !payload.projectName ||
-      !payload.unitBranch ||
-      !payload.selectedLocation?.display_name ||
-      payload.maxTemp === undefined ||
-      payload.minTemp === undefined ||
-      payload.relativeHumidityMin === undefined ||
-      payload.relativeHumidityMax === undefined
-    ) {
-      throw new Error("Missing required project fields");
-    }
     try {
+      // Fallback customer ID
+      const fallbackCustomerId = "47DFB1B2D46C";
+  
+      const customer_id = payload.customer_id || fallbackCustomerId;
+  
+      // Check if the customer exists
+      const [customer]: any = await database.execute(
+        `SELECT customer_id FROM tCustomers WHERE customer_id = ?`,
+        [customer_id]
+      );
+  
+      if (!customer.length) {
+        throw new Error(
+          `Customer ID ${customer_id} does not exist in tCustomers`
+        );
+      }
+  
+      // Insert project
       const [result] = await database.execute(
         `INSERT INTO tProjects
           (
@@ -87,17 +90,24 @@ export const ApplicationRepository = {
           parseFloat(payload.maxTemp),
           parseFloat(payload.minTemp),
           parseFloat(payload.relativeHumidityMin),
-          parseFloat(payload.relativeHumidityMax)
+          parseFloat(payload.relativeHumidityMax),
         ]
       );
   
-      return (result as any).insertId;
+      // Return generated project_id
+      const [rows]: any = await database.execute(
+        `SELECT project_id FROM tProjects WHERE project_unique_id = ? LIMIT 1`,
+        [payload.uniqueId]
+      );
+  
+      return rows[0].project_id;
     } catch (error) {
-      console.error('Create Project Error: ', error);
+      console.error("Create Project Error:", error);
       throw error;
     }
   },
-    
+
+  
   
 
   // Insert room standards

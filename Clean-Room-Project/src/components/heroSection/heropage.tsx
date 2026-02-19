@@ -8,7 +8,7 @@ import { customerDetails } from "../../backend/controller/controller";
 export default function HeroPage() {
 	const { hero } = text;
 
-	const adminId = 10001;
+	const adminId = 1;
 
 	useEffect(() => {
 		const fetchCustomerDetails = async () => {

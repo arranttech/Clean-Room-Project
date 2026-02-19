@@ -1282,7 +1282,7 @@ import {
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import standardDesign from "./standardDesign";
 import standardDataJson from "../../json/standardData.json";
-import { roomStandards } from "../../backend/controller/controller";
+import { roomStandards,createProjectZone } from "../../backend/controller/controller";
 import { Tooltip } from "../../components/Tooltip";
 import constants from "../../json/constants.json";
 
@@ -1815,6 +1815,20 @@ export default function Standard() {
     return true;
   })();
 
+  const createProjectZones = async () => {
+    const payload = {
+      zone_name : "Zone 001",
+    };
+    try {
+      const data = await createProjectZone(payload);
+      console.log('Project zone created:', data);
+      return data;
+    } catch (error) {
+      console.error("Failed to create project zone:", error);
+      throw error;
+    }
+  };
+
   const saveroomStandards = async () => {
     const payload = {
       system,
@@ -1837,8 +1851,8 @@ export default function Standard() {
       coolingFlowVelocity,
     };
     try {
-      const data = await roomStandards(payload);
-      console.log(data);
+        const data = await roomStandards(payload);
+        console.log('Room standards saved:', data);
     } catch (error) {
       console.error("Failed to save room standards:", error);
     }
@@ -2536,7 +2550,8 @@ export default function Standard() {
                 "Please fill all required fields correctly before proceeding.",
               );
             } else {
-              saveroomStandards();
+              createProjectZones();
+              // saveroomStandards();
             }
           }}
         >

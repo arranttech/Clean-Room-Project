@@ -22,12 +22,15 @@ export const ApplicationRepository = {
   // Create a new customer/application
   createCustomer: async (payload: any) => {
     try {
+       // Fallback customer ID
+      const adminUserId = "lnredd";
+      const admin_user_id = payload.admin_user_id || adminUserId;
       const [result] = await database.execute(
         `INSERT INTO tCustomers 
-          (admin_id, customer_name, customer_phone, customer_address, customer_email_id,customers_additional_notes)
+          (admin_user_id, customer_name, customer_phone, customer_address, customer_email_id,customers_additional_notes)
          VALUES (?, ?, ?, ?, ?, ?)`,
         [
-          payload.admin_id || 10001,
+          payload.admin_user_id || admin_user_id,
           payload.customerName,
           payload.phoneNumber,
           payload.customerAddress,
@@ -46,7 +49,7 @@ export const ApplicationRepository = {
   createProject: async (payload: any) => {
     try {
       // Fallback customer ID
-      const fallbackCustomerId = "47DFB1B2D46C";
+      const fallbackCustomerId = "1005";
   
       const customer_id = payload.customer_id || fallbackCustomerId;
   
@@ -107,10 +110,6 @@ export const ApplicationRepository = {
     }
   },
 
-  
-  
-
-  // Insert room standards
   createRoomStandards: async (payload: any) => {
     try {
       const [result] = await database.execute(
@@ -161,7 +160,40 @@ export const ApplicationRepository = {
       return (result as any).insertId;
     } catch (err) {
       console.error('Error in roomStandards:', err);
-      throw err; // this will trigger Hapi 500
+      throw err;
     }
   },
+
+  // Create a new project zone (no input required)
+  createProjectZone: async (payload: any) => {
+    try {
+       // Fallback project ID
+      const fallbackProjectId = "1002";
+      const project_id = payload.project_id || fallbackProjectId;
+
+      const [result] = await database.execute(
+         `INSERT INTO tProjectZones
+          (
+            project_id,
+            zone_name
+          )
+        VALUES (?, ?)`,
+        [
+          project_id,
+          payload.zone_name || "Zone 002",
+        ]
+      );
+
+       // Return generated project_id
+      const [rows]: any = await database.execute(
+        `SELECT zone_id FROM tProjectZones WHERE zone_name = ? LIMIT 1`,
+        ["Zone 001"]
+      );
+
+      return rows[0].zone_id;
+    } catch (err) {
+      console.error('Error in createZone:', err);
+      throw err;
+    }
+  }
 };

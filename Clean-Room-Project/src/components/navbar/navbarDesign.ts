@@ -25,10 +25,14 @@ const navbarDesign = {
     "text-[18px] font-bold text-[#0F172A] hover:text-[#475569] transition-colors no-underline",
 
   /* RIGHT */
-  right: "flex-1 flex justify-end",
+  right: "flex-1 flex justify-end items-center gap-3",
 
   signIn:
-    "text-[20px] padding-right:20px font-bold text-[#0F172A] hover:text-[#475569] transition-colors no-underline ",
+  "text-[20px] font-bold text-[#0F172A] hover:text-[#475569] px-2 py-2 transition-colors no-underline",
+
+  admin:
+  "text-[16px] font-semibold text-white bg-blue-600 hover:bg-blue-500 px-3 py-2 rounded-md transition-colors no-underline",
+  
 }
 
 export default navbarDesign

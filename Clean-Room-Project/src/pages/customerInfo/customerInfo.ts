@@ -9,7 +9,7 @@ const customerInfoDesign = {
 	headerRow: "flex items-center justify-center gap-3 mb-1",
 	headerIcon:
 		"w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 text-xl shrink-0",
-	title: "text-2xl font-bold text-gray-900 tracking-tight",
+	title: "text-2xl font-bold text-black-900 tracking-tight",
 	headerText: "text-sm text-blue-800",
 
 	// Card

@@ -32,3 +32,10 @@ const startServer = async () => {
 };
 
 startServer();
+
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err) => {
+  console.error(err);
+  process.exit(1);
+});

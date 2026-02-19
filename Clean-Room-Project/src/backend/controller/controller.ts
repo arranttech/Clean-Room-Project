@@ -39,3 +39,6 @@ export const customerDetails = (adminId?: number) =>
 
 export const projectInfo = (payload: object) =>
   request("/v1/projectinfo", "POST", payload);
+
+export const airflow = (payload: object) =>
+  request("/v1/airflow", "POST", payload);

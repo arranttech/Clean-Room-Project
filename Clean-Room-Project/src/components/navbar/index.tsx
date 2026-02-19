@@ -50,6 +50,10 @@ export default function Navbar() {
 
 					{/* RIGHT */}
 					<div className={navbarDesign.right}>
+					<Link to="/admin" className={navbarDesign.admin}>
+							Admin
+						</Link>
+						<span className="text-slate-900 select-none">|</span>
 						<Link to="/login" className={navbarDesign.signIn}>
 							{navbar.signIn.label}
 						</Link>

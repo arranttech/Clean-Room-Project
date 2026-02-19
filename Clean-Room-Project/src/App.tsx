@@ -9,6 +9,7 @@ import Results from "./pages/Results/results";
 import Login from "./pages/login/login";
 import Register from "./pages/register/register";
 import AllProjects from "./pages/dashboard/projects";
+import Main from "./pages/admin/admin";
 
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
 				<Route path="/login" element={<Login />} />
 				<Route path="/register" element={<Register />} />
 				<Route path="/projects" element={<AllProjects/>} />
+				<Route path="/admin" element={<Main />} />
 			</Routes>
 		</>
 	);

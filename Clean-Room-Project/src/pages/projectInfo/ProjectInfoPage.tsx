@@ -8,7 +8,7 @@ import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { FaLocationDot, FaXmark } from "react-icons/fa6";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import styles from "./projectInfoDesign";
-import { customerInfo, projectInfo } from "../../backend/controller/controller";
+import { projectInfo } from "../../backend/controller/controller";
 
 function ProjectInfoPage() {
 	const dispatch = useAppDispatch();
@@ -18,10 +18,6 @@ function ProjectInfoPage() {
 	const location = useLocation();
 	const {
 		customerName: customerNameFromState = "",
-		phoneNumber = "",
-		customerAddress = "",
-		emailAddress = "",
-		additionalNotes = "",
 	} = (location.state as any) || {};
 
 	// customerName: router state takes priority, fall back to Redux (persisted)

@@ -6,7 +6,7 @@ const projectInfoDesign = {
 
 	// Header
 	top: "text-center mb-8 w-full max-w-5xl",
-	title: "text-2xl font-bold text-gray-800 tracking-tight",
+	title: "text-2xl font-bold text-black-800 tracking-tight",
 	headerText: "text-sm text-blue-800 mt-1",
 
 	// Card — wide to match screenshot

@@ -42,3 +42,6 @@ export const projectInfo = (payload: object) =>
 
 export const airflow = (payload: object) =>
   request("/v1/airflow", "POST", payload);
+
+export const createProjectZone = (payload: object) =>
+  request("/v1/projectzones", "POST", payload);

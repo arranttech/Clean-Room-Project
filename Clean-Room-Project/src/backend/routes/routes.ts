@@ -1,7 +1,6 @@
 import { ServerRoute, Request, ResponseToolkit } from '@hapi/hapi';
 import { ApplicationRepository } from '../repositories/repository';
 import { airflowService, RoomPayload } from '../services/service';
-import { request } from 'http';
 
 const applicationRoutes: ServerRoute[] = [
   {
@@ -84,6 +83,20 @@ const applicationRoutes: ServerRoute[] = [
         return h
           .response({ error: 'Internal Server Error' })
           .code(500);
+      }
+    },
+  },
+  {
+    method: 'POST',
+    path: '/v1/projectzones',
+    handler: async (request: Request, h: ResponseToolkit) => {
+      try {
+        const payload = request.payload as any;
+        const zoneId = await ApplicationRepository.createProjectZone(payload);
+        return h.response({ zoneId }).code(201);
+      } catch (err) {
+        console.error('Failed to create project zone:', err);
+        return h.response({ error: 'Internal Server Error' }).code(500);
       }
     },
   },

@@ -56,22 +56,6 @@ const applicationRoutes: ServerRoute[] = [
   },
   {
     method: 'POST',
-    path: '/v1/airflow',
-    handler: async (request: Request, h: ResponseToolkit) => {
-      try {
-        const payload = request.payload as RoomPayload;
-        const data = airflowService(payload);
-        return h.response(data).code(200);
-      } catch (err) {
-        console.error('Failed to calculate airflow:', err);
-        return h
-          .response({ error: 'Internal Server Error' })
-          .code(500);
-      }
-    },
-  },
-   {
-    method: 'POST',
     path: '/v1/RoomStandards',
     handler: async (request: Request, h: ResponseToolkit) => {
       try {
@@ -96,6 +80,32 @@ const applicationRoutes: ServerRoute[] = [
         return h.response({ zoneId }).code(201);
       } catch (err) {
         console.error('Failed to create project zone:', err);
+        return h.response({ error: 'Internal Server Error' }).code(500);
+      }
+    },
+  },
+  {
+    method: 'POST',
+    path: '/v1/airflow',
+    options: {
+      tags: ['api'], // show in Swagger UI
+      description: 'Calculate airflow for a room',
+      notes: 'Takes room dimensions and ventilation settings and returns airflow calculations',
+      validate: {
+        // No Joi validation, just accept payload as-is
+        payload: (value: any) => value,
+      },
+    },
+  
+    handler: async (request: Request, h: ResponseToolkit) => {
+      try {
+        const payload = request.payload as RoomPayload;
+        console.log('Received payload:', payload);
+  
+        const result = airflowService(payload);
+        return h.response(result).code(200);
+      } catch (err) {
+        console.error('Failed to calculate airflow:', err);
         return h.response({ error: 'Internal Server Error' }).code(500);
       }
     },

@@ -10,7 +10,7 @@ import Login from "./pages/login/login";
 import Register from "./pages/register/register";
 import AllProjects from "./pages/dashboard/projects";
 import Main from "./pages/admin/admin";
-
+import ApiDocs from "./pages/ApiDocs";
 
 function App() {
 	return (
@@ -21,12 +21,13 @@ function App() {
 				<Route path="/project-info" element={<ProjectInfoPage />} />
 				<Route path="/dashboard" element={<Dashboard />} />
 				<Route path="/standards" element={<Standard />} />
-				<Route path="/room" element={<Room/>} />
+				<Route path="/room" element={<Room />} />
 				<Route path="/results" element={<Results />} />
 				<Route path="/login" element={<Login />} />
 				<Route path="/register" element={<Register />} />
-				<Route path="/projects" element={<AllProjects/>} />
+				<Route path="/projects" element={<AllProjects />} />
 				<Route path="/admin" element={<Main />} />
+				<Route path="/docs" element={<ApiDocs />} />
 			</Routes>
 		</>
 	);

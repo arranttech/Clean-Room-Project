@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiSearch, FiPlus } from "react-icons/fi";
+import { FiSearch, FiPlus, FiEdit2, FiTrash2 } from "react-icons/fi";
 import s from "./customersDesign";
 import AddCustomer from "./addCustomer";
 import { customerDetails } from "../../../backend/controller/controller";
@@ -19,10 +19,10 @@ type CustomersProps = {
 };
 
 export default function Customers({ onCountChange }: CustomersProps) {
-  const [customers, setCustomers]   = useState<Customer[]>([]);
-  const [search, setSearch]         = useState("");
-  const [showAdd, setShowAdd]       = useState(false);
-  const [loading, setLoading]       = useState(true);
+  const [customers,  setCustomers]  = useState<Customer[]>([]);
+  const [search,     setSearch]     = useState("");
+  const [showAdd,    setShowAdd]    = useState(false);
+  const [loading,    setLoading]    = useState(true);
   const [fetchError, setFetchError] = useState("");
 
   useEffect(() => {
@@ -98,15 +98,16 @@ export default function Customers({ onCountChange }: CustomersProps) {
               <th className={s.th}>Email</th>
               <th className={s.th}>Phone</th>
               <th className={s.th}>Created</th>
+              <th className={s.thActions}>Actions</th>
             </tr>
           </thead>
           <tbody className={s.tbody}>
             {loading ? (
-              <tr><td colSpan={4} className={s.emptyRow}>Loading customers...</td></tr>
+              <tr><td colSpan={5} className={s.emptyRow}>Loading customers...</td></tr>
             ) : fetchError ? (
-              <tr><td colSpan={4} className={s.emptyRow}>{fetchError}</td></tr>
+              <tr><td colSpan={5} className={s.emptyRow}>{fetchError}</td></tr>
             ) : filtered.length === 0 ? (
-              <tr><td colSpan={4} className={s.emptyRow}>No customers found.</td></tr>
+              <tr><td colSpan={5} className={s.emptyRow}>No customers found.</td></tr>
             ) : (
               filtered.map((customer) => (
                 <tr key={customer.customer_id} className={s.tr}>
@@ -114,6 +115,14 @@ export default function Customers({ onCountChange }: CustomersProps) {
                   <td className={s.tdEmail}>{customer.customer_email_id}</td>
                   <td className={s.td}>{customer.customer_phone}</td>
                   <td className={s.td}>{customer.created_at?.split(" ")[0]}</td>
+                  <td className={s.tdActions}>
+                    <button className={s.editBtn} title="Edit customer">
+                      <FiEdit2 size={15} />
+                    </button>
+                    <button className={s.deleteBtn} title="Delete customer">
+                      <FiTrash2 size={15} />
+                    </button>
+                  </td>
                 </tr>
               ))
             )}

@@ -107,7 +107,7 @@ export default function AddCustomer({ onCancel, onSaved }: AddCustomerProps) {
 
         <div className={s.formRow}>
           <div>
-            <label className={s.formLabel}>Phone Number</label>
+            <label className={s.formLabel}>Phone Number  <span className={s.formRequired}>*</span></label>
             <input type="tel" className={s.formInput} placeholder="Enter Phone Number"
               value={phoneNumber} minLength={7} maxLength={20}
               onChange={(e) => { const v = e.target.value.replace(/[^0-9+\-() ]/g, ""); setPhoneNumber(v); setErrors((p) => ({ ...p, phone: validatePhone(v) })); }}
@@ -115,7 +115,7 @@ export default function AddCustomer({ onCancel, onSaved }: AddCustomerProps) {
             {errors.phone && phoneNumber.length > 0 && <p className={s.formError}>{errors.phone}</p>}
           </div>
           <div>
-            <label className={s.formLabel}>Email Address</label>
+            <label className={s.formLabel}>Email Address  <span className={s.formRequired}>*</span></label>
             <input type="email" className={s.formInput} placeholder="Enter Email ID"
               value={emailAddress} maxLength={30}
               onChange={(e) => { const v = e.target.value; setEmailAddress(v); setErrors((p) => ({ ...p, email: validateEmail(v) })); }}

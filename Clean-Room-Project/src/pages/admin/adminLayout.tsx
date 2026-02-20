@@ -25,7 +25,7 @@ const NAV_ITEMS = [
 export default function Main() {
   const [activePanel, setActivePanel] = useState("customers");
   const [customerCount, setCustomerCount] = useState(5);
-  const [userCount, setUserCount] = useState(0);
+  const [userCount, setUserCount] = useState(10);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -35,6 +35,7 @@ export default function Main() {
 
   const getBadge = (key: string) => {
     if (key === "customers") return customerCount;
+     if (key === "users") return userCount;
     const item = NAV_ITEMS.find((n) => n.key === key);
     return item ? item.count : 0;
   };
@@ -44,7 +45,7 @@ export default function Main() {
       case "customers":
         return <Customers onCountChange={setCustomerCount} />;
       case "users":
-        return <Users  />
+        return <Users  onCountChange={setUserCount}/>
       case "profiles":
       case "screenAccess":
       default:

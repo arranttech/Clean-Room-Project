@@ -11,12 +11,15 @@
     "start:backend": "tsx src/backend/server.ts"
   },
   "dependencies": {
-    "@hapi/hapi": "^21.4.4",
+    "@hapi/hapi": "^21.4.6",
+    "@hapi/inert": "^7.1.0",
+    "@hapi/vision": "^7.0.3",
     "@react-oauth/google": "^0.13.4",
     "@reduxjs/toolkit": "^2.11.2",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "hapi-swagger": "^17.3.2",
     "joi": "^18.0.2",
     "multer": "^2.0.2",
     "mysql2": "^3.17.1",
@@ -28,6 +31,8 @@
     "react-router-dom": "^7.12.0",
     "react-tooltip": "^5.30.0",
     "redux-persist": "^6.0.0",
+    "swagger-ui-dist": "^5.31.1",
+    "swagger-ui-react": "^5.31.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

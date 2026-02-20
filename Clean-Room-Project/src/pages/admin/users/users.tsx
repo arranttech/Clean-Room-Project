@@ -83,11 +83,7 @@ export default function Users({ onCountChange }: UsersProps) {
 		alert(`Edit: ${user.user_first_name} ${user.user_last_name}`);
 	};
 
-	return (
-		<div>
-			<div className={s.panelHeader}>
-				<h1 className={s.panelTitle}>Users</h1>
-			</div>
+	
 
     if (showAdd) {
     return (

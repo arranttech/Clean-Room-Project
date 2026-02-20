@@ -53,9 +53,7 @@ export default function Users({ onCountChange }: UsersProps) {
             u.user_first_name.toLowerCase().includes(search.toLowerCase()) ||
             u.user_email_id.toLowerCase().includes(search.toLowerCase())
     );
-
     
-
     const handleDelete = async (loginId: number) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
 

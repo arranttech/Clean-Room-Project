@@ -6,6 +6,8 @@ import { FiLogOut, FiBriefcase, FiUsers, FiUser, FiShield } from "react-icons/fi
 import s from "./adminDesign";
 import ds from "../dashboard/dashboardDesign";
 import Customers from "./customers";
+import Users from "./users";
+
 
 const ICON_MAP = {
   customers:    FiBriefcase,
@@ -42,6 +44,7 @@ export default function Main() {
       case "customers":
         return <Customers onCountChange={setCustomerCount} />;
       case "users":
+        return <Users  />;
       case "profiles":
       case "screenAccess":
       default:

@@ -33,6 +33,12 @@ async function request(
 
 export const getUsers = () => request("/v1/users", "GET");
 
+export const getAllDetailsforCalculations = (room_id: number) =>
+	request(`/v1/alldetails?room_id=${room_id}`, "GET");
+
+export const storeresults = (payload: object) =>
+	request("/v1/storeresults", "POST", payload);
+
 export const customerInfo = (payload: object) =>
 	request("/v1/customerinfo", "POST", payload);
 

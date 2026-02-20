@@ -12,6 +12,24 @@ const applicationRoutes: ServerRoute[] = [
 	},
 	{
 		method: "GET",
+		path: "/v1/alldetails",
+		handler: async (request: Request, h: ResponseToolkit) => {
+			try {
+				const room_id =
+					typeof request.query.room_id === "number" ? request.query.room_id : 8;
+
+				const roomdetails = await ApplicationRepository.getAllInputs({
+					room_id: room_id,
+				});
+				return h.response({ roomdetails }).code(200);
+			} catch (err) {
+				console.error("Failed to fetch users:", err);
+				return h.response({ error: "Internal Server Error" }).code(500);
+			}
+		},
+	},
+	{
+		method: "GET",
 		path: "/v1/users",
 		handler: async (request: Request, h: ResponseToolkit) => {
 			try {
@@ -149,6 +167,21 @@ const applicationRoutes: ServerRoute[] = [
 				return h.response(result).code(200);
 			} catch (err) {
 				console.error("Failed to calculate airflow:", err);
+				return h.response({ error: "Internal Server Error" }).code(500);
+			}
+		},
+	},
+
+	{
+		method: "POST",
+		path: "/v1/storeresults",
+		handler: async (request: Request, h: ResponseToolkit) => {
+			try {
+				const payload = request.payload as any;
+				const result = await ApplicationRepository.storeResults(payload);
+				return h.response(result).code(201);
+			} catch (err) {
+				console.error("Failed to save zone rooms info:", err);
 				return h.response({ error: "Internal Server Error" }).code(500);
 			}
 		},

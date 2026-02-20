@@ -37,6 +37,24 @@ export const ApplicationRepository = {
 		}
 	},
 
+	getAllInputs: async (payload?: { room_id?: number }) => {
+		try {
+			let query = `SELECT * FROM tInputValue`;
+			const params: any[] = [];
+
+			if (payload?.room_id) {
+				query += ` WHERE RoomId = ?`;
+				params.push(payload.room_id);
+			}
+
+			const [result] = await database.execute(query, params);
+			return result;
+		} catch (err) {
+			console.error("Error in getCustomerDetails:", err);
+			throw err;
+		}
+	},
+
 	// Get all customers
 	// repository.ts
 	getCustomerDetails: async (payload?: { admin_user_id?: string }) => {
@@ -284,6 +302,42 @@ export const ApplicationRepository = {
 		} catch (err) {
 			console.error("Error in zoneRooms:", err);
 			throw err; // this will trigger Hapi 500
+		}
+	},
+	storeResults: async (payload: any) => {
+		try {
+			// Fallback project ID
+			const fallbackProjectId = "1003";
+			const project_id = payload.projectId || fallbackProjectId;
+			const fallbackProjectRoomId = 9;
+			const project_RoomId = payload.project_RoomId || fallbackProjectRoomId;
+			const [result] = await database.execute(
+				`INSERT INTO tProjectResults (
+					project_id,
+					project_RoomName,
+					project_RoomId,
+					project_Area,
+					project_Volume,
+					project_RoomCfm,
+					project_FreshAir,
+					project_ExhaustAir
+				) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+				[
+					project_id,
+					payload.project_RoomName,
+					project_RoomId,
+					payload.project_Area ?? null,
+					payload.project_Volume ?? null,
+					payload.project_RoomCfm ?? null,
+					payload.project_FreshAir ?? null,
+					payload.project_ExhaustAir ?? null,
+				]
+			);
+
+			return (result as any).insertId;
+		} catch (err) {
+			console.error("Error storing project room results:", err);
+			throw err;
 		}
 	},
 };

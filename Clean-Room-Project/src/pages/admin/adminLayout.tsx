@@ -1,6 +1,6 @@
 // Admin Panel Shell
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiLogOut, FiBriefcase, FiUsers, FiUser, FiShield } from "react-icons/fi";
 import s from "./adminLayoutDesign";
@@ -16,7 +16,7 @@ const ICON_MAP = {
 };
 
 const NAV_ITEMS = [
-  { key: "customers",     label: "Customers",     count: 5 },
+  { key: "customers",     label: "Customers",     count: 50 },
   { key: "users",         label: "Users",         count: 0 },
   { key: "profiles",      label: "Profiles",      count: 0 },
   { key: "screenAccess",  label: "Screen Access", count: 0 },
@@ -24,14 +24,36 @@ const NAV_ITEMS = [
 
 export default function Main() {
   const [activePanel, setActivePanel] = useState("customers");
-  const [customerCount, setCustomerCount] = useState(5);
-  const [userCount, setUserCount] = useState(10);
+  const [customerCount, setCustomerCount] = useState(0);
+  const [userCount, setUserCount] = useState(0);
   const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/");
   };
+
+   useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        // Fetch customers count
+        const customerRes = await fetch("http://localhost:3000/v1/customers");
+        const customerData = await customerRes.json();
+        const customerList = customerData.customers ?? customerData;
+        setCustomerCount(customerList.length);
+
+        // Fetch users count
+        const userRes = await fetch("http://localhost:3000/v1/users");
+        const userData = await userRes.json();
+        const userList = userData.users ?? [];
+        setUserCount(userList.length);
+      } catch (error) {
+        console.error("Count fetch error:", error);
+      }
+    };
+
+    fetchCounts();
+  }, []);
 
   const getBadge = (key: string) => {
     if (key === "customers") return customerCount;
@@ -40,12 +62,14 @@ export default function Main() {
     return item ? item.count : 0;
   };
 
+ 
+
   const renderPanel = () => {
     switch (activePanel) {
       case "customers":
         return <Customers onCountChange={setCustomerCount} />;
       case "users":
-        return <Users  onCountChange={setUserCount}/>
+        return <Users onCountChange={setUserCount} />;
       case "profiles":
       case "screenAccess":
       default:

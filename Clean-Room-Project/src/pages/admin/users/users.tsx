@@ -48,13 +48,13 @@ export default function Users({ onCountChange }: UsersProps) {
     fetchUsers();
   }, [fetchUsers]);
 
-	const handleDelete = (loginId: number) => {
-		if (window.confirm("Are you sure you want to delete this user?")) {
-			const updated = users.filter((u) => u.user_login_id !== loginId);
-			setUsers(updated);
-			onCountChange?.(updated.length);
-		}
-	};
+	// const handleDelete = (loginId: number) => {
+	// 	if (window.confirm("Are you sure you want to delete this user?")) {
+	// 		const updated = users.filter((u) => u.user_login_id !== loginId);
+	// 		setUsers(updated);
+	// 		onCountChange?.(updated.length);
+	// 	}
+	// };
     
      const filtered = users.filter(
         (u) =>
@@ -64,7 +64,6 @@ export default function Users({ onCountChange }: UsersProps) {
 
 
     
-
     const handleDelete = async (loginId: number) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
 

@@ -55,6 +55,7 @@ export const ApplicationRepository = {
         user_first_name,
         user_last_name,
         user_email_id,
+		user_id AS user_id,                            
         user_address,
         user_phone_home,
         user_phone_work,

@@ -34,6 +34,7 @@ const applicationRoutes: ServerRoute[] = [
     handler: async (request: Request, h: ResponseToolkit) => {
       try {
         const users = await ApplicationRepository.getUsers();
+        console.log("Backend users:", users);
         return h.response({ users }).code(200);
       } catch (err) {
         console.error("Failed to fetch users:", err);

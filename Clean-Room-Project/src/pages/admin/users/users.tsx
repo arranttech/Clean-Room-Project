@@ -38,6 +38,7 @@ useEffect(() => {
       console.log("User data:", data);
 
       const list = data.users ?? data ?? [];
+      console.log("Mapped list:", list.map(u => ({ user_id: u.user_id })));
       setUsers(list);
 
       if (onCountChange) onCountChange(list.length);

@@ -40,8 +40,9 @@ export const customerDetails = (adminId?: number) =>
 export const projectInfo = (payload: object) =>
   request("/v1/projectinfo", "POST", payload);
 
-export const airflow = (payload: object) =>
-  request("/v1/airflow", "POST", payload);
-
 export const createProjectZone = (payload: object) =>
   request("/v1/projectzones", "POST", payload);
+
+export const addRooms = (payload: object) =>
+  request("/v1/zonerooms", "POST", payload);
+

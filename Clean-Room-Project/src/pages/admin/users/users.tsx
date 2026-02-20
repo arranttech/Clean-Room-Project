@@ -94,7 +94,6 @@ export default function Users({ onCountChange }: UsersProps) {
             />
             );
   }
-
             return (
             <div>
                 <div className={s.panelHeader}>

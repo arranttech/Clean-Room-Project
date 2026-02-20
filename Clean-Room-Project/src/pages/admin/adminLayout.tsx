@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiLogOut, FiBriefcase, FiUsers, FiUser, FiShield } from "react-icons/fi";
-import s from "./adminDesign";
+import s from "./adminLayoutDesign";
 import ds from "../dashboard/dashboardDesign";
-import Customers from "./customers";
+import Customers from "./customers/customers";
 
 const ICON_MAP = {
   customers:    FiBriefcase,

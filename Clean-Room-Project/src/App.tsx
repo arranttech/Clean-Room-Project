@@ -9,8 +9,8 @@ import Results from "./pages/Results/results";
 import Login from "./pages/login/login";
 import Register from "./pages/register/register";
 import AllProjects from "./pages/dashboard/projects";
-import Main from "./pages/admin/admin";
 import ApiDocs from "./pages/ApiDocs";
+import Main from "./pages/admin/adminLayout";
 
 function App() {
 	return (

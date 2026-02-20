@@ -43,6 +43,12 @@ export const projectInfo = (payload: object) =>
 export const createProjectZone = (payload: object) =>
   request("/v1/projectzones", "POST", payload);
 
+export const updateCustomer = (customerid?: number) =>
+request(`/v1/customers${customerid ? `?customerid=${customerid}` : ""}`, "UPDATE");
+
+export const deleteCustomer = (customerid?: number) =>
+request(`/v1/customers${customerid ? `?customerid=${customerid}` : ""}`, "DELETE");
+
 export const addRooms = (payload: object) =>
   request("/v1/zonerooms", "POST", payload);
 

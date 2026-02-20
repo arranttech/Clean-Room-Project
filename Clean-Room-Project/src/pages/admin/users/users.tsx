@@ -5,24 +5,24 @@ import AddUser from "./addUsers";
 
 
 interface UsersProps {
-    onCountChange?: (count: number) => void;
+	onCountChange?: (count: number) => void;
 }
 
 type User = {
-    user_login_id: number;
-    user_first_name: string;
-    user_last_name: string;
-    user_id: number;
-    user_email_id: string;
-    user_address: string;
-    user_phone_home: string;
-    user_phone_work: string;
-    created_date: string;
-    created_by: string;
-    updated_by: string;
-    update_date: string;
-    user_admin_flag: string;
-    customer_id: number;
+	user_login_id: number;
+	user_first_name: string;
+	user_last_name: string;
+	user_id: number;
+	user_email_id: string;
+	user_address: string;
+	user_phone_home: string;
+	user_phone_work: string;
+	created_date: string;
+	created_by: string;
+	updated_by: string;
+	update_date: string;
+	user_admin_flag: string;
+	customer_id: number;
 };
 
 export default function Users({ onCountChange }: UsersProps) {
@@ -48,11 +48,20 @@ export default function Users({ onCountChange }: UsersProps) {
     fetchUsers();
   }, [fetchUsers]);
 
-    const filtered = users.filter(
+	const handleDelete = (loginId: number) => {
+		if (window.confirm("Are you sure you want to delete this user?")) {
+			const updated = users.filter((u) => u.user_login_id !== loginId);
+			setUsers(updated);
+			onCountChange?.(updated.length);
+		}
+	};
+    
+     const filtered = users.filter(
         (u) =>
             u.user_first_name.toLowerCase().includes(search.toLowerCase()) ||
             u.user_email_id.toLowerCase().includes(search.toLowerCase())
     );
+
 
     
 
@@ -71,10 +80,15 @@ export default function Users({ onCountChange }: UsersProps) {
       console.error("Delete error:", err);
     }
   };
+	const handleEdit = (user: User) => {
+		alert(`Edit: ${user.user_first_name} ${user.user_last_name}`);
+	};
 
-    const handleEdit = (user: User) => {
-        alert(`Edit: ${user.user_first_name} ${user.user_last_name}`);
-    };
+	return (
+		<div>
+			<div className={s.panelHeader}>
+				<h1 className={s.panelTitle}>Users</h1>
+			</div>
 
     if (showAdd) {
     return (

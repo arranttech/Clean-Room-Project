@@ -6,6 +6,7 @@ import { FiLogOut, FiBriefcase, FiUsers, FiUser, FiShield } from "react-icons/fi
 import s from "./adminLayoutDesign";
 import ds from "../dashboard/dashboardDesign";
 import Customers from "./customers/customers";
+import Users from "./users/users";
 
 const ICON_MAP = {
   customers:    FiBriefcase,
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
 export default function Main() {
   const [activePanel, setActivePanel] = useState("customers");
   const [customerCount, setCustomerCount] = useState(5);
+  const [userCount, setUserCount] = useState(0);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -42,6 +44,7 @@ export default function Main() {
       case "customers":
         return <Customers onCountChange={setCustomerCount} />;
       case "users":
+        return <Users  />
       case "profiles":
       case "screenAccess":
       default:

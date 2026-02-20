@@ -40,9 +40,6 @@ export const customerDetails = (adminId?: number) =>
 export const projectInfo = (payload: object) =>
   request("/v1/projectinfo", "POST", payload);
 
-export const airflow = (payload: object) =>
-  request("/v1/airflow", "POST", payload);
-
 export const createProjectZone = (payload: object) =>
   request("/v1/projectzones", "POST", payload);
 
@@ -51,3 +48,7 @@ request(`/v1/customers${customerid ? `?customerid=${customerid}` : ""}`, "UPDATE
 
 export const deleteCustomer = (customerid?: number) =>
 request(`/v1/customers${customerid ? `?customerid=${customerid}` : ""}`, "DELETE");
+
+export const addRooms = (payload: object) =>
+  request("/v1/zonerooms", "POST", payload);
+

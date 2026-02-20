@@ -15,15 +15,16 @@ const applicationRoutes: ServerRoute[] = [
     path: '/v1/customers',
     handler: async (request: Request, h: ResponseToolkit) => {
       try {
-        const adminId = request.query.admin_id ? Number(request?.query?.admin_id) : undefined;
-        const customers = await ApplicationRepository.getCustomerDetails({ admin_id: adminId });
+        // routes.ts -> GET /v1/customers
+        const adminId = request.query.admin_id ? Number(request.query.admin_id) : undefined;
+        const customers = await ApplicationRepository.getCustomerDetails({ admin_user_id: adminId });
         return h.response({ customers }).code(200);
       } catch (err) {
         console.error('Failed to fetch customers:', err);
         return h.response({ error: 'Internal Server Error' }).code(500);
       }
     }
-  },  
+  },
   {
     method: 'POST',
     path: '/v1/customerinfo',
@@ -56,10 +57,11 @@ const applicationRoutes: ServerRoute[] = [
   },
   {
     method: 'POST',
-    path: '/v1/RoomStandards',
+    path: '/v1/roomstandards',
     handler: async (request: Request, h: ResponseToolkit) => {
       try {
         const payload = request.payload as any;
+        console.log('Received payload for room standards:', payload);
         const id = await ApplicationRepository.createRoomStandards(payload);
         return h.response({ roomStandardsId: id }).code(201);
       } catch (err) {
@@ -81,6 +83,22 @@ const applicationRoutes: ServerRoute[] = [
       } catch (err) {
         console.error('Failed to create project zone:', err);
         return h.response({ error: 'Internal Server Error' }).code(500);
+      }
+    }
+  },
+  {
+    method: 'POST',
+    path: '/v1/zonerooms',
+    handler: async (request: Request, h: ResponseToolkit) => {
+      try {
+        const payload = request.payload as any;
+        const id = await ApplicationRepository.createZoneRooms(payload);
+        return h.response({ zoneRoomsId: id }).code(201);
+      } catch (err) {
+        console.error('Failed to save zone rooms info:', err);
+        return h
+          .response({ error: 'Internal Server Error' })
+          .code(500);
       }
     },
   },

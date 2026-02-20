@@ -1,6 +1,25 @@
 import { database } from '../dbConnection/connections';
 
 export const ApplicationRepository = {
+
+  
+ getUserDetails: async (payload?: { admin_id?: number }) => {
+    try {
+      let query = `SELECT * FROM tUsers`;
+      const params: any[] = [];
+  
+      if (payload?.admin_id) {
+        query += ` WHERE admin_id = ?`;
+        params.push(payload.admin_id);
+      }
+  
+      const [result] = await database.execute(query, params);
+      return result;
+    } catch (err) {
+      console.error('Error in getCustomerDetails:', err);
+      throw err;
+    }
+  },
   // Get all customers
   // repository.ts
   getCustomerDetails: async (payload?: { admin_user_id?: number }) => {

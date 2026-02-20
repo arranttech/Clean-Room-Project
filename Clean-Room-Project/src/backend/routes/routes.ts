@@ -12,6 +12,20 @@ const applicationRoutes: ServerRoute[] = [
   },
   {
     method: 'GET',
+    path: '/v1/users',
+    handler: async (request: Request, h: ResponseToolkit) => {
+      try {
+        const adminId = request.query.admin_id ? Number(request?.query?.admin_id) : undefined;
+        const users = await ApplicationRepository.getUserDetails({ admin_id: adminId });
+        return h.response({ users }).code(200);
+      } catch (err) {
+        console.error('Failed to fetch users:', err);
+        return h.response({ error: 'Internal Server Error' }).code(500);
+      }
+    }
+  }, 
+  {
+    method: 'GET',
     path: '/v1/customers',
     handler: async (request: Request, h: ResponseToolkit) => {
       try {

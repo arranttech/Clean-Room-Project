@@ -31,6 +31,7 @@ export default function Users({ onCountChange }: UsersProps) {
     const [search, setSearch] = useState("");
     const [showAdd,    setShowAdd]    = useState(false);
 
+
 useEffect(() => {
   const fetchUserDetails = async () => {
     try {
@@ -58,7 +59,7 @@ useEffect(() => {
     );
 
 
-
+ //Delete functionality
 const handleDelete = async (user: User) => {
   if (!window.confirm(`Are you sure you want to delete ${user.user_first_name} ${user.user_last_name}?`))
     return;
@@ -86,7 +87,7 @@ const handleDelete = async (user: User) => {
   }
 };
 
-
+    //Edit functionality
 	const handleEdit = (user: User) => {
 		alert(`Edit: ${user.user_first_name} ${user.user_last_name}`);
 	};

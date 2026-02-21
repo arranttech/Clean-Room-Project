@@ -33,17 +33,52 @@ const applicationRoutes: ServerRoute[] = [
 		path: "/v1/users",
 		handler: async (request: Request, h: ResponseToolkit) => {
 			try {
-				const customer_id =
-					typeof request.query.customer_id === "number"
-						? request.query.customer_id
-						: 1005;
-
-				const users = await ApplicationRepository.getUsers({
-					customer_id: customer_id,
-				});
+				const users = await ApplicationRepository.getUsers();
+				console.log("Backend users:", users);
 				return h.response({ users }).code(200);
 			} catch (err) {
 				console.error("Failed to fetch users:", err);
+				return h.response({ error: "Internal Server Error" }).code(500);
+			}
+		},
+	},
+	{
+		method: "DELETE",
+		path: "/v1/users/{id}",
+		handler: async (request: Request, h: ResponseToolkit) => {
+			try {
+				const id = Number(request.params.id);
+				if (!id) return h.response({ error: "Invalid user ID" }).code(400);
+
+				console.log("Deleting user ID:", id);
+				const deleted = await ApplicationRepository.deleteUser(id);
+				console.log("Deleted result:", deleted);
+
+				if (!deleted) {
+					return h.response({ error: "User not found" }).code(404);
+				}
+
+				return h.response({ message: "User deleted successfully" }).code(200);
+			} catch (err) {
+				console.error("Failed to delete user:", err);
+				return h.response({ error: "Internal Server Error" }).code(500);
+			}
+		},
+	},
+
+	{
+		method: "POST",
+		path: "/v1/users",
+		handler: async (request: Request, h: ResponseToolkit) => {
+			try {
+				const payload = request.payload as any; // Full user data from frontend
+
+				const userLoginId = await ApplicationRepository.createUser(payload);
+				console.log("Payload:", payload);
+
+				return h.response({ message: "User created successfully", userId: userLoginId }).code(201);
+			} catch (err) {
+				console.error("Failed to save user:", err);
 				return h.response({ error: "Internal Server Error" }).code(500);
 			}
 		},

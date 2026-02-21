@@ -88,9 +88,13 @@ export const ApplicationRepository = {
 			throw err;
 		}
 	},
+
+
 	getUserDetails: async (payload?: { admin_id?: string }) => {
 		try {
 			let query = `SELECT * FROM tUsers`;
+
+
 			const params: any[] = [];
 
 			if (payload?.admin_id) {

@@ -25,8 +25,9 @@ table: "min-w-max w-full",
     tdActions: "px-5 py-4 text-right",
   
     // --- Action Buttons Styling ---
-    editBtn: "text-slate-400 hover:text-blue-600 transition-colors p-1.5 rounded-lg hover:bg-blue-500",
-    deleteBtn: "text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-50",
+   
+    editBtn: "text-slate-400 hover:text-blue-600 transition-colors p-1.5 rounded-lg hover:bg-blue-300",
+    deleteBtn: "text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-300",
   
     // --- Empty State ---
     emptyRow: "px-5 py-16 text-center text-sm text-slate-400",

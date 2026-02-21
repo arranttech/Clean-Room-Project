@@ -39,6 +39,7 @@ export const createUsers = (payload: object) =>
 export const deleteUser = (user_login_id: number) =>
   request(`/v1/users/${user_login_id}`, "DELETE");
 
+
 export const getAllDetailsforCalculations = (room_id: number) =>
 	request(`/v1/alldetails?room_id=${room_id}`, "GET");
 

@@ -1,24 +1,93 @@
 import { database } from "../dbConnection/connections";
 
 export const ApplicationRepository = {
-	getUsers: async (payload?: { customer_id?: number }) => {
+	createUser: async (payload: any) => {
 		try {
-			let query = `SELECT * FROM tUsers`;
-			const params: any[] = [];
+			const [result] = await database.execute(
+				`INSERT INTO tUsers (
+       
+        user_first_name,
+        user_last_name,
+        user_id,
+        user_email_id,
+        user_address,
+        user_phone_home,
+        user_phone_work,
+        
+        created_by,
+        updated_by,
+        
+        user_admin_flag,
+        customer_id
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+				[
+					//payload.user_login_id || null,
+					payload.user_first_name,
+					payload.user_last_name,
+					payload.user_id || null,
+					payload.user_email_id,
+					payload.user_address || null,
+					payload.user_phone_home || null,
+					payload.user_phone_work || null,
+					//	payload.created_date || new Date().toISOString().split("T")[0],
+					payload.created_by || "admin",
+					payload.updated_by || "admin",
+					//	payload.update_date || new Date().toISOString().split("T")[0],
+					payload.user_admin_flag || "No",
+					payload.customer_id || null,
+				]
+			);
 
-			if (payload?.customer_id) {
-				query += ` WHERE customer_id = ?`;
-				params.push(payload.customer_id);
-			}
-
-			const [result] = await database.execute(query, params);
-			return result;
+			return (result as any).insertId;
 		} catch (err) {
-			console.error("Error in getCustomerDetails:", err);
+			console.error("Error in createUser:", err);
 			throw err;
 		}
 	},
 
+	getUsers: async () => {
+		try {
+			const [rows] = await database.execute(`
+      SELECT 
+        user_login_id,
+        user_first_name,
+        user_last_name,
+        user_email_id,
+		user_id AS user_id,                            
+        user_address,
+        user_phone_home,
+        user_phone_work,
+        created_date,
+        created_by,
+        updated_date,
+        updated_by,
+        user_admin_flag,
+        customer_id
+      FROM tUsers
+    `);
+
+			return rows;
+		} catch (err) {
+			console.error("Error in getUsers:", err);
+			throw err;
+		}
+	},
+
+
+	deleteUser: async (user_login_id: number) => {
+		try {
+			const [result]: any = await database.execute(
+				`DELETE FROM tUsers WHERE user_login_id = ?`,
+				[user_login_id]
+			);
+
+			// result.affectedRows tells if a row was deleted
+			return result.affectedRows > 0;
+		} catch (err) {
+			console.error("Error deleting user:", err);
+			throw err;
+		}
+	},
 	getUserDetails: async (payload?: { admin_id?: string }) => {
 		try {
 			let query = `SELECT * FROM tUsers`;

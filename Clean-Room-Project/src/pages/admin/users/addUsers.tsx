@@ -1,7 +1,10 @@
+
 import { useState } from "react";
 import { FiX } from "react-icons/fi";
 import { FaFloppyDisk, FaCircleCheck } from "react-icons/fa6";
 import s from "./usersDesign";
+import { createUsers } from "../../../backend/controller/controller";
+
 
 
 type AddUserProps = {
@@ -13,30 +16,31 @@ type FormErrors = {
     user_first_name: string;
     user_last_name: string;
     user_email_id: string;
+    user_id: string;
     user_phone_home: string;
     user_phone_work: string;
-    Created_date: string;
+    //Created_date: string;
     created_by: string;
     updated_by: string;
-    update_date: string;
+    //updated_date: string;
     user_admin_flag: string;
     customer_id: string;
 };
 
 export default function AddUser({ onCancel, onSaved }: AddUserProps) {
     const [form, setForm] = useState({
-        user_login_id: 0,
+        
         user_first_name: "",
         user_last_name: "",
-        user_id: 0,
+        user_id: "",
         user_email_id: "",
         user_address: "",
         user_phone_home: "",
         user_phone_work: "",
-        created_date: "",
+       // created_date: "",
         created_by: "admin",
         updated_by: "admin",
-        update_date: "",
+       // updated_date: "",
         user_admin_flag: "No",
         customer_id: 0,
     });
@@ -45,12 +49,13 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
         user_first_name: "",
         user_last_name: "",
         user_email_id: "",
+        user_id:"",
         user_phone_home: "",
         user_phone_work: "",
-        Created_date: "",
+       // Created_date: "",
         created_by: "",
         updated_by: "",
-        update_date: "",
+       // updated_date: "",
         user_admin_flag: "",
         customer_id: "",
     });
@@ -73,6 +78,11 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
             ? ""
             : "Enter valid email address";
 
+    const validateUserId = (v: string) =>
+        /^[A-Za-z0-9_]{3,10}$/.test(v)
+            ? ""
+            : "Enter User ID (3–10 chars, letters/numbers/_)";
+
     const validatePhone = (v: string) =>
         !v || /^\+?[0-9\s\-()]{7,20}$/.test(v)
             ? ""
@@ -86,6 +96,7 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
         const firstNameErr = validatefirstName(form.user_first_name);
         const lastNameErr = validatelastName(form.user_last_name);
         const emailErr = validateEmail(form.user_email_id);
+        const userIdErr = validateUserId(form.user_id);
         const homePhoneErr = validatePhone(form.user_phone_home);
         const workPhoneErr = validatePhone(form.user_phone_work);
 
@@ -95,6 +106,7 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
                 user_first_name: firstNameErr,
                 user_last_name: lastNameErr,
                 user_email_id: emailErr,
+                user_id: userIdErr,
                 user_phone_home: homePhoneErr,
                 user_phone_work: workPhoneErr,
             }));
@@ -104,18 +116,14 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
         setSaving(true);
 
         try {
-            const now = new Date().toISOString().split("T")[0];
-
+           
             const payload = {
                 ...form,
-
-                created_date: now,
-                update_date: now,
+                
             };
 
-            console.log("Saving user:", payload);
-
-            // await createUser(payload);
+            const response = await createUsers(payload);
+             console.log("Backend response:", response);
 
             setShowPopup(true);
             setTimeout(() => {
@@ -134,17 +142,7 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
             <h1 className={s.formTitle}>Add New User</h1>
             <div className={s.formCard}>
 
-                {/* Login ID */}
-                <div className={s.formGroup}>
-                    <label className={s.formLabel}>Login ID *</label>
-                    <input
-                        type="number"
-                        className={s.formInput}
-                        onChange={(e) => handleChange("user_login_id", Number(e.target.value))}
-                    />
-                </div>
-
-                {/* First Name */}
+                    {/* First Name */}
                 <div className={s.formGroup}>
                     <label className={s.formLabel}>First Name *</label>
                     <input
@@ -190,6 +188,23 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
                             setErrors((p) => ({
                                 ...p,
                                 user_email_id: validateEmail(e.target.value),
+                            }));
+                        }}
+                    />
+                    {errors.user_email_id && <p className={s.formError}>{errors.user_email_id}</p>}
+                </div>
+
+                 <div className={s.formGroup}>
+                    <label className={s.formLabel}>User Id *</label>
+                    <input
+                        type="text"
+                        className={s.formInput}
+                        value={form.user_id}
+                        onChange={(e) => {
+                            handleChange("user_id", e.target.value);
+                            setErrors((p) => ({
+                                ...p,
+                                user_id: validateUserId(e.target.value),
                             }));
                         }}
                     />

@@ -1,8 +1,6 @@
 import { database } from "../dbConnection/connections";
 
 export const ApplicationRepository = {
-
-
 	createUser: async (payload: any) => {
 		try {
 			const [result] = await database.execute(

@@ -1,3 +1,5 @@
+
+
 import { useState, useEffect } from "react";
 import { FiSearch, FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
 import s from "./usersDesign";
@@ -205,3 +207,4 @@ const handleDelete = async (user: User) => {
         </div>
     );
 }
+

@@ -290,12 +290,7 @@ export default function Results() {
         humidValue = first.zoneReqInsideTempC || "Invalid";
       }
 
-      // HEAT RESULTANT CFM
-      if (typeof dehumidValue === "number") {
-        resultant = Math.ceil(Math.max(baseAirflow, dehumidValue) / 25) * 25;
-      } else {
-        resultant = baseResultant;
-      }
+      // HEAT RESULTANT CFM//
       if (typeof humidValue === "number") {
         resultantCfm = Math.ceil(Math.max(roomCfm + freshAir, humidValue) / 25) * 25;
       } else {

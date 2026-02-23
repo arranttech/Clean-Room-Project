@@ -320,8 +320,10 @@ export const ApplicationRepository = {
 					project_Volume,
 					project_RoomCfm,
 					project_FreshAir,
-					project_ExhaustAir
-				) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+					project_ExhaustAir,
+					project_DehumidCfm,
+					project_Rem_Water_Vapour
+				) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 				[
 					project_id,
 					payload.project_RoomName,
@@ -331,6 +333,9 @@ export const ApplicationRepository = {
 					payload.project_RoomCfm ?? null,
 					payload.project_FreshAir ?? null,
 					payload.project_ExhaustAir ?? null,
+					payload.project_DehumidCfm ?? null,
+					payload.project_Rem_Water_Vapour ?? null,
+
 				]
 			);
 

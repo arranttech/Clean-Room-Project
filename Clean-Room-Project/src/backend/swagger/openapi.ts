@@ -215,17 +215,37 @@ export const openApiSpec = {
 								type: "object",
 								properties: {
 									roomName: { type: "string", example: "Mixing Room" },
-									length: { type: "number", example: 6.5 },
-									width: { type: "number", example: 4.2 },
-									height: { type: "number", example: 3.1 },
-									acph: { type: "number", example: 20 },
-									freshAirPercent: { type: "number", example: 30 },
-									exhaustAir: { type: "number", example: 10 },
-									zoneSystem: { type: "string", example: "Ventilation System" },
-									zoneSystemType: {
-										type: "string",
-										example: "Ventilation System",
+									length: { type: "number", example: 4 },
+									width: { type: "number", example: 4 },
+									height: { type: "number", example: 2.4 },
+									acph: { type: "number", example: 60 },
+									freshAirPercent: { type: "number", example: 15 },
+									exhaustAir: { type: "number", example: 5 },
+									occupancy: { type: "number", example: 3 },
+									equipmentLoad: { type: "number", example: 2 },
+									lightingLoad: { type: "number", example: 1.75 },
+									infiltrationsPerHour: { type: "number", example: 3 },
+									minTempC: { type: "number", example: -16.6 },
+									maxTempC: { type: "number", example: 43.1 },
+									rhMin: { type: "number", example: 8 },
+									rhMax: { type: "number", example: 100 },
+									zoneReqInsideTempC: {
+										oneOf: [
+											{ type: "number", example: 32 },
+											{ type: "string", example: "32" }
+										]
 									},
+									zoneReqInsideHum: {
+										oneOf: [
+											{ type: "number", example: 55 },
+											{ type: "string", example: "55" }
+										]
+									},
+									zoneSystem: { type: "string", example: "Air Cooling System" },
+									zoneSystemType: { type: "string", example: "Cleanroom Air-Heating System" },
+									zoneClassification: { type: "string", example: "ISO 8" },
+									zoneCoolingMethod: { type: "string", example: "DX" },
+									zoneHeatingMethod: { type: "string", example: "Steam" },
 								},
 								required: [
 									"roomName",
@@ -235,6 +255,20 @@ export const openApiSpec = {
 									"acph",
 									"freshAirPercent",
 									"exhaustAir",
+									"occupancy",
+									"equipmentLoad",
+									"lightingLoad",
+									"infiltrationsPerHour",
+									"minTempC",
+									"maxTempC",
+									"rhMin",
+									"rhMax",
+									"zoneReqInsideTempC",
+									"zoneReqInsideHum",
+									"zoneSystem",
+									"zoneClassification",
+									"zoneCoolingMethod",
+									"zoneHeatingMethod"
 								],
 							},
 						},
@@ -249,11 +283,95 @@ export const openApiSpec = {
 									type: "object",
 									properties: {
 										roomName: { type: "string" },
-										areaFt2: { type: "number" },
-										volumeFt3: { type: "number" },
+										area: { type: "number" },
+										volume: { type: "number" },
 										roomCfm: { type: "number" },
 										freshAir: { type: "number" },
 										exhaustAir: { type: "number" },
+										dehumidValue: {
+											oneOf: [
+												{ type: "number" },
+												{ type: "string", example: "Invalid" }
+											]
+										},
+										removedWater: {
+											oneOf: [
+												{ type: "number" },
+												{ type: "string", example: "Invalid" }
+											]
+										},
+										resultantCfm: {
+											oneOf: [
+												{ type: "number" },
+												{ type: "string", example: "Invalid" }
+											]
+										},
+										roomACValue: {
+											oneOf: [
+												{ type: "number" },
+												{ type: "string", example: "Invalid" }
+											]
+										},
+										roomTermSupplyValue: {
+											oneOf: [
+												{ type: "number" },
+												{ type: "string", example: "Invalid" }
+											]
+										},
+										cfmACLoadTR: {
+											oneOf: [
+												{ type: "number" },
+												{ type: "string", example: "Invalid" }
+											]
+										},
+										resultCoolLoadTR: {
+											oneOf: [
+												{ type: "number" },
+												{ type: "string", example: "Invalid" }
+											]
+										},
+
+										addWaterValue: {
+											oneOf: [
+												{ type: "number" },
+												{ type: "string", example: "Invalid" }
+											]
+										},
+										humidValue: {
+											oneOf: [
+												{ type: "number" },
+												{ type: "string", example: "Invalid" }
+											]
+										},
+										resultantheatCfm: {
+											oneOf: [
+												{ type: "number" },
+												{ type: "string", example: "Invalid" }
+											]
+										},
+										roomTermSupplyHeatValue: {
+											oneOf: [
+												{ type: "number" },
+												{ type: "string", example: "Invalid" }
+											]
+										},
+										cfmHeatLoadTRValue: {
+											oneOf: [
+												{ type: "number" },
+												{ type: "string", example: "Invalid" }
+											]
+										},
+										roomHeatLoadTR: {
+											oneOf: [
+												{ type: "number" },
+												{ type: "string", example: "Invalid" }
+											]
+										},
+										resultHeatLoadTR: {
+											oneOf: [
+												{ type: "number" },
+												{ type: "string", example: "Invalid" }]
+										}
 									},
 								},
 							},

@@ -162,8 +162,111 @@ export default function Standard() {
     humidity: "",
     temperature: "",
   });
+  
+  //Pulling standards data from API
+  const [apiStandards, setApiStandards] = useState<StandardItem[] | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+  
+  
+  
 
-  const selectedStandard = standardsData.find((x) => x.title === standard);
+
+  useEffect(() => {
+   
+    const fetchStandard = async () => {
+      try {
+        setIsLoading(true);
+        const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+        const url = API_BASE ? `${API_BASE}/api/standards` : `/api/standards`;
+        console.log('[STANDARDS] Fetching from', url);
+
+        const res = await fetch(url);
+        console.log('[STANDARDS] Response status:', res.status);
+
+        // If backend returns HTML (vite dev page or an error), detect it first
+
+        if (!res.ok) {
+          // try to read text to show a helpful message
+          const text = await res.text();
+          throw new Error(`API Error ${res.status}: ${text.slice(0, 300)}`);
+        }
+     
+
+        const response = await res.json();
+        const groupedData = response.data || response;
+        console.log('[STANDARDS] grouped response:', groupedData);
+
+        console.log("Raw API response:", groupedData);
+        console.log("Is array?", Array.isArray(groupedData));
+        console.log("Length:", groupedData?.length);
+
+        if (!Array.isArray(groupedData)) {
+          throw new Error("API did not return an array");
+        }
+
+
+
+        const transformed: StandardItem[] = groupedData.map((std: any, index: number) => ({
+          id: index + 1,
+          title: std.standard_name,
+          classifications: (std.classifications || []).map((c: any) => ({
+            name: c.classification_name,
+            minAir: c.acph_min == null ? null : Number(c.acph_min),
+            maxAir: c.acph_max == null ? null : Number(c.acph_max),
+          })),
+        }));
+        setApiStandards(transformed);
+        setApiError(null);
+
+        console.log("TRANSFORMED LENGTH:", transformed.length);
+
+      } catch (err: any) {
+        setApiError(err?.message || "Failed to fetch standards");
+        setApiStandards(null);
+      } finally {
+        setIsLoading(false);
+      }
+
+    };
+    fetchStandard();
+  }, []);
+
+
+
+  const effectiveStandards = apiStandards ?? [];
+
+ 
+  useEffect(() => {
+    if (!isLoading && effectiveStandards.length > 0) {
+      const exists = effectiveStandards.some(
+        (s) => s.title === standard
+      );
+
+      if (!exists && standard !== "") {
+        dispatch(updateStandardsField({ field: "standard", value: "" }));
+        dispatch(updateStandardsField({ field: "classification", value: "" }));
+        dispatch(updateStandardsField({ field: "acph", value: "" }));
+      }
+    }
+  }, [effectiveStandards, isLoading]);
+
+  const selectedStandard = effectiveStandards.find((x) => x.title === standard);
+  useEffect(() => {
+    console.log("API DATA LENGTH:", apiStandards?.length);
+
+    console.log(
+      "[STANDARDS SOURCE]",
+      apiStandards && apiStandards.length > 0
+        ? "Using API Data"
+        : "No API Data"
+    );
+  }, [apiStandards]);
+
+
+  console.log('[DEBUG standards]', { apiStandards, isLoading, apiError, effectiveStandardsLength: effectiveStandards?.length });
+
+ // const selectedStandard = standardsData.find((x) => x.title === standard);
 
   const SPECIAL_STANDARDS = ["NC-Non Classified", "ISO 14698", "SCHEDULE M"];
 
@@ -785,7 +888,41 @@ export default function Standard() {
                     {t.labels.standard} <span className={s.required}>*</span>
                     <Tooltip id="standard" content={constants.Tooltip.standardTooltip} />
                   </label>
+
+                   {/* <p>Dropdown enabled? {apiStandards && apiStandards.length > 0 ? "YES" : "NO"}</p> */}
+
                   <select
+                    className={s.select}
+                    
+                    value={
+                      effectiveStandards.some((s) => s.title === standard)
+                        ? standard
+                        : ""
+                    }
+                    onChange={(e) => {
+                      dispatch(updateStandardsField({ field: "standard", value: e.target.value }));
+                      dispatch(updateStandardsField({ field: "classification", value: "" }));
+                      dispatch(updateStandardsField({ field: "acph", value: "" }));
+                    }}
+
+                    disabled={effectiveStandards.length === 0}
+                    required={true}
+                  >
+                    <option value="">
+                      {isLoading
+                        ? "Loading standards..."
+                        : effectiveStandards.length === 0
+                          ? "No standards available"
+                          : t.placeholders.standard}
+                    </option>
+
+                    {effectiveStandards.map((item) => (
+                      <option key={item.id} value={item.title}>
+                        {item.title}
+                      </option>
+                    ))}
+                  </select>
+                  {/* <select
                     className={s.select}
                     value={standard} // Redux read
                     onChange={(e) => {
@@ -813,7 +950,7 @@ export default function Standard() {
                         {item.title}
                       </option>
                     ))}
-                  </select>
+                  </select> */}
                 </div>
 
                 <div className={s.field}>

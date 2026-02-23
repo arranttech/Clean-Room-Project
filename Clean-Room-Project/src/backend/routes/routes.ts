@@ -1,6 +1,8 @@
 import { ServerRoute, Request, ResponseToolkit } from "@hapi/hapi";
 import { ApplicationRepository } from "../repositories/repository";
 import { airflowService, RoomPayload } from "../services/service";
+import { database } from "../dbConnection/connections";
+
 
 const applicationRoutes: ServerRoute[] = [
 	{
@@ -223,6 +225,62 @@ const applicationRoutes: ServerRoute[] = [
 			}
 		},
 	},
+
+	  {
+  method: 'GET',
+  path: '/api/standards',
+  handler: async (request: Request, h: ResponseToolkit) => {
+    try {
+      console.log('[API /api/standards] Fetching standards from database...');
+
+      const [rows]: any = await database.query(
+        'SELECT standard_name, classification_name, acph_min, acph_max FROM tCR_metadata'
+      );
+
+      console.log('[API /api/standards] Found', rows.length, 'rows');
+
+      // Group by standard_name
+      const grouped = rows.reduce((acc: any, row: any) => {
+        const { standard_name, classification_name, acph_min, acph_max } = row;
+
+        if (!acc[standard_name]) {
+          acc[standard_name] = {
+            standard_name,
+            classifications: []
+          };
+        }
+
+        acc[standard_name].classifications.push({
+          classification_name,
+          acph_min,
+          acph_max
+        });
+
+        return acc;
+      }, {});
+
+       
+
+
+      // Convert object to array
+      const result = Object.values(grouped);
+
+      console.log(
+        '[API /api/standards] Grouped Result:\n',
+        JSON.stringify(result, null, 2)
+      );
+
+      return h.response(result).code(200);
+
+    } catch (err: any) {
+      console.error('[API /api/standards] Error:', err.message);
+      return h.response({
+        error: 'Failed to fetch standards',
+        details: err.message
+      }).code(500);
+    }
+  }
+},
 ];
 
 export default applicationRoutes;

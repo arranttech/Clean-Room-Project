@@ -60,7 +60,6 @@ useEffect(() => {
             u.user_email_id.toLowerCase().includes(search.toLowerCase())
     );
 
-
  //Delete functionality
 const handleDelete = async (user: User) => {
   if (!window.confirm(`Are you sure you want to delete ${user.user_first_name} ${user.user_last_name}?`))

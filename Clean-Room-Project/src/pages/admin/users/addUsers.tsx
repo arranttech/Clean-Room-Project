@@ -29,7 +29,7 @@ type FormErrors = {
 
 export default function AddUser({ onCancel, onSaved }: AddUserProps) {
     const [form, setForm] = useState({
-        
+
         user_first_name: "",
         user_last_name: "",
         user_id: "",
@@ -37,10 +37,10 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
         user_address: "",
         user_phone_home: "",
         user_phone_work: "",
-       // created_date: "",
+        // created_date: "",
         created_by: "admin",
         updated_by: "admin",
-       // updated_date: "",
+        // updated_date: "",
         user_admin_flag: "No",
         customer_id: 0,
     });
@@ -49,13 +49,13 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
         user_first_name: "",
         user_last_name: "",
         user_email_id: "",
-        user_id:"",
+        user_id: "",
         user_phone_home: "",
         user_phone_work: "",
-       // Created_date: "",
+        // Created_date: "",
         created_by: "",
         updated_by: "",
-       // updated_date: "",
+        // updated_date: "",
         user_admin_flag: "",
         customer_id: "",
     });
@@ -68,7 +68,7 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
         /^[A-Za-z\s]{3,30}$/.test(v)
             ? ""
             : "Enter First Name (3–30 letters only)";
-            const validatelastName = (v: string) =>
+    const validatelastName = (v: string) =>
         /^[A-Za-z\s]{3,30}$/.test(v)
             ? ""
             : "Enter Last Name (3–30 letters only)";
@@ -116,14 +116,14 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
         setSaving(true);
 
         try {
-           
+
             const payload = {
                 ...form,
-                
+
             };
 
             const response = await createUsers(payload);
-             console.log("Backend response:", response);
+            console.log("Backend response:", response);
 
             setShowPopup(true);
             setTimeout(() => {
@@ -142,39 +142,42 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
             <h1 className={s.formTitle}>Add New User</h1>
             <div className={s.formCard}>
 
+                <div className={s.formRow}>
                     {/* First Name */}
-                <div className={s.formGroup}>
-                    <label className={s.formLabel}>First Name *</label>
-                    <input
-                        className={s.formInput}
-                        value={form.user_first_name}
-                        onChange={(e) => {
-                            handleChange("user_first_name", e.target.value);
-                            setErrors((p) => ({
-                                ...p,
-                                user_first_name: validatefirstName(e.target.value),
-                            }));
-                        }}
-                    />
-                    {errors.user_first_name && <p className={s.formError}>{errors.user_first_name}</p>}
-                </div>
+                    <div className={s.formGroup}>
+                        <label className={s.formLabel}>First Name *</label>
+                        <input
+                            className={s.formInput}
+                            value={form.user_first_name}
+                            onChange={(e) => {
+                                handleChange("user_first_name", e.target.value);
+                                setErrors((p) => ({
+                                    ...p,
+                                    user_first_name: validatefirstName(e.target.value),
+                                }));
+                            }}
+                        />
+                        {errors.user_first_name && <p className={s.formError}>{errors.user_first_name}</p>}
+                    </div>
 
-                {/* Last Name */}
-                <div className={s.formGroup}>
-                    <label className={s.formLabel}>Last Name *</label>
-                    <input
-                        className={s.formInput}
-                        value={form.user_last_name}
-                        onChange={(e) => {
-                            handleChange("user_last_name", e.target.value);
-                            setErrors((p) => ({
-                                ...p,
-                                user_last_name: validatelastName(e.target.value),
-                            }));
-                        }}
-                    />
-                    {errors.user_last_name && <p className={s.formError}>{errors.user_last_name}</p>}
+                    {/* Last Name */}
+                    <div className={s.formGroup}>
+                        <label className={s.formLabel}>Last Name *</label>
+                        <input
+                            className={s.formInput}
+                            value={form.user_last_name}
+                            onChange={(e) => {
+                                handleChange("user_last_name", e.target.value);
+                                setErrors((p) => ({
+                                    ...p,
+                                    user_last_name: validatelastName(e.target.value),
+                                }));
+                            }}
+                        />
+                        {errors.user_last_name && <p className={s.formError}>{errors.user_last_name}</p>}
+                    </div>
                 </div>
+                <div className={s.formRow}>
 
                 {/* Email */}
                 <div className={s.formGroup}>
@@ -194,7 +197,7 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
                     {errors.user_email_id && <p className={s.formError}>{errors.user_email_id}</p>}
                 </div>
 
-                 <div className={s.formGroup}>
+                <div className={s.formGroup}>
                     <label className={s.formLabel}>User Id *</label>
                     <input
                         type="text"
@@ -210,6 +213,7 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
                     />
                     {errors.user_email_id && <p className={s.formError}>{errors.user_email_id}</p>}
                 </div>
+                </div>
 
                 {/* Address */}
                 <div className={s.formGroup}>
@@ -217,6 +221,8 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
                     <textarea
                         className={s.formTextarea}
                         value={form.user_address}
+                        cols={1}
+                        rows={3}
                         onChange={(e) => handleChange("user_address", e.target.value)}
                     />
                 </div>
@@ -227,11 +233,12 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
                         <label className={s.formLabel}>Home Phone</label>
                         <input
                             className={s.formInput}
-                            onChange={(e) => {handleChange("user_phone_home", e.target.value)
+                            onChange={(e) => {
+                                handleChange("user_phone_home", e.target.value)
                                 setErrors((p) => ({
-                                ...p,
-                                user_phone_home: validatePhone(e.target.value),
-                            }));
+                                    ...p,
+                                    user_phone_home: validatePhone(e.target.value),
+                                }));
                             }}
                         />
                         {errors.user_phone_home && <p className={s.formError}>{errors.user_phone_home}</p>}
@@ -240,17 +247,19 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
                         <label className={s.formLabel}>Work Phone</label>
                         <input
                             className={s.formInput}
-                            onChange={(e) => {handleChange("user_phone_work", e.target.value)
+                            onChange={(e) => {
+                                handleChange("user_phone_work", e.target.value)
                                 setErrors((p) => ({
-                                ...p,
-                                user_phone_work: validatePhone(e.target.value),
-                            }));
+                                    ...p,
+                                    user_phone_work: validatePhone(e.target.value),
+                                }));
                             }}
                         />
                         {errors.user_phone_work && <p className={s.formError}>{errors.user_phone_work}</p>}
                     </div>
                 </div>
 
+<div className={s.formRow}>
                 {/* Admin Flag */}
                 <div className={s.formGroup}>
                     <label className={s.formLabel}>Admin User</label>
@@ -271,6 +280,7 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
                         className={s.formInput}
                         onChange={(e) => handleChange("customer_id", Number(e.target.value))}
                     />
+                </div>
                 </div>
 
                 {/* Buttons */}

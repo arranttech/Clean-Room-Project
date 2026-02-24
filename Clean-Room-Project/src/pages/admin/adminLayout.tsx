@@ -7,19 +7,20 @@ import s from "./adminLayoutDesign";
 import ds from "../dashboard/dashboardDesign";
 import Customers from "./customers/customers";
 import Users from "./users/users";
+import ScreenAccess from "./screenAccess/screenAccess";
 
 const ICON_MAP = {
-  customers:    FiBriefcase,
-  users:        FiUsers,
-  profiles:     FiUser,
+  customers: FiBriefcase,
+  users: FiUsers,
+  profiles: FiUser,
   screenAccess: FiShield,
 };
 
 const NAV_ITEMS = [
-  { key: "customers",     label: "Customers",     count: 50 },
-  { key: "users",         label: "Users",         count: 0 },
-  { key: "profiles",      label: "Profiles",      count: 0 },
-  { key: "screenAccess",  label: "Screen Access", count: 0 },
+  { key: "customers", label: "Customers", count: 50 },
+  { key: "users", label: "Users", count: 0 },
+  { key: "profiles", label: "Profiles", count: 0 },
+  { key: "screenAccess", label: "Screen Access", count: 0 },
 ];
 
 export default function Main() {
@@ -33,7 +34,7 @@ export default function Main() {
     navigate("/");
   };
 
-   useEffect(() => {
+  useEffect(() => {
     const fetchCounts = async () => {
       try {
         // Fetch customers count
@@ -57,12 +58,12 @@ export default function Main() {
 
   const getBadge = (key: string) => {
     if (key === "customers") return customerCount;
-     if (key === "users") return userCount;
+    if (key === "users") return userCount;
     const item = NAV_ITEMS.find((n) => n.key === key);
     return item ? item.count : 0;
   };
 
- 
+
 
   const renderPanel = () => {
     switch (activePanel) {
@@ -71,7 +72,9 @@ export default function Main() {
       case "users":
         return <Users onCountChange={setUserCount} />;
       case "profiles":
+        return null;
       case "screenAccess":
+        return <ScreenAccess />;
       default:
         return null;
     }

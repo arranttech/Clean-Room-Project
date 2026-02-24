@@ -1,10 +1,59 @@
 import { database } from "../dbConnection/connections";
+import bcrypt from "bcrypt";
 
 export const ApplicationRepository = {
-	createUser: async (payload: any) => {
-		try {
-			const [result] = await database.execute(
-				`INSERT INTO tUsers (
+    loginUser: async (identifier: string, password: string) => {
+        try {
+            // Call stored procedure
+            const [resultSets]: any = await database.execute(
+                "CALL new_cleanroom_db.UserLoginDetail(?)",
+                [identifier]
+            );
+
+            // Stored procedures return results in resultSets[0]
+            const rows = resultSets[0];
+
+            if (!rows || rows.length === 0){
+                return { success: false, message: "Account does not exist" };
+			}
+
+            const user = rows[0];
+
+            if (!user.user_password) {
+                return { success: false, message: "Password not found" };
+            }
+
+            // ⚠️ IMPORTANT: use bcrypt only if password is hashed
+            let valid = false;
+
+            if (user.user_password.startsWith("$2")) {
+                // hashed password
+                valid = await bcrypt.compare(password, user.user_password);
+            } else {
+                // plain text password
+                valid = password === user.user_password;
+            }
+
+            if (!valid){
+                return { success: false, message: "Invalid credentials" };
+			}
+
+            return {
+                success: true,
+                user: {
+                    user_id: user.user_id,
+                }
+            };
+        } catch (err) {
+            console.error("Error in loginUser:", err);
+            throw err;
+        }
+    },
+
+    createUser: async (payload: any) => {
+        try {
+            const [result] = await database.execute(
+                `INSERT INTO tUsers (
        
         user_first_name,
         user_last_name,

@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
-import loginDesign from "./loginCSS";
-import { scheduleAutoLogout, clearAutoLogout } from "../../utils/auth";
+import loginDesign from "./loginCSS";import { scheduleAutoLogout, clearAutoLogout } from "../../utils/auth";
+import { loginUser } from "../../backend/controller/controller";
 
 // Backend URL - use Vite proxy by default
 const API_URL = import.meta.env.VITE_API_URL || "";
 function login() {
   const styles = loginDesign;
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -19,12 +19,12 @@ function login() {
     const token = params.get("token");
     if (!token) return;
 
-    localStorage.setItem("token", token);
-    scheduleAutoLogout(token, () => {
-      clearAutoLogout();
-      localStorage.removeItem("token");
-      navigate("/login");
-    });
+    //localStorage.setItem("token", token);
+    //scheduleAutoLogout(token, () => {
+    //  clearAutoLogout();
+    //  localStorage.removeItem("token");
+    //  navigate("/login");
+    //});
 
     params.delete("token");
     const cleanedQuery = params.toString();
@@ -35,34 +35,28 @@ function login() {
 
     navigate("/dashboard", { replace: true });
   }, [navigate]);
-
+//login handler
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        throw new Error("Login failed");
-      }
-
-      const data = await response.json();
-      localStorage.setItem("token", data.token);
+        const response = await loginUser({ identifier, password });
+        console.log('Login response:', response);
+      if (!response.success) {
+      setError(response.message || "Login failed");
+      return;
+    }
+    
+//      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(response.user));
       // Schedule auto logout when token expires
-      scheduleAutoLogout(data.token, () => {
-        clearAutoLogout();
-        localStorage.removeItem("token");
-        navigate("/login");
-      });
+      //scheduleAutoLogout(data.token, () => {
+        //clearAutoLogout();
+        //localStorage.removeItem("token");
+        //navigate("/login");
+      //});
       navigate("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
@@ -95,16 +89,16 @@ function login() {
               Sign in to your STERI Clean Air account{" "}
             </p>
 
-            <label className={styles.label}>Email Address</label>
+            <label className={styles.label}>Email Address/UserID</label>
 
             <div className={styles.inputWrapper}>
               <FaEnvelope className={styles.mailIcon} />
               <input
-                type="email"
-                placeholder="Enter Email Address"
+                type="text"
+                placeholder="Enter Email Address or UserID"
                 className={styles.input}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
               />
             </div>
 

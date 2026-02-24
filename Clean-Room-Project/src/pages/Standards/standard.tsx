@@ -1,14 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAppSelector, useAppDispatch } from "../../redux/hooks"; // Redux hooks
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAppSelector, useAppDispatch } from "../../redux/hooks";
 import {
   updateStandardsField,
   updateMultipleStandardsFields,
-} from "../../redux/slices/standardSlice"; // Redux actions
+} from "../../redux/slices/standardSlice";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import standardDesign from "./standardDesign";
 import standardDataJson from "../../json/standardData.json";
-import { roomStandards,createProjectZone } from "../../backend/controller/controller";
+import {
+  roomStandards,
+  createProjectZone,
+  getRoomStandards,
+} from "../../backend/controller/controller";
 import { Tooltip } from "../../components/Tooltip";
 import constants from "../../json/constants.json";
 
@@ -21,11 +25,7 @@ type StandardItem = {
     maxAir: number | null;
   }[];
 };
-
-type StandardJson = {
-  standards: StandardItem[];
-  text: any;
-};
+type StandardJson = { standards: StandardItem[]; text: any };
 
 const data = standardDataJson as unknown as StandardJson;
 const standardsData = data.standards;
@@ -41,16 +41,13 @@ function roundTo(n: number, decimals: number): number {
   const p = Math.pow(10, decimals);
   return Math.round(n * p) / p;
 }
-
 function isNumericLike(s: string): boolean {
   return /^-?\d*\.?\d*$/.test(s);
 }
 function isRealNumberString(s: string): boolean {
   return /^-?\d+(\.\d+)?$/.test(s);
 }
-
 const temperature_range = { min: -30, max: 60 };
-
 function validateTemperature(value: string): string {
   if (!value) return "";
   const num = Number(value);
@@ -59,25 +56,19 @@ function validateTemperature(value: string): string {
     return "Temperature must be between -30°C and 60°C";
   return "";
 }
-
 const humidity_range = { min: 0, max: 100 };
-
 function allowNumericInput(
   setter: (v: string) => void,
   value: string,
   range = humidity_range
 ) {
   if (value === "" || isNumericLike(value)) setter(value);
-
   if (!/^[\d*\.?\d*]{0,3}$/.test(value)) return;
-
   const num = Number(value);
   if (Number.isNaN(num)) return;
   if (num < range.min || num > range.max) return;
-
   setter(value);
 }
-
 function validateHumidity(value: string): string {
   if (!value) return "";
   const num = Number(value);
@@ -85,8 +76,6 @@ function validateHumidity(value: string): string {
   if (num < 0 || num > 100) return "Humidity must be between 0 and 100";
   return "";
 }
-
-/* ---------- Flow velocity helpers ---------- */
 function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
 }
@@ -104,9 +93,20 @@ function formatMediumLabel(medium: string) {
 
 export default function Standard() {
   const s = standardDesign;
-  const dispatch = useAppDispatch(); // Redux dispatch
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  // --- Redux State: Standards (persisted) ---
+  const projectIdFromRedux = useAppSelector(
+    (state: any) => state.projectInfo.projectId
+  );
+  const projectId = location.state?.projectId ?? projectIdFromRedux;
+
+  // read zoneId from Redux to detect "Add Another Zone" reset
+  const zoneIdFromRedux = useAppSelector(
+    (state: any) => state.standards.zoneId
+  );
+
   const standard = useAppSelector((state: any) => state.standards.standard);
   const classification = useAppSelector(
     (state: any) => state.standards.classification
@@ -140,7 +140,6 @@ export default function Standard() {
     (state: any) => state.standards.coolingFlowVelocity
   );
 
-  // --- Redux State: Read climate data from Project Info (persisted) ---
   const minTempC = useAppSelector((state: any) => state.projectInfo.minTemp);
   const maxTempC = useAppSelector((state: any) => state.projectInfo.maxTemp);
   const rhMin = useAppSelector(
@@ -150,7 +149,6 @@ export default function Standard() {
     (state: any) => state.projectInfo.relativeHumidityMax
   );
 
-  // --- Local-only UI State (not persisted) ---
   const [errors, setErrors] = useState({
     standard: "",
     classification: "",
@@ -162,139 +160,70 @@ export default function Standard() {
     humidity: "",
     temperature: "",
   });
-  
-  //Pulling standards data from API
-  const [apiStandards, setApiStandards] = useState<StandardItem[] | null>(null);
-  const [apiError, setApiError] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-  
-  
-  
-
 
   useEffect(() => {
-   
-    const fetchStandard = async () => {
+    if (!projectId) return;
+    if (zoneIdFromRedux === null) return; //  skip if Add Another Zone was clicked
+    if (standard) return; //  skip if already pre-filled
+    const fetchStandards = async () => {
       try {
-        setIsLoading(true);
-        const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
-        const url = API_BASE ? `${API_BASE}/api/standards` : `/api/standards`;
-        console.log('[STANDARDS] Fetching from', url);
-
-        const res = await fetch(url);
-        console.log('[STANDARDS] Response status:', res.status);
-
-        // If backend returns HTML (vite dev page or an error), detect it first
-
-        if (!res.ok) {
-          // try to read text to show a helpful message
-          const text = await res.text();
-          throw new Error(`API Error ${res.status}: ${text.slice(0, 300)}`);
+        const data = await getRoomStandards(projectId);
+        const std = data.standards?.[0];
+        if (std) {
+          dispatch(
+            updateMultipleStandardsFields({
+              system: std.project_system || "",
+              systemType: std.project_system_type || "",
+              heatingMethod: std.project_heating_method || "",
+              coolingMethod: std.project_cooling_method || "",
+              standard: std.project_standard || "",
+              classification: std.project_classification_name || "",
+              acph: std.project_ACPH ? String(std.project_ACPH) : "",
+              tempUnit: std.project_temp_unit || "C",
+              reqInsideTempC: std.project_required_inside_temp
+                ? String(std.project_required_inside_temp)
+                : "",
+              reqInsideTempDisplay: std.project_required_inside_temp
+                ? String(std.project_required_inside_temp)
+                : "",
+              reqInsideHum: std.project_required_inside_humid
+                ? String(std.project_required_inside_humid)
+                : "",
+              flowVelocity: std.flow_velocity || 1.5,
+            })
+          );
         }
-     
-
-        const response = await res.json();
-        const groupedData = response.data || response;
-        console.log('[STANDARDS] grouped response:', groupedData);
-
-        console.log("Raw API response:", groupedData);
-        console.log("Is array?", Array.isArray(groupedData));
-        console.log("Length:", groupedData?.length);
-
-        if (!Array.isArray(groupedData)) {
-          throw new Error("API did not return an array");
-        }
-
-
-
-        const transformed: StandardItem[] = groupedData.map((std: any, index: number) => ({
-          id: index + 1,
-          title: std.standard_name,
-          classifications: (std.classifications || []).map((c: any) => ({
-            name: c.classification_name,
-            minAir: c.acph_min == null ? null : Number(c.acph_min),
-            maxAir: c.acph_max == null ? null : Number(c.acph_max),
-          })),
-        }));
-        setApiStandards(transformed);
-        setApiError(null);
-
-        console.log("TRANSFORMED LENGTH:", transformed.length);
-
-      } catch (err: any) {
-        setApiError(err?.message || "Failed to fetch standards");
-        setApiStandards(null);
-      } finally {
-        setIsLoading(false);
+      } catch (error) {
+        console.error("Failed to fetch room standards:", error);
       }
-
     };
-    fetchStandard();
-  }, []);
+    fetchStandards();
+  }, [projectId, zoneIdFromRedux]);
 
-
-
-  const effectiveStandards = apiStandards ?? [];
-
- 
-  useEffect(() => {
-    if (!isLoading && effectiveStandards.length > 0) {
-      const exists = effectiveStandards.some(
-        (s) => s.title === standard
-      );
-
-      if (!exists && standard !== "") {
-        dispatch(updateStandardsField({ field: "standard", value: "" }));
-        dispatch(updateStandardsField({ field: "classification", value: "" }));
-        dispatch(updateStandardsField({ field: "acph", value: "" }));
-      }
-    }
-  }, [effectiveStandards, isLoading]);
-
-  const selectedStandard = effectiveStandards.find((x) => x.title === standard);
-  useEffect(() => {
-    console.log("API DATA LENGTH:", apiStandards?.length);
-
-    console.log(
-      "[STANDARDS SOURCE]",
-      apiStandards && apiStandards.length > 0
-        ? "Using API Data"
-        : "No API Data"
-    );
-  }, [apiStandards]);
-
-
-  console.log('[DEBUG standards]', { apiStandards, isLoading, apiError, effectiveStandardsLength: effectiveStandards?.length });
-
- // const selectedStandard = standardsData.find((x) => x.title === standard);
-
+  const selectedStandard = standardsData.find((x) => x.title === standard);
   const SPECIAL_STANDARDS = ["NC-Non Classified", "ISO 14698", "SCHEDULE M"];
 
-  const isNonClassifiedSystem = useMemo(() => {
-    return systemType.toLowerCase().includes("non-classified");
-  }, [systemType]);
+  const isNonClassifiedSystem = useMemo(
+    () => systemType.toLowerCase().includes("non-classified"),
+    [systemType]
+  );
 
   const filteredStandardsData = useMemo(() => {
-    if (systemType !== "" && !isNonClassifiedSystem) {
+    if (systemType !== "" && !isNonClassifiedSystem)
       return standardsData.filter(
         (item) => !SPECIAL_STANDARDS.includes(item.title)
       );
-    }
     return standardsData;
-  }, [systemType, isNonClassifiedSystem, standardsData]);
+  }, [systemType, isNonClassifiedSystem]);
 
   const classList = useMemo(() => {
     if (!selectedStandard) return [];
-
-    if (SPECIAL_STANDARDS.includes(selectedStandard.title)) {
+    if (SPECIAL_STANDARDS.includes(selectedStandard.title))
       return selectedStandard.classifications;
-    }
-
     return selectedStandard.classifications.filter((c) => {
       const isNCClass =
         c.name.toLowerCase().includes("non classified") ||
         c.name.toLowerCase().includes("non-classified");
-
       return isNonClassifiedSystem ? isNCClass : !isNCClass;
     });
   }, [selectedStandard, isNonClassifiedSystem]);
@@ -304,9 +233,8 @@ export default function Standard() {
   const acphOptions = useMemo(() => {
     const out: number[] = [];
     if (selectedClass?.minAir != null && selectedClass?.maxAir != null) {
-      for (let v = selectedClass.minAir; v <= selectedClass.maxAir; v++) {
+      for (let v = selectedClass.minAir; v <= selectedClass.maxAir; v++)
         out.push(v);
-      }
     }
     return out;
   }, [selectedClass]);
@@ -321,45 +249,36 @@ export default function Standard() {
       dispatch(updateStandardsField({ field: "acph", value: "" }));
       return;
     }
-
     if (selectedClass.minAir == null || selectedClass.maxAir == null) {
       dispatch(updateStandardsField({ field: "acph", value: "" }));
       return;
     }
-
     const min = selectedClass.minAir;
     const max = selectedClass.maxAir;
     const current = Number(acph);
     const isCurrentValid =
       acph !== "" && !Number.isNaN(current) && current >= min && current <= max;
-
-    if (!isCurrentValid) {
+    if (!isCurrentValid)
       dispatch(updateStandardsField({ field: "acph", value: String(max) }));
-    }
   }, [classification, selectedClass, acph, dispatch]);
 
   const isHeating =
     system === t.options.systems.heating ||
     system === t.options.systems.heatingVentilation ||
     system === t.options.systems.heatingCooling;
-
   const isCooling =
     system === t.options.systems.cooling ||
     system === t.options.systems.coolingVentilation ||
     system === t.options.systems.heatingCooling;
-
   const isVentilation =
     system === t.options.systems.ventilation ||
     system === t.options.systems.coolingVentilation ||
     system === t.options.systems.heatingVentilation;
-
   const ventilationOnly =
     (isVentilation && !isHeating && !isCooling) ||
     systemType === t.options.systems.ventilation;
-
   const showHeatingMethod = isHeating && !ventilationOnly;
   const showCoolingMethod = isCooling && !ventilationOnly;
-
   const isHeatingCooling = system === t.options.systems.heatingCooling;
   const isCoolingVent = system === t.options.systems.coolingVentilation;
   const isHeatingVent = system === t.options.systems.heatingVentilation;
@@ -367,41 +286,37 @@ export default function Standard() {
   const systemTypeLabel = isHeatingCooling
     ? t.labels.systemTypeGeneric
     : isHeatingVent
-      ? t.labels.systemTypeHeating
-      : isCoolingVent
-        ? t.labels.systemTypeCooling
-        : isHeating
-          ? t.labels.systemTypeHeating
-          : isCooling
-            ? t.labels.systemTypeCooling
-            : t.labels.systemTypeVentilation;
-
+    ? t.labels.systemTypeHeating
+    : isCoolingVent
+    ? t.labels.systemTypeCooling
+    : isHeating
+    ? t.labels.systemTypeHeating
+    : isCooling
+    ? t.labels.systemTypeCooling
+    : t.labels.systemTypeVentilation;
   const systemTypePlaceholder = isHeatingCooling
     ? t.placeholders.systemTypeGeneric
     : isHeatingVent
-      ? t.placeholders.systemTypeHeating
-      : isCoolingVent
-        ? t.placeholders.systemTypeCooling
-        : isHeating
-          ? t.placeholders.systemTypeHeating
-          : isCooling
-            ? t.placeholders.systemTypeCooling
-            : t.placeholders.systemTypeVentilation;
+    ? t.placeholders.systemTypeHeating
+    : isCoolingVent
+    ? t.placeholders.systemTypeCooling
+    : isHeating
+    ? t.placeholders.systemTypeHeating
+    : isCooling
+    ? t.placeholders.systemTypeCooling
+    : t.placeholders.systemTypeVentilation;
 
   const systemTypes = useMemo(() => {
     if (!system) return [];
-
     if (isHeatingCooling) return t.options.systemTypes.combined || [];
     if (isHeatingVent) return t.options.systemTypes.heatingVent || [];
     if (isCoolingVent) return t.options.systemTypes.coolingVent || [];
-
     if (system === t.options.systems.heating)
       return t.options.systemTypes.heating || [];
     if (system === t.options.systems.cooling)
       return t.options.systemTypes.cooling || [];
     if (system === t.options.systems.ventilation)
       return t.options.systemTypes.ventilation || [];
-
     if (isHeating) return t.options.systemTypes.heating || [];
     if (isCooling) return t.options.systemTypes.cooling || [];
     if (isVentilation) return t.options.systemTypes.ventilation || [];
@@ -419,7 +334,6 @@ export default function Standard() {
   const heatingMethods: string[] = t.options.methods.heating || [];
   const coolingMethods: string[] = t.options.methods.cooling || [];
 
-  // --- Ventilation-only side effects → Redux dispatch ---
   useEffect(() => {
     if (ventilationOnly) {
       dispatch(
@@ -430,39 +344,35 @@ export default function Standard() {
           reqInsideTempDisplay: t.misc.ambient,
           reqInsideHum: t.misc.ambient,
         })
-      ); // Redux update
+      );
     } else {
       if (reqInsideTempC === t.misc.ambient)
-        dispatch(updateStandardsField({ field: "reqInsideTempC", value: "" })); // Redux update
+        dispatch(updateStandardsField({ field: "reqInsideTempC", value: "" }));
       if (reqInsideTempDisplay === t.misc.ambient)
         dispatch(
           updateStandardsField({ field: "reqInsideTempDisplay", value: "" })
-        ); // Redux update
+        );
       if (reqInsideHum === t.misc.ambient)
-        dispatch(updateStandardsField({ field: "reqInsideHum", value: "" })); // Redux update
+        dispatch(updateStandardsField({ field: "reqInsideHum", value: "" }));
     }
   }, [system, systemType, ventilationOnly]);
 
   const tempToDisplay = (cStr: string): string => {
     if (!cStr) return "";
     if (!isRealNumberString(cStr)) return cStr;
-
     const c = parseFloat(cStr);
     if (Number.isNaN(c)) return cStr;
-
     return tempUnit === "C"
       ? String(roundTo(c, 2))
       : String(roundTo(celsiusToFahrenheit(c), 2));
   };
 
-  // --- Sync display when unit toggles → Redux dispatch ---
   useEffect(() => {
     if (ventilationOnly) return;
-
     if (!reqInsideTempC) {
       dispatch(
         updateStandardsField({ field: "reqInsideTempDisplay", value: "" })
-      ); // Redux update
+      );
       return;
     }
     if (reqInsideTempC === t.misc.ambient) {
@@ -471,7 +381,7 @@ export default function Standard() {
           field: "reqInsideTempDisplay",
           value: t.misc.ambient,
         })
-      ); // Redux update
+      );
       return;
     }
     if (!isRealNumberString(reqInsideTempC)) {
@@ -480,10 +390,9 @@ export default function Standard() {
           field: "reqInsideTempDisplay",
           value: reqInsideTempC,
         })
-      ); // Redux update
+      );
       return;
     }
-
     const c = parseFloat(reqInsideTempC);
     const display =
       tempUnit === "C"
@@ -491,45 +400,41 @@ export default function Standard() {
         : String(roundTo(celsiusToFahrenheit(c), 2));
     dispatch(
       updateStandardsField({ field: "reqInsideTempDisplay", value: display })
-    ); // Redux update
+    );
   }, [tempUnit, reqInsideTempC, ventilationOnly]);
 
   const onReqInsideTempChange = (val: string) => {
     if (ventilationOnly) return;
-
     if (val === "") {
       dispatch(
         updateMultipleStandardsFields({
           reqInsideTempDisplay: "",
           reqInsideTempC: "",
         })
-      ); // Redux update
+      );
       return;
     }
     if (!isNumericLike(val)) return;
-
     dispatch(
       updateStandardsField({ field: "reqInsideTempDisplay", value: val })
-    ); // Redux update
+    );
     if (!isRealNumberString(val)) return;
-
     const n = parseFloat(val);
     if (Number.isNaN(n)) return;
-
     if (tempUnit === "C")
       dispatch(
         updateStandardsField({
           field: "reqInsideTempC",
           value: String(roundTo(n, 2)),
         })
-      ); // Redux update
+      );
     else
       dispatch(
         updateStandardsField({
           field: "reqInsideTempC",
           value: String(roundTo(fahrenheitToCelsius(n), 4)),
         })
-      ); // Redux update
+      );
   };
 
   const tempPlaceholder =
@@ -558,14 +463,12 @@ export default function Standard() {
 
   useEffect(() => {
     const clamped = clamp(flowVelocity, flowRange.min, flowRange.max);
-    if (clamped !== flowVelocity) {
-      dispatch(updateStandardsField({ field: "flowVelocity", value: clamped })); // Redux update
-    }
+    if (clamped !== flowVelocity)
+      dispatch(updateStandardsField({ field: "flowVelocity", value: clamped }));
   }, [flowRange.min, flowRange.max]);
 
   const roomPayload = useMemo(() => {
     const isVentilationOnly = system === t.options.systems.ventilation;
-
     return {
       fromCustomerInfo: {
         minimumTemp: minTempC,
@@ -634,7 +537,6 @@ export default function Standard() {
     if (!acph || errors.acph) return false;
     if (!system || errors.system) return false;
     if (!systemType || errors.systemType) return false;
-
     if (!ventilationOnly) {
       if (!heatingMethod && showHeatingMethod) return false;
       if (!coolingMethod && showCoolingMethod) return false;
@@ -645,12 +547,10 @@ export default function Standard() {
   })();
 
   const createProjectZones = async () => {
-    const payload = {
-      zone_name : "Zone 001",
-    };
+    const payload = { project_id: projectId, zone_name: "Zone 001" };
     try {
       const data = await createProjectZone(payload);
-      console.log('Project zone created:', data);
+      console.log("Project zone created:", data);
       return data;
     } catch (error) {
       console.error("Failed to create project zone:", error);
@@ -658,29 +558,9 @@ export default function Standard() {
     }
   };
 
-  const navigate = useNavigate();
-  
-  const handleNext = async (e) => {
-  e.preventDefault();
-
-  if (!isFormValid) {
-    alert("Please fill all required fields correctly before proceeding.");
-    return;
-  }
-
-  try {
-    await createProjectZones();
-    await saveroomStandards();
-
-    navigate("/room", { state: roomPayload });
-  } catch (error) {
-    console.error("Error saving data:", error);
-  }
-};
-
-
   const saveroomStandards = async () => {
     const payload = {
+      project_id: projectId,
       system,
       systemType,
       heatingMethod,
@@ -701,11 +581,55 @@ export default function Standard() {
       coolingFlowVelocity,
     };
     try {
-      console.log('Saving room standards with payload:', payload);
-        const data = await roomStandards(payload);
-        console.log('Room standards saved:', data);
+      console.log("Saving room standards with payload:", payload);
+      const data = await roomStandards(payload);
+      console.log("Room standards saved:", data);
+      return data;
     } catch (error) {
       console.error("Failed to save room standards:", error);
+      throw error;
+    }
+  };
+
+  const handleNext = async (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+
+    if (!isFormValid) {
+      alert("Please fill all required fields correctly before proceeding.");
+      return;
+    }
+    try {
+      const zoneData = await createProjectZones();
+      const standardData = await saveroomStandards();
+
+      const newZoneId = zoneData?.zoneId;
+      const newProjectStandardId = standardData?.roomStandardsId;
+
+      console.log("IDs from backend:", { newZoneId, newProjectStandardId });
+
+      if (!newZoneId || !newProjectStandardId) {
+        console.error("Missing IDs from backend");
+        alert("Failed to get IDs from server. Please try again.");
+        return;
+      }
+
+      dispatch(updateStandardsField({ field: "zoneId", value: newZoneId }));
+      dispatch(
+        updateStandardsField({
+          field: "projectStandardId",
+          value: newProjectStandardId,
+        })
+      );
+
+      navigate("/room", {
+        state: {
+          ...roomPayload,
+          zoneId: newZoneId,
+          projectStandardId: newProjectStandardId,
+        },
+      });
+    } catch (error) {
+      console.error("Error saving data:", error);
     }
   };
 
@@ -721,29 +645,30 @@ export default function Standard() {
           <div className={s.cardHeader}>
             <div className={s.cardHeaderTitle}>{t.page.cardTitle}</div>
           </div>
-
           <div className={s.divider} />
-
           <div className={s.body}>
             <div className={s.grid2}>
               <div className={s.field}>
                 <label className={s.label}>
                   {t.labels.system} <span className={s.required}>*</span>
-                  <Tooltip id="system" content={constants.Tooltip.systemTooltip} />
+                  <Tooltip
+                    id="system"
+                    content={constants.Tooltip.systemTooltip}
+                  />
                 </label>
                 <select
                   className={s.select}
-                  value={system} // Redux read
+                  value={system}
                   onChange={(e) => {
                     dispatch(
                       updateStandardsField({
                         field: "system",
                         value: e.target.value,
                       })
-                    ); // Redux update
+                    );
                     dispatch(
                       updateStandardsField({ field: "systemType", value: "" })
-                    ); // Redux update
+                    );
                   }}
                   required={true}
                 >
@@ -768,7 +693,6 @@ export default function Standard() {
                   </option>
                 </select>
               </div>
-
               {system !== "" && (
                 <div className={s.field}>
                   <label className={s.label}>
@@ -776,32 +700,35 @@ export default function Standard() {
                     <Tooltip
                       id="systemType"
                       content={
-                        systemTypeLabel === t.labels.systemTypeGeneric ? constants.Tooltip.heatingSystemTypeTooltip :
-                          systemTypeLabel === t.labels.systemTypeHeating ? constants.Tooltip.heatingSystemTypeTooltip :
-                            systemTypeLabel === t.labels.systemTypeCooling ? constants.Tooltip.coolingSystemTypeTooltip :
-                              constants.Tooltip.ventilationSystemTypeTooltip
+                        systemTypeLabel === t.labels.systemTypeGeneric
+                          ? constants.Tooltip.heatingSystemTypeTooltip
+                          : systemTypeLabel === t.labels.systemTypeHeating
+                          ? constants.Tooltip.heatingSystemTypeTooltip
+                          : systemTypeLabel === t.labels.systemTypeCooling
+                          ? constants.Tooltip.coolingSystemTypeTooltip
+                          : constants.Tooltip.ventilationSystemTypeTooltip
                       }
                     />
                   </label>
                   <select
                     className={s.select}
-                    value={systemType} // Redux read
+                    value={systemType}
                     onChange={(e) => {
                       dispatch(
                         updateStandardsField({
                           field: "systemType",
                           value: e.target.value,
                         })
-                      ); // Redux update
+                      );
                       dispatch(
                         updateStandardsField({
                           field: "classification",
                           value: "",
                         })
-                      ); // Redux update
+                      );
                       dispatch(
                         updateStandardsField({ field: "acph", value: "" })
-                      ); // Redux update
+                      );
                     }}
                     required={true}
                   >
@@ -823,19 +750,21 @@ export default function Standard() {
                     <label className={s.label}>
                       {t.labels.heatingMethod}{" "}
                       <span className={s.required}>*</span>
-                      <Tooltip id="heatingMethod" content={constants.Tooltip.heatingMethodTooltip} />
+                      <Tooltip
+                        id="heatingMethod"
+                        content={constants.Tooltip.heatingMethodTooltip}
+                      />
                     </label>
                     <select
                       className={s.select}
-                      value={heatingMethod} // Redux read
-                      onChange={
-                        (e) =>
-                          dispatch(
-                            updateStandardsField({
-                              field: "heatingMethod",
-                              value: e.target.value,
-                            })
-                          ) // Redux update
+                      value={heatingMethod}
+                      onChange={(e) =>
+                        dispatch(
+                          updateStandardsField({
+                            field: "heatingMethod",
+                            value: e.target.value,
+                          })
+                        )
                       }
                       required={true}
                     >
@@ -848,25 +777,26 @@ export default function Standard() {
                     </select>
                   </div>
                 )}
-
                 {showCoolingMethod && (
                   <div className={s.field}>
                     <label className={s.label}>
                       {t.labels.coolingMethod}{" "}
                       <span className={s.required}>*</span>
-                      <Tooltip id="coolingMethod" content={constants.Tooltip.coolingMethodTooltip} />
+                      <Tooltip
+                        id="coolingMethod"
+                        content={constants.Tooltip.coolingMethodTooltip}
+                      />
                     </label>
                     <select
                       className={s.select}
-                      value={coolingMethod} // Redux read
-                      onChange={
-                        (e) =>
-                          dispatch(
-                            updateStandardsField({
-                              field: "coolingMethod",
-                              value: e.target.value,
-                            })
-                          ) // Redux update
+                      value={coolingMethod}
+                      onChange={(e) =>
+                        dispatch(
+                          updateStandardsField({
+                            field: "coolingMethod",
+                            value: e.target.value,
+                          })
+                        )
                       }
                       required={true}
                     >
@@ -881,66 +811,36 @@ export default function Standard() {
                 )}
               </div>
             )}
+
             <div className={s.sectionSpacer}>
               <div className={s.grid3}>
                 <div className={s.field}>
                   <label className={s.label}>
                     {t.labels.standard} <span className={s.required}>*</span>
-                    <Tooltip id="standard" content={constants.Tooltip.standardTooltip} />
+                    <Tooltip
+                      id="standard"
+                      content={constants.Tooltip.standardTooltip}
+                    />
                   </label>
-
-                   {/* <p>Dropdown enabled? {apiStandards && apiStandards.length > 0 ? "YES" : "NO"}</p> */}
-
                   <select
                     className={s.select}
-                    
-                    value={
-                      effectiveStandards.some((s) => s.title === standard)
-                        ? standard
-                        : ""
-                    }
-                    onChange={(e) => {
-                      dispatch(updateStandardsField({ field: "standard", value: e.target.value }));
-                      dispatch(updateStandardsField({ field: "classification", value: "" }));
-                      dispatch(updateStandardsField({ field: "acph", value: "" }));
-                    }}
-
-                    disabled={effectiveStandards.length === 0}
-                    required={true}
-                  >
-                    <option value="">
-                      {isLoading
-                        ? "Loading standards..."
-                        : effectiveStandards.length === 0
-                          ? "No standards available"
-                          : t.placeholders.standard}
-                    </option>
-
-                    {effectiveStandards.map((item) => (
-                      <option key={item.id} value={item.title}>
-                        {item.title}
-                      </option>
-                    ))}
-                  </select>
-                  {/* <select
-                    className={s.select}
-                    value={standard} // Redux read
+                    value={standard}
                     onChange={(e) => {
                       dispatch(
                         updateStandardsField({
                           field: "standard",
                           value: e.target.value,
                         })
-                      ); // Redux update
+                      );
                       dispatch(
                         updateStandardsField({
                           field: "classification",
                           value: "",
                         })
-                      ); // Redux update
+                      );
                       dispatch(
                         updateStandardsField({ field: "acph", value: "" })
-                      ); // Redux update
+                      );
                     }}
                     required={true}
                   >
@@ -950,27 +850,28 @@ export default function Standard() {
                         {item.title}
                       </option>
                     ))}
-                  </select> */}
+                  </select>
                 </div>
-
                 <div className={s.field}>
                   <label className={s.label}>
                     {t.labels.classification}{" "}
                     <span className={s.required}>*</span>
-                    <Tooltip id="classification" content={constants.Tooltip.classificationTooltip} />
+                    <Tooltip
+                      id="classification"
+                      content={constants.Tooltip.classificationTooltip}
+                    />
                   </label>
                   <select
                     className={selectedStandard ? s.select : s.selectDisabled}
                     disabled={!selectedStandard}
-                    value={classification} // Redux read
-                    onChange={
-                      (e) =>
-                        dispatch(
-                          updateStandardsField({
-                            field: "classification",
-                            value: e.target.value,
-                          })
-                        ) // Redux update
+                    value={classification}
+                    onChange={(e) =>
+                      dispatch(
+                        updateStandardsField({
+                          field: "classification",
+                          value: e.target.value,
+                        })
+                      )
                     }
                     required={true}
                   >
@@ -986,24 +887,25 @@ export default function Standard() {
                     ))}
                   </select>
                 </div>
-
                 <div className={s.field}>
                   <label className={s.label}>
                     {t.labels.acph} <span className={s.required}>*</span>
-                    <Tooltip id="acph" content={constants.Tooltip.acphTooltip} />
+                    <Tooltip
+                      id="acph"
+                      content={constants.Tooltip.acphTooltip}
+                    />
                   </label>
                   <select
                     className={!acphDisabled ? s.select : s.selectDisabled}
                     disabled={acphDisabled}
-                    value={acph} // Redux read
-                    onChange={
-                      (e) =>
-                        dispatch(
-                          updateStandardsField({
-                            field: "acph",
-                            value: e.target.value,
-                          })
-                        ) // Redux update
+                    value={acph}
+                    onChange={(e) =>
+                      dispatch(
+                        updateStandardsField({
+                          field: "acph",
+                          value: e.target.value,
+                        })
+                      )
                     }
                     required={true}
                   >
@@ -1017,7 +919,6 @@ export default function Standard() {
                       ))
                     )}
                   </select>
-
                   {selectedClass?.minAir != null &&
                     selectedClass?.maxAir != null && (
                       <div className={s.range}>
@@ -1035,10 +936,8 @@ export default function Standard() {
 
             <div className={s.sectionSpacer}>
               <div className={s.sectionTitle}>{t.sections.tempHumTitle}</div>
-
               <div className={s.unitRow}>
                 <div className={s.unitLabel}>{t.labels.tempUnit}</div>
-
                 <div className={s.unitGroup}>
                   <label className={s.unitOption}>
                     <input
@@ -1046,43 +945,39 @@ export default function Standard() {
                       type="radio"
                       name="tempUnit"
                       value="C"
-                      checked={tempUnit === "C"} // Redux read
-                      onChange={
-                        () =>
-                          dispatch(
-                            updateStandardsField({
-                              field: "tempUnit",
-                              value: "C",
-                            })
-                          ) // Redux update
+                      checked={tempUnit === "C"}
+                      onChange={() =>
+                        dispatch(
+                          updateStandardsField({
+                            field: "tempUnit",
+                            value: "C",
+                          })
+                        )
                       }
                       disabled={ventilationOnly}
                     />
                     <span>{t.options.units.c}</span>
                   </label>
-
                   <label className={s.unitOption}>
                     <input
                       className={s.unitRadio}
                       type="radio"
                       name="tempUnit"
                       value="F"
-                      checked={tempUnit === "F"} // Redux read
-                      onChange={
-                        () =>
-                          dispatch(
-                            updateStandardsField({
-                              field: "tempUnit",
-                              value: "F",
-                            })
-                          ) // Redux update
+                      checked={tempUnit === "F"}
+                      onChange={() =>
+                        dispatch(
+                          updateStandardsField({
+                            field: "tempUnit",
+                            value: "F",
+                          })
+                        )
                       }
                       disabled={ventilationOnly}
                     />
                     <span>{t.options.units.f}</span>
                   </label>
                 </div>
-
                 {ventilationOnly && (
                   <div className={s.unitHint}>{t.misc.ventilationUnitHint}</div>
                 )}
@@ -1093,21 +988,23 @@ export default function Standard() {
                   <label className={s.label}>
                     {t.labels.reqInsideTemp} ({tempUnit === "C" ? "°C" : "°F"}){" "}
                     <span className={s.required}>*</span>
-                    <Tooltip id="requiredTemperature" content={constants.Tooltip.requiredTemperatureTooltip} />
+                    <Tooltip
+                      id="requiredTemperature"
+                      content={constants.Tooltip.requiredTemperatureTooltip}
+                    />
                   </label>
                   <input
                     className={ventilationOnly ? s.inputDisabled : s.input}
                     inputMode="decimal"
                     placeholder={tempPlaceholder}
-                    value={reqInsideTempDisplay} // Redux read
+                    value={reqInsideTempDisplay}
                     maxLength={3}
                     required={true}
                     onChange={(e) => {
-                      const value = e.target.value;
-                      onReqInsideTempChange(value);
-                      setErrors((prevErr) => ({
-                        ...prevErr,
-                        temperature: validateTemperature(value),
+                      onReqInsideTempChange(e.target.value);
+                      setErrors((p) => ({
+                        ...p,
+                        temperature: validateTemperature(e.target.value),
                       }));
                     }}
                     disabled={ventilationOnly}
@@ -1125,19 +1022,21 @@ export default function Standard() {
                       </div>
                     )}
                 </div>
-
                 <div className={s.field}>
                   <label className={s.label}>
                     {t.labels.reqInsideHum}{" "}
                     <span className={s.required}>*</span>
-                    <Tooltip id="requiredHumidity" content={constants.Tooltip.requiredHumidityTooltip} />
+                    <Tooltip
+                      id="requiredHumidity"
+                      content={constants.Tooltip.requiredHumidityTooltip}
+                    />
                   </label>
                   <input
                     className={ventilationOnly ? s.inputDisabled : s.input}
                     inputMode="decimal"
                     placeholder={t.placeholders.reqHumidity}
                     maxLength={3}
-                    value={reqInsideHum} // Redux read
+                    value={reqInsideHum}
                     required={true}
                     onChange={(e) => {
                       allowNumericInput(
@@ -1147,17 +1046,16 @@ export default function Standard() {
                               field: "reqInsideHum",
                               value: v,
                             })
-                          ), // Redux update
+                          ),
                         e.target.value
                       );
-                      setErrors((prevErr) => ({
-                        ...prevErr,
+                      setErrors((p) => ({
+                        ...p,
                         humidity: validateHumidity(e.target.value),
                       }));
                     }}
                     disabled={ventilationOnly}
                   />
-
                   {errors.humidity && (
                     <div className="text-red-500 text-xs mt-1">
                       {errors.humidity}
@@ -1177,7 +1075,6 @@ export default function Standard() {
                     disabled
                   />
                 </div>
-
                 <div className={s.field}>
                   <label className={s.label}>
                     {t.labels.maxTemp} ({tempUnit === "C" ? "°C" : "°F"})
@@ -1188,7 +1085,6 @@ export default function Standard() {
                     disabled
                   />
                 </div>
-
                 <div className={s.field}>
                   <label className={s.label}>{t.labels.rhMin}</label>
                   <input
@@ -1197,7 +1093,6 @@ export default function Standard() {
                     disabled
                   />
                 </div>
-
                 <div className={s.field}>
                   <label className={s.label}>{t.labels.rhMax}</label>
                   <input
@@ -1208,59 +1103,52 @@ export default function Standard() {
                 </div>
               </div>
 
-              {/* ---------- Dual Flow Velocity for Heating + Cooling ---------- */}
-
               {!ventilationOnly &&
                 system === t.options.systems.heatingCooling &&
                 showHeatingMethod &&
                 showCoolingMethod && (
                   <div className={s.dualFlowBlock}>
                     <div className={s.dualFlowGrid}>
-                      {/* Heating Flow */}
                       <div className={s.dualFlowCard}>
                         <div className={s.dualFlowTitle}>
                           Heating Flow Velocity –{" "}
                           {formatMediumLabel(heatingMethod)}
                           <span className={s.required}>*</span>
                         </div>
-
                         <div className={s.dualFlowRow}>
                           <div className={s.dualFlowMin}>
                             {heatingFlowRange.min}
                           </div>
-
                           <input
                             type="range"
                             className={s.dualFlowSlider}
                             min={heatingFlowRange.min}
                             max={heatingFlowRange.max}
                             step={0.1}
-                            value={heatingFlowVelocity} // Redux read
-                            onChange={
-                              (e) =>
-                                dispatch(
-                                  updateStandardsField({
-                                    field: "heatingFlowVelocity",
-                                    value: clamp(
-                                      Number(e.target.value),
-                                      heatingFlowRange.min,
-                                      heatingFlowRange.max
-                                    ),
-                                  })
-                                ) // Redux update
+                            value={heatingFlowVelocity}
+                            onChange={(e) =>
+                              dispatch(
+                                updateStandardsField({
+                                  field: "heatingFlowVelocity",
+                                  value: clamp(
+                                    Number(e.target.value),
+                                    heatingFlowRange.min,
+                                    heatingFlowRange.max
+                                  ),
+                                })
+                              )
                             }
                           />
-
                           <div className={s.dualFlowMax}>
                             {heatingFlowRange.max}
                           </div>
                           <input
                             className={s.dualFlowValueBox}
-                            value={heatingFlowVelocity} // Redux read
+                            value={heatingFlowVelocity}
                             required={true}
                             onChange={(e) => {
                               const v = Number(e.target.value);
-                              if (!Number.isNaN(v)) {
+                              if (!Number.isNaN(v))
                                 dispatch(
                                   updateStandardsField({
                                     field: "heatingFlowVelocity",
@@ -1270,57 +1158,49 @@ export default function Standard() {
                                       heatingFlowRange.max
                                     ),
                                   })
-                                ); // Redux update
-                              }
+                                );
                             }}
                           />
-
                           <div className={s.dualFlowUnit}>m/s</div>
                         </div>
                       </div>
-
-                      {/* Cooling Flow */}
                       <div className={s.dualFlowCard}>
                         <div className={s.dualFlowTitle}>
                           Cooling Flow Velocity -{" "}
                           {formatMediumLabel(coolingMethod)}
                           <span className={s.required}>*</span>
                         </div>
-
                         <div className={s.dualFlowRow}>
                           <div className={s.dualFlowMin}>
                             {coolingFlowRange.min}
                           </div>
-
                           <input
                             type="range"
                             className={s.dualFlowSlider}
                             min={coolingFlowRange.min}
                             max={coolingFlowRange.max}
                             step={0.1}
-                            value={coolingFlowVelocity} // Redux read
-                            onChange={
-                              (e) =>
-                                dispatch(
-                                  updateStandardsField({
-                                    field: "coolingFlowVelocity",
-                                    value: clamp(
-                                      Number(e.target.value),
-                                      coolingFlowRange.min,
-                                      coolingFlowRange.max
-                                    ),
-                                  })
-                                ) // Redux update
+                            value={coolingFlowVelocity}
+                            onChange={(e) =>
+                              dispatch(
+                                updateStandardsField({
+                                  field: "coolingFlowVelocity",
+                                  value: clamp(
+                                    Number(e.target.value),
+                                    coolingFlowRange.min,
+                                    coolingFlowRange.max
+                                  ),
+                                })
+                              )
                             }
                           />
-
                           <div className={s.dualFlowMax}>
                             {coolingFlowRange.max}
                           </div>
                           <input
                             className={s.dualFlowValueBox}
                             inputMode="decimal"
-                            value={String(coolingFlowVelocity)} // Redux read
+                            value={String(coolingFlowVelocity)}
                             required={true}
                             onChange={(e) => {
                               const v = e.target.value;
@@ -1336,11 +1216,10 @@ export default function Standard() {
                                       coolingFlowRange.max
                                     ),
                                   })
-                                ); // Redux update
+                                );
                               }
                             }}
                           />
-
                           <div className={s.dualFlowUnit}>m/s</div>
                         </div>
                       </div>
@@ -1348,7 +1227,6 @@ export default function Standard() {
                   </div>
                 )}
 
-              {/* ----------  Single Flow Velocity block ---------- */}
               {!ventilationOnly &&
                 system !== t.options.systems.heatingCooling &&
                 (showCoolingMethod || showHeatingMethod) && (
@@ -1360,35 +1238,30 @@ export default function Standard() {
                       </div>
                       <div className={s.flowUnit}></div>
                     </div>
-
                     <div className={s.flowRow}>
                       <div className={s.flowMin}>{flowRange.min} m/s</div>
-
                       <input
                         className={s.flowSlider}
                         type="range"
                         min={flowRange.min}
                         max={flowRange.max}
                         step={0.1}
-                        value={flowVelocity} // Redux read
-                        onChange={
-                          (e) =>
-                            dispatch(
-                              updateStandardsField({
-                                field: "flowVelocity",
-                                value: Number(e.target.value),
-                              })
-                            ) // Redux update
+                        value={flowVelocity}
+                        onChange={(e) =>
+                          dispatch(
+                            updateStandardsField({
+                              field: "flowVelocity",
+                              value: Number(e.target.value),
+                            })
+                          )
                         }
                       />
-
                       <div className={s.flowMax}>{flowRange.max} m/s</div>
-
                       <div className={s.flowValueBoxWrap}>
                         <input
                           className={s.flowValueBox}
                           inputMode="decimal"
-                          value={String(flowVelocity)} // Redux read
+                          value={String(flowVelocity)}
                           onChange={(e) => {
                             const v = e.target.value;
                             if (v === "" || isNumericLike(v)) {
@@ -1399,12 +1272,11 @@ export default function Standard() {
                                   field: "flowVelocity",
                                   value: clamp(n, flowRange.min, flowRange.max),
                                 })
-                              ); // Redux update
+                              );
                             }
                           }}
                         />
                       </div>
-
                       <div className={s.flowUnitSmall}>m/s</div>
                     </div>
                   </div>
@@ -1423,15 +1295,13 @@ export default function Standard() {
         <Link to="/project-info" className={s.backLink}>
           <FaArrowLeft /> {t.buttons.back}
         </Link>
-
-        <Link
-          to={isFormValid ? "/room" : "#"}
+        <button
+          type="button"
           className={`${s.nextLink} ${!isFormValid ? s.disabled : ""}`}
-          state={roomPayload}
           onClick={handleNext}
         >
           {t.buttons.next} <FaArrowRight />
-        </Link>
+        </button>
       </div>
     </div>
   );

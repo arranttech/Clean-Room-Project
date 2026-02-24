@@ -3,9 +3,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { handleLogout } from "../../utils/logout";
 import { FiLogOut } from "react-icons/fi";
-import { FaFolderOpen, FaPlus, FaBuilding, FaLayerGroup, FaCalculator, FaCheck, FaArrowRight, FaExclamationCircle } from "react-icons/fa";
+import {
+  FaFolderOpen,
+  FaPlus,
+  FaBuilding,
+  FaLayerGroup,
+  FaCalculator,
+  FaCheck,
+  FaArrowRight,
+  FaExclamationCircle,
+} from "react-icons/fa";
 import { MdApartment } from "react-icons/md";
-
 import s from "./dashboardDesign";
 import text from "../../json/dashboard.json";
 import { parseJwt } from "../../utils/auth";
@@ -28,7 +36,7 @@ const demoProjects: Project[] = [
     customer: "Acme Pharma",
     location: "Austin, TX, US",
     classification: "ISO Class 7",
-    totalRooms: 8
+    totalRooms: 8,
   },
   {
     id: "PRJ-1002",
@@ -37,7 +45,7 @@ const demoProjects: Project[] = [
     customer: "Nova Biotech",
     location: "Pune, MH, IN",
     classification: "ISO Class 8",
-    totalRooms: 5
+    totalRooms: 5,
   },
   {
     id: "PRJ-1003",
@@ -46,8 +54,8 @@ const demoProjects: Project[] = [
     customer: "Zenith Med",
     location: "Dublin, IE",
     classification: "ISO Class 7",
-    totalRooms: 11
-  }
+    totalRooms: 11,
+  },
 ];
 
 function tmpl(str: string, vars: Record<string, string | number>) {
@@ -57,7 +65,12 @@ function tmpl(str: string, vars: Record<string, string | number>) {
 export default function Dashboard() {
   const [projects] = useState<Project[]>(demoProjects);
   const [showProfileAlert, setShowProfileAlert] = useState(false);
-  const customerName = useAppSelector((state: any) => state.projectInfo.customerName);
+
+  const customerId = useAppSelector((state: any) => state.customer.customerId);
+  const customerName = useAppSelector(
+    (state: any) => state.customer.customerName
+  );
+
   const userName = useMemo(() => {
     const token = localStorage.getItem("token");
     if (!token) return "User";
@@ -67,13 +80,12 @@ export default function Dashboard() {
     if (decoded.email) return decoded.email.split("@")[0];
     return "User";
   }, []);
-  const dispatch = useAppDispatch();  // Redux dispatch
-  const navigate = useNavigate();     // Router navigate
 
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const counts = { total: projects.length };
   const features = text.dashboard.features;
 
-  // Redux: clear state + redirect
   const onLogout = () => {
     handleLogout(dispatch);
     navigate("/");
@@ -81,26 +93,32 @@ export default function Dashboard() {
 
   return (
     <div className={s.page}>
-      {/* header */}
       <header className={s.header}>
         <div className={s.headerInner}>
           <div className={s.left}>
             <div className={s.logoTile}>
-              <img src="/Arrant.jpeg" alt="Arrant Dynamics" className={s.logoImg} />
+              <img
+                src="/Arrant.jpeg"
+                alt="Arrant Dynamics"
+                className={s.logoImg}
+              />
             </div>
             <div className={s.brand}>
               <div>ARRANT</div>
               <div>DYNAMICS</div>
             </div>
           </div>
-
           <div className={s.center}>
             <div className={s.title1}>STERI Clean Air</div>
             <div className={s.subtitle1}>HVAC Matrix Platform</div>
           </div>
-
           <div className={s.right}>
-            {/* Redux: logout button */}
+            {customerName && (
+              <div className="text-sm text-white mr-4 hidden sm:block">
+                <span className="opacity-70">Customer: </span>
+                <span className="font-semibold">{customerName}</span>
+              </div>
+            )}
             <button type="button" className={s.logout} onClick={onLogout}>
               <FiLogOut className="text-[18px]" />
               Logout
@@ -111,7 +129,6 @@ export default function Dashboard() {
 
       <div className={s.contentWrap}>
         <div className={s.container}>
-          {/* welcome */}
           <div className={s.headerWrap}>
             <div className={s.title2}>
               {tmpl(text.dashboard.welcomeTitle, { name: userName })}
@@ -119,7 +136,6 @@ export default function Dashboard() {
             <div className={s.subtitle2}>{text.dashboard.welcomeSubtitle}</div>
           </div>
 
-          {/* total projects only */}
           <div className={s.metricsRow}>
             <div className={s.metricCard}>
               <div className={s.metricIconWrap}>
@@ -127,29 +143,44 @@ export default function Dashboard() {
               </div>
               <div>
                 <div className={s.metricNumber}>{counts.total}</div>
-                <div className={s.metricLabel}>{text.dashboard.metric.totalProjects}</div>
+                <div className={s.metricLabel}>
+                  {text.dashboard.metric.totalProjects}
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Projects In Progress */}
           <div className={s.sectionCard}>
             <div className={s.cardHeader}>
-               <div className={s.sectionTitle}>{text.dashboard.projectsTitle}</div>
-            <div className={s.pendingProjects}>{text.dashboard.pendingProjects}</div>
+              <div className={s.sectionTitle}>
+                {text.dashboard.projectsTitle}
+              </div>
+              <div className={s.pendingProjects}>
+                {text.dashboard.pendingProjects}
+              </div>
             </div>
-           
             <div className={s.cardWrap}>
               <div>
-                <div className={s.projectTitle}>{text.dashboard.progress.projectTitle}</div>
-                <div className={s.projectCustomer}><span>Customer: </span>{text.dashboard.progress.Customer}</div>
+                <div className={s.projectTitle}>
+                  {text.dashboard.progress.projectTitle}
+                </div>
+                <div className={s.projectCustomer}>
+                  <span>Customer: </span>
+                  {text.dashboard.progress.Customer}
+                </div>
                 <div className={s.cardStyle}>
-                  <div className={s.projectPendingStage}>{text.dashboard.progress.pendingStage}</div>
-                  <div className={s.projectPendingPage}><span>On:</span> {text.dashboard.progress.pendingPage}</div>
-                  <div className={s.projectModifiedDate}><span>Last Modified:</span> {text.dashboard.progress.modifiedDate}</div>
+                  <div className={s.projectPendingStage}>
+                    {text.dashboard.progress.pendingStage}
+                  </div>
+                  <div className={s.projectPendingPage}>
+                    <span>On:</span> {text.dashboard.progress.pendingPage}
+                  </div>
+                  <div className={s.projectModifiedDate}>
+                    <span>Last Modified:</span>{" "}
+                    {text.dashboard.progress.modifiedDate}
+                  </div>
                 </div>
               </div>
-
               <div className={s.buttonStyle}>
                 <Link to="/projects" className={s.viewAllButton}>
                   {text.dashboard.progress.buttonText} <FaArrowRight />
@@ -158,16 +189,16 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* quick actions */}
           <div className={s.sectionCard}>
-            <div className={s.sectionTitle}>{text.dashboard.quickActionsTitle}</div>
+            <div className={s.sectionTitle}>
+              {text.dashboard.quickActionsTitle}
+            </div>
             <div className={s.quickGrid}>
-
-              {/* Create New Project → checks customer profile first */}
+              {/* Create New Project — checks customerId */}
               <button
                 type="button"
                 onClick={() => {
-                  if (!customerName) {
+                  if (!customerId) {
                     setShowProfileAlert(true);
                   } else {
                     navigate("/project-info");
@@ -179,42 +210,67 @@ export default function Dashboard() {
                   <FaPlus className="text-white text-2xl" />
                 </div>
                 <div>
-                  <div className={s.actionTitle}>{text.dashboard.actions.createTitle}</div>
-                  <div className={s.actionDesc}>{text.dashboard.actions.createDesc}</div>
-                  <div className={s.actionHint}>{text.dashboard.actions.createHint}</div>
+                  <div className={s.actionTitle}>
+                    {text.dashboard.actions.createTitle}
+                  </div>
+                  <div className={s.actionDesc}>
+                    {text.dashboard.actions.createDesc}
+                  </div>
+                  <div className={s.actionHint}>
+                    {text.dashboard.actions.createHint}
+                  </div>
                 </div>
               </button>
 
-              {/* View All Projects → /projects */}
-              <Link to="/projects" className={`${s.actionCardBase} ${s.actionCardHover}`}>
+              <Link
+                to="/projects"
+                className={`${s.actionCardBase} ${s.actionCardHover}`}
+              >
                 <div className={`${s.actionIconWrap} bg-blue-100`}>
                   <FaFolderOpen className="text-blue-700 text-2xl" />
                 </div>
                 <div>
-                  <div className={s.actionTitle}>{text.dashboard.actions.viewTitle}</div>
-                  <div className={s.actionDesc}>{text.dashboard.actions.viewDesc}</div>
-                  <div className={s.actionHint}>{text.dashboard.actions.viewHint}</div>
+                  <div className={s.actionTitle}>
+                    {text.dashboard.actions.viewTitle}
+                  </div>
+                  <div className={s.actionDesc}>
+                    {text.dashboard.actions.viewDesc}
+                  </div>
+                  <div className={s.actionHint}>
+                    {text.dashboard.actions.viewHint}
+                  </div>
                 </div>
               </Link>
 
-              {/* Customer Profile → /customer-info */}
-              <Link to="/customer-info" className={`${s.actionCardBase} ${s.actionCardHover}`}>
+              {/* Customer Info — no from flag, save → back to dashboard */}
+              <Link
+                to="/customer-info"
+                className={`${s.actionCardBase} ${s.actionCardHover}`}
+              >
                 <div className={`${s.actionIconWrap} bg-slate-100`}>
                   <MdApartment className="text-blue-700 text-2xl" />
                 </div>
                 <div>
-                  <div className={s.actionTitle}>{text.dashboard.actions.customerTitle}</div>
-                  <div className={s.actionDesc}>{text.dashboard.actions.customerDesc}</div>
-                  <div className={s.actionHint}>{text.dashboard.actions.customerHint}</div>
+                  <div className={s.actionTitle}>
+                    {text.dashboard.actions.customerTitle}
+                  </div>
+                  <div className={s.actionDesc}>
+                    {text.dashboard.actions.customerDesc}
+                  </div>
+                  <div className={s.actionHint}>
+                    {customerId
+                      ? "✓ Profile saved"
+                      : text.dashboard.actions.customerHint}
+                  </div>
                 </div>
               </Link>
-
             </div>
           </div>
 
-          {/* platform features */}
           <div className={s.featuresCard}>
-            <div className={s.featuresTitle}>{text.dashboard.featuresTitle}</div>
+            <div className={s.featuresTitle}>
+              {text.dashboard.featuresTitle}
+            </div>
             <div className={s.featuresGrid}>
               <div className={s.featureItem}>
                 <div className={s.featureIconWrap}>
@@ -231,7 +287,6 @@ export default function Dashboard() {
                   ))}
                 </div>
               </div>
-
               <div className={s.featureItem}>
                 <div className={s.featureIconWrap}>
                   <FaLayerGroup className="text-blue-700 text-2xl" />
@@ -247,7 +302,6 @@ export default function Dashboard() {
                   ))}
                 </div>
               </div>
-
               <div className={s.featureItem}>
                 <div className={s.featureIconWrap}>
                   <FaCalculator className="text-blue-700 text-2xl" />
@@ -265,14 +319,16 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-
         </div>
       </div>
 
-      {/* Customer Profile Required Popup */}
+      {/*  Customer Profile Required Popup */}
       {showProfileAlert && (
         <div className={s.popupOverlay}>
-          <div className={s.popupBackdrop} onClick={() => setShowProfileAlert(false)} />
+          <div
+            className={s.popupBackdrop}
+            onClick={() => setShowProfileAlert(false)}
+          />
           <div className={s.popupCard}>
             <div className={s.popupHeader}>
               <div className={s.popupIconWrap}>
@@ -281,21 +337,38 @@ export default function Dashboard() {
               <h2 className={s.popupTitle}>Customer Profile Required</h2>
             </div>
             <p className={s.popupDesc}>
-              Before creating a project, you need to set up your customer profile first. This is a one-time setup that will be used for all your projects.
+              Before creating a project, you need to set up your customer
+              profile first. This is a one-time setup that will be used for all
+              your projects.
             </p>
             <div className={s.popupInfoBox}>
               <p className={s.popupInfoTitle}>Required Information:</p>
               <ul className={s.popupInfoList}>
                 <li className={s.popupInfoItem}>* Customer Name</li>
                 <li className={s.popupInfoItem}>* Customer Address</li>
-                <li className={s.popupInfoItem}>* Contact Details (Optional)</li>
+                <li className={s.popupInfoItem}>
+                  * Contact Details (Optional)
+                </li>
               </ul>
             </div>
             <div className={s.popupFooter}>
-              <button type="button" onClick={() => setShowProfileAlert(false)} className={s.popupCancelBtn}>
+              <button
+                type="button"
+                onClick={() => setShowProfileAlert(false)}
+                className={s.popupCancelBtn}
+              >
                 Back to Dashboard
               </button>
-              <button type="button" onClick={() => { setShowProfileAlert(false); navigate("/customer-info"); }} className={s.popupConfirmBtn}>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowProfileAlert(false);
+                  navigate("/customer-info", {
+                    state: { from: "create-project" },
+                  });
+                }}
+                className={s.popupConfirmBtn}
+              >
                 Setup Customer Profile
               </button>
             </div>

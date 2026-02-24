@@ -17,7 +17,8 @@ const initialState = {
   flowVelocity: 1.5,
   heatingFlowVelocity: 1.5,
   coolingFlowVelocity: 1.5,
-  zoneId: "1",
+  zoneId: null,
+  projectStandardId: null,
 };
 
 const standardsSlice = createSlice({
@@ -33,11 +34,7 @@ const standardsSlice = createSlice({
         state[key] = value;
       });
     },
-    resetStandards: (state) => {
-      const keepZoneId = state.zoneId;
-      Object.assign(state, { ...initialState, zoneId: keepZoneId });
-    },
-    fullResetStandards: () => initialState,
+    resetStandards: () => initialState,
   },
 });
 
@@ -45,7 +42,6 @@ export const {
   updateStandardsField,
   updateMultipleStandardsFields,
   resetStandards,
-  fullResetStandards,
 } = standardsSlice.actions;
 
 export default standardsSlice.reducer;

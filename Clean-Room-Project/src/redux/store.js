@@ -5,15 +5,19 @@ import { combineReducers } from "redux";
 import projectInfoReducer from "./slices/projectInfoSlice";
 import standardsReducer from "./slices/standardSlice";
 import roomReducer from "./slices/roomSlice";
+import customerReducer from "./slices/customerSlice"; 
+
+
 // --- Persist Config ---
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["projectInfo","standards","room"], // only persist these slices
+  whitelist: ["projectInfo","standards","room","customer"], // only persist these slices
 };
 
 // --- Root Reducer ---
 const rootReducer = combineReducers({
+  customer: customerReducer,
   projectInfo: projectInfoReducer,
   standards: standardsReducer,
   room: roomReducer,

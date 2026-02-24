@@ -14,6 +14,7 @@ const initialState = {
   maxTemp: "",
   relativeHumidityMin: "",
   relativeHumidityMax: "",
+  projectId: null,
 };
 
 // --- Slice (actions + reducers combined) ---

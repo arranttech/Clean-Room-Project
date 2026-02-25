@@ -25,11 +25,10 @@ import {
 import s from "./styles";
 import T from "../../json/room.json";
 import standardDataJson from "../../json/standardData.json";
-import { Tooltip } from "../../components/toolTip";
+import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
 import {
 	addRooms,
-	getAllDetailsforCalculations,
 	storeresults,
 	getZoneRooms,
 } from "../../backend/controller/controller";
@@ -130,7 +129,7 @@ export default function Room() {
 		(state: any) => state.projectInfo.relativeHumidityMax
 	);
 
-	// real projectId from Redux
+	// real projectId from Redux 
 	const projectId = useAppSelector((state: any) => state.projectInfo.projectId);
 
 	// ─── Local ACPH ───
@@ -231,7 +230,7 @@ export default function Room() {
 	const handleOpenNewRoomForm = () => dispatch(openNewRoomForm());
 	const handleResetRoomForm = () => dispatch(resetRoomForm());
 
-	// GET zone rooms from DB on mount to verify saves
+	// GET 
 	useEffect(() => {
 		if (!zoneId) return;
 		const fetchRooms = async () => {
@@ -277,8 +276,10 @@ export default function Room() {
 		console.log("====================");
 
 		try {
-			dispatch(saveRoom(roomToSave));
-			await saveZoneRooms(roomToSave);
+			// POST 
+			const backendRoomId = await saveZoneRooms(roomToSave);
+			const roomWithId = { ...roomToSave, backendRoomId };
+			dispatch(saveRoom(roomWithId));
 			setSelectedAcph(standardsAcph ?? "");
 		} catch (error) {
 			console.error("Failed to save room:", error);
@@ -323,36 +324,44 @@ export default function Room() {
 		});
 
 		try {
-			const allAirflowResults = await Promise.all(
-				savedRooms.map(async (room) => {
-					const room_id = Number(room.backendRoomId || 8);
-					const calculationDetails = await getAllDetailsforCalculations(
-						room_id
-					);
-					const roomData = calculationDetails.roomdetails?.[0] || {};
-					return airflowService({
-						roomName: room.roomName,
-						length: Number(roomData.length || room.length),
-						width: Number(roomData.width || room.width),
-						height: Number(roomData.height || room.height),
-						acph: Number(roomData.acph || room.acph),
-						freshAirPercent: Number(
-							roomData.freshAirPercent || room.freshAirPercent
-						),
-						exhaustAir: Number(roomData.exhaustAir || room.exhaustAir),
-						zoneSystem: room.zoneSystem,
-						zoneSystemType: room.zoneSystemType,
-					});
-				})
-			);
+			const allAirflowResults = savedRooms.map((room: any) => {
+				return airflowService({
+					roomName: room.roomName,
+					length: room.length,
+					width: room.width,
+					height: room.height,
+					acph: Number(room.acph),
+					freshAirPercent: room.freshAirPercent,
+					exhaustAir: room.exhaustAir,
+					occupancy: room.occupancy,
+					equipmentLoad: room.equipmentLoad,
+					lightingLoad: room.lightingLoad,
+					infiltrationsPerHour: room.infiltrationsPerHour,
+					zoneId: room.zoneId,
+					zoneSystem: room.zoneSystem,
+					zoneSystemType: room.zoneSystemType,
+					zoneCoolingMethod: room.zoneCoolingMethod,
+					zoneHeatingMethod: room.zoneHeatingMethod,
+					zoneClassification: room.zoneClassification,
+					zoneReqInsideTempC: room.zoneReqInsideTempC,
+					zoneReqInsideHum: room.zoneReqInsideHum,
+					minTempC,
+					maxTempC,
+					rhMin,
+					rhMax,
+				});
+			});
 
 			console.log("All airflow results calculated:", allAirflowResults);
 
+			// POST
 			await Promise.all(
-				allAirflowResults.map(async (result) => {
+				allAirflowResults.map(async (result: any, idx: number) => {
+					const room = savedRooms[idx];
 					await storeresults({
 						project_id: projectId,
 						roomName: result.roomName,
+						project_RoomId: room.backendRoomId || null,
 						project_Area: result.areaFt2,
 						project_Volume: result.volumeFt3,
 						project_RoomCfm: result.roomCfm,
@@ -375,6 +384,8 @@ export default function Room() {
 			alert("Failed to process airflow results.");
 		}
 	};
+
+	// Add Another Zone:
 	const addAnotherZone = () => {
 		if (!savedRooms.length) {
 			alert("Please add at least one room before adding another zone.");
@@ -393,7 +404,8 @@ export default function Room() {
 		setAcphDeviation((prev) => (prev > -20 ? prev - 5 : prev));
 	};
 
-	const saveZoneRooms = async (roomData: any) => {
+	// POST 
+	const saveZoneRooms = async (roomData: any): Promise<number | null> => {
 		const payload = {
 			zone_id: zoneId,
 			projectStandardId: projectStandardId,
@@ -414,8 +426,10 @@ export default function Room() {
 			console.log("Saving zone room with payload:", payload);
 			const data = await addRooms(payload);
 			console.log("Zone room saved:", data);
+			return data?.zoneRoomsId || null;
 		} catch (error) {
 			console.error("Failed to save zone room:", error);
+			throw error;
 		}
 	};
 

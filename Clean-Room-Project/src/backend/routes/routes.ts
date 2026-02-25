@@ -1,6 +1,7 @@
 import { ServerRoute, Request, ResponseToolkit } from "@hapi/hapi";
 import { ApplicationRepository } from "../repositories/repository";
 import { airflowService, RoomPayload } from "../services/service";
+
 const applicationRoutes: ServerRoute[] = [
   {
     method: "GET",
@@ -90,6 +91,28 @@ const applicationRoutes: ServerRoute[] = [
       }
     },
   },
+
+  // CUSTOMER INFO
+  {
+    method: "GET",
+    path: "/v1/customerinfo",
+    handler: async (request: Request, h: ResponseToolkit) => {
+      try {
+        const customer_id = request.query.customer_id
+          ? Number(request.query.customer_id)
+          : undefined;
+        if (!customer_id) {
+          return h.response({ error: "customer_id query param required" }).code(400);
+        }
+        const customer = await ApplicationRepository.getCustomerById(customer_id);
+        if (!customer) return h.response({ error: "Customer not found" }).code(404);
+        return h.response({ customer }).code(200);
+      } catch (err) {
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
   {
     method: "POST",
     path: "/v1/customerinfo",
@@ -103,6 +126,28 @@ const applicationRoutes: ServerRoute[] = [
       }
     },
   },
+
+  // PROJECT INFO
+
+  {
+    method: "GET",
+    path: "/v1/projectinfo",
+    handler: async (request: Request, h: ResponseToolkit) => {
+      try {
+        const customer_id = request.query.customer_id
+          ? Number(request.query.customer_id)
+          : undefined;
+        if (!customer_id) {
+          return h.response({ error: "customer_id query param required" }).code(400);
+        }
+        const project = await ApplicationRepository.getProjectByCustomerId(customer_id);
+        return h.response({ project: project || null }).code(200);
+      } catch (err) {
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
   {
     method: "POST",
     path: "/v1/projectinfo",
@@ -117,7 +162,9 @@ const applicationRoutes: ServerRoute[] = [
       }
     },
   },
-  // GET room standards by project_id
+
+  //ROOM STANDARDS
+
   {
     method: "GET",
     path: "/v1/roomstandards",
@@ -135,6 +182,13 @@ const applicationRoutes: ServerRoute[] = [
       }
     },
   },
+
+  // POST /v1/roomstandards
+  // Called by StandardPage handleNext (Step 2) every time Next is clicked
+  // Payload: { project_id, system, systemType, heatingMethod, coolingMethod,
+  //            standard, classification, acph, tempUnit, reqInsideTempC,
+  //            reqInsideHum, maxTempC, minTempC, rhMin, rhMax, flowVelocity }
+  // Returns { roomStandardsId } → dispatch updateStandardsField projectStandardId
   {
     method: "POST",
     path: "/v1/roomstandards",
@@ -150,6 +204,10 @@ const applicationRoutes: ServerRoute[] = [
       }
     },
   },
+
+  // POST /v1/projectzones
+  // Called by StandardPage handleNext (Step 1) every time Next is clicked
+  // Always creates a new zone. Returns { zoneId } → dispatch updateStandardsField zoneId
   {
     method: "POST",
     path: "/v1/projectzones",
@@ -160,6 +218,25 @@ const applicationRoutes: ServerRoute[] = [
         return h.response({ zoneId }).code(201);
       } catch (err) {
         console.error("Failed to create project zone:", err);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
+  // ─── ZONE ROOMS ───────────────────────────────────────────────────────────────
+  // GET /v1/zonerooms?zone_id=X
+  // Called by RoomPage useEffect on mount to verify/display rooms saved for this zone
+  {
+    method: "GET",
+    path: "/v1/zonerooms",
+    handler: async (request: Request, h: ResponseToolkit) => {
+      try {
+        const zone_id = request.query.zone_id
+          ? Number(request.query.zone_id)
+          : undefined;
+        const rooms = await ApplicationRepository.getZoneRooms({ zone_id });
+        return h.response({ rooms }).code(200);
+      } catch (err) {
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },
@@ -177,6 +254,8 @@ const applicationRoutes: ServerRoute[] = [
       }
     },
   },
+
+  //AIRFLOW 
   {
     method: "POST",
     path: "/v1/airflow",
@@ -198,6 +277,7 @@ const applicationRoutes: ServerRoute[] = [
     },
   },
 
+  //RESULTS
   {
     method: "POST",
     path: "/v1/storeresults",
@@ -205,12 +285,13 @@ const applicationRoutes: ServerRoute[] = [
       try {
         const payload = request.payload as any;
         const result = await ApplicationRepository.storeResults(payload);
-        return h.response(result).code(201);
+        return h.response({ resultId: result }).code(201);
       } catch (err) {
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },
   },
+  //LOGIN 
   {
     method: "POST",
     path: "/v1/login",
@@ -256,7 +337,3 @@ const applicationRoutes: ServerRoute[] = [
 ];
 
 export default applicationRoutes;
-function loginUser(identifier: any, password: any) {
-	throw new Error("Function not implemented.");
-}
-

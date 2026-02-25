@@ -13,7 +13,7 @@ import {
 	createProjectZone,
 	getRoomStandards,
 } from "../../backend/controller/controller";
-import { Tooltip } from "../../components/toolTip";
+import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
 
 type StandardItem = {
@@ -97,12 +97,11 @@ export default function Standard() {
 	const navigate = useNavigate();
 	const location = useLocation();
 
+	// projectId
 	const projectIdFromRedux = useAppSelector(
 		(state: any) => state.projectInfo.projectId
 	);
 	const projectId = location.state?.projectId ?? projectIdFromRedux;
-
-	// read zoneId from Redux to detect "Add Another Zone" reset
 	const zoneIdFromRedux = useAppSelector(
 		(state: any) => state.standards.zoneId
 	);
@@ -140,6 +139,7 @@ export default function Standard() {
 		(state: any) => state.standards.coolingFlowVelocity
 	);
 
+	// Weather data from Redux projectInfoSlice — set by ProjectInfoPage after weather API
 	const minTempC = useAppSelector((state: any) => state.projectInfo.minTemp);
 	const maxTempC = useAppSelector((state: any) => state.projectInfo.maxTemp);
 	const rhMin = useAppSelector(
@@ -161,10 +161,11 @@ export default function Standard() {
 		temperature: "",
 	});
 
+	// GET 
 	useEffect(() => {
 		if (!projectId) return;
-		if (zoneIdFromRedux === null) return; //  skip if Add Another Zone was clicked
-		if (standard) return; //  skip if already pre-filled
+		if (zoneIdFromRedux === null) return; 
+		if (standard) return;                 
 		const fetchStandards = async () => {
 			try {
 				const data = await getRoomStandards(projectId);
@@ -569,9 +570,9 @@ export default function Standard() {
 			classification,
 			acph,
 			tempUnit,
-			reqInsideTempC,
+			reqInsideTempC,   
 			reqInsideHum,
-			maxTempC,
+			maxTempC,         
 			minTempC,
 			rhMin,
 			rhMax,
@@ -613,6 +614,7 @@ export default function Standard() {
 				return;
 			}
 
+			// Dispatch both IDs to Redux standardSlice
 			dispatch(updateStandardsField({ field: "zoneId", value: newZoneId }));
 			dispatch(
 				updateStandardsField({

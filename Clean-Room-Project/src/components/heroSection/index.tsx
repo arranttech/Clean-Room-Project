@@ -1,4 +1,4 @@
-import heroDesign from "./heroDesign";
+import heroDesign from "./styles";
 import { FaArrowRight, FaPlay, FaCheck } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import text from "../../json/constants.json";

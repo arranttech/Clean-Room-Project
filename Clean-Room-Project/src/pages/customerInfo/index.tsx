@@ -63,7 +63,8 @@ function CustomerInfoPage() {
 		}
 	}, []);
 
-	// useEffect 2 — pre-fill from DB on refresh
+	// useEffect 2 — pre-fill from DB on page refresh
+
 	useEffect(() => {
 		if (!savedCustomerId || savedCustomerName) return;
 		const fetchCustomer = async () => {
@@ -125,7 +126,7 @@ function CustomerInfoPage() {
 	})();
 
 	const saveCustomerInfo = async () => {
-		// already saved — show popup then navigate
+		// SKIP POST — customer already saved in DB (
 		if (isSaved && savedCustomerId) {
 			console.log("Customer already saved, skipping POST.");
 			dispatch(updateField({ field: "customerName", value: customerName }));
@@ -326,7 +327,7 @@ function CustomerInfoPage() {
 					Cancel
 				</Link>
 				<div className="flex flex-col items-end gap-2">
-					{/* disabled when isSaved — fields pre-filled */}
+					{/* disabled when isSaved — fields pre-filled, no re-submit */}
 					<button
 						className={`${styles.nextLink} ${
 							!isFormValid || isSaved ? styles.disabled : ""

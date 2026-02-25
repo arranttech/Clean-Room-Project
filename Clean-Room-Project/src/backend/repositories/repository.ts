@@ -41,7 +41,9 @@ export const ApplicationRepository = {
 				success: true,
 				user: {
 					user_id: user.user_id,
-					name: `${user.user_first_name || ""} ${user.user_last_name || ""}`.trim(),
+					name: `${user.user_first_name || ""} ${
+						user.user_last_name || ""
+					}`.trim(),
 				},
 			};
 		} catch (err) {
@@ -258,7 +260,9 @@ export const ApplicationRepository = {
 					payload.unitBranch,
 					JSON.stringify(payload.industry),
 					JSON.stringify(payload.handling),
-					payload.selectedLocation?.display_name || payload.selectedLocation || "",
+					payload.selectedLocation?.display_name ||
+						payload.selectedLocation ||
+						"",
 					parseFloat(payload.maxTemp),
 					parseFloat(payload.minTemp),
 					parseFloat(payload.relativeHumidityMin),
@@ -266,7 +270,7 @@ export const ApplicationRepository = {
 				]
 			);
 
-      console.log("Create Project Result:", result);
+			console.log("Create Project Result:", result);
 
 			// FIX: return insertId directly — avoids race condition when uniqueId has duplicates
 			return (result as any).insertId;
@@ -276,7 +280,7 @@ export const ApplicationRepository = {
 		}
 	},
 
-	// ZONE 
+	// ZONE
 	createProjectZone: async (payload: any) => {
 		try {
 			const [result] = await database.execute(
@@ -331,9 +335,9 @@ export const ApplicationRepository = {
 					payload.classification ?? null,
 					payload.acph ?? null,
 					payload.tempUnit ?? null,
-					payload.reqInsideTempC ?? null,  
+					payload.reqInsideTempC ?? null,
 					payload.reqInsideHum ?? null,
-					payload.maxTempC ?? null,          
+					payload.maxTempC ?? null,
 					payload.minTempC ?? null,
 					payload.rhMin ?? null,
 					payload.rhMax ?? null,
@@ -352,9 +356,6 @@ export const ApplicationRepository = {
 
 	createZoneRooms: async (payload: any) => {
 		try {
-			const zone_id = payload.zone_id;
-			const project_standard_id = payload.projectStandardId;
-
 			const [result] = await database.execute(
 				`INSERT INTO tZoneRooms 
 					(
@@ -374,8 +375,8 @@ export const ApplicationRepository = {
 					)
 				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 				[
-					zone_id,
-					project_standard_id,
+					payload.zone_id ?? null,
+					payload.projectStandardId ?? null,
 					payload.roomName ?? null,
 					payload.length ?? null,
 					payload.width ?? null,
@@ -430,8 +431,7 @@ export const ApplicationRepository = {
 		}
 	},
 
-
-	// GET single customer — CustomerInfoPage useEffect 
+	// GET single customer — CustomerInfoPage useEffect
 
 	getCustomerById: async (customer_id: number) => {
 		try {
@@ -446,7 +446,7 @@ export const ApplicationRepository = {
 		}
 	},
 
-	// GET 
+	// GET
 	getProjectByCustomerId: async (customer_id: number) => {
 		try {
 			const [rows]: any = await database.execute(
@@ -460,7 +460,7 @@ export const ApplicationRepository = {
 		}
 	},
 
-	// GET 
+	// GET
 	getRoomStandards: async (payload?: { project_id?: number }) => {
 		try {
 			let query = `SELECT * FROM tRoomStandards`;

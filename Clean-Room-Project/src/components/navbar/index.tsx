@@ -1,4 +1,4 @@
-import navbarDesign from "./navbarDesign";
+import navbarDesign from "./styles";
 import { Link } from "react-router-dom";
 import text from "../../json/constants.json";
 
@@ -50,7 +50,7 @@ export default function Navbar() {
 
 					{/* RIGHT */}
 					<div className={navbarDesign.right}>
-					<Link to="/admin" className={navbarDesign.admin}>
+						<Link to="/admin" className={navbarDesign.admin}>
 							Admin
 						</Link>
 						<span className="text-slate-900 select-none">|</span>

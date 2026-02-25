@@ -1,8 +1,8 @@
 import Navbar from "../../components/navbar";
-import HeroPage from "../../components/heroSection/heropage";
+import HeroPage from "../../components/heroSection";
 import Powerful from "../../components/powerfulSection";
-import IndustrySec from "../../components/IndustrySection";
-import Footer from "../../components/footer/footer";
+import IndustrySec from "../../components/industrySection";
+import Footer from "../../components/footer";
 
 export default function LandingPage() {
 	return (
@@ -12,7 +12,7 @@ export default function LandingPage() {
 				<HeroPage />
 				<Powerful />
 				<IndustrySec />
-				<Footer/>
+				<Footer />
 			</div>
 		</div>
 	);

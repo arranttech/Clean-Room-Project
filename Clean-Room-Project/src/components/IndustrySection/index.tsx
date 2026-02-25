@@ -1,4 +1,4 @@
-import industryDesign from "./industryDesign";
+import industryDesign from "./styles";
 import {
 	MdLocalPharmacy,
 	MdOutlineBiotech,

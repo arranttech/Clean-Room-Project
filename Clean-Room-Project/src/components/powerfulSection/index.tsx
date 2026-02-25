@@ -1,4 +1,4 @@
-import powerfulDesign from "./powerfulDesign";
+import powerfulDesign from "./styles";
 import { PiBatteryChargingFill } from "react-icons/pi";
 import { BiSolidBookmarkStar } from "react-icons/bi";
 import { SiGoogleanalytics, SiWebcomponentsdotorg } from "react-icons/si";

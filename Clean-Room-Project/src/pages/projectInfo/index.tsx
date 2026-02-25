@@ -7,7 +7,7 @@ import {
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { FaLocationDot, FaXmark } from "react-icons/fa6";
 import { Link, useNavigate } from "react-router-dom";
-import styles from ".";
+import styles from "./styles";
 import {
 	projectInfo,
 	getProjectByCustomerId,

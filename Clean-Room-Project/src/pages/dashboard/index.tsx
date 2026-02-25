@@ -16,7 +16,6 @@ import {
 import { MdApartment } from "react-icons/md";
 import s from "./styles";
 import text from "../../json/dashboard.json";
-import { parseJwt } from "../../utils/auth";
 
 type Project = {
 	id: string;
@@ -72,13 +71,15 @@ export default function Dashboard() {
 	);
 
 	const userName = useMemo(() => {
-		const token = localStorage.getItem("token");
-		if (!token) return "User";
-		const decoded = parseJwt(token) as { name?: string; email?: string } | null;
-		if (!decoded) return "User";
-		if (decoded.name) return decoded.name;
-		if (decoded.email) return decoded.email.split("@")[0];
-		return "User";
+		try {
+			const raw = localStorage.getItem("user");
+			if (!raw) return "User";
+			const user = JSON.parse(raw) as { name?: string };
+			if (user.name) return user.name.split(" ")[0];
+			return "User";
+		} catch {
+			return "User";
+		}
 	}, []);
 
 	const dispatch = useAppDispatch();

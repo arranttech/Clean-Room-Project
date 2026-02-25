@@ -42,6 +42,7 @@ export const ApplicationRepository = {
 				success: true,
 				user: {
 					user_id: user.user_id,
+					name: `${user.user_first_name || ""} ${user.user_last_name || ""}`.trim(),
 				},
 			};
 		} catch (err) {

@@ -2,58 +2,58 @@ import { database } from "../dbConnection/connections";
 import bcrypt from "bcrypt";
 
 export const ApplicationRepository = {
-    loginUser: async (identifier: string, password: string) => {
-        try {
-            // Call stored procedure
-            const [resultSets]: any = await database.execute(
-                "CALL new_cleanroom_db.UserLoginDetail(?)",
-                [identifier]
-            );
+	loginUser: async (identifier: string, password: string) => {
+		try {
+			// Call stored procedure
+			const [resultSets]: any = await database.execute(
+				"CALL new_cleanroom_db.UserLoginDetail(?)",
+				[identifier]
+			);
 
-            // Stored procedures return results in resultSets[0]
-            const rows = resultSets[0];
+			// Stored procedures return results in resultSets[0]
+			const rows = resultSets[0];
 
-            if (!rows || rows.length === 0){
-                return { success: false, message: "Account does not exist" };
+			if (!rows || rows.length === 0) {
+				return { success: false, message: "Account does not exist" };
 			}
 
-            const user = rows[0];
+			const user = rows[0];
 
-            if (!user.user_password) {
-                return { success: false, message: "Password not found" };
-            }
-
-            // ⚠️ IMPORTANT: use bcrypt only if password is hashed
-            let valid = false;
-
-            if (user.user_password.startsWith("$2")) {
-                // hashed password
-                valid = await bcrypt.compare(password, user.user_password);
-            } else {
-                // plain text password
-                valid = password === user.user_password;
-            }
-
-            if (!valid){
-                return { success: false, message: "Invalid credentials" };
+			if (!user.user_password) {
+				return { success: false, message: "Password not found" };
 			}
 
-            return {
-                success: true,
-                user: {
-                    user_id: user.user_id,
-                }
-            };
-        } catch (err) {
-            console.error("Error in loginUser:", err);
-            throw err;
-        }
-    },
+			// ⚠️ IMPORTANT: use bcrypt only if password is hashed
+			let valid = false;
 
-    createUser: async (payload: any) => {
-        try {
-            const [result] = await database.execute(
-                `INSERT INTO tUsers (
+			if (user.user_password.startsWith("$2")) {
+				// hashed password
+				valid = await bcrypt.compare(password, user.user_password);
+			} else {
+				// plain text password
+				valid = password === user.user_password;
+			}
+
+			if (!valid) {
+				return { success: false, message: "Invalid credentials" };
+			}
+
+			return {
+				success: true,
+				user: {
+					user_id: user.user_id,
+				},
+			};
+		} catch (err) {
+			console.error("Error in loginUser:", err);
+			throw err;
+		}
+	},
+
+	createUser: async (payload: any) => {
+		try {
+			const [result] = await database.execute(
+				`INSERT INTO tUsers (
        
         user_first_name,
         user_last_name,
@@ -122,7 +122,6 @@ export const ApplicationRepository = {
 		}
 	},
 
-
 	deleteUser: async (user_login_id: number) => {
 		try {
 			const [result]: any = await database.execute(
@@ -138,11 +137,9 @@ export const ApplicationRepository = {
 		}
 	},
 
-
 	getUserDetails: async (payload?: { admin_id?: string }) => {
 		try {
 			let query = `SELECT * FROM tUsers`;
-
 
 			const params: any[] = [];
 
@@ -320,89 +317,64 @@ export const ApplicationRepository = {
 	// Insert room standards
 	createRoomStandards: async (payload: any) => {
 		try {
-			// Fallback project ID
 			const fallbackProjectId = "1003";
 			const project_id = payload.projectId || fallbackProjectId;
-			console.log(
-				"Inserting room standards with project_id:",
-				project_id,
-				"and payload:",
-				payload
-			);
+
 			const [result] = await database.execute(
 				`INSERT INTO tRoomStandards 
-    (
-      project_id,
-      project_system,
-      project_system_type,
-      project_heating_method,
-      project_cooling_method,
-      project_standard,
-      project_classification_name,
-      project_ACPH,
-      project_temp_unit,
-      project_required_inside_temp,
-      project_required_inside_humid,
-      project_max_temp,
-      project_min_temp,
-      project_relative_min_humid,
-      project_relative_max_humid,
-      flow_velocity
-    )
-   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          (
+            project_id,
+            project_system,
+            project_system_type,
+            project_heating_method,
+            project_cooling_method,
+            project_standard,
+            project_classification_name,
+            project_ACPH,
+            project_temp_unit,
+            project_required_inside_temp,
+            project_required_inside_humid,
+            project_max_temp,
+            project_min_temp,
+            project_relative_min_humid,
+            project_relative_max_humid,
+            flow_velocity
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 				[
 					project_id,
-					project_system,
-					project_system_type,
-					project_heating_method,
-					project_cooling_method,
-					project_standard,
-					project_classification_name,
-					project_ACPH,
-					project_temp_unit,
-					project_required_inside_temp,
-					project_required_inside_humid,
-					project_max_temp,
-					project_min_temp,
-					project_relative_min_humid,
-					project_relative_max_humid,
-					flow_velocity
-				)
-				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          project_id,
-          payload.system ?? null,
-          payload.systemType ?? null,
-          payload.heatingMethod ?? null,
-          payload.coolingMethod ?? null,
-          payload.standard ?? null,
-          payload.classification ?? null,
-          payload.acph ?? null,
-          payload.tempUnit ?? null,
-          payload.reqInsideTempC ?? null,
-          payload.reqInsideHum ?? null,
-          payload.maxTempC ?? null,
-          payload.minTempC ?? null,
-          payload.rhMin ?? null,
-          payload.rhMax ?? null,
-          payload.flowVelocity ?? null,
-        ]
-      );
+					payload.system ?? null,
+					payload.systemType ?? null,
+					payload.heatingMethod ?? null,
+					payload.coolingMethod ?? null,
+					payload.standard ?? null,
+					payload.classification ?? null,
+					payload.acph ?? null,
+					payload.tempUnit ?? null,
+					payload.reqInsideTempC ?? null,
+					payload.reqInsideHum ?? null,
+					payload.maxTempC ?? null,
+					payload.minTempC ?? null,
+					payload.rhMin ?? null,
+					payload.rhMax ?? null,
+					payload.flowVelocity ?? null,
+				]
+			);
 
-      return (result as any).insertId;
-    } catch (err) {
-      console.error("Error in roomStandards:", err);
-      throw err;
-    }
-  },
+			return (result as any).insertId;
+		} catch (err) {
+			console.error("Error in roomStandards:", err);
+			throw err;
+		}
+	},
 
-  createZoneRooms: async (payload: any) => {
-    try {
-      const zone_id = payload.zone_id;
-      const project_standard_id = payload.projectStandardId;
+	createZoneRooms: async (payload: any) => {
+		try {
+			const zone_id = payload.zone_id;
+			const project_standard_id = payload.projectStandardId;
 
-      const [result] = await database.execute(
-        `INSERT INTO tZoneRooms 
+			const [result] = await database.execute(
+				`INSERT INTO tZoneRooms 
 					(
 						zone_id,
 						project_standard_id,
@@ -419,37 +391,37 @@ export const ApplicationRepository = {
 						project_ACPH
 					)
 				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          zone_id,
-          project_standard_id,
-          payload.roomName ?? null,
-          payload.length ?? null,
-          payload.width ?? null,
-          payload.height ?? null,
-          payload.occupancy ?? null,
-          payload.equipmentLoad ?? null,
-          payload.lightingLoad ?? null,
-          payload.infiltrationsPerHour ?? null,
-          payload.freshAirPercent ?? null,
-          payload.exhaustAir ?? null,
-          payload.selectedAcph ?? null,
-        ]
-      );
+				[
+					zone_id,
+					project_standard_id,
+					payload.roomName ?? null,
+					payload.length ?? null,
+					payload.width ?? null,
+					payload.height ?? null,
+					payload.occupancy ?? null,
+					payload.equipmentLoad ?? null,
+					payload.lightingLoad ?? null,
+					payload.infiltrationsPerHour ?? null,
+					payload.freshAirPercent ?? null,
+					payload.exhaustAir ?? null,
+					payload.selectedAcph ?? null,
+				]
+			);
 
-      return (result as any).insertId;
-    } catch (err) {
-      console.error("Error in zoneRooms:", err);
-      throw err;
-    }
-  },
+			return (result as any).insertId;
+		} catch (err) {
+			console.error("Error in zoneRooms:", err);
+			throw err;
+		}
+	},
 
-  storeResults: async (payload: any) => {
-    try {
-      const project_id = payload.project_id;
-      const project_RoomId = payload.project_RoomId || null;
+	storeResults: async (payload: any) => {
+		try {
+			const project_id = payload.project_id;
+			const project_RoomId = payload.project_RoomId || null;
 
-      const [result] = await database.execute(
-        `INSERT INTO tProjectResults (
+			const [result] = await database.execute(
+				`INSERT INTO tProjectResults (
 					project_id,
 					project_RoomName,
 					project_RoomId,
@@ -459,84 +431,84 @@ export const ApplicationRepository = {
 					project_FreshAir,
 					project_ExhaustAir
 				) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          project_id,
-          payload.roomName ?? null,
-          project_RoomId,
-          payload.project_Area ?? null,
-          payload.project_Volume ?? null,
-          payload.project_RoomCfm ?? null,
-          payload.project_FreshAir ?? null,
-          payload.project_ExhaustAir ?? null,
-        ]
-      );
+				[
+					project_id,
+					payload.roomName ?? null,
+					project_RoomId,
+					payload.project_Area ?? null,
+					payload.project_Volume ?? null,
+					payload.project_RoomCfm ?? null,
+					payload.project_FreshAir ?? null,
+					payload.project_ExhaustAir ?? null,
+				]
+			);
 
-      return (result as any).insertId;
-    } catch (err) {
-      console.error("Error storing project room results:", err);
-      throw err;
-    }
-  },
+			return (result as any).insertId;
+		} catch (err) {
+			console.error("Error storing project room results:", err);
+			throw err;
+		}
+	},
 
-  // GET customer by customer_id for CustomerInfoPage useEffect
-  getCustomerById: async (customer_id: number) => {
-    try {
-      const [rows]: any = await database.execute(
-        `SELECT * FROM tCustomers WHERE customer_id = ? LIMIT 1`,
-        [customer_id]
-      );
-      return rows[0] || null;
-    } catch (err) {
-      console.error("Error in getCustomerById:", err);
-      throw err;
-    }
-  },
+	// GET customer by customer_id for CustomerInfoPage useEffect
+	getCustomerById: async (customer_id: number) => {
+		try {
+			const [rows]: any = await database.execute(
+				`SELECT * FROM tCustomers WHERE customer_id = ? LIMIT 1`,
+				[customer_id]
+			);
+			return rows[0] || null;
+		} catch (err) {
+			console.error("Error in getCustomerById:", err);
+			throw err;
+		}
+	},
 
-  // GET project by customer_id for ProjectInfoPage useEffect
-  getProjectByCustomerId: async (customer_id: number) => {
-    try {
-      const [rows]: any = await database.execute(
-        `SELECT * FROM tProjects WHERE customer_id = ? ORDER BY project_id DESC LIMIT 1`,
-        [customer_id]
-      );
-      return rows[0] || null;
-    } catch (err) {
-      console.error("Error in getProjectByCustomerId:", err);
-      throw err;
-    }
-  },
+	// GET project by customer_id for ProjectInfoPage useEffect
+	getProjectByCustomerId: async (customer_id: number) => {
+		try {
+			const [rows]: any = await database.execute(
+				`SELECT * FROM tProjects WHERE customer_id = ? ORDER BY project_id DESC LIMIT 1`,
+				[customer_id]
+			);
+			return rows[0] || null;
+		} catch (err) {
+			console.error("Error in getProjectByCustomerId:", err);
+			throw err;
+		}
+	},
 
-  // GET room standards by project_id for StandardPage useEffect
-  getRoomStandards: async (payload?: { project_id?: number }) => {
-    try {
-      let query = `SELECT * FROM tRoomStandards`;
-      const params: any[] = [];
-      if (payload?.project_id) {
-        query += ` WHERE project_id = ? ORDER BY project_standard_id DESC`;
-        params.push(payload.project_id);
-      }
-      const [result] = await database.execute(query, params);
-      return result;
-    } catch (err) {
-      console.error("Error in getRoomStandards:", err);
-      throw err;
-    }
-  },
+	// GET room standards by project_id for StandardPage useEffect
+	getRoomStandards: async (payload?: { project_id?: number }) => {
+		try {
+			let query = `SELECT * FROM tRoomStandards`;
+			const params: any[] = [];
+			if (payload?.project_id) {
+				query += ` WHERE project_id = ? ORDER BY project_standard_id DESC`;
+				params.push(payload.project_id);
+			}
+			const [result] = await database.execute(query, params);
+			return result;
+		} catch (err) {
+			console.error("Error in getRoomStandards:", err);
+			throw err;
+		}
+	},
 
-  // GET zone rooms by zone_id for RoomPage useEffect
-  getZoneRooms: async (payload?: { zone_id?: number }) => {
-    try {
-      let query = `SELECT * FROM tZoneRooms`;
-      const params: any[] = [];
-      if (payload?.zone_id) {
-        query += ` WHERE zone_id = ?`;
-        params.push(payload.zone_id);
-      }
-      const [result] = await database.execute(query, params);
-      return result;
-    } catch (err) {
-      console.error("Error in getZoneRooms:", err);
-      throw err;
-    }
-  },
+	// GET zone rooms by zone_id for RoomPage useEffect
+	getZoneRooms: async (payload?: { zone_id?: number }) => {
+		try {
+			let query = `SELECT * FROM tZoneRooms`;
+			const params: any[] = [];
+			if (payload?.zone_id) {
+				query += ` WHERE zone_id = ?`;
+				params.push(payload.zone_id);
+			}
+			const [result] = await database.execute(query, params);
+			return result;
+		} catch (err) {
+			console.error("Error in getZoneRooms:", err);
+			throw err;
+		}
+	},
 };

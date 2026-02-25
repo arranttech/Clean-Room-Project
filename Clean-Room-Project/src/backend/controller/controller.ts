@@ -31,13 +31,18 @@ async function request(
   return response.json();
 }
 
+export const loginUser = (payload: {
+    identifier: string;
+    password: string;
+}) => request("/v1/login", "POST", payload);
+
 export const getUsers = () => request("/v1/users", "GET");
 
 export const createUsers = (payload: object) =>
   request("/v1/users", "POST", payload);
 
 export const deleteUser = (user_login_id: number) =>
-  request(`/v1/users/${user_login_id}`, "DELETE");
+    request(`/v1/users/${user_login_id}`, "DELETE");
 
 
 export const getAllDetailsforCalculations = (room_id: number) =>

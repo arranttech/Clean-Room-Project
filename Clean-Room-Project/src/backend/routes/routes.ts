@@ -1,9 +1,14 @@
 import { ServerRoute, Request, ResponseToolkit } from "@hapi/hapi";
 import { ApplicationRepository } from "../repositories/repository";
 import { airflowService, RoomPayload } from "../services/service";
-
 const applicationRoutes: ServerRoute[] = [
-  { method: "GET", path: "/", handler: () => "API is running!" },
+  {
+    method: "GET",
+    path: "/",
+    handler: () => {
+      return "API is running!";
+    },
+  },
   {
     method: "GET",
     path: "/v1/alldetails",
@@ -32,6 +37,7 @@ const applicationRoutes: ServerRoute[] = [
       }
     },
   },
+
   {
     method: "DELETE",
     path: "/v1/users/{id}",
@@ -47,6 +53,7 @@ const applicationRoutes: ServerRoute[] = [
       }
     },
   },
+
   {
     method: "POST",
     path: "/v1/users",
@@ -157,22 +164,6 @@ const applicationRoutes: ServerRoute[] = [
       }
     },
   },
-  //  GET zone rooms by zone_id
-  {
-    method: "GET",
-    path: "/v1/zonerooms",
-    handler: async (request: Request, h: ResponseToolkit) => {
-      try {
-        const zone_id = request.query.zone_id
-          ? Number(request.query.zone_id)
-          : undefined;
-        const rooms = await ApplicationRepository.getZoneRooms({ zone_id });
-        return h.response({ rooms }).code(200);
-      } catch (err) {
-        return h.response({ error: "Internal Server Error" }).code(500);
-      }
-    },
-  },
   {
     method: "POST",
     path: "/v1/zonerooms",
@@ -206,6 +197,7 @@ const applicationRoutes: ServerRoute[] = [
       }
     },
   },
+
   {
     method: "POST",
     path: "/v1/storeresults",
@@ -219,6 +211,52 @@ const applicationRoutes: ServerRoute[] = [
       }
     },
   },
+  {
+    method: "POST",
+    path: "/v1/login",
+    options: {
+      auth: false,
+      cors: true,
+    },
+    handler: async (req: any, h: any) => {
+      try {
+        const { identifier, password } = req.payload;
+
+        if (!identifier || !password) {
+          return h.response({
+            success: false,
+            message: "User ID/Email and password are required"
+          }).code(400);
+        }
+
+        const result = await ApplicationRepository.loginUser(identifier, password);
+
+        if (!result.success) {
+          return h.response({
+            success: false,
+            message: result.message
+          }).code(401);
+        }
+
+        return h.response({
+          success: true,
+          message: "Login successful",
+          user: result.user
+        }).code(200);
+
+      } catch (error) {
+        console.error("Login error:", error);
+        return h.response({
+          success: false,
+          message: "Internal server error"
+        }).code(500);
+      }
+    },
+  },
 ];
 
 export default applicationRoutes;
+function loginUser(identifier: any, password: any) {
+	throw new Error("Function not implemented.");
+}
+

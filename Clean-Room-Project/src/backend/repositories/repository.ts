@@ -222,11 +222,6 @@ export const ApplicationRepository = {
 
 	createProject: async (payload: any) => {
 		try {
-			// Fallback customer ID
-			const fallbackCustomerId = "1001";
-
-			const customer_id = payload.customer_id || fallbackCustomerId;
-
 			// Check if the customer exists
 			const [customer]: any = await database.execute(
 				`SELECT customer_id FROM tCustomers WHERE customer_id = ?`,
@@ -257,7 +252,7 @@ export const ApplicationRepository = {
           )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 				[
-					customer_id,
+					payload.customer_id,
 					payload.uniqueId,
 					payload.projectName,
 					payload.unitBranch,
@@ -287,10 +282,6 @@ export const ApplicationRepository = {
 	// Create a new project zone
 	createProjectZone: async (payload: any) => {
 		try {
-			// Fallback project ID
-			const fallbackProjectId = "1003";
-			const project_id = payload.projectId || fallbackProjectId;
-
 			const [result] = await database.execute(
 				`INSERT INTO tProjectZones
           (
@@ -298,7 +289,7 @@ export const ApplicationRepository = {
             zone_name
           )
         VALUES (?, ?)`,
-				[project_id, payload.zone_name || "Zone 002"]
+				[payload.project_id, payload.zone_name || "Zone 002"]
 			);
 
 			// Return generated project_id
@@ -317,9 +308,6 @@ export const ApplicationRepository = {
 	// Insert room standards
 	createRoomStandards: async (payload: any) => {
 		try {
-			const fallbackProjectId = "1003";
-			const project_id = payload.projectId || fallbackProjectId;
-
 			const [result] = await database.execute(
 				`INSERT INTO tRoomStandards 
           (
@@ -342,7 +330,7 @@ export const ApplicationRepository = {
           )
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 				[
-					project_id,
+					payload.project_id,
 					payload.system ?? null,
 					payload.systemType ?? null,
 					payload.heatingMethod ?? null,

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { FaFloppyDisk, FaCircleCheck } from "react-icons/fa6";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import styles from ".";
+import styles from "./styles";
 import {
 	customerInfo,
 	getCustomerById,

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { setCustomer } from "../../redux/slices/customerSlice";
-import { getCustomerInfo} from "../../backend/controller/controller";
+import { getCustomerInfo } from "../../backend/controller/controller";
 import { handleLogout } from "../../utils/logout";
 import { FiLogOut } from "react-icons/fi";
 import {
@@ -98,8 +98,8 @@ export default function Dashboard() {
 					return;
 				}
 				const user = JSON.parse(raw);
-				console.log("user_login_id:", user.user_login_id);
-				const result = await getCustomerInfo(user.user_login_id);
+				console.log("user_login_id:", user?.user_login_id);
+				const result = await getCustomerInfo(user?.user_login_id);
 				console.log("Customer info result:", result);
 				if (result.success) {
 					const c = result.customer;
@@ -115,7 +115,10 @@ export default function Dashboard() {
 					);
 				}
 			} catch (error) {
-				console.error("Failed to load customer info:", (error as Error).message);
+				console.error(
+					"Failed to load customer info:",
+					(error as Error).message
+				);
 			}
 		};
 		loadCustomer();

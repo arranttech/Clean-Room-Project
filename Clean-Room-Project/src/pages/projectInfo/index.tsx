@@ -17,7 +17,7 @@ function ProjectInfoPage() {
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 
-	// customerId from customerSlice 
+	// customerId from customerSlice
 	const customerId = useAppSelector((s: any) => s.customer.customerId);
 	const customerName = useAppSelector((s: any) => s.customer.customerName);
 
@@ -556,7 +556,7 @@ function ProjectInfoPage() {
 			</div>
 
 			<div className={styles.footer}>
-				<Link to="/customer-info" className={styles.backLink}>
+				<Link to="/dashboard" className={styles.backLink}>
 					<FaArrowLeft /> Back
 				</Link>
 				<button

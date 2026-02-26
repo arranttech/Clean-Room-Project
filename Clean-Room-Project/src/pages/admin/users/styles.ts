@@ -12,7 +12,7 @@ const usersDesign = {
   
     // --- Table Styling ---
     tableWrap: "bg-white rounded-2xl border border-slate-200 shadow-sm overflow-x-auto",
-table: "min-w-max w-full",
+    table: "min-w-max w-full",
 
     thead: "border-b border-slate-100 bg-slate-50",
     th: "px-5 py-5 text-left text-xs font-bold text-slate-400 uppercase tracking-wider",
@@ -25,7 +25,7 @@ table: "min-w-max w-full",
     tdActions: "px-5 py-4 text-right",
   
     // --- Action Buttons Styling ---
-   
+
     editBtn: "text-slate-400 hover:text-blue-600 transition-colors p-1.5 rounded-lg hover:bg-blue-300",
     deleteBtn: "text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-300",
   
@@ -37,28 +37,30 @@ table: "min-w-max w-full",
 
 
     // --- Add Users Form Styling ---
-  formTitle: "text-2xl font-bold text-slate-900 mb-6",
-  formCard: "bg-white rounded-2xl border border-slate-200 shadow-sm p-8",
-  formGroup: "mb-5",
-  formRow: "grid grid-cols-2 gap-5 mb-5",
-  formLabel: "block text-sm font-semibold text-slate-700 mb-1.5",
-  formRequired: "text-red-500 ml-0.5",
-  formInput: "w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all",
-  formTextarea: "w-full border border-slate-200 rounded-xl  text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-y ",
-  formDivider: "border-t border-slate-100 mt-6 pt-6",
-  formFooter: "flex items-center justify-end gap-3",
-  formCancelBtn: "flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all",
-  formSubmitBtn: "flex items-center gap-2 bg-blue-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-all shadow-sm",
-  formError: "text-red-500 text-xs mt-1",
-  // --- Success Popup ---
-  popupOverlay: "fixed inset-0 z-50 flex items-center justify-center",
-  popupBackdrop: "absolute inset-0 bg-black/40 backdrop-blur-sm",
-  popupCard: "relative z-10 bg-white rounded-2xl shadow-2xl px-10 py-8 flex flex-col items-center gap-3 min-w-[320px]",
-  popupIcon: "text-green-500 text-5xl",
-  popupTitle: "text-xl font-bold text-slate-900",
-  popupMessage: "text-sm text-slate-500 text-center",
-  popupProgressWrap: "w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-2",
-  popupProgressBar: "h-full bg-green-500 rounded-full animate-[progress_2s_linear_forwards]",
-  };
+    formTitle: "text-2xl font-bold text-slate-900 mb-6",
+    formCard: "bg-white rounded-2xl border border-slate-200 shadow-sm p-8",
+    formGroup: "mb-5",
+    formRow: "grid grid-cols-2 gap-5 mb-5",
+    formLabel: "block text-sm font-semibold text-slate-700 mb-1.5",
+    formRequired: "text-red-500",
+    formInput: "w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all",
+    formTextarea: "w-full border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-y px-2 py-2",
+    formDivider: "border-t border-slate-100 mt-6 pt-6",
+    formFooter: "flex items-center justify-end gap-3",
+    formCancelBtn: "flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all",
+    formSubmitBtn: "flex items-center gap-2 bg-blue-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-all shadow-sm",
+    formError: "text-red-500 text-xs mt-1",
+
+    // --- Password Field ---
+    // --- Success Popup ---
+    popupOverlay: "fixed inset-0 z-50 flex items-center justify-center",
+    popupBackdrop: "absolute inset-0 bg-black/40 backdrop-blur-sm",
+    popupCard: "relative z-10 bg-white rounded-2xl shadow-2xl px-10 py-8 flex flex-col items-center gap-3 min-w-[320px]",
+    popupIcon: "text-green-500 text-5xl",
+    popupTitle: "text-xl font-bold text-slate-900",
+    popupMessage: "text-sm text-slate-500 text-center",
+    popupProgressWrap: "w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-2",
+    popupProgressBar: "h-full bg-green-500 rounded-full animate-[progress_2s_linear_forwards]",
+};
   
-  export default usersDesign; 
+export default usersDesign;

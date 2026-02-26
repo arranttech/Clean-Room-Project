@@ -4,13 +4,13 @@ import bcrypt from "bcrypt";
 export const ApplicationRepository = {
 	loginUser: async (identifier: string, password: string) => {
 		try {
-			// Call stored procedure
+// Call stored procedure
 			const [resultSets]: any = await database.execute(
 				"CALL new_cleanroom_db.UserLoginDetail(?)",
 				[identifier]
 			);
 
-			// Stored procedures return results in resultSets[0]
+// Stored procedures return results in resultSets[0]
 			const rows = resultSets[0];
 
 			if (!rows || rows.length === 0) {
@@ -26,10 +26,10 @@ export const ApplicationRepository = {
 			let valid = false;
 
 			if (user.user_password.startsWith("$2")) {
-				// hashed password
+// hashed password
 				valid = await bcrypt.compare(password, user.user_password);
 			} else {
-				// plain text password
+// plain text password
 				valid = password === user.user_password;
 			}
 
@@ -57,7 +57,7 @@ export const ApplicationRepository = {
 		try {
 			const [result] = await database.execute(
 				`INSERT INTO tUsers (
-       
+
         user_first_name,
         user_last_name,
         user_id,
@@ -65,15 +65,15 @@ export const ApplicationRepository = {
         user_address,
         user_phone_home,
         user_phone_work,
-        
+
         created_by,
         updated_by,
-        
+
         user_admin_flag,
         customer_id
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 				[
-					//payload.user_login_id || null,
+//payload.user_login_id || null,
 					payload.user_first_name,
 					payload.user_last_name,
 					payload.user_id || null,
@@ -81,10 +81,10 @@ export const ApplicationRepository = {
 					payload.user_address || null,
 					payload.user_phone_home || null,
 					payload.user_phone_work || null,
-					//	payload.created_date || new Date().toISOString().split("T")[0],
+//	payload.created_date || new Date().toISOString().split("T")[0],
 					payload.created_by || "admin",
 					payload.updated_by || "admin",
-					//	payload.update_date || new Date().toISOString().split("T")[0],
+//	payload.update_date || new Date().toISOString().split("T")[0],
 					payload.user_admin_flag || "No",
 					payload.customer_id || null,
 				]
@@ -127,12 +127,19 @@ export const ApplicationRepository = {
 
 	deleteUser: async (user_login_id: number) => {
 		try {
+			// Step 1 — delete from tUserPassword first 
+			await database.execute(
+				`DELETE FROM tUserPassword WHERE user_login_id = ?`,
+				[user_login_id]
+			);
+
+			// Step 2 — delete from tUsers
 			const [result]: any = await database.execute(
 				`DELETE FROM tUsers WHERE user_login_id = ?`,
 				[user_login_id]
 			);
 
-			// result.affectedRows tells if a row was deleted
+// result.affectedRows tells if a row was deleted
 			return result.affectedRows > 0;
 		} catch (err) {
 			console.error("Error deleting user:", err);
@@ -159,6 +166,30 @@ export const ApplicationRepository = {
 		}
 	},
 
+	// Hashes password with bcrypt then inserts into tUserPassword
+	createUserPassword: async (payload: { user_login_id: number; password: string }) => {
+		try {
+			const hashedPassword = await bcrypt.hash(payload.password, 10);
+			await database.execute(
+				`INSERT INTO tUserPassword (
+					user_password,
+					user_login_id,
+					created_by,
+					updated_by
+				) VALUES (?, ?, ?, ?)`,
+				[
+					hashedPassword,
+					payload.user_login_id,
+					"admin",
+					"admin",
+				]
+			);
+		} catch (err) {
+			console.error("Error in createUserPassword:", err);
+			throw err;
+		}
+	},
+
 	getAllInputs: async (payload?: { room_id?: number }) => {
 		try {
 			let query = `SELECT * FROM tInputValue`;
@@ -177,7 +208,7 @@ export const ApplicationRepository = {
 		}
 	},
 
-	// Get all customers
+// Get all customers
 	getCustomerDetails: async (payload?: { admin_user_id?: string }) => {
 		try {
 			let query = `SELECT * FROM tCustomers`;
@@ -196,10 +227,10 @@ export const ApplicationRepository = {
 		}
 	},
 
-	// Create a new customer/application
+// Create a new customer/application
 	createCustomer: async (payload: any) => {
 		try {
-			// Fallback customer ID
+// Fallback customer ID
 			const adminUserId = "lnredd";
 			const admin_user_id = payload.admin_user_id || adminUserId;
 			const [result] = await database.execute(
@@ -225,7 +256,7 @@ export const ApplicationRepository = {
 
 	createProject: async (payload: any) => {
 		try {
-			// Check if the customer exists
+// Check if the customer exists
 			const [customer]: any = await database.execute(
 				`SELECT customer_id FROM tCustomers WHERE customer_id = ?`,
 				[payload.customer_id]
@@ -237,7 +268,7 @@ export const ApplicationRepository = {
 				);
 			}
 
-			// Insert project
+// Insert project
 			const [result] = await database.execute(
 				`INSERT INTO tProjects
           (
@@ -281,7 +312,7 @@ export const ApplicationRepository = {
 		}
 	},
 
-	// ZONE
+// ZONE
 	createProjectZone: async (payload: any) => {
 		try {
 			const [result] = await database.execute(
@@ -294,7 +325,7 @@ export const ApplicationRepository = {
 				[payload.project_id, payload.zone_name || "Zone 001"]
 			);
 
-			// Return the actual insertId of the newly created zone
+// Return the actual insertId of the newly created zone
 			return (result as any).insertId;
 		} catch (err) {
 			console.error("Error in createZone:", err);
@@ -302,7 +333,7 @@ export const ApplicationRepository = {
 		}
 	},
 
-	// ROOM STANDARDS
+// ROOM STANDARDS
 	createRoomStandards: async (payload: any) => {
 		try {
 			const [result] = await database.execute(
@@ -399,7 +430,7 @@ export const ApplicationRepository = {
 		}
 	},
 
-	//RESULTS
+//RESULTS
 	storeResults: async (payload: any) => {
 		try {
 			const [result] = await database.execute(
@@ -447,7 +478,7 @@ export const ApplicationRepository = {
 		}
 	},
 
-	// GET
+// GET
 	getProjectByCustomerId: async (customer_id: number) => {
 		try {
 			const [rows]: any = await database.execute(
@@ -461,7 +492,7 @@ export const ApplicationRepository = {
 		}
 	},
 
-	// GET
+// GET
 	getRoomStandards: async (payload?: { project_id?: number }) => {
 		try {
 			let query = `SELECT * FROM tRoomStandards`;
@@ -478,7 +509,7 @@ export const ApplicationRepository = {
 		}
 	},
 
-	// GET
+// GET
 	getZoneRooms: async (payload?: { zone_id?: number }) => {
 		try {
 			let query = `SELECT * FROM tZoneRooms`;

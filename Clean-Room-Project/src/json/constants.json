@@ -89,6 +89,10 @@
     "infiltrationsTooltip": "The estimated number of times the total volume of air in the room is replaced by uncontrolled air leaking in from outside or adjacent spaces.",
     "freshAirTooltip": "The percentage of the total supply airflow that is drawn from the outside to ensure adequate oxygen levels and indoor air quality.",
     "exhaustAirTooltip": "The volume of air intentionally removed from the space per second to maintain pressure balance or remove contaminants.",
-    "acphValueTooltip": "The total number of times the entire volume of air in the room is replaced by filtered supply air every hour."
+    "acphValueTooltip": "The total number of times the entire volume of air in the room is replaced by filtered supply air every hour.",
+    "screenPermissionsTooltip": [
+      { "label": "FULL ACCESS","color": "Green"},
+      {"label": "READ ONLY","color": "Slate"},
+      {"label": "NO ACCESS","color": "Red"}]
   }
 }

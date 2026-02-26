@@ -51,7 +51,6 @@ function CustomerInfoPage() {
 		email: "",
 		phone: "",
 	});
-
 	// useEffect 1 — pre-fill from Redux on back navigation
 	useEffect(() => {
 		if (savedCustomerId && savedCustomerName) {

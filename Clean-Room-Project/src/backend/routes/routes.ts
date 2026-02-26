@@ -212,6 +212,44 @@ const applicationRoutes: ServerRoute[] = [
     },
   },
   {
+    method: "GET",
+    path: "/v1/customerinfo",
+    handler: async (request: Request, h: ResponseToolkit) => {
+      try {
+        // If user_login_id is provided, fetch by stored procedure
+        const user_login_id = request.query.user_login_id
+          ? Number(request.query.user_login_id)
+          : null;
+
+        if (user_login_id) {
+          const result = await ApplicationRepository.getCustomerInfo(user_login_id);
+          if (!result.success) {
+            return h.response(result).code(404);
+          }
+          return h.response(result).code(200);
+        }
+
+        // If customer_id is provided, fetch by customer_id
+        const customer_id = request.query.customer_id
+          ? Number(request.query.customer_id)
+          : null;
+
+        if (customer_id) {
+          const customer = await ApplicationRepository.getCustomerById(customer_id);
+          if (!customer) {
+            return h.response({ success: false, message: "Customer not found" }).code(404);
+          }
+          return h.response({ customer }).code(200);
+        }
+
+        return h.response({ success: false, message: "customer_id or user_login_id query parameter is required" }).code(400);
+      } catch (err) {
+        console.error("Error fetching customerinfo:", err);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+  {
     method: "POST",
     path: "/v1/login",
     options: {
@@ -256,7 +294,4 @@ const applicationRoutes: ServerRoute[] = [
 ];
 
 export default applicationRoutes;
-function loginUser(identifier: any, password: any) {
-	throw new Error("Function not implemented.");
-}
 

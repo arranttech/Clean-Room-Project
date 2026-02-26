@@ -96,3 +96,8 @@ export const getRoomStandards = (projectId: number) =>
 // GET zone rooms by zone_id — for RoomPage useEffect
 export const getZoneRooms = (zoneId: number) =>
   request(`/v1/zonerooms?zone_id=${zoneId}`, "GET");
+
+// GET customer info by user_login_id — for DashboardPage useEffect
+export const getCustomerInfo =
+(userLoginId: number) =>
+  request(`/v1/customerinfo?user_login_id=${userLoginId}`,"GET");

@@ -52,6 +52,7 @@ function login() {
 
 			//      localStorage.setItem("token", data.token);
 			localStorage.setItem("user", JSON.stringify(response.user));
+			console.log("Stored user:", response.user);
 			// Schedule auto logout when token expires
 			//scheduleAutoLogout(data.token, () => {
 			//clearAutoLogout();

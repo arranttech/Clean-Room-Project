@@ -2,8 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiLogOut, FiBriefcase, FiUsers, FiUser, FiChevronDown, FiLock } from "react-icons/fi";
-
+import {
+	FiLogOut,
+	FiBriefcase,
+	FiUsers,
+	FiUser,
+	FiShield,
+    FiChevronDown,
+    FiLock
+} from "react-icons/fi";
 import s from "./adminLayoutDesign";
 import ds from "../dashboard/styles";
 import Customers from "./customers/customers";
@@ -13,7 +20,6 @@ import ProfilesPlaceholder from "./profiles/profilesPlaceholder";
 import CreateEditProfile from "./profiles/createEditProfile";
 import AssignProfileDetails from "./profiles/assignProfileDetails";
 
-// icon mapping for navigation items
 const ICON_MAP = {
 	customers: FiBriefcase,
 	users: FiUsers,

@@ -40,6 +40,7 @@ export const ApplicationRepository = {
 			return {
 				success: true,
 				user: {
+					user_login_id: user.user_login_id,
 					user_id: user.user_id,
 					name: `${user.user_first_name || ""} ${
 						user.user_last_name || ""
@@ -490,6 +491,41 @@ export const ApplicationRepository = {
 			return result;
 		} catch (err) {
 			console.error("Error in getZoneRooms:", err);
+			throw err;
+		}
+	},
+
+	getCustomerInfo: async (user_login_id: number) => {
+		try {
+			const [resultSets]: any = await database.execute(
+				"CALL new_cleanroom_db.CustomerInfoDetail(?)",
+				[user_login_id]
+			);
+
+			const rows = resultSets[0];
+
+			if (!rows || rows.length === 0) {
+				return {
+					success: false,
+					message: "Customer profile not found",
+				};
+			}
+
+			const customer = rows[0];
+
+			return {
+				success: true,
+				customer: {
+					customer_id: customer.customer_id,
+					customer_name: customer.customer_name,
+					customer_phone: customer.customer_phone,
+					customer_address: customer.customer_address,
+					customer_email_id: customer.customer_email_id,
+					customers_addional_notes: customer.customers_addional_notes,
+				},
+			};
+		} catch (err) {
+			console.error("Error in getCustomerInfo:", err);
 			throw err;
 		}
 	},

@@ -1,6 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { setCustomer } from "../../redux/slices/customerSlice";
+import { getCustomerInfo} from "../../backend/controller/controller";
 import { handleLogout } from "../../utils/logout";
 import { FiLogOut } from "react-icons/fi";
 import {
@@ -85,6 +87,39 @@ export default function Dashboard() {
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 	const counts = { total: projects.length };
+
+	// useEffect 0 — load customer info by user_login_id from localStorage
+	useEffect(() => {
+		const loadCustomer = async () => {
+			try {
+				const raw = localStorage.getItem("user");
+				if (!raw) {
+					console.log("no user found in localstorage");
+					return;
+				}
+				const user = JSON.parse(raw);
+				console.log("user_login_id:", user.user_login_id);
+				const result = await getCustomerInfo(user.user_login_id);
+				console.log("Customer info result:", result);
+				if (result.success) {
+					const c = result.customer;
+					dispatch(
+						setCustomer({
+							customerId: c.customer_id,
+							customerName: c.customer_name || "",
+							phoneNumber: c.customer_phone || "",
+							customerAddress: c.customer_address || "",
+							emailAddress: c.customer_email_id || "",
+							additionalNotes: c.customers_addional_notes || "",
+						})
+					);
+				}
+			} catch (error) {
+				console.error("Failed to load customer info:", (error as Error).message);
+			}
+		};
+		loadCustomer();
+	}, [dispatch]);
 	const features = text.dashboard.features;
 
 	const onLogout = () => {

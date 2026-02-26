@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { FiX } from "react-icons/fi";
 import { FaFloppyDisk, FaCircleCheck } from "react-icons/fa6";
-import s from "./screenAccessDesign";
+import s from "./screensDesign";
 
-type AddscreenAccessProps = {
+type AddScreenProps = {
     initialData?: any;
     onCancel: () => void;
     onSaved: (newScreen: any) => void;
 };
 
-export default function AddscreenAccess({ initialData, onCancel, onSaved }: AddscreenAccessProps) {
+export default function AddScreen({ initialData, onCancel, onSaved }: AddScreenProps) {
     const [screenName, setScreenName] = useState(initialData?.name || "");
     const [screenStatus, setScreenStatus] = useState(initialData?.status || "Active");
     const [saving, setSaving] = useState(false);
@@ -18,8 +18,8 @@ export default function AddscreenAccess({ initialData, onCancel, onSaved }: Adds
 
     const validateScreenName = (v: string) => v.trim().length > 0 ? "" : "Screen Name is required";
     const nameError = touched ? validateScreenName(screenName) : "";
-// save screen access declaration
-    const saveScreenAccess = async () => {
+    // save screen declaration
+    const saveScreen = async () => {
         setTouched(true);
         if (validateScreenName(screenName)) {
             return;
@@ -45,41 +45,41 @@ export default function AddscreenAccess({ initialData, onCancel, onSaved }: Adds
     };
 
     const isFormValid = screenName.trim().length > 0;
-// edit screen access- only status can be changed, screen name is disabled
+    // edit screen - only status can be changed, screen name is disabled
     return (
         <div>
             <h1 className={s.formTitle}>{initialData ? "Edit" : "Add New"} Screen</h1>
             <div className={s.formCard}>
                 <div className={s.formRow}>
-                    <div className={s.formGroup}>
-                        <label className={s.formLabel}>
-                            Screen Name <span className={s.formRequired}>*</span>
-                        </label>
-                        <input
-                            type="text"
-                            className={`${s.formInput} ${initialData ? 'bg-slate-50 text-slate-500 cursor-not-allowed border-slate-200' : ''}`}
-                            placeholder="Enter screen name"      // ---disabling screen name in edit mode
-                            value={screenName}
-                            onChange={(e) => setScreenName(e.target.value)}
-                            disabled={!!initialData}
-                        />
-                        {nameError && <p className={s.formError}>{nameError}</p>}
-                    </div>
-                </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-semibold text-slate-700 flex gap-1 items-center">
+                                Screen Name <span className={s.formRequired}>*</span>
+                            </label>
+                            <input
+                                type="text"
+                                className={`${s.formInput} ${initialData ? 'bg-slate-50 text-slate-500 cursor-not-allowed border-slate-200' : ''}`}
+                                placeholder="Enter screen name"      // ---disabling screen name in edit mode
+                                value={screenName}
+                                onChange={(e) => setScreenName(e.target.value)}
+                                disabled={!!initialData}
+                            />
+                            {nameError && <p className={s.formError}>{nameError}</p>}
+                        </div>
 
-                <div className={s.formRow}>
-                    <div className={s.formGroup}>
-                        <label className={s.formLabel}>
-                            Screen Status <span className={s.formRequired}>*</span>
-                        </label>
-                        <select
-                            className={s.formInput}
-                            value={screenStatus}
-                            onChange={(e) => setScreenStatus(e.target.value)}  // edit screen access- only status can be changed, screen name is disabled
-                        >
-                            <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
-                        </select>
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-semibold text-slate-700 flex gap-1 items-center">
+                                Screen Status <span className={s.formRequired}>*</span>
+                            </label>
+                            <select
+                                className={s.formInput}
+                                value={screenStatus}
+                                onChange={(e) => setScreenStatus(e.target.value)}  // edit screen - only status can be changed, screen name is disabled
+                            >
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -90,7 +90,7 @@ export default function AddscreenAccess({ initialData, onCancel, onSaved }: Adds
                         </button>
                         <button
                             type="button"
-                            onClick={saveScreenAccess}
+                            onClick={saveScreen}
                             className={`${s.formSubmitBtn} ${!isFormValid ? "opacity-60 cursor-not-allowed" : ""}`}
                             disabled={saving || !isFormValid}
                         >

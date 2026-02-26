@@ -21,7 +21,7 @@ function ProjectInfoPage() {
 	const customerId = useAppSelector((s: any) => s.customer.customerId);
 	const customerName = useAppSelector((s: any) => s.customer.customerName);
 
-	// projectId from Redux — prevents duplicate POST on back navigation
+	// projectId from Redux
 	const projectIdFromRedux = useAppSelector(
 		(s: any) => s.projectInfo.projectId
 	);
@@ -105,11 +105,10 @@ function ProjectInfoPage() {
 		return () => document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
 
-	// useEffect — GET existing project from DB using customerId
-	// if projectId already in Redux skip GET
+	// GET
 	useEffect(() => {
 		if (!customerId) return;
-		if (projectIdFromRedux) return;
+		if (projectIdFromRedux) return; // already loaded
 		const fetchProject = async () => {
 			try {
 				const data = await getProjectByCustomerId(customerId);
@@ -244,7 +243,8 @@ function ProjectInfoPage() {
 	};
 
 	const saveProjectInfo = async () => {
-		//  DUPLICATE PREVENTION — if projectId already in Redux, skip POST
+		// SKIP POST — project already saved in DB
+		// User pressed Back from StandardPage — navigate forward without re-inserting
 		if (projectIdFromRedux) {
 			console.log(
 				"Project already saved, skipping POST. ProjectId:",
@@ -262,8 +262,9 @@ function ProjectInfoPage() {
 			return;
 		}
 
+		// POST
 		const payload = {
-			customer_id: customerId, // real customerId from customerSlice
+			customer_id: customerId,
 			projectName,
 			unitBranch,
 			handling,
@@ -555,7 +556,7 @@ function ProjectInfoPage() {
 			</div>
 
 			<div className={styles.footer}>
-				<Link to="/customer-info" className={styles.backLink}>
+				<Link to="/dashboard" className={styles.backLink}>
 					<FaArrowLeft /> Back
 				</Link>
 				<button

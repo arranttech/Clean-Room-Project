@@ -23,7 +23,6 @@ export const ApplicationRepository = {
 				return { success: false, message: "Password not found" };
 			}
 
-			// ⚠️ IMPORTANT: use bcrypt only if password is hashed
 			let valid = false;
 
 			if (user.user_password.startsWith("$2")) {
@@ -41,7 +40,11 @@ export const ApplicationRepository = {
 			return {
 				success: true,
 				user: {
+					user_login_id: user.user_login_id,
 					user_id: user.user_id,
+					name: `${user.user_first_name || ""} ${
+						user.user_last_name || ""
+					}`.trim(),
 				},
 			};
 		} catch (err) {
@@ -175,7 +178,6 @@ export const ApplicationRepository = {
 	},
 
 	// Get all customers
-	// repository.ts
 	getCustomerDetails: async (payload?: { admin_user_id?: string }) => {
 		try {
 			let query = `SELECT * FROM tCustomers`;
@@ -193,6 +195,7 @@ export const ApplicationRepository = {
 			throw err;
 		}
 	},
+
 	// Create a new customer/application
 	createCustomer: async (payload: any) => {
 		try {
@@ -225,12 +228,12 @@ export const ApplicationRepository = {
 			// Check if the customer exists
 			const [customer]: any = await database.execute(
 				`SELECT customer_id FROM tCustomers WHERE customer_id = ?`,
-				[customer_id]
+				[payload.customer_id]
 			);
 
 			if (!customer.length) {
 				throw new Error(
-					`Customer ID ${customer_id} does not exist in tCustomers`
+					`Customer ID ${payload.customer_id} does not exist in tCustomers`
 				);
 			}
 
@@ -258,7 +261,9 @@ export const ApplicationRepository = {
 					payload.unitBranch,
 					JSON.stringify(payload.industry),
 					JSON.stringify(payload.handling),
-					payload.selectedLocation.display_name,
+					payload.selectedLocation?.display_name ||
+						payload.selectedLocation ||
+						"",
 					parseFloat(payload.maxTemp),
 					parseFloat(payload.minTemp),
 					parseFloat(payload.relativeHumidityMin),
@@ -266,20 +271,17 @@ export const ApplicationRepository = {
 				]
 			);
 
-			// Return generated project_id
-			const [rows]: any = await database.execute(
-				`SELECT project_id FROM tProjects WHERE project_unique_id = ? LIMIT 1`,
-				[payload.uniqueId]
-			);
+			console.log("Create Project Result:", result);
 
-			return rows[0].project_id;
+			// FIX: return insertId directly — avoids race condition when uniqueId has duplicates
+			return (result as any).insertId;
 		} catch (error) {
 			console.error("Create Project Error:", error);
 			throw error;
 		}
 	},
 
-	// Create a new project zone
+	// ZONE
 	createProjectZone: async (payload: any) => {
 		try {
 			const [result] = await database.execute(
@@ -289,23 +291,18 @@ export const ApplicationRepository = {
             zone_name
           )
         VALUES (?, ?)`,
-				[payload.project_id, payload.zone_name || "Zone 002"]
+				[payload.project_id, payload.zone_name || "Zone 001"]
 			);
 
-			// Return generated project_id
-			const [rows]: any = await database.execute(
-				`SELECT zone_id FROM tProjectZones WHERE zone_name = ? LIMIT 1`,
-				["Zone 001"]
-			);
-
-			return rows[0].zone_id;
+			// Return the actual insertId of the newly created zone
+			return (result as any).insertId;
 		} catch (err) {
 			console.error("Error in createZone:", err);
 			throw err;
 		}
 	},
 
-	// Insert room standards
+	// ROOM STANDARDS
 	createRoomStandards: async (payload: any) => {
 		try {
 			const [result] = await database.execute(
@@ -356,11 +353,10 @@ export const ApplicationRepository = {
 		}
 	},
 
+	//ZONE ROOMS
+
 	createZoneRooms: async (payload: any) => {
 		try {
-			const zone_id = payload.zone_id;
-			const project_standard_id = payload.projectStandardId;
-
 			const [result] = await database.execute(
 				`INSERT INTO tZoneRooms 
 					(
@@ -380,8 +376,8 @@ export const ApplicationRepository = {
 					)
 				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 				[
-					zone_id,
-					project_standard_id,
+					payload.zone_id ?? null,
+					payload.projectStandardId ?? null,
 					payload.roomName ?? null,
 					payload.length ?? null,
 					payload.width ?? null,
@@ -403,11 +399,9 @@ export const ApplicationRepository = {
 		}
 	},
 
+	//RESULTS
 	storeResults: async (payload: any) => {
 		try {
-			const project_id = payload.project_id;
-			const project_RoomId = payload.project_RoomId || null;
-
 			const [result] = await database.execute(
 				`INSERT INTO tProjectResults (
 					project_id,
@@ -420,9 +414,9 @@ export const ApplicationRepository = {
 					project_ExhaustAir
 				) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
 				[
-					project_id,
+					payload.project_id,
 					payload.roomName ?? null,
-					project_RoomId,
+					payload.project_RoomId,
 					payload.project_Area ?? null,
 					payload.project_Volume ?? null,
 					payload.project_RoomCfm ?? null,
@@ -438,7 +432,8 @@ export const ApplicationRepository = {
 		}
 	},
 
-	// GET customer by customer_id for CustomerInfoPage useEffect
+	// GET single customer — CustomerInfoPage useEffect
+
 	getCustomerById: async (customer_id: number) => {
 		try {
 			const [rows]: any = await database.execute(
@@ -452,7 +447,7 @@ export const ApplicationRepository = {
 		}
 	},
 
-	// GET project by customer_id for ProjectInfoPage useEffect
+	// GET
 	getProjectByCustomerId: async (customer_id: number) => {
 		try {
 			const [rows]: any = await database.execute(
@@ -466,7 +461,7 @@ export const ApplicationRepository = {
 		}
 	},
 
-	// GET room standards by project_id for StandardPage useEffect
+	// GET
 	getRoomStandards: async (payload?: { project_id?: number }) => {
 		try {
 			let query = `SELECT * FROM tRoomStandards`;
@@ -483,7 +478,7 @@ export const ApplicationRepository = {
 		}
 	},
 
-	// GET zone rooms by zone_id for RoomPage useEffect
+	// GET
 	getZoneRooms: async (payload?: { zone_id?: number }) => {
 		try {
 			let query = `SELECT * FROM tZoneRooms`;
@@ -496,6 +491,41 @@ export const ApplicationRepository = {
 			return result;
 		} catch (err) {
 			console.error("Error in getZoneRooms:", err);
+			throw err;
+		}
+	},
+
+	getCustomerInfo: async (user_login_id: number) => {
+		try {
+			const [resultSets]: any = await database.execute(
+				"CALL new_cleanroom_db.CustomerInfoDetail(?)",
+				[user_login_id]
+			);
+
+			const rows = resultSets[0];
+
+			if (!rows || rows.length === 0) {
+				return {
+					success: false,
+					message: "Customer profile not found",
+				};
+			}
+
+			const customer = rows[0];
+
+			return {
+				success: true,
+				customer: {
+					customer_id: customer.customer_id,
+					customer_name: customer.customer_name,
+					customer_phone: customer.customer_phone,
+					customer_address: customer.customer_address,
+					customer_email_id: customer.customer_email_id,
+					customers_addional_notes: customer.customers_addional_notes,
+				},
+			};
+		} catch (err) {
+			console.error("Error in getCustomerInfo:", err);
 			throw err;
 		}
 	},

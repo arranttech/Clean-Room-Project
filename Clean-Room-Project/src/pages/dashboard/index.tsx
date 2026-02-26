@@ -1,6 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { setCustomer } from "../../redux/slices/customerSlice";
+import { getCustomerInfo } from "../../backend/controller/controller";
 import { handleLogout } from "../../utils/logout";
 import { FiLogOut } from "react-icons/fi";
 import {
@@ -16,7 +18,6 @@ import {
 import { MdApartment } from "react-icons/md";
 import s from "./styles";
 import text from "../../json/dashboard.json";
-import { parseJwt } from "../../utils/auth";
 
 type Project = {
 	id: string;
@@ -72,18 +73,56 @@ export default function Dashboard() {
 	);
 
 	const userName = useMemo(() => {
-		const token = localStorage.getItem("token");
-		if (!token) return "User";
-		const decoded = parseJwt(token) as { name?: string; email?: string } | null;
-		if (!decoded) return "User";
-		if (decoded.name) return decoded.name;
-		if (decoded.email) return decoded.email.split("@")[0];
-		return "User";
+		try {
+			const raw = localStorage.getItem("user");
+			if (!raw) return "User";
+			const user = JSON.parse(raw) as { name?: string };
+			if (user.name) return user.name.split(" ")[0];
+			return "User";
+		} catch {
+			return "User";
+		}
 	}, []);
 
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 	const counts = { total: projects.length };
+
+	// useEffect 0 — load customer info by user_login_id from localStorage
+	useEffect(() => {
+		const loadCustomer = async () => {
+			try {
+				const raw = localStorage.getItem("user");
+				if (!raw) {
+					console.log("no user found in localstorage");
+					return;
+				}
+				const user = JSON.parse(raw);
+				console.log("user_login_id:", user?.user_login_id);
+				const result = await getCustomerInfo(user?.user_login_id);
+				console.log("Customer info result:", result);
+				if (result.success) {
+					const c = result.customer;
+					dispatch(
+						setCustomer({
+							customerId: c.customer_id,
+							customerName: c.customer_name || "",
+							phoneNumber: c.customer_phone || "",
+							customerAddress: c.customer_address || "",
+							emailAddress: c.customer_email_id || "",
+							additionalNotes: c.customers_addional_notes || "",
+						})
+					);
+				}
+			} catch (error) {
+				console.error(
+					"Failed to load customer info:",
+					(error as Error).message
+				);
+			}
+		};
+		loadCustomer();
+	}, [dispatch]);
 	const features = text.dashboard.features;
 
 	const onLogout = () => {

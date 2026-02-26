@@ -30,7 +30,30 @@ export type RoomPayload = {
 
 const t = resultsText;
 
-export function airflowService(room: RoomPayload) {
+export type AirflowResults = {
+  roomName: string;
+  areaFt2: number;
+  volumeFt3: number;
+  roomCfm: number;
+  freshAir: number;
+  exhaustAir: number;
+  dehumidValue: number | string;
+  removedWater: number | string;
+  resultantCfm: number | string;
+  roomACValue: number | string;
+  roomTermSupplyValue: number | string;
+  cfmACLoadTR: number | string;
+  resultCoolLoadTR: number | string;
+  addWaterValue: number | string;
+  humidValue: number | string;
+  resultantheatCfm: number | string;
+  roomTermSupplyHeatValue: number | string;
+  cfmHeatLoadTRValue: number | string;
+  roomHeatLoadTR: number | string;
+  resultHeatLoadTR: number | string;
+};
+
+export function airflowService(room: RoomPayload): AirflowResults {
 
   // ================= BASIC VALUES =================
 

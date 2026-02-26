@@ -14,16 +14,11 @@ export const openApiSpec = {
 				responses: {
 					"200": {
 						description: "API status message",
-						content: {
-							"text/plain": {
-								schema: { type: "string", example: "API is running!" },
-							},
-						},
+						content: { "text/plain": { schema: { type: "string", example: "API is running!" } } },
 					},
 				},
 			},
 		},
-
 		"/v1/customers": {
 			get: {
 				summary: "Get customers",
@@ -250,7 +245,7 @@ export const openApiSpec = {
 											{ type: "string", example: "55" },
 										],
 									},
-									zoneSystem: { type: "string", example: "Air Cooling System" },
+									zoneSystem: { type: "string", example: "Air-Cooling System" },
 									zoneSystemType: {
 										type: "string",
 										example: "Cleanroom Air-Heating System",
@@ -631,5 +626,197 @@ export const openApiSpec = {
 				responses: { "201": { description: "Room added" } },
 			},
 		},
+
+
+		"/v1/columncummaltion": {
+			post: {
+				summary: "Calculate cumulative values for a zone containing multiple rooms",
+				tags: ["cummulativecalculations"],
+				requestBody: {
+					required: true,
+					content: {
+						"application/json": {
+							schema: {
+								type: "object",
+								required: ["zoneName", "rooms"],
+								properties: {
+									zoneName: { type: "string", example: "Zone A" },
+									rooms: {
+										type: "array",
+										description: "Array of room data objects to be summed",
+										example: [
+											{
+												roomName: "Mixing Room",
+												areaFt2: 172.16,
+												volumeFt3: 1355.25,
+												roomCfm: 1355.25,
+												freshAir: 203.287,
+												exhaustAir: 67.763,
+												dehumidValue: 3150,
+												removedWater: 17.355,
+												resultantCfm: 3150,
+												roomACValue: 4.5,
+												roomTermSupplyValue: 14,
+												cfmACLoadTR: 10.5,
+												resultCoolLoadTR: 10.5,
+												addWaterValue: 0,
+												humidValue: 0,
+												resultantheatCfm: 0,
+												roomTermSupplyHeatValue: 0,
+												cfmHeatLoadTRValue: 0,
+												roomHeatLoadTR: 0,
+												resultHeatLoadTR: 0
+											},
+											{
+												roomName: "Storage Room",
+												areaFt2: 172.16,
+												volumeFt3: 1355.25,
+												roomCfm: 1355.25,
+												freshAir: 203.287,
+												exhaustAir: 67.763,
+												dehumidValue: 3150,
+												removedWater: 17.355,
+												resultantCfm: 3150,
+												roomACValue: 4.5,
+												roomTermSupplyValue: 14,
+												cfmACLoadTR: 10.5,
+												resultCoolLoadTR: 10.5,
+												addWaterValue: 6.803,
+												humidValue: 1900,
+												resultantheatCfm: 1900,
+												roomTermSupplyHeatValue: 8,
+												cfmHeatLoadTRValue: 5,
+												roomHeatLoadTR: 21,
+												resultHeatLoadTR: 21
+											}
+										],
+										items: {
+											type: "object",
+											properties: {
+												roomName: { type: "string", example: "Mixing Room" },
+												areaFt2: { type: "number", example: 172.16 },
+												volumeFt3: { type: "number", example: 1355.25 },
+												roomCfm: { type: "number", example: 1355.25 },
+												freshAir: { type: "number", example: 203.287 },
+												exhaustAir: { type: "number", example: 67.763 },
+												dehumidValue: { type: "number", example: 3150 },
+												removedWater: { type: "number", example: 17.355 },
+												resultantCfm: { type: "number", example: 3150 },
+												roomACValue: { type: "number", example: 4.5 },
+												roomTermSupplyValue: { type: "number", example: 14 },
+												cfmACLoadTR: { type: "number", example: 10.5 },
+												resultCoolLoadTR: { type: "number", example: 10.5 },
+												addWaterValue: { type: "number", example: 0 },
+												humidValue: { type: "number", example: 0 },
+												resultantheatCfm: { type: "number", example: 0 },
+												roomTermSupplyHeatValue: { type: "number", example: 0 },
+												cfmHeatLoadTRValue: { type: "number", example: 0 },
+												roomHeatLoadTR: { type: "number", example: 0 },
+												resultHeatLoadTR: { type: "number", example: 0 }
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				},
+				responses: {
+					"200": {
+						description: "Cumulative calculation result",
+						content: {
+							"application/json": {
+								schema: {
+									type: "object",
+									properties: {
+										zoneName: { type: "string" },
+										zonearea: { type: "number" },
+										zonevolume: { type: "number" },
+										zoneroomCfm: { type: "number" },
+										zonefreshAir: { type: "number" },
+										zoneexhaustAir: { type: "number" },
+										zonedehumidValue: { type: "number" },
+										zoneremovedWater: { type: "number" },
+										zoneresultantCfm: { type: "number" },
+										zoneroomACValue: { type: "number" },
+										zoneroomTermSupplyValue: { type: "number" },
+										zonecfmACLoadTR: { type: "number" },
+										zoneresultCoolLoadTR: { type: "number" },
+										zoneaddWaterValue: { type: "number" },
+										zonehumidValue: { type: "number" },
+										zoneresultantheatCfm: { type: "number" },
+										zoneroomTermSupplyHeatValue: { type: "number" },
+										zonecfmHeatLoadTRValue: { type: "number" },
+										zoneroomHeatLoadTR: { type: "number" },
+										zoneresultHeatLoadTR: { type: "number" }
+									}
+								}
+							}
+						}
+					},
+					"400": { description: "Invalid input data" },
+					"500": {
+						description: "Server error",
+						content: {
+							"application/json": {
+								schema: {
+									type: "object",
+									properties: { error: { type: "string" } }
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+
+		"/v1/boqresults": {
+			post: {
+				summary: "Calculate BOQ values for a zone containing multiple rooms",
+				tags: ["boqresults"],
+				requestBody: {
+					required: true,
+					content: {
+						"application/json": {
+							schema: {
+								type: "object",
+								properties: {
+									zoneName: { type: "string", example: "Zone A" },
+									zoneResultantCfm: { type: "number", example: 6300 }
+								}
+							}
+						}
+					}
+				},
+				responses: {
+					"200": {
+						description: "BOQ calculation result",
+						content: {
+							"application/json": {
+								schema: {
+									type: "object",
+									properties: {
+										zoneName: { type: "string" },
+										AHUCfm: { type: "number" }
+									}
+								}
+							}
+						}
+					},
+					"400": { description: "Invalid input data" },
+					"500": {
+						description: "Server error",
+						content: {
+							"application/json": {
+								schema: {
+									type: "object",
+									properties: { error: { type: "string" } }
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	},
 } as const;

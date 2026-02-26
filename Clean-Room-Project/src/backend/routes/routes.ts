@@ -1,6 +1,8 @@
 import { ServerRoute, Request, ResponseToolkit } from "@hapi/hapi";
 import { ApplicationRepository } from "../repositories/repository";
 import { airflowService, RoomPayload } from "../services/service";
+import { cumulativeZoneService } from "../services/cummulativecal";
+import {boqresults, BOQPayload} from "../services/boqresults";
 
 const applicationRoutes: ServerRoute[] = [
 	{
@@ -385,6 +387,47 @@ const applicationRoutes: ServerRoute[] = [
 			}
 		},
 	},
+   {
+    method: "POST",
+    path: "/v1/columncummaltion",
+    options: {
+      tags: ["api"],
+      description: "Array of room data objects to be summed",
+      notes:
+        "Calculate cumulative values for a zone containing multiple rooms",
+      validate: { payload: (value: any) => value },
+    },
+    handler: async (request, h) => {
+      try {
+        const { zoneName, rooms } = request.payload as any;
+        const result = cumulativeZoneService(zoneName, rooms);
+
+        return h.response(result).code(200);
+      } catch (err) {
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    }
+  },
+   {
+    method: "POST",
+    path: "/v1/boqresults",
+    options: {
+      tags: ["api"],
+      description: "BOQ calculation result",
+      notes:
+        "Calculate BOQ values for a zone containing multiple rooms",
+      validate: { payload: (value: any) => value },
+    },
+    handler: async (request: Request, h: ResponseToolkit) => {
+      try {
+        const payload = request.payload as BOQPayload;
+        const result = boqresults(payload);
+        return h.response(result).code(200);
+      } catch (err) {
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
 ];
 
 export default applicationRoutes;

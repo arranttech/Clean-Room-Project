@@ -1,7 +1,8 @@
-import { useState } from "react";
-import { FiSearch, FiPlus, FiEdit2, FiTrash2 } from "react-icons/fi";
+import { useState, useEffect } from "react";
+import { FiSearch, FiPlus, FiEdit2 } from "react-icons/fi";
 import s from "./screensDesign";
 import AddScreen from "./addScreen";
+import { getScreens } from "../../../backend/controller/controller";
 
 type Screen = {
     id: string;
@@ -9,17 +10,40 @@ type Screen = {
     status: string;
 };
 
-export default function Screens() {
+type ScreensProps = {
+    onCountChange?: (count: number) => void;
+};
+
+export default function Screens({ onCountChange }: ScreensProps) {
     const [screens, setScreens] = useState<Screen[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [showAdd, setShowAdd] = useState(false);
     const [editData, setEditData] = useState<Screen | null>(null);
-    // delete screen declaration
-    const handleDelete = (id: string) => {
-        if (window.confirm("Are you sure you want to delete this screen?")) {
-            setScreens((prev) => prev.filter((s) => s.id !== id));
+
+    // Fetch screens on load
+    useEffect(() => {
+        loadScreens();
+    }, []);
+
+    const loadScreens = async () => {
+        try {
+            const res = await getScreens();
+            if (res && res.screens) {
+                // Map the DB column names (screen_id, screen_name, screen_status) to the frontend Screen type
+                const formatted = res.screens.map((r: any) => ({
+                    id: `SCR-${r.screen_id}`, // Prefix with SCR- just for display
+                    name: r.screen_name,
+                    status: r.screen_status
+                }));
+                setScreens(formatted);
+                if (onCountChange) onCountChange(formatted.length);
+            }
+        } catch (error) {
+            console.error("Failed to load screens:", error);
         }
     };
+
+
     // filter screen based on search declaration
     const filteredData = screens.filter(
         (item) =>
@@ -35,16 +59,10 @@ export default function Screens() {
                     setShowAdd(false);
                     setEditData(null);
                 }}
-                onSaved={(newScreen) => {
+                onSaved={() => {
                     setShowAdd(false);
-                    if (editData) {
-                        setScreens((prev) =>
-                            prev.map((s) => (s.id === editData.id ? { ...newScreen, id: editData.id } : s))
-                        );
-                        setEditData(null);
-                    } else {
-                        setScreens((prev) => [{ ...newScreen, id: `SCR-${prev.length + 1}` }, ...prev]);  // new screen id is generated 
-                    }
+                    setEditData(null);
+                    loadScreens(); // Refresh data from database
                 }}
             />
         );
@@ -94,9 +112,7 @@ export default function Screens() {
                                         <button className={s.editBtn} title="Edit screen" onClick={() => setEditData(row)}>  {/* edit screen button opens the add screen form with the data of the screen */}
                                             <FiEdit2 size={15} />
                                         </button>
-                                        <button className={s.deleteBtn} title="Delete screen" onClick={() => handleDelete(row.id)}> {/* delete screen button opens the delete screen popup */}
-                                            <FiTrash2 size={15} />
-                                        </button>
+
                                     </td>
                                 </tr>
                             ))

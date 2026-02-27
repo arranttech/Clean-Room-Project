@@ -143,12 +143,12 @@ export default function Users({ onCountChange }: UsersProps) {
 							<th className={s.th}>Address</th>
 							<th className={s.th}>Home Phone</th>
 							<th className={s.th}>Work Phone</th>
-							<th className={s.th}>Created Date</th>
+							{/* <th className={s.th}>Created Date</th>
 							<th className={s.th}>Created By</th>
 							<th className={s.th}>Updated Date</th>
-							<th className={s.th}>Updated By</th>
-							<th className={s.th}>Customer</th>
-							<th className={s.thActions}>Actions</th>
+							<th className={s.th}>Updated By</th> */}
+							{/* <th className={s.th}>Customer</th> */}
+							<th className={s.th}>Actions</th>
 						</tr>
 					</thead>
 					<tbody className={s.tbody}>
@@ -172,7 +172,7 @@ export default function Users({ onCountChange }: UsersProps) {
 									<td className={s.td}>{user.user_address}</td>
 									<td className={s.td}>{user.user_phone_home}</td>
 									<td className={s.td}>{user.user_phone_work}</td>
-									<td className={s.td}>
+									{/* <td className={s.td}>
 										{user.created_date
 											? user.created_date.split("T")[0]
 											: "N/A"}
@@ -183,9 +183,9 @@ export default function Users({ onCountChange }: UsersProps) {
 											? user.updated_date.split("T")[0]
 											: "N/A"}
 									</td>
-									<td className={s.td}>{user.updated_by}</td>
-									<td className={s.td}>{user.customer_id}</td>
-									<td className={s.tdActions}>
+									<td className={s.td}>{user.updated_by}</td> */}
+									{/* <td className={s.td}>{user.customer_id}</td> */}
+									<td className={s.td}>
 										<button
 											type="button"
 											onClick={() => handleEdit(user)}

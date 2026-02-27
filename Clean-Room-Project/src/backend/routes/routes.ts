@@ -9,6 +9,7 @@ import {
 	roomRepository,
 	resultRepository,
 	inputRepository,
+	screenRepository,
 } from "../repositories";
 
 import { airflowService, RoomPayload } from "../services/service";
@@ -460,13 +461,14 @@ const applicationRoutes: ServerRoute[] = [
 					return h.response({ error: "Screen name is required" }).code(400);
 				}
 
-				const screenId = await ApplicationRepository.createScreen(payload);
+				const screenId = await screenRepository.createScreen(payload);
 
-				return h.response({
-					message: "Screen created successfully",
-					screen_id: screenId,   // returning auto ID
-				}).code(201);
-
+				return h
+					.response({
+						message: "Screen created successfully",
+						screen_id: screenId, // returning auto ID
+					})
+					.code(201);
 			} catch (err) {
 				console.error("Error creating screen:", err);
 				return h.response({ error: "Internal Server Error" }).code(500);
@@ -481,8 +483,9 @@ const applicationRoutes: ServerRoute[] = [
 				const id = Number(request.params.id);
 				if (!id) return h.response({ error: "Invalid screen ID" }).code(400);
 				const payload = request.payload as any;
-				const updated = await ApplicationRepository.updateScreen(id, payload);
-				if (!updated) return h.response({ error: "Screen not found" }).code(404);
+				const updated = await screenRepository.updateScreen(id, payload);
+				if (!updated)
+					return h.response({ error: "Screen not found" }).code(404);
 				return h.response({ message: "Screen updated successfully" }).code(200);
 			} catch (err) {
 				return h.response({ error: "Internal Server Error" }).code(500);
@@ -494,13 +497,13 @@ const applicationRoutes: ServerRoute[] = [
 		path: "/v1/screens",
 		handler: async (_request: Request, h: ResponseToolkit) => {
 			try {
-				const screens = await ApplicationRepository.getScreens();
+				const screens = await screenRepository.getScreens();
 				return h.response({ screens }).code(200);
 			} catch (err) {
 				return h.response({ error: "Internal Server Error" }).code(500);
 			}
 		},
-	}
+	},
 ];
 
 export default applicationRoutes;

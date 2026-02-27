@@ -19,8 +19,8 @@ export const authRepository = {
 		if (!user.user_password) {
 			return { success: false, message: "Password not found" };
 		}
-
-		const valid = user?.user_password === password;
+		
+		const valid = await bcrypt.compare(password, user.user_password);
 		if (!valid) {
 			return { success: false, message: "Invalid credentials" };
 		}

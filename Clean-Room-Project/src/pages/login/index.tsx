@@ -81,17 +81,18 @@ function login() {
 				{/* Left Card */}
 				<div className={styles.card}>
 					<div className={styles.fieldGroup}>
-						<img
-							src="/Arrant.jpeg"
-							alt="Arrant Logo"
-							className={styles.logoImg}
-						/>
+						<form onSubmit={handleLogin}>
+							<img
+								src="/Arrant.jpeg"
+								alt="Arrant Logo"
+								className={styles.logoImg}
+							/>
 
-						<h2 className={styles.cardTitle}> Welcome</h2>
-						<p className={styles.cardInfo}>
-							{" "}
-							Sign in to your STERI Clean Air account{" "}
-						</p>
+							<h2 className={styles.cardTitle}> Welcome</h2>
+							<p className={styles.cardInfo}>
+								{" "}
+								Sign in to your STERI Clean Air account{" "}
+							</p>
 
 						<label className={styles.label}>Email Address/UserID</label>
 
@@ -123,21 +124,21 @@ function login() {
 							<span> Forgot Password? </span>
 						</Link>
 
-						{error && (
-							<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">
-								{error}
-							</div>
-						)}
+							{error && (
+								<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4">
+									{error}
+								</div>
+							)}
 
-						<button
-							onClick={handleLogin}
-							disabled={loading}
-							className={`${styles.loginButton} ${
-								loading ? "opacity-50 cursor-not-allowed" : ""
-							}`}
-						>
-							{loading ? "Signing In..." : "Sign In"}
-						</button>
+							<button
+								type="submit"
+								disabled={loading}
+								className={`${styles.loginButton} ${
+									loading ? "opacity-50 cursor-not-allowed" : ""
+								}`}
+							>
+								{loading ? "Signing In..." : "Sign In"}
+							</button>
 
 						<div className="flex justify-center my-2">
 							<div className="w-full">
@@ -163,13 +164,14 @@ function login() {
 							</div>
 						</div>
 
-						<Link to="/register" className={styles.nextLink}>
-							New Customer{" "}
-							<span className="text-blue-600 hover:text-blue-400">
-								{" "}
-								Register Here!{" "}
-							</span>
-						</Link>
+							<Link to="/register" className={styles.nextLink}>
+								New Customer{" "}
+								<span className="text-blue-600 hover:text-blue-400">
+									{" "}
+									Register Here!{" "}
+								</span>
+							</Link>
+						</form>
 					</div>
 				</div>
 			</div>

@@ -29,6 +29,7 @@ export default function Users({ onCountChange }: UsersProps) {
 	const [users, setUsers] = useState<User[]>([]);
 	const [search, setSearch] = useState("");
 	const [showAdd, setShowAdd] = useState(false);
+	const [editUser, setEditUser] = useState<User | null>(null);
 
 	useEffect(() => {
 		const fetchUserDetails = async () => {
@@ -93,15 +94,21 @@ export default function Users({ onCountChange }: UsersProps) {
 
 	//Edit functionality
 	const handleEdit = (user: User) => {
-		alert(`Edit: ${user.user_first_name} ${user.user_last_name}`);
+		setEditUser(user);
+		setShowAdd(true);
 	};
 
 	if (showAdd) {
 		return (
 			<AddUser
-				onCancel={() => setShowAdd(false)}
+				user={editUser}
+				onCancel={() => {
+					setShowAdd(false);
+					setEditUser(null);
+				}}
 				onSaved={async () => {
 					setShowAdd(false);
+					setEditUser(null);
 					// await fetchUsers();
 				}}
 			/>

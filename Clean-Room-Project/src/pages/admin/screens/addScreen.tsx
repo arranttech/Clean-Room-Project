@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FiX } from "react-icons/fi";
 import { FaFloppyDisk, FaCircleCheck } from "react-icons/fa6";
 import s from "./screensDesign";
+import { createScreen, updateScreen } from "../../../backend/controller/controller";
 
 type AddScreenProps = {
     initialData?: any;
@@ -32,6 +33,12 @@ export default function AddScreen({ initialData, onCancel, onSaved }: AddScreenP
                 status: screenStatus,
             };
 
+            if (initialData) {
+                await updateScreen(initialData.id.replace('SCR-', ''), newScreenData);
+            } else {
+                await createScreen(newScreenData);
+            }
+
             setShowPopup(true);
             setTimeout(() => {
                 setShowPopup(false);
@@ -58,7 +65,7 @@ export default function AddScreen({ initialData, onCancel, onSaved }: AddScreenP
                             </label>
                             <input
                                 type="text"
-                                className={`${s.formInput} ${initialData ? 'bg-slate-50 text-slate-500 cursor-not-allowed border-slate-200' : ''}`}
+                                className={`${s.formInput} ${initialData ? 'bg-slate-50 text-slate-500 cursor-not-allowed border-slate-200 opacity-70 hover:cursor-not-allowed' : ''}`}
                                 placeholder="Enter screen name"      // ---disabling screen name in edit mode
                                 value={screenName}
                                 onChange={(e) => setScreenName(e.target.value)}
@@ -119,3 +126,4 @@ export default function AddScreen({ initialData, onCancel, onSaved }: AddScreenP
         </div>
     );
 }
+

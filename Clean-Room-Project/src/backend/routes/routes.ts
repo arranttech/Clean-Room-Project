@@ -449,6 +449,58 @@ const applicationRoutes: ServerRoute[] = [
 			}
 		},
 	},
+	{
+		method: "POST",
+		path: "/v1/screens",
+		handler: async (request: Request, h: ResponseToolkit) => {
+			try {
+				const payload = request.payload as any;
+
+				if (!payload.name) {
+					return h.response({ error: "Screen name is required" }).code(400);
+				}
+
+				const screenId = await ApplicationRepository.createScreen(payload);
+
+				return h.response({
+					message: "Screen created successfully",
+					screen_id: screenId,   // returning auto ID
+				}).code(201);
+
+			} catch (err) {
+				console.error("Error creating screen:", err);
+				return h.response({ error: "Internal Server Error" }).code(500);
+			}
+		},
+	},
+	{
+		method: "PUT",
+		path: "/v1/screens/{id}",
+		handler: async (request: Request, h: ResponseToolkit) => {
+			try {
+				const id = Number(request.params.id);
+				if (!id) return h.response({ error: "Invalid screen ID" }).code(400);
+				const payload = request.payload as any;
+				const updated = await ApplicationRepository.updateScreen(id, payload);
+				if (!updated) return h.response({ error: "Screen not found" }).code(404);
+				return h.response({ message: "Screen updated successfully" }).code(200);
+			} catch (err) {
+				return h.response({ error: "Internal Server Error" }).code(500);
+			}
+		},
+	},
+	{
+		method: "GET",
+		path: "/v1/screens",
+		handler: async (_request: Request, h: ResponseToolkit) => {
+			try {
+				const screens = await ApplicationRepository.getScreens();
+				return h.response({ screens }).code(200);
+			} catch (err) {
+				return h.response({ error: "Internal Server Error" }).code(500);
+			}
+		},
+	}
 ];
 
 export default applicationRoutes;

@@ -20,10 +20,7 @@ export const authRepository = {
 			return { success: false, message: "Password not found" };
 		}
 
-		const valid = user.user_password.startsWith("$2")
-			? await bcrypt.compare(password, user.user_password)
-			: password === user.user_password;
-
+		const valid = user?.user_password === password;
 		if (!valid) {
 			return { success: false, message: "Invalid credentials" };
 		}
@@ -31,10 +28,10 @@ export const authRepository = {
 		return {
 			success: true,
 			user: {
-				user_login_id: user.user_login_id,
-				user_id: user.user_id,
-				name: `${user.user_first_name || ""} ${
-					user.user_last_name || ""
+				user_login_id: user?.user_login_id,
+				user_id: user?.user_id,
+				name: `${user?.user_first_name || ""} ${
+					user?.user_last_name || ""
 				}`.trim(),
 			},
 		};
@@ -44,7 +41,7 @@ export const authRepository = {
 		user_login_id: number;
 		password: string;
 	}) => {
-		const hashedPassword = await bcrypt.hash(payload.password, 10);
+		const hashedPassword = await bcrypt.hash(payload?.password, 10);
 
 		await database.execute(
 			`INSERT INTO tUserPassword (
@@ -53,7 +50,7 @@ export const authRepository = {
         created_by,
         updated_by
       ) VALUES (?, ?, ?, ?)`,
-			[hashedPassword, payload.user_login_id, "admin", "admin"]
+			[hashedPassword, payload?.user_login_id, "admin", "admin"]
 		);
 	},
 };

@@ -5,7 +5,7 @@ import s from "./screensDesign";
 import {
 	createScreen,
 	updateScreen,
-} from "../../../backend/controller/controller";
+} from "../../../backend/controller/screenApi";
 
 type AddScreenProps = {
 	initialData?: any;

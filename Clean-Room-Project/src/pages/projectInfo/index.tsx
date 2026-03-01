@@ -11,7 +11,7 @@ import styles from "./styles";
 import {
 	projectInfo,
 	getProjectByCustomerId,
-} from "../../backend/controller/controller";
+} from "../../backend/controller/projectApi";
 
 function ProjectInfoPage() {
 	const dispatch = useAppDispatch();

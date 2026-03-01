@@ -5,7 +5,7 @@ import styles from "./styles";
 import {
 	customerInfo,
 	getCustomerById,
-} from "../../backend/controller/controller";
+} from "../../backend/controller/customerApi";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { setCustomer } from "../../redux/slices/customerSlice";
 import { updateField } from "../../redux/slices/projectInfoSlice";

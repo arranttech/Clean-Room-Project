@@ -27,11 +27,8 @@ import T from "../../json/room.json";
 import standardDataJson from "../../json/standardData.json";
 import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
-import {
-	addRooms,
-	storeresults,
-	getZoneRooms,
-} from "../../backend/controller/controller";
+import { addRooms, getZoneRooms } from "../../backend/controller/roomApi";
+import { storeresults } from "../../backend/controller/resultsApi";
 import { airflowService } from "../../backend/services/service";
 
 type StandardItem = {
@@ -129,7 +126,7 @@ export default function Room() {
 		(state: any) => state.projectInfo.relativeHumidityMax
 	);
 
-	// real projectId from Redux 
+	// real projectId from Redux
 	const projectId = useAppSelector((state: any) => state.projectInfo.projectId);
 
 	// ─── Local ACPH ───
@@ -230,7 +227,7 @@ export default function Room() {
 	const handleOpenNewRoomForm = () => dispatch(openNewRoomForm());
 	const handleResetRoomForm = () => dispatch(resetRoomForm());
 
-	// GET 
+	// GET
 	useEffect(() => {
 		if (!zoneId) return;
 		const fetchRooms = async () => {
@@ -276,7 +273,7 @@ export default function Room() {
 		console.log("====================");
 
 		try {
-			// POST 
+			// POST
 			const backendRoomId = await saveZoneRooms(roomToSave);
 			const roomWithId = { ...roomToSave, backendRoomId };
 			dispatch(saveRoom(roomWithId));
@@ -404,7 +401,7 @@ export default function Room() {
 		setAcphDeviation((prev) => (prev > -20 ? prev - 5 : prev));
 	};
 
-	// POST 
+	// POST
 	const saveZoneRooms = async (roomData: any): Promise<number | null> => {
 		const payload = {
 			zone_id: zoneId,

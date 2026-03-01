@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { FiSearch, FiPlus, FiEdit2, FiTrash2 } from "react-icons/fi";
 import s from "./styles";
 import AddCustomer from ".";
-import { customerDetails } from "../../../backend/controller/controller";
+import { customerDetails } from "../../../backend/controller/customerApi";
 
 type Customer = {
 	customer_id: number;

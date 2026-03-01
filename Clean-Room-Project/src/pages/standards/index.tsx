@@ -10,9 +10,9 @@ import standardDesign from "./styles";
 import standardDataJson from "../../json/standardData.json";
 import {
 	roomStandards,
-	createProjectZone,
 	getRoomStandards,
-} from "../../backend/controller/controller";
+} from "../../backend/controller/roomApi";
+import { createProjectZone } from "../../backend/controller/zoneApi";
 import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
 
@@ -161,11 +161,11 @@ export default function Standard() {
 		temperature: "",
 	});
 
-	// GET 
+	// GET
 	useEffect(() => {
 		if (!projectId) return;
-		if (zoneIdFromRedux === null) return; 
-		if (standard) return;                 
+		if (zoneIdFromRedux === null) return;
+		if (standard) return;
 		const fetchStandards = async () => {
 			try {
 				const data = await getRoomStandards(projectId);
@@ -570,9 +570,9 @@ export default function Standard() {
 			classification,
 			acph,
 			tempUnit,
-			reqInsideTempC,   
+			reqInsideTempC,
 			reqInsideHum,
-			maxTempC,         
+			maxTempC,
 			minTempC,
 			rhMin,
 			rhMax,

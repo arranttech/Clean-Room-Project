@@ -3,7 +3,7 @@ import { FaArrowRight, FaPlay, FaCheck } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import text from "../../json/constants.json";
 import { useEffect } from "react";
-import { customerDetails } from "../../backend/controller/controller";
+import { customerDetails } from "../../backend/controller/customerApi";
 
 export default function HeroPage() {
 	const { hero } = text;

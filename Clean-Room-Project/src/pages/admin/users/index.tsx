@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { FiSearch, FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
 import s from "./styles";
 import AddUser from "./addUsers";
-import { getUsers, deleteUser } from "../../../backend/controller/controller";
+import {
+	getUsers,
+	deleteUser,
+} from "../../../backend/controller/userController";
 
 interface UsersProps {
 	onCountChange?: (count: number) => void;

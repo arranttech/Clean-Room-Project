@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import { FiSearch, FiPlus, FiEdit2, FiTrash2 } from "react-icons/fi";
 import s from "./profileDesign";
 import AddProfile from "./addProfile";
-import { getProfiles, deleteProfile } from "../../../backend/controller/controller";
+import {
+	getProfiles,
+	deleteProfile,
+} from "../../../backend/controller/profileController";
 
 type ProfileToken = {
 	id: string;

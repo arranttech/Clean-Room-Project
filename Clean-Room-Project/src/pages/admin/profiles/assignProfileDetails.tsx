@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { FiSearch, FiPlus } from "react-icons/fi";
 import s from "./profileDesign";
 import AssignProfile from "./assignProfile";
-import { getAssignedProfiles } from "../../../backend/controller/controller";
+import { getAssignedProfiles } from "../../../backend/controller/profileController";
 
 type AssignedProfileToken = {
 	id: string;
@@ -11,7 +11,9 @@ type AssignedProfileToken = {
 };
 
 export default function AssignProfileDetails() {
-	const [assignedProfiles, setAssignedProfiles] = useState<AssignedProfileToken[]>([]);
+	const [assignedProfiles, setAssignedProfiles] = useState<
+		AssignedProfileToken[]
+	>([]);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [showAssignForm, setShowAssignForm] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);

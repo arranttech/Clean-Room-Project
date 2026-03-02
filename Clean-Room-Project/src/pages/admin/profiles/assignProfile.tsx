@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import s from "./profileDesign";
-import { getUsers, getProfiles, assignProfileToUser } from "../../../backend/controller/controller";
+import { getUsers } from "../../../backend/controller/userController";
+import {
+	getProfiles,
+	assignProfileToUser,
+} from "../../../backend/controller/profileController";
 
 type UserItem = {
 	id: string;
@@ -45,7 +49,9 @@ export default function AssignProfile({
 				}));
 
 				// Sort alphabetically by name
-				mappedUsers.sort((a: UserItem, b: UserItem) => a.name.localeCompare(b.name));
+				mappedUsers.sort((a: UserItem, b: UserItem) =>
+					a.name.localeCompare(b.name)
+				);
 
 				setUsersList(mappedUsers);
 
@@ -62,15 +68,13 @@ export default function AssignProfile({
 		fetchData();
 	}, []);
 
-	const filteredUsers = usersList.filter(user =>
+	const filteredUsers = usersList.filter((user) =>
 		user.name.toLowerCase().includes(userSearchTerm.toLowerCase())
 	);
 
 	const handleUserSelect = (id: string) => {
-		setSelectedUserIds(prev =>
-			prev.includes(id)
-				? prev.filter(userId => userId !== id)
-				: [...prev, id]
+		setSelectedUserIds((prev) =>
+			prev.includes(id) ? prev.filter((userId) => userId !== id) : [...prev, id]
 		);
 	};
 
@@ -81,10 +85,10 @@ export default function AssignProfile({
 			const profile = profilesList.find((p) => p.id === selectedProfileId);
 
 			// Map over selectedUserIds to assign the profile to multiple users concurrently
-			const assignPromises = selectedUserIds.map(userId =>
+			const assignPromises = selectedUserIds.map((userId) =>
 				assignProfileToUser({
 					userId: userId,
-					systemProfileId: Number(selectedProfileId)
+					systemProfileId: Number(selectedProfileId),
 				})
 			);
 
@@ -97,7 +101,10 @@ export default function AssignProfile({
 				// For backwards compatibility and the alert prompt
 				const firstUser = usersList.find((u) => u.id === selectedUserIds[0]);
 				onSaved({
-					userName: selectedUserIds.length > 1 ? `${selectedUserIds.length} Users` : firstUser?.name || "Unknown User",
+					userName:
+						selectedUserIds.length > 1
+							? `${selectedUserIds.length} Users`
+							: firstUser?.name || "Unknown User",
 					profileName: profile?.name || "Unknown Profile",
 				});
 			}, 2000);
@@ -228,11 +235,14 @@ export default function AssignProfile({
 					<button
 						type="button"
 						onClick={handleAssign}
-						className={`${s.formSubmitBtn} ${selectedUserIds.length === 0 || !selectedProfileId
-							? "opacity-50 cursor-not-allowed"
-							: ""
-							}`}
-						disabled={saving || selectedUserIds.length === 0 || !selectedProfileId}
+						className={`${s.formSubmitBtn} ${
+							selectedUserIds.length === 0 || !selectedProfileId
+								? "opacity-50 cursor-not-allowed"
+								: ""
+						}`}
+						disabled={
+							saving || selectedUserIds.length === 0 || !selectedProfileId
+						}
 					>
 						{saving ? "Assigning..." : "Assign Profile"}
 					</button>

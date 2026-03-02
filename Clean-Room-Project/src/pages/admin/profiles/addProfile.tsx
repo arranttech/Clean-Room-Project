@@ -2,7 +2,13 @@ import { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
 import { FaFloppyDisk, FaCircleCheck } from "react-icons/fa6";
 import s from "./profileDesign";
-import { createProfile, updateProfile, getScreens, saveProfileDetails } from "../../../backend/controller/controller";
+import {
+	createProfile,
+	updateProfile,
+	saveProfileDetails,
+} from "../../../backend/controller/profileController";
+
+import { getScreens } from "../../../backend/controller/screenController";
 
 type AddProfileProps = {
 	initialData?: any;
@@ -30,7 +36,7 @@ export default function AddProfile({
 	const [permissions, setPermissions] = useState<Record<string, string>>(() => {
 		const initialPerms: Record<string, string> = {};
 		if (initialData?.permissions) {
-			Object.keys(initialData.permissions).forEach(k => {
+			Object.keys(initialData.permissions).forEach((k) => {
 				initialPerms[k] = initialData.permissions[k];
 			});
 		}
@@ -48,7 +54,7 @@ export default function AddProfile({
 					setScreensList(activeScreens);
 
 					// ensure existing permissions state has at least "None" for all active screens
-					setPermissions(prev => {
+					setPermissions((prev) => {
 						const newPerms = { ...prev };
 						activeScreens.forEach((scr: string) => {
 							if (!newPerms[scr]) newPerms[scr] = "None";
@@ -81,7 +87,10 @@ export default function AddProfile({
 		: "";
 
 	const isPermissionsValid =
-		!initialData || screensList.every((screen) => permissions[screen] && permissions[screen] !== "");
+		!initialData ||
+		screensList.every(
+			(screen) => permissions[screen] && permissions[screen] !== ""
+		);
 	const isFormValid =
 		profileName.trim().length > 0 &&
 		profileDescription.trim().length > 0 &&
@@ -114,7 +123,7 @@ export default function AddProfile({
 			if (profileIdStr && Object.keys(permissions).length > 0) {
 				await saveProfileDetails({
 					profile_id: Number(profileIdStr),
-					permissions: permissions
+					permissions: permissions,
 				});
 			}
 
@@ -149,7 +158,9 @@ export default function AddProfile({
 						</label>
 						<input
 							type="text" //while editing the profile name  disabled.
-							className={`${s.formInput} ${initialData ? "opacity-60 cursor-not-allowed bg-gray-50" : ""}`}
+							className={`${s.formInput} ${
+								initialData ? "opacity-60 cursor-not-allowed bg-gray-50" : ""
+							}`}
 							placeholder="Enter profile name"
 							value={profileName}
 							onChange={(e) => setProfileName(e.target.value)}
@@ -165,7 +176,9 @@ export default function AddProfile({
 							Profile Description <span className={s.formRequired}>*</span>
 						</label>
 						<textarea
-							className={`${s.formInput} ${initialData ? "opacity-60 cursor-not-allowed bg-gray-50" : ""}`}
+							className={`${s.formInput} ${
+								initialData ? "opacity-60 cursor-not-allowed bg-gray-50" : ""
+							}`}
 							placeholder="Enter profile description"
 							value={profileDescription}
 							onChange={(e) => setProfileDescription(e.target.value)}
@@ -270,8 +283,8 @@ export default function AddProfile({
 						{saving
 							? "Saving..."
 							: initialData
-								? "Save Changes"
-								: "Create Profile"}
+							? "Save Changes"
+							: "Create Profile"}
 					</button>
 				</div>
 			</div>

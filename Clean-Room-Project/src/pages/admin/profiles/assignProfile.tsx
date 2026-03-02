@@ -1,20 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import s from "./profileDesign";
+import { getUsers, getProfiles, assignProfileToUser } from "../../../backend/controller/controller";
 
-//declaring mock data for users
+type UserItem = {
+	id: string;
+	name: string;
+};
 
-const MOCK_USERS: { id: string; name: string }[] = [
-	{ id: "1", name: "Joe" },
-	{ id: "2", name: "Rozie" },
-	{ id: "3", name: "Kelsey" },
-	{ id: "4", name: "Elie" },
-];
-
-//declaring mock data for profiles
-const MOCK_PROFILES: { id: string; name: string }[] = [
-	{ id: "1", name: "Quality Lab Profile" },
-	{ id: "2", name: "Advanced Lab Profile" },
-];
+type ProfileItem = {
+	id: string;
+	name: string;
+};
 
 //declaring props for AssignProfile
 type AssignProfileProps = {
@@ -26,32 +22,87 @@ export default function AssignProfile({
 	onCancel,
 	onSaved,
 }: AssignProfileProps) {
-	const [selectedUserId, setSelectedUserId] = useState<string>("");
+	const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
 	const [selectedProfileId, setSelectedProfileId] = useState<string>("");
+	const [userSearchTerm, setUserSearchTerm] = useState("");
 	const [saving, setSaving] = useState(false);
 	const [showPopup, setShowPopup] = useState(false);
+	const [usersList, setUsersList] = useState<UserItem[]>([]);
+	const [profilesList, setProfilesList] = useState<ProfileItem[]>([]);
+
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				const [usersData, profilesData] = await Promise.all([
+					getUsers(),
+					getProfiles(),
+				]);
+
+				const listUsers = usersData.users ?? usersData ?? [];
+				const mappedUsers = listUsers.map((u: any) => ({
+					id: u.user_id, // Use varchar user_id for the tUserProfiles table
+					name: `${u.user_first_name} ${u.user_last_name}`.trim(),
+				}));
+
+				// Sort alphabetically by name
+				mappedUsers.sort((a: UserItem, b: UserItem) => a.name.localeCompare(b.name));
+
+				setUsersList(mappedUsers);
+
+				const listProfiles = profilesData.profiles ?? profilesData ?? [];
+				const mappedProfiles = listProfiles.map((p: any) => ({
+					id: p.id?.toString(),
+					name: p.name,
+				}));
+				setProfilesList(mappedProfiles);
+			} catch (error) {
+				console.error("Failed to fetch assign profile data:", error);
+			}
+		};
+		fetchData();
+	}, []);
+
+	const filteredUsers = usersList.filter(user =>
+		user.name.toLowerCase().includes(userSearchTerm.toLowerCase())
+	);
+
+	const handleUserSelect = (id: string) => {
+		setSelectedUserIds(prev =>
+			prev.includes(id)
+				? prev.filter(userId => userId !== id)
+				: [...prev, id]
+		);
+	};
 
 	//handle assign function
-	const handleAssign = () => {
+	const handleAssign = async () => {
 		setSaving(true);
 		try {
-			const user = MOCK_USERS.find((u) => u.id === selectedUserId);
-			const profile = MOCK_PROFILES.find((p) => p.id === selectedProfileId);
-			const assignedData = {
-				userName: user?.name || "Unknown User",
-				profileName: profile?.name || "Unknown Profile",
-			};
+			const profile = profilesList.find((p) => p.id === selectedProfileId);
 
-			// Mock API call
+			// Map over selectedUserIds to assign the profile to multiple users concurrently
+			const assignPromises = selectedUserIds.map(userId =>
+				assignProfileToUser({
+					userId: userId,
+					systemProfileId: Number(selectedProfileId)
+				})
+			);
+
+			await Promise.all(assignPromises);
+
+			setShowPopup(true);
 			setTimeout(() => {
-				setShowPopup(true);
-				setTimeout(() => {
-					setShowPopup(false);
-					onSaved(assignedData);
-				}, 2000);
-			}, 600);
+				setShowPopup(false);
+
+				// For backwards compatibility and the alert prompt
+				const firstUser = usersList.find((u) => u.id === selectedUserIds[0]);
+				onSaved({
+					userName: selectedUserIds.length > 1 ? `${selectedUserIds.length} Users` : firstUser?.name || "Unknown User",
+					profileName: profile?.name || "Unknown Profile",
+				});
+			}, 2000);
 		} catch (error) {
-			console.error((error as Error).message);
+			console.error("Failed to assign profile", (error as Error).message);
 		} finally {
 			setSaving(false);
 		}
@@ -75,27 +126,53 @@ export default function AssignProfile({
 						</h2>
 						<div className={s.assignCol}>
 							<div className={s.assignHeader}>Available Users</div>
+
+							{/* User Search Bar */}
+							<div className="px-3 py-2 border-b border-slate-100 bg-slate-50 relative">
+								<input
+									type="text"
+									placeholder="Search users..."
+									className="w-full text-sm border border-slate-200 rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500"
+									value={userSearchTerm}
+									onChange={(e) => setUserSearchTerm(e.target.value)}
+								/>
+								{userSearchTerm && (
+									<button
+										className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 font-bold text-xs"
+										onClick={() => setUserSearchTerm("")}
+									>
+										×
+									</button>
+								)}
+							</div>
+
 							<div className={s.assignList}>
-								{MOCK_USERS.map((user) => (
-									<label key={user.id} className={s.assignListItem}>
-										<input
-											type="radio"
-											name="user"
-											className={s.assignRadio}
-											checked={selectedUserId === user.id}
-											onChange={() => setSelectedUserId(user.id)}
-										/>
-										<span
-											className={
-												selectedUserId === user.id
-													? s.assignLabelActive
-													: s.assignLabel
-											}
-										>
-											{user.name}
-										</span>
-									</label>
-								))}
+								{filteredUsers.length === 0 ? (
+									<div className="px-5 py-4 text-sm text-slate-500 italic">
+										No users found
+									</div>
+								) : (
+									filteredUsers.map((user) => (
+										<label key={user.id} className={s.assignListItem}>
+											<input
+												type="checkbox"
+												name={`user-${user.id}`}
+												className={`${s.assignRadio} rounded-sm`}
+												checked={selectedUserIds.includes(user.id)}
+												onChange={() => handleUserSelect(user.id)}
+											/>
+											<span
+												className={
+													selectedUserIds.includes(user.id)
+														? s.assignLabelActive
+														: s.assignLabel
+												}
+											>
+												{user.name}
+											</span>
+										</label>
+									))
+								)}
 							</div>
 						</div>
 					</div>
@@ -108,26 +185,32 @@ export default function AssignProfile({
 						<div className={s.assignCol}>
 							<div className={s.assignHeader}>Available Profiles</div>
 							<div className={s.assignList}>
-								{MOCK_PROFILES.map((profile) => (
-									<label key={profile.id} className={s.assignListItem}>
-										<input
-											type="radio"
-											name="profile"
-											className={s.assignRadio}
-											checked={selectedProfileId === profile.id}
-											onChange={() => setSelectedProfileId(profile.id)}
-										/>
-										<span
-											className={
-												selectedProfileId === profile.id
-													? s.assignLabelActive
-													: s.assignLabel
-											}
-										>
-											{profile.name}
-										</span>
-									</label>
-								))}
+								{profilesList.length === 0 ? (
+									<div className="px-5 py-4 text-sm text-slate-500 italic">
+										No profiles available
+									</div>
+								) : (
+									profilesList.map((profile) => (
+										<label key={profile.id} className={s.assignListItem}>
+											<input
+												type="radio"
+												name="profile"
+												className={s.assignRadio}
+												checked={selectedProfileId === profile.id}
+												onChange={() => setSelectedProfileId(profile.id)}
+											/>
+											<span
+												className={
+													selectedProfileId === profile.id
+														? s.assignLabelActive
+														: s.assignLabel
+												}
+											>
+												{profile.name}
+											</span>
+										</label>
+									))
+								)}
 							</div>
 						</div>
 					</div>
@@ -145,12 +228,11 @@ export default function AssignProfile({
 					<button
 						type="button"
 						onClick={handleAssign}
-						className={`${s.formSubmitBtn} ${
-							!selectedUserId || !selectedProfileId
-								? "opacity-50 cursor-not-allowed"
-								: ""
-						}`}
-						disabled={saving || !selectedUserId || !selectedProfileId}
+						className={`${s.formSubmitBtn} ${selectedUserIds.length === 0 || !selectedProfileId
+							? "opacity-50 cursor-not-allowed"
+							: ""
+							}`}
+						disabled={saving || selectedUserIds.length === 0 || !selectedProfileId}
 					>
 						{saving ? "Assigning..." : "Assign Profile"}
 					</button>

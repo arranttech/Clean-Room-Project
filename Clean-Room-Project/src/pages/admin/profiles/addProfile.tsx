@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
 import { FaFloppyDisk, FaCircleCheck } from "react-icons/fa6";
 import s from "./profileDesign";
+import { createProfile, updateProfile, getScreens, saveProfileDetails } from "../../../backend/controller/controller";
 
 type AddProfileProps = {
 	initialData?: any;
@@ -22,29 +23,45 @@ export default function AddProfile({
 	const [showPopup, setShowPopup] = useState(false);
 	const [touched, setTouched] = useState(false);
 
-	// screens for the permissions table and default permissions
-	const SCREENS = [
-		"Dashboard",
-		"Project Creation",
-		"Room Details",
-		"Classification",
-		"Company Profile",
-		"Admin Management",
-		"User Management",
-		"Reports",
-		"Project Information",
-		"Customer Details",
-		"Results Page",
-	];
+	// dynamic screens from the database
+	const [screensList, setScreensList] = useState<string[]>([]);
 
 	// State to hold permission per screen. Default to "None"
 	const [permissions, setPermissions] = useState<Record<string, string>>(() => {
 		const initialPerms: Record<string, string> = {};
-		SCREENS.forEach((screen) => {
-			initialPerms[screen] = initialData?.permissions?.[screen] || "";
-		});
+		if (initialData?.permissions) {
+			Object.keys(initialData.permissions).forEach(k => {
+				initialPerms[k] = initialData.permissions[k];
+			});
+		}
 		return initialPerms;
 	});
+
+	useEffect(() => {
+		const fetchScreens = async () => {
+			try {
+				const response = await getScreens();
+				if (response.screens) {
+					const activeScreens = response.screens
+						.filter((s: any) => s.screen_status === "Active")
+						.map((s: any) => s.screen_name);
+					setScreensList(activeScreens);
+
+					// ensure existing permissions state has at least "None" for all active screens
+					setPermissions(prev => {
+						const newPerms = { ...prev };
+						activeScreens.forEach((scr: string) => {
+							if (!newPerms[scr]) newPerms[scr] = "None";
+						});
+						return newPerms;
+					});
+				}
+			} catch (err) {
+				console.error("Failed to fetch screens:", err);
+			}
+		};
+		fetchScreens();
+	}, []);
 
 	const handlePermissionChange = (
 		screen: string,
@@ -64,7 +81,7 @@ export default function AddProfile({
 		: "";
 
 	const isPermissionsValid =
-		!initialData || SCREENS.every((screen) => permissions[screen] !== "");
+		!initialData || screensList.every((screen) => permissions[screen] && permissions[screen] !== "");
 	const isFormValid =
 		profileName.trim().length > 0 &&
 		profileDescription.trim().length > 0 &&
@@ -78,13 +95,31 @@ export default function AddProfile({
 
 		setSaving(true);
 		try {
-			const newProfileData = {
+			const newProfileData: any = {
 				name: profileName,
 				description: profileDescription,
 				status: initialData?.status || "Active",
-				created: initialData?.created || new Date().toISOString().split("T")[0],
-				permissions: permissions,
 			};
+
+			let profileIdStr = initialData?.id;
+
+			if (initialData?.id) {
+				await updateProfile(Number(initialData.id), newProfileData);
+			} else {
+				const response = await createProfile(newProfileData);
+				profileIdStr = response.profile_id.toString();
+			}
+
+			// Always save permissions map
+			if (profileIdStr && Object.keys(permissions).length > 0) {
+				await saveProfileDetails({
+					profile_id: Number(profileIdStr),
+					permissions: permissions
+				});
+			}
+
+			newProfileData.id = profileIdStr;
+			newProfileData.permissions = permissions;
 
 			setShowPopup(true);
 			setTimeout(() => {
@@ -93,6 +128,7 @@ export default function AddProfile({
 			}, 2000);
 		} catch (error) {
 			console.error((error as Error).message);
+			alert("Failed to save profile. See console for details.");
 		} finally {
 			setSaving(false);
 		}
@@ -112,11 +148,12 @@ export default function AddProfile({
 							Profile Name <span className={s.formRequired}>*</span>
 						</label>
 						<input
-							type="text"
-							className={s.formInput}
+							type="text" //while editing the profile name  disabled.
+							className={`${s.formInput} ${initialData ? "opacity-60 cursor-not-allowed bg-gray-50" : ""}`}
 							placeholder="Enter profile name"
 							value={profileName}
 							onChange={(e) => setProfileName(e.target.value)}
+							disabled={!!initialData}
 						/>
 						{nameError && <p className={s.formError}>{nameError}</p>}
 					</div>
@@ -128,10 +165,11 @@ export default function AddProfile({
 							Profile Description <span className={s.formRequired}>*</span>
 						</label>
 						<textarea
-							className={s.formInput}
+							className={`${s.formInput} ${initialData ? "opacity-60 cursor-not-allowed bg-gray-50" : ""}`}
 							placeholder="Enter profile description"
 							value={profileDescription}
 							onChange={(e) => setProfileDescription(e.target.value)}
+							disabled={!!initialData}
 						/>
 						{descriptionError && (
 							<p className={s.formError}>{descriptionError}</p>
@@ -162,7 +200,7 @@ export default function AddProfile({
 									</tr>
 								</thead>
 								<tbody className={s.tbody}>
-									{SCREENS.map((screen) => (
+									{screensList.map((screen) => (
 										<tr key={screen} className={s.tr}>
 											<td className={s.td}>{screen}</td>
 											<td className="px-5 py-4 text-center">
@@ -232,8 +270,8 @@ export default function AddProfile({
 						{saving
 							? "Saving..."
 							: initialData
-							? "Save Changes"
-							: "Create Profile"}
+								? "Save Changes"
+								: "Create Profile"}
 					</button>
 				</div>
 			</div>

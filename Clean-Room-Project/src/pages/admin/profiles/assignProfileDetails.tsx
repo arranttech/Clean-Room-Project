@@ -1,23 +1,38 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiSearch, FiPlus } from "react-icons/fi";
 import s from "./profileDesign";
 import AssignProfile from "./assignProfile";
+import { getAssignedProfiles } from "../../../backend/controller/controller";
 
 type AssignedProfileToken = {
 	id: string;
 	userName: string;
 	profileName: string;
-	createdAt: string;
 };
 
-const initialAssignedProfiles: AssignedProfileToken[] = [];
-
 export default function AssignProfileDetails() {
-	const [assignedProfiles, setAssignedProfiles] = useState<
-		AssignedProfileToken[]
-	>(initialAssignedProfiles);
+	const [assignedProfiles, setAssignedProfiles] = useState<AssignedProfileToken[]>([]);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [showAssignForm, setShowAssignForm] = useState(false);
+	const [isLoading, setIsLoading] = useState(true);
+
+	const fetchAssignments = async () => {
+		setIsLoading(true);
+		try {
+			const res = await getAssignedProfiles();
+			if (res.assignedProfiles) {
+				setAssignedProfiles(res.assignedProfiles);
+			}
+		} catch (error) {
+			console.error("Failed to fetch assigned profiles", error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	useEffect(() => {
+		fetchAssignments();
+	}, []);
 
 	const filteredData = assignedProfiles.filter(
 		(item) =>
@@ -29,15 +44,9 @@ export default function AssignProfileDetails() {
 		return (
 			<AssignProfile
 				onCancel={() => setShowAssignForm(false)}
-				onSaved={(assignedData) => {
+				onSaved={() => {
 					setShowAssignForm(false);
-					const newAssignment: AssignedProfileToken = {
-						id: Math.random().toString(36).substr(2, 9),
-						userName: assignedData.userName,
-						profileName: assignedData.profileName,
-						createdAt: new Date().toISOString().split("T")[0],
-					};
-					setAssignedProfiles((prev) => [...prev, newAssignment]);
+					fetchAssignments(); // Refetch the table from the db
 				}}
 			/>
 		);
@@ -77,23 +86,27 @@ export default function AssignProfileDetails() {
 				<table className={s.table}>
 					<thead className={s.thead}>
 						<tr>
-							<th className={s.th}>User Name</th>
+							<th className={s.th}>User</th>
 							<th className={s.th}>Assigned Profile</th>
-							<th className={s.th}>Created At</th>
 						</tr>
 					</thead>
 					<tbody className={s.tbody}>
-						{filteredData.length > 0 ? (
+						{isLoading ? (
+							<tr>
+								<td colSpan={2} className={s.emptyRow}>
+									Loading assignments...
+								</td>
+							</tr>
+						) : filteredData.length > 0 ? (
 							filteredData.map((row) => (
 								<tr key={row.id} className={s.tr}>
 									<td className={s.tdProfileName}>{row.userName}</td>
 									<td className={s.td}>{row.profileName}</td>
-									<td className={s.td}>{row.createdAt}</td>
 								</tr>
 							))
 						) : (
 							<tr>
-								<td colSpan={3} className={s.emptyRow}>
+								<td colSpan={2} className={s.emptyRow}>
 									No assigned profiles found.
 								</td>
 							</tr>

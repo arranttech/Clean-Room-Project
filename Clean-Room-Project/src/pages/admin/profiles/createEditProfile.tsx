@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiSearch, FiPlus, FiEdit2, FiTrash2 } from "react-icons/fi";
 import s from "./profileDesign";
 import AddProfile from "./addProfile";
+import { getProfiles, deleteProfile } from "../../../backend/controller/controller";
 
 type ProfileToken = {
 	id: string;
 	name: string;
 	description: string;
 	status: "Active" | "In Progress";
-	created: string;
 };
 
 const initialProfiles: ProfileToken[] = [];
@@ -19,15 +19,35 @@ export default function CreateEditProfile() {
 	const [showAdd, setShowAdd] = useState(false);
 	const [editData, setEditData] = useState<ProfileToken | null>(null);
 
+	useEffect(() => {
+		const fetchProfiles = async () => {
+			try {
+				const response = await getProfiles();
+				if (response.profiles) {
+					setProfiles(response.profiles);
+				}
+			} catch (err) {
+				console.error("Failed to fetch profiles:", err);
+			}
+		};
+		fetchProfiles();
+	}, []);
+
 	const filteredData = profiles.filter(
 		(item) =>
 			item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
 			item.description.toLowerCase().includes(searchTerm.toLowerCase())
 	);
 
-	const handleDelete = (id: string) => {
+	const handleDelete = async (id: string) => {
 		if (window.confirm("Are you sure you want to delete this profile?")) {
-			setProfiles((prev) => prev.filter((p) => p.id !== id));
+			try {
+				await deleteProfile(Number(id));
+				setProfiles((prev) => prev.filter((p) => p.id !== id));
+			} catch (err) {
+				console.error(err);
+				alert("Failed to delete profile");
+			}
 		}
 	};
 
@@ -100,7 +120,6 @@ export default function CreateEditProfile() {
 							<th className={s.th}>Profile Name</th>
 							<th className={s.th}>Description</th>
 							<th className={s.th}>Status</th>
-							<th className={s.th}>Created</th>
 							<th className={s.thActions}>Actions</th>
 						</tr>
 					</thead>
@@ -121,7 +140,6 @@ export default function CreateEditProfile() {
 											{row.status}
 										</span>
 									</td>
-									<td className={s.td}>{row.created}</td>
 									<td className={s.tdActions}>
 										<button
 											className={s.editBtn}
@@ -142,7 +160,7 @@ export default function CreateEditProfile() {
 							))
 						) : (
 							<tr>
-								<td colSpan={5} className={s.emptyRow}>
+								<td colSpan={4} className={s.emptyRow}>
 									No profiles found.
 								</td>
 							</tr>

@@ -4,6 +4,7 @@ export type ZonePayload = AirflowResults;
 
 export type CalculatedZoneResults = {
     zoneName: string;
+    zoneSystem: string; 
     zoneArea: number;
     zoneVolume: number;
     zoneRoomCfm: number;
@@ -25,13 +26,15 @@ export type CalculatedZoneResults = {
     zoneResultHeatLoadTR: number;
 };
 
-
 const ensureNumber = (val: any): number => {
     return typeof val === "number" && !isNaN(val) ? val : 0;
 };
 
 export function cumulativeZoneService(zoneName: string, rooms: ZonePayload[]): CalculatedZoneResults {
     
+    // Get the zoneSystem from the first room, or default to empty string
+    const zoneSystem = rooms.length > 0 ? rooms[0].zoneSystem : "";
+
     const totals = rooms.reduce((acc, room) => {
         return {
             zoneName: zoneName,
@@ -64,8 +67,10 @@ export function cumulativeZoneService(zoneName: string, rooms: ZonePayload[]): C
         zoneRoomTermSupplyHeatValue: 0, zoneCfmHeatLoadTRValue: 0, zoneRoomHeatLoadTR: 0,
         zoneResultHeatLoadTR: 0
     });
+
     return {
         zoneName: zoneName,
+        zoneSystem: zoneSystem, 
         zoneArea: Number(totals.zoneArea.toFixed(2)),
         zoneVolume: Number(totals.zoneVolume.toFixed(2)),
         zoneRoomCfm: Number(totals.zoneRoomCfm.toFixed(2)),

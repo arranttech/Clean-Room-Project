@@ -1,0 +1,102 @@
+{
+    "title": "BOQ Results",
+    "subtitle": "These values are calculated BOQ results.",
+    "fields": {
+        "AHUSize": {
+            "label": "AHU Size consists of AHU's Width, Height, Length",
+            "AHUWidthCfm": {
+                "label": "AHU Width combination with its respective AHU Cfm",
+                "AHUWdCfm":{
+                    "1": 2000,
+                    "2": 3000,
+                    "3": 8000,
+                    "4": 10000,
+                    "5": 18000,
+                    "6": 32000,
+                    "7": 40000
+                },
+                "AHUWidth":{
+                    "1": 950,
+                    "2": 1150,
+                    "3": 1550,
+                    "4": 1750,
+                    "5": 2050,
+                    "6": 2900,
+                    "7": 3600,
+                    "8": 4000
+                }
+            },
+            "AHUHeightCfm": {
+                "label":"AHU Height combination with its respective AHU Cfm",
+                "AHUHtCfm":{
+                    "1": 2000,
+                    "2": 4000,
+                    "3": 6000,
+                    "4": 10000,
+                    "5": 15000,
+                    "6": 24000,
+                    "7": 40000
+                },
+                "AHUHeight":{
+                    "1": 950,
+                    "2": 1100,
+                    "3": 1200,
+                    "4": 1550,
+                    "5": 1750,
+                    "6": 2050,
+                    "7": 2900,
+                    "8": 3600
+                }
+            },
+            "AHULengthCfm":{
+                "label":"AHU Length combination with its respective AHU Cfm",
+                "BDB":{
+                    "1": 280,
+                    "2": 315,
+                    "3": 400,
+                    "4": 500,
+                    "5": 560,
+                    "6": 630,
+                    "7": 710 
+                },
+                "BlowerLength":{
+                    "1": 1200,
+                    "2": 1600,
+                    "3": 1650,
+                    "4": 1700,
+                    "5": 1800,
+                    "6": 2000,
+                    "7": 2200,
+                    "8": 2500
+                },
+                "FilterStages":  {
+                  "1": 2,
+                  "2": 3,
+                  "3": 4 
+                },
+                "FilterLength":{
+                    "1": 1800,
+                    "2": 2300,
+                    "3": 3300
+                },
+               "CoolingCoil":  {
+                  "1": 4,
+                  "2": 6,
+                  "3": 8 
+                },
+                "CoilLength":{
+                    "1": 600,
+                    "2": 800,
+                    "3": 1000
+                }
+            },
+            "StaticPressure":{
+                "label":"Stati Pressure calculation", 
+                "SPTempNum":{
+                    "label":"Static Pressure calculation when temperature is number"
+                }
+            }
+
+        }
+    }
+}

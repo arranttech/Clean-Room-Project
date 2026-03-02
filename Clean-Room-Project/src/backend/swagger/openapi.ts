@@ -646,6 +646,7 @@ export const openApiSpec = {
 								required: ["zoneName", "rooms"],
 								properties: {
 									zoneName: { type: "string", example: "Zone A" },
+									zoneSystem: { type: "string", example: "Air-Cooling System" },
 									rooms: {
 										type: "array",
 										description: "Array of room data objects to be summed",
@@ -699,6 +700,7 @@ export const openApiSpec = {
 											type: "object",
 											properties: {
 												roomName: { type: "string", example: "Mixing Room" },
+												zoneSystem: { type: "string", example: "Air-Cooling System" },
 												areaFt2: { type: "number", example: 172.16 },
 												volumeFt3: { type: "number", example: 1355.25 },
 												roomCfm: { type: "number", example: 1355.25 },
@@ -787,11 +789,13 @@ export const openApiSpec = {
 								type: "object",
 								properties: {
 									zoneName: { type: "string", example: "Zone A" },
-									zoneResultantCfm: { type: "number", example: 6300 },
-								},
-							},
-						},
-					},
+									zoneSystem: { type: "string", example: "Air-Cooling System" },
+									zoneResultantCfm: { type: "number", example: 31925 },
+									zoneResultantHeatCfm: {type:"number", example: 25750 },
+								}
+							}
+						}
+					}
 				},
 				responses: {
 					"200": {

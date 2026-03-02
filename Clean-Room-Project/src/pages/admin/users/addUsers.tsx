@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEffect } from "react";
 import { FiX } from "react-icons/fi";
 import {
   FaFloppyDisk,
@@ -7,9 +8,10 @@ import {
   FaEyeSlash,
 } from "react-icons/fa6";
 import s from "./styles";
-import { createUsers, createUserPassword } from "../../../backend/controller/controller";
+import { createUsers, createUserPassword, updateUsers } from "../../../backend/controller/controller";
 
 type AddUserProps = {
+  user?: any;
   onCancel: () => void;
   onSaved: () => void;
 };
@@ -29,7 +31,26 @@ type FormErrors = {
   confirmPassword: string;
 };
 
-export default function AddUser({ onCancel, onSaved }: AddUserProps) {
+export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
+  
+    useEffect(() => {
+      if (user) {
+        setForm({
+          user_first_name: user.user_first_name || "",
+          user_last_name: user.user_last_name || "",
+          user_id: user.user_id || "",
+          user_email_id: user.user_email_id || "",
+          user_address: user.user_address || "",
+          user_phone_home: user.user_phone_home || "",
+          user_phone_work: user.user_phone_work || "",
+          created_by: user.created_by || "admin",
+          updated_by: "admin",
+          user_admin_flag: user.user_admin_flag || "No",
+          customer_id: user.customer_id || 0,
+          password: ""   // never preload password
+        });
+      }
+    }, [user]);
   const [form, setForm] = useState({
     user_first_name: "",
     user_last_name: "",
@@ -102,52 +123,58 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
   };
 
   const saveUser = async () => {
-    const firstNameErr = validatefirstName(form.user_first_name);
-    const lastNameErr = validatelastName(form.user_last_name);
-    const emailErr = validateEmail(form.user_email_id);
-    const userIdErr = validateUserId(form.user_id);
-    const homePhoneErr = validatePhone(form.user_phone_home);
-    const workPhoneErr = validatePhone(form.user_phone_work);
-    const passwordErr = validatePassword(form.password);
-    const confirmPasswordErr = validateConfirmPassword(
-      confirmPassword,
-      form.password
-    );
+    // const firstNameErr = validatefirstName(form.user_first_name);
+    // const lastNameErr = validatelastName(form.user_last_name);
+    // const emailErr = validateEmail(form.user_email_id);
+    // const userIdErr = validateUserId(form.user_id);
+    // const homePhoneErr = validatePhone(form.user_phone_home);
+    // const workPhoneErr = validatePhone(form.user_phone_work);
+    // const passwordErr = validatePassword(form.password);
+    // const confirmPasswordErr = validateConfirmPassword(
+    //   confirmPassword,
+    //   form.password
+    // );
 
-    if (
-      firstNameErr ||
-      lastNameErr ||
-      emailErr ||
-      userIdErr ||
-      homePhoneErr ||
-      workPhoneErr ||
-      passwordErr ||
-      confirmPasswordErr
-    ) {
-      setErrors((p) => ({
-        ...p,
-        user_first_name: firstNameErr,
-        user_last_name: lastNameErr,
-        user_email_id: emailErr,
-        user_id: userIdErr,
-        user_phone_home: homePhoneErr,
-        user_phone_work: workPhoneErr,
-        password: passwordErr,
-        confirmPassword: confirmPasswordErr,
-      }));
-      return;
-    }
+    // if (
+    //   firstNameErr ||
+    //   lastNameErr ||
+    //   emailErr ||
+    //   userIdErr ||
+    //   homePhoneErr ||
+    //   workPhoneErr ||
+    //   passwordErr ||
+    //   confirmPasswordErr
+    // ) {
+    //   setErrors((p) => ({
+    //     ...p,
+    //     user_first_name: firstNameErr,
+    //     user_last_name: lastNameErr,
+    //     user_email_id: emailErr,
+    //     user_id: userIdErr,
+    //     user_phone_home: homePhoneErr,
+    //     user_phone_work: workPhoneErr,
+    //     password: passwordErr,
+    //     confirmPassword: confirmPasswordErr,
+    //   }));
+    //   return;
+    // }
 
     setSaving(true);
 
     try {
-		//POST
+		
       const payload = { ...form };
-      const response = await createUsers(payload);
-      console.log("Backend response:", response);
 
-      // POST 2
+      if (user) {
+// edit mode
+        await updateUsers(user.user_login_id, payload);
+        console.log("User updated successfully");
+      } else {
+// create mode
+      const response = await createUsers(payload);
       await createUserPassword({ user_login_id: response.userId, password: form.password });
+      console.log("User created successfully");
+      }
 
       setShowPopup(true);
       setTimeout(() => {
@@ -241,6 +268,7 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
               className={s.formInput}
               placeholder="Enter User ID"
               value={form.user_id}
+              disabled={!!user} // disable if editing existing user
               onChange={(e) => {
                 handleChange("user_id", e.target.value);
                 setErrors((p) => ({
@@ -394,6 +422,7 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
               type="number"
               className={s.formInput}
               placeholder="Enter Customer ID"
+              disabled={!!user} // disable if editing existing user
               onChange={(e) =>
                 handleChange("customer_id", Number(e.target.value))
               }

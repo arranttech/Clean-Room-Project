@@ -1,7 +1,9 @@
+import { updateUsers } from "../controller/controller";
 import { database } from "../dbConnection/connections";
 
 export const userRepository = {
 	createUser: async (payload: any) => {
+		console.log("Create user with payload:", payload);
 		const [result] = await database.execute(
 			`INSERT INTO tUsers (
         user_first_name,
@@ -32,6 +34,32 @@ export const userRepository = {
 		);
 
 		return (result as any).insertId;
+	},
+
+	updateUsers: async (user_login_id: number, payload: any) => {
+		await database.execute(
+			`UPDATE tUsers
+        SET
+            user_first_name = ?,
+            user_last_name = ?,
+            user_email_id = ?,
+            user_address = ?,
+            user_phone_home = ?,
+            user_phone_work = ?,
+            user_admin_flag = ?
+        WHERE user_login_id = ?
+        `,
+        [
+            payload.user_first_name,
+            payload.user_last_name,
+            payload.user_email_id,
+            payload.user_address,
+            payload.user_phone_home,
+            payload.user_phone_work,
+            payload.user_admin_flag,
+            user_login_id
+        ]
+    );
 	},
 
 	getUsers: async () => {

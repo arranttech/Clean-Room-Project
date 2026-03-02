@@ -347,54 +347,54 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
 					/>
 				</div>
 
-				<div className={s.formRow}>
-					<div>
-						<label className={s.formLabel}>Home Phone</label>
-						<input
-							className={s.formInput}
-							placeholder="Enter Home Phone"
-							onChange={(e) => {
-								handleChange("user_phone_home", e.target.value);
-								setErrors((p) => ({
-									...p,
-									user_phone_home: validatePhone(e.target.value),
-								}));
-							}}
-						/>
-						{errors.user_phone_home && (
-							<p className={s.formError}>{errors.user_phone_home}</p>
-						)}
-					</div>
-					<div>
-						<label className={s.formLabel}>Work Phone</label>
-						<input
-							className={s.formInput}
-							placeholder="Enter Work Phone"
-							onChange={(e) => {
-								handleChange("user_phone_work", e.target.value);
-								setErrors((p) => ({
-									...p,
-									user_phone_work: validatePhone(e.target.value),
-								}));
-							}}
-						/>
-						{errors.user_phone_work && (
-							<p className={s.formError}>{errors.user_phone_work}</p>
-						)}
-					</div>
-				</div>
+        <div className={s.formRow}>
+          <div>
+            <label className={s.formLabel}>Home Phone<span className={s.formRequired}>*</span></label>
+            <input
+              className={s.formInput}
+              placeholder="Enter Home Phone"
+              onChange={(e) => {
+                handleChange("user_phone_home", e.target.value);
+                setErrors((p) => ({
+                  ...p,
+                  user_phone_home: validatePhone(e.target.value),
+                }));
+              }}
+            />
+            {errors.user_phone_home && (
+              <p className={s.formError}>{errors.user_phone_home}</p>
+            )}
+          </div>
+          <div>
+            <label className={s.formLabel}>Work Phone<span className={s.formRequired}>*</span></label>
+            <input
+              className={s.formInput}
+              placeholder="Enter Work Phone"
+              onChange={(e) => {
+                handleChange("user_phone_work", e.target.value);
+                setErrors((p) => ({
+                  ...p,
+                  user_phone_work: validatePhone(e.target.value),
+                }));
+              }}
+            />
+            {errors.user_phone_work && (
+              <p className={s.formError}>{errors.user_phone_work}</p>
+            )}
+          </div>
+        </div>
 
-				<div className={s.formRow}>
-					<div className={s.formGroup}>
-						<label className={s.formLabel}>Admin User</label>
-						<select
-							className={s.formInput}
-							onChange={(e) => handleChange("user_admin_flag", e.target.value)}
-						>
-							<option value="No">No</option>
-							<option value="Yes">Yes</option>
-						</select>
-					</div>
+        <div className={s.formRow}>
+          <div className={s.formGroup}>
+            <label className={s.formLabel}>Admin User <span className={s.formRequired}>*</span></label>
+            <select
+              className={s.formInput}
+              onChange={(e) => handleChange("user_admin_flag", e.target.value)}
+            >
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+            </select>
+          </div>
 
 					<div className={s.formGroup}>
 						<label className={s.formLabel}>

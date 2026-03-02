@@ -2,7 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 // --- Initial State ---
 const initialState = {
-  customerName: "",
+  isNewProject: false,
+  customerName:"",
   projectName: "",
   unitBranch: "",
   handling: [],
@@ -35,8 +36,8 @@ const projectInfoSlice = createSlice({
       });
     },
 
-    // Reset entire slice
-    resetProjectInfo: () => initialState,
+    // Reset entire slice — sets isNewProject true to block DB fetch on next visit
+    resetProjectInfo: () => ({ ...initialState, isNewProject: true }),
   },
 });
 

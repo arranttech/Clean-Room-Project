@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FiSearch, FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
 import s from "./styles";
 import AddUser from "./addUsers";
@@ -29,6 +30,7 @@ type User = {
 };
 
 export default function Users({ onCountChange }: UsersProps) {
+	const navigate = useNavigate();
 	const [users, setUsers] = useState<User[]>([]);
 	const [search, setSearch] = useState("");
 	const [showAdd, setShowAdd] = useState(false);
@@ -95,11 +97,10 @@ export default function Users({ onCountChange }: UsersProps) {
 		}
 	};
 
-	//Edit functionality
-	const handleEdit = (user: User) => {
-		setEditUser(user);
-		setShowAdd(true);
-	};
+		//Edit functionality (now handled by navigation)
+		const handleEdit = (user: User) => {
+			navigate(`/edit-user/${user.user_login_id}`);
+		};
 
 	if (showAdd) {
 		return (

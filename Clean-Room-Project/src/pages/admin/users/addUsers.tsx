@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEffect } from "react";
 import { FiX } from "react-icons/fi";
 import {
 	FaFloppyDisk,
@@ -30,21 +31,40 @@ type FormErrors = {
 	confirmPassword: string;
 };
 
-export default function AddUser({ onCancel, onSaved }: AddUserProps) {
-	const [form, setForm] = useState({
-		user_first_name: "",
-		user_last_name: "",
-		user_id: "",
-		user_email_id: "",
-		user_address: "",
-		user_phone_home: "",
-		user_phone_work: "",
-		created_by: "admin",
-		updated_by: "admin",
-		user_admin_flag: "No",
-		customer_id: 0,
-		password: "",
-	});
+export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
+  
+    useEffect(() => {
+      if (user) {
+        setForm({
+          user_first_name: user.user_first_name || "",
+          user_last_name: user.user_last_name || "",
+          user_id: user.user_id || "",
+          user_email_id: user.user_email_id || "",
+          user_address: user.user_address || "",
+          user_phone_home: user.user_phone_home || "",
+          user_phone_work: user.user_phone_work || "",
+          created_by: user.created_by || "admin",
+          updated_by: "admin",
+          user_admin_flag: user.user_admin_flag || "No",
+          customer_id: user.customer_id || 0,
+          password: ""   // never preload password
+        });
+      }
+    }, [user]);
+  const [form, setForm] = useState({
+    user_first_name: "",
+    user_last_name: "",
+    user_id: "",
+    user_email_id: "",
+    user_address: "",
+    user_phone_home: "",
+    user_phone_work: "",
+    created_by: "admin",
+    updated_by: "admin",
+    user_admin_flag: "No",
+    customer_id: 0,
+    password: "",
+  });
 
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
@@ -141,17 +161,20 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
 
 		setSaving(true);
 
-		try {
-			//POST
-			const payload = { ...form };
-			const response = await createUsers(payload);
-			console.log("Backend response:", response);
+    try {
+		
+      const payload = { ...form };
 
-			// POST 2
-			await createUserPassword({
-				user_login_id: response.userId,
-				password: form.password,
-			});
+      if (user) {
+// edit mode
+        await updateUsers(user.user_login_id, payload);
+        console.log("User updated successfully");
+      } else {
+// create mode
+      const response = await createUsers(payload);
+      await createUserPassword({ user_login_id: response.userId, password: form.password });
+      console.log("User created successfully");
+      }
 
 			setShowPopup(true);
 			setTimeout(() => {
@@ -236,28 +259,29 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
 						)}
 					</div>
 
-					<div className={s.formGroup}>
-						<label className={s.formLabel}>
-							User Id <span className={s.formRequired}>*</span>
-						</label>
-						<input
-							type="text"
-							className={s.formInput}
-							placeholder="Enter User ID"
-							value={form.user_id}
-							onChange={(e) => {
-								handleChange("user_id", e.target.value);
-								setErrors((p) => ({
-									...p,
-									user_id: validateUserId(e.target.value),
-								}));
-							}}
-						/>
-						{errors.user_id && form.user_id.length !== 0 && (
-							<p className={s.formError}>{errors.user_id}</p>
-						)}
-					</div>
-				</div>
+          <div className={s.formGroup}>
+            <label className={s.formLabel}>
+              User Id <span className={s.formRequired}>*</span>
+            </label>
+            <input
+              type="text"
+              className={s.formInput}
+              placeholder="Enter User ID"
+              value={form.user_id}
+              disabled={!!user} // disable if editing existing user
+              onChange={(e) => {
+                handleChange("user_id", e.target.value);
+                setErrors((p) => ({
+                  ...p,
+                  user_id: validateUserId(e.target.value),
+                }));
+              }}
+            />
+            {errors.user_id && form.user_id.length !== 0 && (
+              <p className={s.formError}>{errors.user_id}</p>
+            )}
+          </div>
+        </div>
 
 				<div className={s.formRow}>
 					<div className={s.formGroup}>
@@ -396,20 +420,21 @@ export default function AddUser({ onCancel, onSaved }: AddUserProps) {
             </select>
           </div>
 
-					<div className={s.formGroup}>
-						<label className={s.formLabel}>
-							Customer ID <span className={s.formRequired}>*</span>
-						</label>
-						<input
-							type="number"
-							className={s.formInput}
-							placeholder="Enter Customer ID"
-							onChange={(e) =>
-								handleChange("customer_id", Number(e.target.value))
-							}
-						/>
-					</div>
-				</div>
+          <div className={s.formGroup}>
+            <label className={s.formLabel}>
+              Customer ID <span className={s.formRequired}>*</span>
+            </label>
+            <input
+              type="number"
+              className={s.formInput}
+              placeholder="Enter Customer ID"
+              disabled={!!user} // disable if editing existing user
+              onChange={(e) =>
+                handleChange("customer_id", Number(e.target.value))
+              }
+            />
+          </div>
+        </div>
 
 				<div className={s.formFooter}>
 					<button type="button" onClick={onCancel} className={s.formCancelBtn}>

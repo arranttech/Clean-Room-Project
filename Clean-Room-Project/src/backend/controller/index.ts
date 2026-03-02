@@ -8,3 +8,4 @@ export * from "./roomController";
 export * from "./zoneController";
 export * from "./resultsController";
 export * from "./screenController";
+export * from "./profileController";

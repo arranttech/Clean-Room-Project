@@ -7,3 +7,4 @@ export * from "./roomRepository";
 export * from "./resultRepository";
 export * from "./inputRepository";
 export * from "./screenRespository";
+export * from "./profileRepository";

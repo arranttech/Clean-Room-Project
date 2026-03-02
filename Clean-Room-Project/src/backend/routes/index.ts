@@ -10,6 +10,7 @@ import { inputRoute } from "./inputRoute";
 import { screenRoute } from "./screenRoute";
 import { airflowRoute } from "./airflowRoute";
 import { boqRoute } from "./boqRoute";
+import { profileRoute } from "./profileRoute";
 
 const applicationRoutes: ServerRoute[] = [
 	...userRoute,
@@ -23,6 +24,7 @@ const applicationRoutes: ServerRoute[] = [
 	...screenRoute,
 	...airflowRoute,
 	...boqRoute,
+	...profileRoute,
 ];
 
 export default applicationRoutes;

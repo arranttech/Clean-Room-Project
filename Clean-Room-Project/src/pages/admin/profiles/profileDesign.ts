@@ -15,18 +15,19 @@ const profileDesign = {
 		"w-full border border-slate-200 rounded-xl bg-white pl-10 pr-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm",
 
 	// --- Table Styling ---
-	tableWrap:
-		"bg-white rounded-2xl border border-slate-200 shadow-sm overflow-x-auto",
-	table: "min-w-max w-full",
-	thead: "bg-white border-b border-slate-100",
-	th: "px-5 py-4 text-left text-xs font-bold text-slate-700 tracking-wider",
-	thActions:
-		"px-5 py-4 text-right text-xs font-bold text-slate-700 tracking-wider",
-	tbody: "divide-y divide-slate-100",
-	tr: "hover:bg-slate-50/50 transition-colors",
-	td: "px-5 py-4 text-sm text-slate-600",
+	// --- Table Styling ---
+	tableWrap: "bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden",
+	table: "w-full",
+	thead: "bg-slate-900",
+	th: "px-5 py-3.5 text-left text-xs font-bold text-white uppercase tracking-wider",
+	thActions: "px-5 py-3.5 text-right text-xs font-bold text-white uppercase tracking-wider",
+	tbody: "divide-y divide-slate-50",
+	tr: "hover:bg-blue-50/50 transition-colors",
+	tdScreenId: "px-5 py-4 text-sm font-semibold text-slate-900",
+	tdScreenName: "px-5 py-4 text-sm text-slate-600",
 	tdProfileName: "px-5 py-4 text-sm font-semibold text-slate-900",
-	tdActions: "px-5 py-4 text-right flex justify-end gap-2 items-center",
+	td: "px-5 py-4 text-sm text-slate-600",
+	tdActions: "px-5 py-4 text-right",
 
 	// --- Badges ---
 	badgeActive:

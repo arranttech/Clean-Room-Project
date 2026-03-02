@@ -2,24 +2,25 @@ import boqresult from "../../json/boqresult.json";
 import { CalculatedZoneResults } from "../services/cummulativecal.ts";
 import { RoomPayload } from "../services/service.ts";
 import { getSystemFlags } from "./service.ts";
-import standardData from "../../json/standardData.json";
 
 export type RoomBOQPayload = RoomPayload;
 export type BOQPayload = CalculatedZoneResults;
 
-const t = standardData.standards;
+const s = boqresult.fields.NumberofStagesFilter;
 
-export function boqresults(zone: BOQPayload, room: RoomBOQPayload) {
-    // Corrected: Convert temp to string and handle nullish values
-    const { showCooling, showHeating, isTempValid } = getSystemFlags(zone.zoneSystem ?? "", room);
+export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
+    // FIX: Use zone properties if room is undefined, as seen in your API request payload
+    const currentZoneSystem = zone.zoneSystem ?? "";
+    const { showCooling, showHeating } = getSystemFlags(currentZoneSystem, room || {} as RoomPayload);
     const isHeatingandCooling = showCooling && showHeating;
 
     const b = boqresult;
     const ahu = b.fields.AHUSize;
 
     function calculatedAHUCfm(): number {
-        const coolingCfm = Math.ceil(zone.zoneResultantCfm / 250) * 250;
-        const heatingCfm = Math.ceil(zone.zoneResultantHeatCfm / 250) * 250;
+        // Ensure values exist to prevent NaN errors
+        const coolingCfm = Math.ceil((zone.zoneResultantCfm || 0) / 250) * 250;
+        const heatingCfm = Math.ceil((zone.zoneResultantHeatCfm || 0) / 250) * 250;
 
         if (isHeatingandCooling) return Math.max(coolingCfm, heatingCfm);
         if (showCooling) return coolingCfm;
@@ -30,7 +31,7 @@ export function boqresults(zone: BOQPayload, room: RoomBOQPayload) {
 
     const currentCfm = calculatedAHUCfm();
 
-    function calculateAHUWidth() {
+   function calculateAHUWidth() {
         const limits = ahu.AHUWidthCfm.AHUWdCfm;
         const widths = ahu.AHUWidthCfm.AHUWidth;
 
@@ -75,61 +76,31 @@ export function boqresults(zone: BOQPayload, room: RoomBOQPayload) {
 
     //return length[8];
     //}
-    function calculateFilterStages() {
-        const temp = room.zoneReqInsideTempC;
-        const classification = (room.zoneClassification ?? "").trim().toUpperCase();
-       const iso9 = t[0].classifications.find(c => c.name.includes("ISO 9"));
-        
-        const isNumber = typeof temp === "number" || (typeof temp === "string"
-            && temp.trim() != "" && !isNaN(Number(temp)));
 
-        switch (classification) {
-            // Cases where stage filter is the same regardless of Temperature Type
-            case "ISO 9":
-                return 3;
+ function calculateFilterStages() {
+    const temp = room?.zoneReqInsideTempC;
+    const classification = (room?.zoneClassification ?? "").trim().toUpperCase();
 
-            // ISO 8 / GRADE D / 100K: 4 if number, 5 if text
-            case "ISO 8":
-            case "GRADE D":
-            case "CLASS 100,000":
-            case "CLASS 100K":
-                return isNumber ? 4 : 5;
+    // Strict number check: will be false for "TEXT", null, or undefined
+    const isNumber = typeof temp === 'number' && Number.isFinite(temp);
 
-            // ISO 7 / ISO 6 / GRADE C: 3 if number, 4 if text
-            case "ISO 7":
-            case "GRADE C":
-            case "CLASS 10,000":
-            case "CLASS 10K":
-            case "ISO 6":
-            case "CLASS 1,000":
-            case "CLASS 1K":
-            case "GRADE B":
-                return isNumber ? 3 : 4;
-
-            // ISO 5 / GRADE A / CLASS 100: 4 if number, 5 if text
-            case "ISO 5":
-            case "GRADE A":
-            case "CLASS 100":
-                return isNumber ? 4 : 5;
-
-            // ISO 1 - 4: 4 if number, 5 if text
-            case "ISO 4":
-            case "ISO 3":
-            case "ISO 2":
-            case "ISO 1":
-                return isNumber ? 4 : 5;
-
-            default:
-                return 3; // The final fallback from your Excel formula
-        }
+    // Using .some() with .includes() directly in the if statements
+    if (s.stage3Or4.some(item => classification.includes(item.toUpperCase()))) {
+        return isNumber ? 3 : 4;
     }
+
+    if (s.stage4Or5.some(item => classification.includes(item.toUpperCase()))) {
+        return isNumber ? 4 : 5;
+    }
+
+    return 3; 
+}
 
     return {
         zoneName: zone.zoneName,
-        zoneSystem: zone.zoneSystem,
         AHUCfm: currentCfm,
-        AHUWidth: calculateAHUWidth(),
+        AHUWidth:calculateAHUWidth() ,
         AHUHeight: calculateAHUHeight(),
-        //AHULength: calculateAHULength()
+        stageFilter: calculateFilterStages() 
     };
 }

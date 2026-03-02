@@ -6,7 +6,7 @@
             "label": "AHU Size consists of AHU's Width, Height, Length",
             "AHUWidthCfm": {
                 "label": "AHU Width combination with its respective AHU Cfm",
-                "AHUWdCfm":{
+                "AHUWdCfm": {
                     "1": 2000,
                     "2": 3000,
                     "3": 8000,
@@ -15,7 +15,7 @@
                     "6": 32000,
                     "7": 40000
                 },
-                "AHUWidth":{
+                "AHUWidth": {
                     "1": 950,
                     "2": 1150,
                     "3": 1550,
@@ -27,8 +27,8 @@
                 }
             },
             "AHUHeightCfm": {
-                "label":"AHU Height combination with its respective AHU Cfm",
-                "AHUHtCfm":{
+                "label": "AHU Height combination with its respective AHU Cfm",
+                "AHUHtCfm": {
                     "1": 2000,
                     "2": 4000,
                     "3": 6000,
@@ -37,7 +37,7 @@
                     "6": 24000,
                     "7": 40000
                 },
-                "AHUHeight":{
+                "AHUHeight": {
                     "1": 950,
                     "2": 1100,
                     "3": 1200,
@@ -48,18 +48,18 @@
                     "8": 3600
                 }
             },
-            "AHULengthCfm":{
-                "label":"AHU Length combination with its respective AHU Cfm",
-                "BDB":{
+            "AHULengthCfm": {
+                "label": "AHU Length combination with its respective AHU Cfm",
+                "BDB": {
                     "1": 280,
                     "2": 315,
                     "3": 400,
                     "4": 500,
                     "5": 560,
                     "6": 630,
-                    "7": 710 
+                    "7": 710
                 },
-                "BlowerLength":{
+                "BlowerLength": {
                     "1": 1200,
                     "2": 1600,
                     "3": 1650,
@@ -69,34 +69,60 @@
                     "7": 2200,
                     "8": 2500
                 },
-                "FilterStages":  {
-                  "1": 2,
-                  "2": 3,
-                  "3": 4 
+                "FilterStages": {
+                    "1": 2,
+                    "2": 3,
+                    "3": 4
                 },
-                "FilterLength":{
+                "FilterLength": {
                     "1": 1800,
                     "2": 2300,
                     "3": 3300
                 },
-               "CoolingCoil":  {
-                  "1": 4,
-                  "2": 6,
-                  "3": 8 
+                "CoolingCoil": {
+                    "1": 4,
+                    "2": 6,
+                    "3": 8
                 },
-                "CoilLength":{
+                "CoilLength": {
                     "1": 600,
                     "2": 800,
                     "3": 1000
                 }
-            },
-            "StaticPressure":{
-                "label":"Stati Pressure calculation", 
-                "SPTempNum":{
-                    "label":"Static Pressure calculation when temperature is number"
-                }
             }
-
+        },
+        "NumberofStagesFilter": {
+            "label": "To calculate the number of stages Filter",
+            "stage3Or4": [
+                "ISO 7",
+                "ISO 6",
+                "Class10K",
+                "Class1K",
+                "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+                "Grade B (ISO 5 at Rest & ISO 7 in Oper.)",
+                "GRADE CLASS B",
+                "GRADE CLASS C"
+            ],
+            "stage4Or5": [
+                "ISO 8",
+                "ISO 5",
+                "ISO 4",
+                "ISO 3",
+                "ISO 2",
+                "ISO 1",
+                "Class100K",
+                "Class 100",
+                "Grade A (ISO 5 at Rest & ISO 5 in Oper.)",
+                "Grade D (ISO 8 at Rest & Not Defined)",
+                "GRADE CLASS A",
+                "GRADE CLASS D"
+            ]
+        },
+        "StaticPressure": {
+            "label": "Stati Pressure calculation",
+            "SPTempNum": {
+                "label": "Static Pressure calculation when temperature is number"
+            }
         }
     }
 }

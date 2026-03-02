@@ -14,11 +14,16 @@ export const openApiSpec = {
 				responses: {
 					"200": {
 						description: "API status message",
-						content: { "text/plain": { schema: { type: "string", example: "API is running!" } } },
+						content: {
+							"text/plain": {
+								schema: { type: "string", example: "API is running!" },
+							},
+						},
 					},
 				},
 			},
 		},
+
 		"/v1/customers": {
 			get: {
 				summary: "Get customers",
@@ -627,11 +632,11 @@ export const openApiSpec = {
 			},
 		},
 
-
 		"/v1/columncummaltion": {
 			post: {
-				summary: "Calculate cumulative values for a zone containing multiple rooms",
-				tags: ["cummulativecalculations"],
+				summary:
+					"Calculate cumulative values for a zone containing multiple rooms",
+				tags: ["calculations"],
 				requestBody: {
 					required: true,
 					content: {
@@ -666,7 +671,7 @@ export const openApiSpec = {
 												roomTermSupplyHeatValue: 0,
 												cfmHeatLoadTRValue: 0,
 												roomHeatLoadTR: 0,
-												resultHeatLoadTR: 0
+												resultHeatLoadTR: 0,
 											},
 											{
 												roomName: "Storage Room",
@@ -688,8 +693,8 @@ export const openApiSpec = {
 												roomTermSupplyHeatValue: 8,
 												cfmHeatLoadTRValue: 5,
 												roomHeatLoadTR: 21,
-												resultHeatLoadTR: 21
-											}
+												resultHeatLoadTR: 21,
+											},
 										],
 										items: {
 											type: "object",
@@ -714,14 +719,14 @@ export const openApiSpec = {
 												roomTermSupplyHeatValue: { type: "number", example: 0 },
 												cfmHeatLoadTRValue: { type: "number", example: 0 },
 												roomHeatLoadTR: { type: "number", example: 0 },
-												resultHeatLoadTR: { type: "number", example: 0 }
-											}
-										}
-									}
-								}
-							}
-						}
-					}
+												resultHeatLoadTR: { type: "number", example: 0 },
+											},
+										},
+									},
+								},
+							},
+						},
+					},
 				},
 				responses: {
 					"200": {
@@ -750,11 +755,11 @@ export const openApiSpec = {
 										zoneroomTermSupplyHeatValue: { type: "number" },
 										zonecfmHeatLoadTRValue: { type: "number" },
 										zoneroomHeatLoadTR: { type: "number" },
-										zoneresultHeatLoadTR: { type: "number" }
-									}
-								}
-							}
-						}
+										zoneresultHeatLoadTR: { type: "number" },
+									},
+								},
+							},
+						},
 					},
 					"400": { description: "Invalid input data" },
 					"500": {
@@ -763,19 +768,19 @@ export const openApiSpec = {
 							"application/json": {
 								schema: {
 									type: "object",
-									properties: { error: { type: "string" } }
-								}
-							}
-						}
-					}
-				}
-			}
+									properties: { error: { type: "string" } },
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 
 		"/v1/boqresults": {
 			post: {
 				summary: "Calculate BOQ values for a zone containing multiple rooms",
-				tags: ["boqresults"],
+				tags: ["calculations"],
 				requestBody: {
 					required: true,
 					content: {
@@ -801,11 +806,11 @@ export const openApiSpec = {
 									type: "object",
 									properties: {
 										zoneName: { type: "string" },
-										AHUCfm: { type: "number" }
-									}
-								}
-							}
-						}
+										AHUCfm: { type: "number" },
+									},
+								},
+							},
+						},
 					},
 					"400": { description: "Invalid input data" },
 					"500": {
@@ -814,13 +819,13 @@ export const openApiSpec = {
 							"application/json": {
 								schema: {
 									type: "object",
-									properties: { error: { type: "string" } }
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+									properties: { error: { type: "string" } },
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	},
 } as const;

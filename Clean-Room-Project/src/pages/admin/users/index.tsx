@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FiSearch, FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
 import s from "./styles";
 import AddUser from "./addUsers";
-import { getUsers, deleteUser } from "../../../backend/controller/controller";
+import {
+	getUsers,
+	deleteUser,
+} from "../../../backend/controller/userController";
 
 interface UsersProps {
 	onCountChange?: (count: number) => void;
@@ -26,9 +30,11 @@ type User = {
 };
 
 export default function Users({ onCountChange }: UsersProps) {
+	const navigate = useNavigate();
 	const [users, setUsers] = useState<User[]>([]);
 	const [search, setSearch] = useState("");
 	const [showAdd, setShowAdd] = useState(false);
+	const [editUser, setEditUser] = useState<User | null>(null);
 
 	useEffect(() => {
 		const fetchUserDetails = async () => {
@@ -91,17 +97,22 @@ export default function Users({ onCountChange }: UsersProps) {
 		}
 	};
 
-	//Edit functionality
-	const handleEdit = (user: User) => {
-		alert(`Edit: ${user.user_first_name} ${user.user_last_name}`);
-	};
+		//Edit functionality (now handled by navigation)
+		const handleEdit = (user: User) => {
+			navigate(`/edit-user/${user.user_login_id}`);
+		};
 
 	if (showAdd) {
 		return (
 			<AddUser
-				onCancel={() => setShowAdd(false)}
+				user={editUser}
+				onCancel={() => {
+					setShowAdd(false);
+					setEditUser(null);
+				}}
 				onSaved={async () => {
 					setShowAdd(false);
+					setEditUser(null);
 					// await fetchUsers();
 				}}
 			/>
@@ -143,12 +154,12 @@ export default function Users({ onCountChange }: UsersProps) {
 							<th className={s.th}>Address</th>
 							<th className={s.th}>Home Phone</th>
 							<th className={s.th}>Work Phone</th>
-							<th className={s.th}>Created Date</th>
+							{/* <th className={s.th}>Created Date</th>
 							<th className={s.th}>Created By</th>
 							<th className={s.th}>Updated Date</th>
-							<th className={s.th}>Updated By</th>
-							<th className={s.th}>Customer</th>
-							<th className={s.thActions}>Actions</th>
+							<th className={s.th}>Updated By</th> */}
+							{/* <th className={s.th}>Customer</th> */}
+							<th className={s.th}>Actions</th>
 						</tr>
 					</thead>
 					<tbody className={s.tbody}>
@@ -172,7 +183,7 @@ export default function Users({ onCountChange }: UsersProps) {
 									<td className={s.td}>{user.user_address}</td>
 									<td className={s.td}>{user.user_phone_home}</td>
 									<td className={s.td}>{user.user_phone_work}</td>
-									<td className={s.td}>
+									{/* <td className={s.td}>
 										{user.created_date
 											? user.created_date.split("T")[0]
 											: "N/A"}
@@ -183,9 +194,9 @@ export default function Users({ onCountChange }: UsersProps) {
 											? user.updated_date.split("T")[0]
 											: "N/A"}
 									</td>
-									<td className={s.td}>{user.updated_by}</td>
-									<td className={s.td}>{user.customer_id}</td>
-									<td className={s.tdActions}>
+									<td className={s.td}>{user.updated_by}</td> */}
+									{/* <td className={s.td}>{user.customer_id}</td> */}
+									<td className={s.td}>
 										<button
 											type="button"
 											onClick={() => handleEdit(user)}

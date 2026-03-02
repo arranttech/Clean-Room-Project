@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { FiSearch, FiPlus, FiEdit2, FiTrash2 } from "react-icons/fi";
 import s from "./styles";
 import AddCustomer from ".";
-import { customerDetails } from "../../../backend/controller/controller";
+import { customerDetails } from "../../../backend/controller/customerController";
 
 type Customer = {
 	customer_id: number;
@@ -22,6 +22,7 @@ export default function Customers({ onCountChange }: CustomersProps) {
 	const [customers, setCustomers] = useState<Customer[]>([]);
 	const [search, setSearch] = useState("");
 	const [showAdd, setShowAdd] = useState(false);
+	const [editCustomer, setEditCustomer] = useState<Customer | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [fetchError, setFetchError] = useState("");
 
@@ -53,9 +54,14 @@ export default function Customers({ onCountChange }: CustomersProps) {
 	if (showAdd) {
 		return (
 			<AddCustomer
-				onCancel={() => setShowAdd(false)}
+				customer={editCustomer}
+				onCancel={() => {
+					setShowAdd(false);
+					setEditCustomer(null);
+				}}
 				onSaved={async () => {
 					setShowAdd(false);
+					setEditCustomer(null);
 					try {
 						const data = await customerDetails();
 						console.log("Customer data:", data);
@@ -101,7 +107,7 @@ export default function Customers({ onCountChange }: CustomersProps) {
 							<th className={s.th}>Customer Name</th>
 							<th className={s.th}>Email</th>
 							<th className={s.th}>Phone</th>
-							<th className={s.th}>Created</th>
+							{/* <th className={s.th}>Created</th> */}
 							<th className={s.thActions}>Actions</th>
 						</tr>
 					</thead>
@@ -130,9 +136,16 @@ export default function Customers({ onCountChange }: CustomersProps) {
 									<td className={s.tdName}>{customer.customer_name}</td>
 									<td className={s.tdEmail}>{customer.customer_email_id}</td>
 									<td className={s.td}>{customer.customer_phone}</td>
-									<td className={s.td}>{customer.created_at?.split(" ")[0]}</td>
+									{/* <td className={s.td}>{customer.created_at?.split(" ")[0]}</td> */}
 									<td className={s.tdActions}>
-										<button className={s.editBtn} title="Edit customer">
+										<button
+											className={s.editBtn}
+											title="Edit customer"
+											onClick={() => {
+												setEditCustomer(customer);
+												setShowAdd(true);
+											}}
+										>
 											<FiEdit2 size={15} />
 										</button>
 										<button className={s.deleteBtn} title="Delete customer">

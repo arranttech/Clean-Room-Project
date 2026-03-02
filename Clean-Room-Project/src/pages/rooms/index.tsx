@@ -12,6 +12,8 @@ import {
   resetStandards,
   updateStandardsField,
 } from "../../redux/slices/standardSlice";
+import { resetProjectInfo } from "../../redux/slices/projectInfoSlice";
+import { resetRoom } from "../../redux/slices/roomSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 
 import {
@@ -28,11 +30,12 @@ import standardDataJson from "../../json/standardData.json";
 import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
 import {
-  addRooms,
-  storeresults,
-  getZoneRooms,
+	addRooms,
+	storeresults,
+	getZoneRooms,
 } from "../../backend/controller/controller";
 import { airflowService } from "../../backend/services/service";
+import { persistor } from "../../redux/store";
 
 type StandardItem = {
   id: number;
@@ -75,67 +78,67 @@ export default function Room() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ─── Room slice ───
-  const form = useAppSelector((state: any) => state.room.form) as RoomForm;
-  const savedRooms = useAppSelector(
-    (state: any) => state.room.savedRooms,
-  ) as any[];
-  const isFormVisible = useAppSelector(
-    (state: any) => state.room.isFormVisible,
-  ) as boolean;
+	// ─── Room slice ───
+	const form = useAppSelector((state: any) => state.room.form) as RoomForm;
+	const savedRooms = useAppSelector(
+		(state: any) => state.room.savedRooms
+	) as any[];
+	const isFormVisible = useAppSelector(
+		(state: any) => state.room.isFormVisible
+	) as boolean;
 
-  const [acphDeviation, setAcphDeviation] = useState<number>(0);
+	const [acphDeviation, setAcphDeviation] = useState<number>(0);
 
-  // ─── Standards slice ───
-  const zoneIdFromRedux = useAppSelector(
-    (state: any) => state.standards.zoneId,
-  );
-  const projectStandardIdFromRedux = useAppSelector(
-    (state: any) => state.standards.projectStandardId,
-  );
+	// ─── Standards slice ───
+	const zoneIdFromRedux = useAppSelector(
+		(state: any) => state.standards.zoneId
+	);
+	const projectStandardIdFromRedux = useAppSelector(
+		(state: any) => state.standards.projectStandardId
+	);
 
   // router state first (freshest after navigation from StandardPage), Redux as fallback
   const zoneId = location.state?.zoneId ?? zoneIdFromRedux;
   const projectStandardId =
     location.state?.projectStandardId ?? projectStandardIdFromRedux;
 
-  const standard = useAppSelector((state: any) => state.standards.standard);
-  const classification = useAppSelector(
-    (state: any) => state.standards.classification,
-  );
-  const standardsAcph = useAppSelector((state: any) => state.standards.acph);
-  const system = useAppSelector((state: any) => state.standards.system);
-  const systemType = useAppSelector((state: any) => state.standards.systemType);
-  const coolingMethod = useAppSelector(
-    (state: any) => state.standards.coolingMethod,
-  );
-  const heatingMethod = useAppSelector(
-    (state: any) => state.standards.heatingMethod,
-  );
-  const reqInsideTempC = useAppSelector(
-    (state: any) => state.standards.reqInsideTempC,
-  );
-  const reqInsideHum = useAppSelector(
-    (state: any) => state.standards.reqInsideHum,
-  );
+	const standard = useAppSelector((state: any) => state.standards.standard);
+	const classification = useAppSelector(
+		(state: any) => state.standards.classification
+	);
+	const standardsAcph = useAppSelector((state: any) => state.standards.acph);
+	const system = useAppSelector((state: any) => state.standards.system);
+	const systemType = useAppSelector((state: any) => state.standards.systemType);
+	const coolingMethod = useAppSelector(
+		(state: any) => state.standards.coolingMethod
+	);
+	const heatingMethod = useAppSelector(
+		(state: any) => state.standards.heatingMethod
+	);
+	const reqInsideTempC = useAppSelector(
+		(state: any) => state.standards.reqInsideTempC
+	);
+	const reqInsideHum = useAppSelector(
+		(state: any) => state.standards.reqInsideHum
+	);
 
-  // ─── ProjectInfo slice ───
-  const minTempC = useAppSelector((state: any) => state.projectInfo.minTemp);
-  const maxTempC = useAppSelector((state: any) => state.projectInfo.maxTemp);
-  const rhMin = useAppSelector(
-    (state: any) => state.projectInfo.relativeHumidityMin,
-  );
-  const rhMax = useAppSelector(
-    (state: any) => state.projectInfo.relativeHumidityMax,
-  );
+	// ─── ProjectInfo slice ───
+	const minTempC = useAppSelector((state: any) => state.projectInfo.minTemp);
+	const maxTempC = useAppSelector((state: any) => state.projectInfo.maxTemp);
+	const rhMin = useAppSelector(
+		(state: any) => state.projectInfo.relativeHumidityMin
+	);
+	const rhMax = useAppSelector(
+		(state: any) => state.projectInfo.relativeHumidityMax
+	);
 
-  // real projectId from Redux
-  const projectId = useAppSelector((state: any) => state.projectInfo.projectId);
+	// real projectId from Redux 
+	const projectId = useAppSelector((state: any) => state.projectInfo.projectId);
 
-  // ─── Local ACPH ───
-  const [selectedAcph, setSelectedAcph] = useState<number | string>(
-    standardsAcph ?? "",
-  );
+	// ─── Local ACPH ───
+	const [selectedAcph, setSelectedAcph] = useState<number | string>(
+		standardsAcph ?? ""
+	);
 
   useEffect(() => {
     setSelectedAcph(standardsAcph ?? "");
@@ -173,23 +176,23 @@ export default function Room() {
     return standardsDb.find((s) => s.title === standard) || null;
   }, [standard]);
 
-  const selectedClassObj = useMemo(() => {
-    if (!selectedStandardObj) return null;
-    return (
-      selectedStandardObj.classifications.find(
-        (c) => c.name === classification,
-      ) || null
-    );
-  }, [selectedStandardObj, classification]);
+	const selectedClassObj = useMemo(() => {
+		if (!selectedStandardObj) return null;
+		return (
+			selectedStandardObj.classifications.find(
+				(c) => c.name === classification
+			) || null
+		);
+	}, [selectedStandardObj, classification]);
 
-  const acphMin = useMemo(
-    () => selectedClassObj?.minAir ?? null,
-    [selectedClassObj],
-  );
-  const acphMax = useMemo(
-    () => selectedClassObj?.maxAir ?? null,
-    [selectedClassObj],
-  );
+	const acphMin = useMemo(
+		() => selectedClassObj?.minAir ?? null,
+		[selectedClassObj]
+	);
+	const acphMax = useMemo(
+		() => selectedClassObj?.maxAir ?? null,
+		[selectedClassObj]
+	);
 
   const acphOptions = useMemo(() => {
     if (acphMin == null || acphMax == null) return [];
@@ -218,14 +221,14 @@ export default function Room() {
     }
   }, [acphOptions, standardsAcph]);
 
-  const isRoomReadyToSave = useMemo(() => {
-    const fieldsToCheck = isVentilationOnly
-      ? ventilationAllowedFields
-      : (Object.keys(form) as (keyof RoomForm)[]);
-    return fieldsToCheck.every((key) =>
-      key === "roomName" ? form[key].trim() !== "" : form[key] !== "",
-    );
-  }, [form, isVentilationOnly]);
+	const isRoomReadyToSave = useMemo(() => {
+		const fieldsToCheck = isVentilationOnly
+			? ventilationAllowedFields
+			: (Object.keys(form) as (keyof RoomForm)[]);
+		return fieldsToCheck.every((key) =>
+			key === "roomName" ? form[key].trim() !== "" : form[key] !== ""
+		);
+	}, [form, isVentilationOnly]);
 
   const handleOpenNewRoomForm = () => dispatch(openNewRoomForm());
   const handleResetRoomForm = () => dispatch(resetRoomForm());
@@ -296,32 +299,32 @@ export default function Room() {
     }
   };
 
-  const goToResultsPage = async () => {
-    if (!savedRooms.length) {
-      alert("Please add at least one room.");
-      return;
-    }
+	const goToResultsPage = async () => {
+		if (!savedRooms.length) {
+			alert("Please add at least one room.");
+			return;
+		}
 
-    const resultsPayload = {
-      minTempC,
-      maxTempC,
-      rhMin,
-      rhMax,
-      rooms: savedRooms,
-    };
+		const resultsPayload = {
+			minTempC,
+			maxTempC,
+			rhMin,
+			rhMax,
+			rooms: savedRooms,
+		};
 
     console.log("=== NAVIGATING TO RESULTS ===");
     console.log("Total rooms:", savedRooms.length);
 
-    const zoneIds = [...new Set(savedRooms.map((r: any) => r.zoneId))];
-    zoneIds.forEach((zid) => {
-      const zRooms = savedRooms.filter(
-        (r: any) => String(r.zoneId) === String(zid),
-      );
-      console.log(
-        `Zone ${zid}: ${zRooms.length} rooms | System: ${zRooms[0]?.zoneSystem}`,
-      );
-    });
+		const zoneIds = [...new Set(savedRooms.map((r: any) => r.zoneId))];
+		zoneIds.forEach((zid) => {
+			const zRooms = savedRooms.filter(
+				(r: any) => String(r.zoneId) === String(zid)
+			);
+			console.log(
+				`Zone ${zid}: ${zRooms.length} rooms | System: ${zRooms[0]?.zoneSystem}`
+			);
+		});
 
     try {
       const allAirflowResults = savedRooms.map((room: any) => {
@@ -354,50 +357,36 @@ export default function Room() {
 
       console.log("All airflow results calculated:", allAirflowResults);
 
-      // POST
-      await Promise.all(
-        allAirflowResults.map(async (result: any, idx: number) => {
-          const room = savedRooms[idx];
-          await storeresults({
-            project_id: projectId,
-            roomName: result.roomName,
-            project_RoomId: room.backendRoomId || null,
-            project_Area: result.areaFt2,
-            project_Volume: result.volumeFt3,
-            project_RoomCfm: result.roomCfm,
-            project_FreshAir: result.freshAir,
-            project_ExhaustAir: result.exhaustAir,
-            project_DehumidCfm: result.dehumidValue ,
-            project_Rem_Water_Vapour: result.removedWater,
-            project_ResultCfm: result.resultantCfm,
-			project_Room_Termi_Supply_Mod: result.roomTermSupplyValue,
-            project_Room_AC_Load_TR: result.roomACValue,
-            project_Cfm_AC_Load_TR: result.cfmACLoadTR,
-            project_Res_Cooling_Load_TR: result.resultCoolLoadTR,
-            project_add_Water_Vapour: result.addWaterValue,
-            project_HumidCfm: result.humidValue,
-            project_ResultCfm_Hot: result.resultantheatCfm,
-            project_Room_Term_Supply_Mod: result.roomTermSupplyHeatValue,
-			project_Room_Heating_Load_TR: result.roomHeatLoadTR,
-            project_Cfm_Heating_Load_TR: result.cfmHeatLoadTRValue,
-            project_Result_Heating_Load_TR: result.resultHeatLoadTR
-          });
-        }),
-      );
+			// POST
+			await Promise.all(
+				allAirflowResults.map(async (result: any, idx: number) => {
+					const room = savedRooms[idx];
+					await storeresults({
+						project_id: projectId,
+						roomName: result.roomName,
+						project_RoomId: room.backendRoomId || null,
+						project_Area: result.areaFt2,
+						project_Volume: result.volumeFt3,
+						project_RoomCfm: result.roomCfm,
+						project_FreshAir: result.freshAir,
+						project_ExhaustAir: result.exhaustAir,
+					});
+				})
+			);
 
       console.log("All airflow results saved successfully");
 
-      navigate("/results", {
-        state: {
-          ...resultsPayload,
-          airflowResults: allAirflowResults,
-        },
-      });
-    } catch (error) {
-      console.error("Failed to process airflow results:", error);
-      alert("Failed to process airflow results.");
-    }
-  };
+			navigate("/results", {
+				state: {
+					...resultsPayload,
+					airflowResults: allAirflowResults,
+				},
+			});
+		} catch (error) {
+			console.error("Failed to process airflow results:", error);
+			alert("Failed to process airflow results.");
+		}
+	};
 
   // Add Another Zone:
   const addAnotherZone = () => {
@@ -447,76 +436,76 @@ export default function Room() {
     }
   };
 
-  // ─── Console Debug ───
-  useEffect(() => {
-    console.log("=== ROOM PAGE DEBUG ===");
-    console.log(
-      "zoneId:",
-      zoneId ?? "NOT SET (waiting for backend)",
-      "| projectStandardId:",
-      projectStandardId ?? "NOT SET",
-      "| projectId:",
-      projectId ?? "NOT SET",
-    );
-    console.log("System:", system, "| Classification:", classification);
-    console.log(
-      "Zone Rooms:",
-      zoneRooms.length,
-      "| All Rooms:",
-      savedRooms.length,
-    );
-    console.log("========================");
-  }, [zoneId, system, classification, zoneRooms.length, savedRooms.length]);
+	// ─── Console Debug ───
+	useEffect(() => {
+		console.log("=== ROOM PAGE DEBUG ===");
+		console.log(
+			"zoneId:",
+			zoneId ?? "NOT SET (waiting for backend)",
+			"| projectStandardId:",
+			projectStandardId ?? "NOT SET",
+			"| projectId:",
+			projectId ?? "NOT SET"
+		);
+		console.log("System:", system, "| Classification:", classification);
+		console.log(
+			"Zone Rooms:",
+			zoneRooms.length,
+			"| All Rooms:",
+			savedRooms.length
+		);
+		console.log("========================");
+	}, [zoneId, system, classification, zoneRooms.length, savedRooms.length]);
 
-  const renderInput = (key: keyof RoomForm) => {
-    const disabled =
-      isVentilationOnly && !ventilationAllowedFields.includes(key);
-    return (
-      <div className={s.field} key={key}>
-        <label className={s.label}>
-          {(T.fields as any)[key].label} <span className={s.required1}>*</span>
-          <Tooltip
-            id={key}
-            content={
-              key === "roomName"
-                ? constants.Tooltip.roomNameTooltip
-                : key === "length"
-                  ? constants.Tooltip.lengthTooltip
-                  : key === "width"
-                    ? constants.Tooltip.widthTooltip
-                    : key === "height"
-                      ? constants.Tooltip.heightTooltip
-                      : key === "occupancy"
-                        ? constants.Tooltip.occupancyTooltip
-                        : key === "equipmentLoad"
-                          ? constants.Tooltip.equipmentLoadTooltip
-                          : key === "lightingLoad"
-                            ? constants.Tooltip.lightingLoadTooltip
-                            : key === "infiltrationsPerHour"
-                              ? constants.Tooltip.infiltrationsTooltip
-                              : key === "freshAirPercent"
-                                ? constants.Tooltip.freshAirTooltip
-                                : key === "exhaustAir"
-                                  ? constants.Tooltip.exhaustAirTooltip
-                                  : ""
-            }
-          />
-        </label>
-        <input
-          className={disabled ? s.inputDisabled : s.input}
-          inputMode={key === "roomName" ? "text" : "decimal"}
-          value={form[key]}
-          disabled={disabled}
-          placeholder={
-            disabled
-              ? "Not required for ventilation"
-              : (T.fields as any)[key].placeholder
-          }
-          onChange={(e) => updateFieldValue(key, e.target.value)}
-        />
-      </div>
-    );
-  };
+	const renderInput = (key: keyof RoomForm) => {
+		const disabled =
+			isVentilationOnly && !ventilationAllowedFields.includes(key);
+		return (
+			<div className={s.field} key={key}>
+				<label className={s.label}>
+					{(T.fields as any)[key].label} <span className={s.required1}>*</span>
+					<Tooltip
+						id={key}
+						content={
+							key === "roomName"
+								? constants.Tooltip.roomNameTooltip
+								: key === "length"
+								? constants.Tooltip.lengthTooltip
+								: key === "width"
+								? constants.Tooltip.widthTooltip
+								: key === "height"
+								? constants.Tooltip.heightTooltip
+								: key === "occupancy"
+								? constants.Tooltip.occupancyTooltip
+								: key === "equipmentLoad"
+								? constants.Tooltip.equipmentLoadTooltip
+								: key === "lightingLoad"
+								? constants.Tooltip.lightingLoadTooltip
+								: key === "infiltrationsPerHour"
+								? constants.Tooltip.infiltrationsTooltip
+								: key === "freshAirPercent"
+								? constants.Tooltip.freshAirTooltip
+								: key === "exhaustAir"
+								? constants.Tooltip.exhaustAirTooltip
+								: ""
+						}
+					/>
+				</label>
+				<input
+					className={disabled ? s.inputDisabled : s.input}
+					inputMode={key === "roomName" ? "text" : "decimal"}
+					value={form[key]}
+					disabled={disabled}
+					placeholder={
+						disabled
+							? "Not required for ventilation"
+							: (T.fields as any)[key].placeholder
+					}
+					onChange={(e) => updateFieldValue(key, e.target.value)}
+				/>
+			</div>
+		);
+	};
 
   return (
     <div className={s.page}>
@@ -739,32 +728,32 @@ export default function Room() {
           </div>
         </div>
 
-        {/* footer */}
-        <div className={s.footer}>
-          <Link to="/standards" className={s.backBtn}>
-            <FaArrowLeft /> {T.buttons.back}
-          </Link>
-          <button type="button" onClick={addAnotherZone} className={s.zoneBtn}>
-            <FaPlus /> Add Another Zone
-          </button>
-          <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={saveCurrentRoom}
-              className={s.backBtn}
-            >
-              {T.buttons.saveRoom}
-            </button>
-            <button
-              type="button"
-              onClick={goToResultsPage}
-              className={s.saveBtn}
-            >
-              {T.buttons.generate} <FaSave />
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+				{/* footer */}
+				<div className={s.footer}>
+					<Link to="/standards" className={s.backBtn}>
+						<FaArrowLeft /> {T.buttons.back}
+					</Link>
+					<button type="button" onClick={addAnotherZone} className={s.zoneBtn}>
+						<FaPlus /> Add Another Zone
+					</button>
+					<div className="flex gap-4">
+						<button
+							type="button"
+							onClick={saveCurrentRoom}
+							className={s.backBtn}
+						>
+							{T.buttons.saveRoom}
+						</button>
+						<button
+							type="button"
+							onClick={goToResultsPage}
+							className={s.saveBtn}
+						>
+							{T.buttons.generate} <FaSave />
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
 }

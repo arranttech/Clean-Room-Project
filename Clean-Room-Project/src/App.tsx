@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router-dom";
+import EditUser from "./pages/admin/users/EditUser";
 import Home from "./pages/landingPage";
 import CustomerInfoPage from "./pages/customerInfo";
 import ProjectInfoPage from "./pages/projectInfo";
@@ -28,6 +29,7 @@ function App() {
 				<Route path="/projects" element={<AllProjects />} />
 				<Route path="/admin" element={<Main />} />
 				<Route path="/docs" element={<ApiDocs />} />
+                <Route path="/edit-user/:id" element={<EditUser />} />
 			</Routes>
 		</>
 	);

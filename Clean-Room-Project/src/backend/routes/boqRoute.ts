@@ -18,7 +18,7 @@ export const boqRoute: ServerRoute[] = [
 	},
 	{
 		method: "POST",
-		path: "/v1/columncummaltion",
+		path: "/v1/cummulativecalculation",
 		handler: async (request, h) => {
 			try {
 				const { zoneName, rooms } = request.payload as any;

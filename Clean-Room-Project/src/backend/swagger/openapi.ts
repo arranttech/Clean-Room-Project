@@ -241,13 +241,13 @@ export const openApiSpec = {
 									zoneReqInsideTempC: {
 										oneOf: [
 											{ type: "number", example: 32 },
-											{ type: "string", example: "32" },
+											{ type: "string", example: "Ambient" },
 										],
 									},
 									zoneReqInsideHum: {
 										oneOf: [
 											{ type: "number", example: 55 },
-											{ type: "string", example: "55" },
+											{ type: "string", example: "Ambient" },
 										],
 									},
 									zoneSystem: { type: "string", example: "Air-Cooling System" },
@@ -632,7 +632,8 @@ export const openApiSpec = {
 			},
 		},
 
-		"/v1/columncummaltion": {
+
+		"/v1/cummulativecalculation": {
 			post: {
 				summary:
 					"Calculate cumulative values for a zone containing multiple rooms",
@@ -791,7 +792,14 @@ export const openApiSpec = {
 									zoneName: { type: "string", example: "Zone A" },
 									zoneSystem: { type: "string", example: "Air-Cooling System" },
 									zoneResultantCfm: { type: "number", example: 31925 },
-									zoneResultantHeatCfm: {type:"number", example: 25750 },
+									zoneResultantHeatCfm: { type: "number", example: 25750 },
+									zoneReqInsideTempC: {
+										oneOf: [
+											{ type: "number", example: 32 },
+											{ type: "string", example: "Ambient" },
+										],
+									},
+									zoneClassification: { type: "string", example: "ISO 8" }
 								}
 							}
 						}
@@ -807,10 +815,13 @@ export const openApiSpec = {
 									properties: {
 										zoneName: { type: "string" },
 										AHUCfm: { type: "number" },
-									},
-								},
-							},
-						},
+										AHUWidth: { type: "number" },
+										AHUHeight: { type: "number" },
+										stageFilter: { type: "number" },
+									}
+								}
+							}
+						}
 					},
 					"400": { description: "Invalid input data" },
 					"500": {

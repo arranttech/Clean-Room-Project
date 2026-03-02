@@ -3,7 +3,7 @@ import { FaEnvelope, FaLock } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import loginDesign from "./styles";
 import { scheduleAutoLogout, clearAutoLogout } from "../../utils/auth";
-import { loginUser } from "../../backend/controller/authApi";
+import { loginUser } from "../../backend/controller/authContoller";
 
 // Backend URL - use Vite proxy by default
 const API_URL = import.meta.env.VITE_API_URL || "";

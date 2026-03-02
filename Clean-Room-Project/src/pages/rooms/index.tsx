@@ -27,8 +27,11 @@ import T from "../../json/room.json";
 import standardDataJson from "../../json/standardData.json";
 import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
-import { addRooms, getZoneRooms } from "../../backend/controller/roomApi";
-import { storeresults } from "../../backend/controller/resultsApi";
+import {
+	addRooms,
+	getZoneRooms,
+} from "../../backend/controller/roomController";
+import { storeresults } from "../../backend/controller/resultsController";
 import { airflowService } from "../../backend/services/service";
 
 type StandardItem = {

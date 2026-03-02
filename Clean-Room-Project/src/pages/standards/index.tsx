@@ -11,8 +11,8 @@ import standardDataJson from "../../json/standardData.json";
 import {
 	roomStandards,
 	getRoomStandards,
-} from "../../backend/controller/roomApi";
-import { createProjectZone } from "../../backend/controller/zoneApi";
+} from "../../backend/controller/roomController";
+import { createProjectZone } from "../../backend/controller/zoneController";
 import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
 

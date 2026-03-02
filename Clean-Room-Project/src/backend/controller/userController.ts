@@ -1,5 +1,5 @@
 // src/api/userApi.ts
-import { request } from "./baseApi";
+import { request } from "./baseController";
 
 export const getUsers = () => request("/v1/users");
 

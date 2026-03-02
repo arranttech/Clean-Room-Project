@@ -1,5 +1,5 @@
 // src/api/screenApi.ts
-import { request } from "./baseApi";
+import { request } from "./baseController";
 
 export const getScreens = () => request("/v1/screens");
 

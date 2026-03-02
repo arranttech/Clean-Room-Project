@@ -1,5 +1,5 @@
 // src/api/authApi.ts
-import { request } from "./baseApi";
+import { request } from "./baseController";
 
 export const loginUser = (payload: { identifier: string; password: string }) =>
 	request("/v1/login", "POST", payload);

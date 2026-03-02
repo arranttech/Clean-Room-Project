@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { setCustomer } from "../../redux/slices/customerSlice";
-import { getCustomerInfo } from "../../backend/controller/customerApi";
+import { getCustomerInfo } from "../../backend/controller/customerController";
 import { handleLogout } from "../../utils/logout";
 import { FiLogOut } from "react-icons/fi";
 import {

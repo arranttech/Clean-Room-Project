@@ -7,8 +7,8 @@ import {
 	FaEyeSlash,
 } from "react-icons/fa6";
 import s from "./styles";
-import { createUsers } from "../../../backend/controller/userApi";
-import { createUserPassword } from "../../../backend/controller/authApi";
+import { createUsers } from "../../../backend/controller/userController";
+import { createUserPassword } from "../../../backend/controller/authContoller";
 
 type AddUserProps = {
 	onCancel: () => void;

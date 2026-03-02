@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FiX } from "react-icons/fi";
 import { FaFloppyDisk, FaCircleCheck } from "react-icons/fa6";
 import s from "./styles";
-import { customerInfo } from "../../../backend/controller/customerApi";
+import { customerInfo } from "../../../backend/controller/customerController";
 
 type AddCustomerProps = {
 	onCancel: () => void;

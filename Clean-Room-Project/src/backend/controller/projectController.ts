@@ -1,5 +1,5 @@
 // src/api/projectApi.ts
-import { request } from "./baseApi";
+import { request } from "./baseController";
 
 export const projectInfo = (payload: object) =>
 	request("/v1/projectinfo", "POST", payload);

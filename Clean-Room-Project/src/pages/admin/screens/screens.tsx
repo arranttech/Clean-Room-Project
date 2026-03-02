@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { FiSearch, FiPlus, FiEdit2 } from "react-icons/fi";
 import s from "./screensDesign";
 import AddScreen from "./addScreen";
-import { getScreens } from "../../../backend/controller/screenApi";
+import { getScreens } from "../../../backend/controller/screenController";
 
 type Screen = {
 	id: string;

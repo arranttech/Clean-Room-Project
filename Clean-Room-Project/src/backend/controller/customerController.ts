@@ -1,5 +1,5 @@
 // src/api/customerApi.ts
-import { request } from "./baseApi";
+import { request } from "./baseController";
 
 export const customerInfo = (payload: object) =>
 	request("/v1/customerinfo", "POST", payload);

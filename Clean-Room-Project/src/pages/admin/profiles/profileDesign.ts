@@ -32,8 +32,8 @@ const profileDesign = {
 	// --- Badges ---
 	badgeActive:
 		"px-2.5 py-1 text-[11px] font-bold rounded-md bg-green-100 text-green-700",
-	badgeInProgress:
-		"px-2.5 py-1 text-[11px] font-bold rounded-md bg-orange-100 text-orange-700",
+	badgeInactive:
+		"px-2.5 py-1 text-[11px] font-bold rounded-md bg-slate-100 text-slate-500",
 
 	// --- Action Buttons Styling ---
 	editBtn:

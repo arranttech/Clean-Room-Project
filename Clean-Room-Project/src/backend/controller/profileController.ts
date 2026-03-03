@@ -10,9 +10,6 @@ export const createProfile = (payload: object) =>
 export const updateProfile = (profileId: number, payload: object) =>
 	request(`/v1/profiles/${profileId}`, "PUT", payload);
 
-export const deleteProfile = (profileId: number) =>
-	request(`/v1/profiles/${profileId}`, "DELETE");
-
 //GET profile details in profile page
 export const getProfileDetails = (profile_id: number) =>
 	request(`/v1/profiledetails?profile_id=${profile_id}`, "GET");

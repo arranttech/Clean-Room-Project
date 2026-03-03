@@ -41,7 +41,11 @@ export const profileRoute: ServerRoute[] = [
 			description: "Create a new system profile",
 			tags: ["api", "profile"],
 			validate: {
-				payload: Joi.object({ name: Joi.string().required() }),
+				payload: Joi.object({
+					name: Joi.string().required(),
+					description: Joi.string().allow("").optional(),
+					status: Joi.string().valid("Active", "Inactive").optional(),
+				}),
 			},
 			response: {
 				status: {
@@ -82,7 +86,11 @@ export const profileRoute: ServerRoute[] = [
 			tags: ["api", "profile"],
 			validate: {
 				params: Joi.object({ id: Joi.number().integer().required() }),
-				payload: Joi.object({ name: Joi.string().optional() }),
+				payload: Joi.object({
+					name: Joi.string().required(),
+					description: Joi.string().allow("").optional(),
+					status: Joi.string().valid("Active", "Inactive").optional(),
+				}),
 			},
 			response: {
 				status: {
@@ -95,7 +103,7 @@ export const profileRoute: ServerRoute[] = [
 		},
 		handler: async (request, h) => {
 			try {
-				const { id } = request.params as { id: number };
+				const { id } = request.params as unknown as { id: number };
 				const updated = await profileRepository.updateProfile(
 					id,
 					request.payload
@@ -104,46 +112,6 @@ export const profileRoute: ServerRoute[] = [
 					return h.response({ error: "Profile not found" }).code(404);
 				return h
 					.response({ message: "Profile updated successfully" })
-					.code(200);
-			} catch {
-				return h.response({ error: "Internal Server Error" }).code(500);
-			}
-		},
-	},
-
-	// =========================
-	// DELETE /v1/profiles/{id}
-	// =========================
-	{
-		method: "DELETE",
-		path: "/v1/profiles/{id}",
-		options: {
-			description: "Delete a system profile",
-			tags: ["api", "profile"],
-			validate: {
-				params: Joi.object({ id: Joi.number().integer().required() }),
-			},
-			response: {
-				status: {
-					200: Joi.object({ message: Joi.string() }),
-					400: errorSchema,
-					404: errorSchema,
-					500: errorSchema,
-				},
-			},
-		},
-		handler: async (request, h) => {
-			try {
-				const { id } = request.params as { id: number };
-
-				await profileRepository.deleteProfileDetails(id); // delete FK references first
-				const deactivated = await profileRepository.deleteProfile(id);
-
-				if (!deactivated)
-					return h.response({ error: "Profile not found" }).code(404);
-
-				return h
-					.response({ message: "Profile deactivated successfully" })
 					.code(200);
 			} catch {
 				return h.response({ error: "Internal Server Error" }).code(500);
@@ -165,7 +133,7 @@ export const profileRoute: ServerRoute[] = [
 			},
 			response: {
 				status: {
-					200: Joi.object({ permissions: Joi.array() }),
+					200: Joi.object({ permissions: Joi.object() }),
 					400: errorSchema,
 					500: errorSchema,
 				},
@@ -173,7 +141,9 @@ export const profileRoute: ServerRoute[] = [
 		},
 		handler: async (request, h) => {
 			try {
-				const { profile_id } = request.query as { profile_id: number };
+				const { profile_id } = request.query as unknown as {
+					profile_id: number;
+				};
 				const permissions = await profileRepository.getProfileDetails(
 					profile_id
 				);
@@ -196,7 +166,7 @@ export const profileRoute: ServerRoute[] = [
 			validate: {
 				payload: Joi.object({
 					profile_id: Joi.number().integer().required(),
-					permissions: Joi.array().items(Joi.string()).required(),
+					permissions: Joi.object().pattern(Joi.string(), Joi.string()).required(),
 				}),
 			},
 			response: {
@@ -211,7 +181,7 @@ export const profileRoute: ServerRoute[] = [
 			try {
 				const { profile_id, permissions } = request.payload as {
 					profile_id: number;
-					permissions: string[];
+					permissions: Record<string, string>;
 				};
 				await profileRepository.saveProfileDetails(profile_id, permissions);
 				return h
@@ -234,7 +204,7 @@ export const profileRoute: ServerRoute[] = [
 			tags: ["api", "profile"],
 			validate: {
 				payload: Joi.object({
-					userId: Joi.number().integer().required(),
+					userId: Joi.string().required(),
 					systemProfileId: Joi.number().integer().required(),
 				}),
 			},
@@ -249,12 +219,12 @@ export const profileRoute: ServerRoute[] = [
 		handler: async (request, h) => {
 			try {
 				const { userId, systemProfileId } = request.payload as {
-					userId: number;
+					userId: string;
 					systemProfileId: number;
 				};
 				const id = await profileRepository.assignProfileToUser({
-					userId,
-					systemProfileId,
+					user_id: userId,
+					system_profile_id: systemProfileId,
 				});
 				return h
 					.response({

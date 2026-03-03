@@ -1,7 +1,8 @@
-// Correct for ES modules
 import Hapi from "@hapi/hapi";
+import Inert from "@hapi/inert";
+import Vision from "@hapi/vision";
+import HapiSwagger from "hapi-swagger";
 import applicationRoutes from "./routes/index.js";
-import { openApiSpec } from "./swagger/openapi.js";
 
 const server = Hapi.server({
 	port: 3000,
@@ -11,37 +12,30 @@ const server = Hapi.server({
 			origin: ["http://localhost:5173"],
 			additionalHeaders: ["cache-control", "x-requested-with"],
 		},
-		payload: {
-			parse: true, // default true - ensure parsing
-			allow: "application/json",
-			output: "data",
-		},
 	},
 });
 
+const swaggerOptions = {
+	info: {
+		title: "Clean Room Project API",
+		version: "1.0.0",
+	},
+};
+
 const startServer = async () => {
-	try {
-		// Register application routes
-		server.route(applicationRoutes);
+	await server.register([
+		Inert,
+		Vision,
+		{
+			plugin: HapiSwagger,
+			options: swaggerOptions,
+		},
+	]);
 
-		server.route({
-			method: "GET",
-			path: "/swagger.json",
-			handler: () => openApiSpec,
-		});
+	server.route(applicationRoutes);
 
-		await server.start();
-		console.log(`Server running at: ${server.info.uri}`);
-	} catch (err) {
-		console.error("Failed to start server:", err);
-		process.exit(1);
-	}
+	await server.start();
+	console.log(`Server running at: ${server.info.uri}`);
 };
 
 startServer();
-
-// Handle unhandled promise rejections
-process.on("unhandledRejection", (err) => {
-	console.error(err);
-	process.exit(1);
-});

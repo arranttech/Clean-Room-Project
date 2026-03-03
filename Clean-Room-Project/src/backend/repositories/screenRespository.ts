@@ -23,8 +23,8 @@ export const screenRepository = {
 	createScreen: async (payload: any) => {
 		try {
 			const [result] = await database.execute(
-				`INSERT INTO tSystemScreens (screen_name, screen_status) VALUES (?, ?)`,
-				[payload.name, payload.status || "Active"]
+				`INSERT INTO tSystemScreens (screen_name) VALUES (?)`,
+				[payload.name]
 			);
 			return (result as any).insertId;
 		} catch (err) {

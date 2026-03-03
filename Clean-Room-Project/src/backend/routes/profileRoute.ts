@@ -1,171 +1,294 @@
 import { ServerRoute } from "@hapi/hapi";
+import Joi from "joi";
 import { profileRepository } from "../repositories";
 
+const errorSchema = Joi.object({ error: Joi.string().required() });
+
 export const profileRoute: ServerRoute[] = [
-	// PROFILES
+	// =========================
+	// GET /v1/profiles
+	// =========================
 	{
 		method: "GET",
 		path: "/v1/profiles",
+		options: {
+			description: "Get all system profiles",
+			tags: ["api", "profile"],
+			response: {
+				status: {
+					200: Joi.object({ profiles: Joi.array().required() }),
+					500: errorSchema,
+				},
+			},
+		},
 		handler: async (_request, h) => {
 			try {
 				const profiles = await profileRepository.getProfiles();
 				return h.response({ profiles }).code(200);
-			} catch (err) {
+			} catch {
 				return h.response({ error: "Internal Server Error" }).code(500);
 			}
 		},
 	},
+
+	// =========================
+	// POST /v1/profiles
+	// =========================
 	{
 		method: "POST",
 		path: "/v1/profiles",
+		options: {
+			description: "Create a new system profile",
+			tags: ["api", "profile"],
+			validate: {
+				payload: Joi.object({ name: Joi.string().required() }),
+			},
+			response: {
+				status: {
+					201: Joi.object({
+						message: Joi.string(),
+						profile_id: Joi.number().required(),
+					}),
+					400: errorSchema,
+					500: errorSchema,
+				},
+			},
+		},
 		handler: async (request, h) => {
 			try {
-				const payload = request.payload as any;
-				if (!payload.name) {
-					return h.response({ error: "Profile name is required" }).code(400);
-				}
-				const profileId = await profileRepository.createProfile(payload);
+				const profileId = await profileRepository.createProfile(
+					request.payload
+				);
 				return h
 					.response({
 						message: "Profile created successfully",
 						profile_id: profileId,
 					})
 					.code(201);
-			} catch (err) {
-				console.error("Error creating profile:", err);
+			} catch {
 				return h.response({ error: "Internal Server Error" }).code(500);
 			}
 		},
 	},
+
+	// =========================
+	// PUT /v1/profiles/{id}
+	// =========================
 	{
 		method: "PUT",
 		path: "/v1/profiles/{id}",
+		options: {
+			description: "Update a system profile",
+			tags: ["api", "profile"],
+			validate: {
+				params: Joi.object({ id: Joi.number().integer().required() }),
+				payload: Joi.object({ name: Joi.string().optional() }),
+			},
+			response: {
+				status: {
+					200: Joi.object({ message: Joi.string() }),
+					400: errorSchema,
+					404: errorSchema,
+					500: errorSchema,
+				},
+			},
+		},
 		handler: async (request, h) => {
 			try {
-				const id = Number(request.params.id);
-				if (!id) return h.response({ error: "Invalid profile ID" }).code(400);
-				const payload = request.payload as any;
-				const updated = await profileRepository.updateProfile(id, payload);
+				const { id } = request.params as { id: number };
+				const updated = await profileRepository.updateProfile(
+					id,
+					request.payload
+				);
 				if (!updated)
 					return h.response({ error: "Profile not found" }).code(404);
 				return h
 					.response({ message: "Profile updated successfully" })
 					.code(200);
-			} catch (err) {
+			} catch {
 				return h.response({ error: "Internal Server Error" }).code(500);
 			}
 		},
 	},
+
+	// =========================
+	// DELETE /v1/profiles/{id}
+	// =========================
 	{
 		method: "DELETE",
 		path: "/v1/profiles/{id}",
+		options: {
+			description: "Delete a system profile",
+			tags: ["api", "profile"],
+			validate: {
+				params: Joi.object({ id: Joi.number().integer().required() }),
+			},
+			response: {
+				status: {
+					200: Joi.object({ message: Joi.string() }),
+					400: errorSchema,
+					404: errorSchema,
+					500: errorSchema,
+				},
+			},
+		},
 		handler: async (request, h) => {
 			try {
-				const id = Number(request.params.id);
-				if (!id) return h.response({ error: "Invalid profile ID" }).code(400);
+				const { id } = request.params as { id: number };
 
-				await profileRepository.deleteProfileDetails(id); // Delete FK references first
-				const deleted = await profileRepository.deleteProfile(id);
+				await profileRepository.deleteProfileDetails(id); // delete FK references first
+				const deactivated = await profileRepository.deleteProfile(id);
 
-				if (!deleted)
+				if (!deactivated)
 					return h.response({ error: "Profile not found" }).code(404);
 
 				return h
-					.response({ message: "Profile deleted successfully" })
+					.response({ message: "Profile deactivated successfully" })
 					.code(200);
-			} catch (err) {
+			} catch {
 				return h.response({ error: "Internal Server Error" }).code(500);
 			}
 		},
 	},
 
-	// PROFILE DETAILS (PERMISSIONS)
+	// =========================
+	// GET /v1/profiledetails
+	// =========================
 	{
 		method: "GET",
 		path: "/v1/profiledetails",
+		options: {
+			description: "Get profile permissions by profile_id",
+			tags: ["api", "profile"],
+			validate: {
+				query: Joi.object({ profile_id: Joi.number().integer().required() }),
+			},
+			response: {
+				status: {
+					200: Joi.object({ permissions: Joi.array() }),
+					400: errorSchema,
+					500: errorSchema,
+				},
+			},
+		},
 		handler: async (request, h) => {
 			try {
-				const profile_id = request.query.profile_id
-					? Number(request.query.profile_id)
-					: undefined;
-
-				if (!profile_id) {
-					return h
-						.response({ error: "profile_id query param required" })
-						.code(400);
-				}
-
+				const { profile_id } = request.query as { profile_id: number };
 				const permissions = await profileRepository.getProfileDetails(
 					profile_id
 				);
 				return h.response({ permissions }).code(200);
-			} catch (err) {
+			} catch {
 				return h.response({ error: "Internal Server Error" }).code(500);
 			}
 		},
 	},
+
+	// =========================
+	// POST /v1/profiledetails
+	// =========================
 	{
 		method: "POST",
 		path: "/v1/profiledetails",
+		options: {
+			description: "Save profile permissions",
+			tags: ["api", "profile"],
+			validate: {
+				payload: Joi.object({
+					profile_id: Joi.number().integer().required(),
+					permissions: Joi.array().items(Joi.string()).required(),
+				}),
+			},
+			response: {
+				status: {
+					201: Joi.object({ message: Joi.string() }),
+					400: errorSchema,
+					500: errorSchema,
+				},
+			},
+		},
 		handler: async (request, h) => {
 			try {
-				const payload = request.payload as any;
-				const profile_id = payload.profile_id;
-				const permissions = payload.permissions;
-
-				if (!profile_id || !permissions) {
-					return h
-						.response({ error: "profile_id and permissions are required" })
-						.code(400);
-				}
-
+				const { profile_id, permissions } = request.payload as {
+					profile_id: number;
+					permissions: string[];
+				};
 				await profileRepository.saveProfileDetails(profile_id, permissions);
 				return h
 					.response({ message: "Profile details saved successfully" })
 					.code(201);
-			} catch (err) {
-				console.error("Error saving profile details:", err);
+			} catch {
 				return h.response({ error: "Internal Server Error" }).code(500);
 			}
 		},
 	},
 
-	// ASSIGN PROFILES (tUserProfiles)
+	// =========================
+	// POST /v1/assign-profile
+	// =========================
 	{
 		method: "POST",
 		path: "/v1/assign-profile",
+		options: {
+			description: "Assign a system profile to a user",
+			tags: ["api", "profile"],
+			validate: {
+				payload: Joi.object({
+					userId: Joi.number().integer().required(),
+					systemProfileId: Joi.number().integer().required(),
+				}),
+			},
+			response: {
+				status: {
+					201: Joi.object({ message: Joi.string(), insertId: Joi.number() }),
+					400: errorSchema,
+					500: errorSchema,
+				},
+			},
+		},
 		handler: async (request, h) => {
 			try {
-				const payload = request.payload as any;
-
-				if (!payload.userId || !payload.systemProfileId) {
-					return h
-						.response({ error: "userId and systemProfileId are required" })
-						.code(400);
-				}
-
-				const id = await profileRepository.assignProfileToUser(payload);
+				const { userId, systemProfileId } = request.payload as {
+					userId: number;
+					systemProfileId: number;
+				};
+				const id = await profileRepository.assignProfileToUser({
+					userId,
+					systemProfileId,
+				});
 				return h
 					.response({
 						message: "Profile assigned to user successfully",
 						insertId: id,
 					})
 					.code(201);
-			} catch (err) {
-				console.error("Error assigning profile:", err);
+			} catch {
 				return h.response({ error: "Internal Server Error" }).code(500);
 			}
 		},
 	},
+
+	// =========================
+	// GET /v1/assigned-profiles
+	// =========================
 	{
 		method: "GET",
 		path: "/v1/assigned-profiles",
+		options: {
+			description: "Get all assigned profiles",
+			tags: ["api", "profile"],
+			response: {
+				status: {
+					200: Joi.object({ assignedProfiles: Joi.array() }),
+					500: errorSchema,
+				},
+			},
+		},
 		handler: async (_request, h) => {
 			try {
 				const assignedProfiles = await profileRepository.getAssignedProfiles();
 				return h.response({ assignedProfiles }).code(200);
-			} catch (err) {
-				console.error("Error fetching assigned profiles:", err);
+			} catch {
 				return h.response({ error: "Internal Server Error" }).code(500);
 			}
 		},

@@ -62,6 +62,7 @@ export function getSystemFlags(zoneSystem: string, room: RoomPayload) {
 }
 
 export type AirflowResults = {
+  zoneReqInsideTempC: number | string;
   roomName: string;
   areaFt2: number;
   volumeFt3: number;
@@ -83,6 +84,7 @@ export type AirflowResults = {
   roomHeatLoadTR: number | string;
   resultHeatLoadTR: number | string;
   zoneSystem: string;
+  zoneClassification?: string;
 };
 
 // ================= SERVICE: AIRFLOW CALCULATION =================

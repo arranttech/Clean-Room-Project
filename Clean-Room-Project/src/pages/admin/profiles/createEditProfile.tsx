@@ -1,17 +1,14 @@
 import { useState, useEffect } from "react";
-import { FiSearch, FiPlus, FiEdit2, FiTrash2 } from "react-icons/fi";
+import { FiSearch, FiPlus, FiEdit2 } from "react-icons/fi";
 import s from "./profileDesign";
 import AddProfile from "./addProfile";
-import {
-	getProfiles,
-	deleteProfile,
-} from "../../../backend/controller/profileController";
+import { getProfiles } from "../../../backend/controller/profileController";
 
 type ProfileToken = {
 	id: string;
 	name: string;
 	description: string;
-	status: "Active" | "In Progress";
+	status: "Active" | "Inactive";
 };
 
 const initialProfiles: ProfileToken[] = [];
@@ -22,17 +19,18 @@ export default function CreateEditProfile() {
 	const [showAdd, setShowAdd] = useState(false);
 	const [editData, setEditData] = useState<ProfileToken | null>(null);
 
-	useEffect(() => {
-		const fetchProfiles = async () => {
-			try {
-				const response = await getProfiles();
-				if (response.profiles) {
-					setProfiles(response.profiles);
-				}
-			} catch (err) {
-				console.error("Failed to fetch profiles:", err);
+	const fetchProfiles = async () => {
+		try {
+			const response = await getProfiles();
+			if (response.profiles) {
+				setProfiles(response.profiles);
 			}
-		};
+		} catch (err) {
+			console.error("Failed to fetch profiles:", err);
+		}
+	};
+
+	useEffect(() => {
 		fetchProfiles();
 	}, []);
 
@@ -42,18 +40,6 @@ export default function CreateEditProfile() {
 			item.description.toLowerCase().includes(searchTerm.toLowerCase())
 	);
 
-	const handleDelete = async (id: string) => {
-		if (window.confirm("Are you sure you want to delete this profile?")) {
-			try {
-				await deleteProfile(Number(id));
-				setProfiles((prev) => prev.filter((p) => p.id !== id));
-			} catch (err) {
-				console.error(err);
-				alert("Failed to delete profile");
-			}
-		}
-	};
-
 	if (showAdd || editData) {
 		return (
 			<AddProfile
@@ -62,23 +48,10 @@ export default function CreateEditProfile() {
 					setShowAdd(false);
 					setEditData(null);
 				}}
-				onSaved={(newProfile) => {
+				onSaved={async () => {
 					setShowAdd(false);
-					if (editData) {
-						setProfiles((prev) =>
-							prev.map((p) =>
-								p.id === editData.id
-									? ({ ...newProfile, id: editData.id } as ProfileToken)
-									: p
-							)
-						);
-						setEditData(null);
-					} else {
-						setProfiles((prev) => [
-							{ ...newProfile, id: Math.random().toString() } as ProfileToken,
-							...prev,
-						]);
-					}
+					setEditData(null);
+					await fetchProfiles();
 				}}
 			/>
 		);
@@ -137,7 +110,7 @@ export default function CreateEditProfile() {
 											className={
 												row.status === "Active"
 													? s.badgeActive
-													: s.badgeInProgress
+													: s.badgeInactive
 											}
 										>
 											{row.status}
@@ -150,13 +123,6 @@ export default function CreateEditProfile() {
 											onClick={() => setEditData(row)}
 										>
 											<FiEdit2 size={16} />
-										</button>
-										<button
-											className={s.deleteBtn}
-											title="Delete profile"
-											onClick={() => handleDelete(row.id)}
-										>
-											<FiTrash2 size={16} />
 										</button>
 									</td>
 								</tr>

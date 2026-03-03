@@ -39,10 +39,10 @@ export default function AddScreen({
 		setSaving(true);
 		try {
 			const newScreenData = {
-				name: screenName,
-				status: screenStatus,
+				screen_name: screenName,
+				screen_status: screenStatus,
 			};
-			console.log("initialData--------->", newScreenData);
+			console.log("newScreenData--------->", newScreenData);
 			if (initialData) {
 				await updateScreen(initialData.id.replace("SCR-", ""), newScreenData);
 			} else {
@@ -75,11 +75,10 @@ export default function AddScreen({
 							</label>
 							<input
 								type="text"
-								className={`${s.formInput} ${
-									initialData
+								className={`${s.formInput} ${initialData
 										? "bg-slate-50 text-slate-500 cursor-not-allowed border-slate-200 opacity-70 hover:cursor-not-allowed"
 										: ""
-								}`}
+									}`}
 								placeholder="Enter screen name" // ---disabling screen name in edit mode
 								value={screenName}
 								onChange={(e) => setScreenName(e.target.value)}
@@ -116,9 +115,8 @@ export default function AddScreen({
 						<button
 							type="button"
 							onClick={saveScreen}
-							className={`${s.formSubmitBtn} ${
-								!isFormValid ? "opacity-60 cursor-not-allowed" : ""
-							}`}
+							className={`${s.formSubmitBtn} ${!isFormValid ? "opacity-60 cursor-not-allowed" : ""
+								}`}
 							disabled={saving || !isFormValid}
 						>
 							<FaFloppyDisk />
@@ -127,8 +125,8 @@ export default function AddScreen({
 									? "Updating..."
 									: "Creating..."
 								: initialData
-								? "Update Screen"
-								: "Create Screen"}
+									? "Update Screen"
+									: "Create Screen"}
 						</button>
 					</div>
 				</div>

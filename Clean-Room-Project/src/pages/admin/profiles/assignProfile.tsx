@@ -56,7 +56,8 @@ export default function AssignProfile({
 				setUsersList(mappedUsers);
 
 				const listProfiles = profilesData.profiles ?? profilesData ?? [];
-				const mappedProfiles = listProfiles.map((p: any) => ({
+				const activeProfiles = listProfiles.filter((p: any) => p.status === "Active");
+				const mappedProfiles = activeProfiles.map((p: any) => ({
 					id: p.id?.toString(),
 					name: p.name,
 				}));
@@ -235,11 +236,10 @@ export default function AssignProfile({
 					<button
 						type="button"
 						onClick={handleAssign}
-						className={`${s.formSubmitBtn} ${
-							selectedUserIds.length === 0 || !selectedProfileId
+						className={`${s.formSubmitBtn} ${selectedUserIds.length === 0 || !selectedProfileId
 								? "opacity-50 cursor-not-allowed"
 								: ""
-						}`}
+							}`}
 						disabled={
 							saving || selectedUserIds.length === 0 || !selectedProfileId
 						}

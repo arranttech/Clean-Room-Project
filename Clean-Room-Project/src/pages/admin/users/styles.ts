@@ -27,13 +27,16 @@ const usersDesign = {
 	tdName: "px-5 py-4 text-sm font-semibold text-slate-900",
 	tdEmail: "px-5 py-4 text-sm text-slate-500",
 	tdActions: "px-5 py-4 text-right",
-
+	statusActive:
+		"inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700",
+	statusInactive:
+		"inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-600",
 	// --- Action Buttons Styling ---
 
 	editBtn:
-		"text-slate-400 hover:text-blue-600 transition-colors p-1.5 rounded-lg hover:bg-blue-300",
+		"text-blue-400 hover:text-orange-600 transition-colors p-1.5 rounded-lg hover:bg-orange-50 mr-1",
 	deleteBtn:
-		"text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-300",
+		"text-red-500 hover:text-red-700 transition-colors p-1.5 rounded-lg hover:bg-red-50",
 
 	// --- Empty State ---
 	emptyRow: "px-5 py-16 text-center text-sm text-slate-400",

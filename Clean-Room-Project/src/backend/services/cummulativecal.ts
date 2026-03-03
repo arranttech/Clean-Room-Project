@@ -5,6 +5,8 @@ export type ZonePayload = AirflowResults;
 export type CalculatedZoneResults = {
     zoneName: string;
     zoneSystem: string; 
+    zoneClassification?: string;
+    zoneReqInsideTempC?: number | string;
     zoneArea: number;
     zoneVolume: number;
     zoneRoomCfm: number;
@@ -32,8 +34,9 @@ const ensureNumber = (val: any): number => {
 
 export function cumulativeZoneService(zoneName: string, rooms: ZonePayload[]): CalculatedZoneResults {
     
-    // Get the zoneSystem from the first room, or default to empty string
     const zoneSystem = rooms.length > 0 ? rooms[0].zoneSystem : "";
+    const zoneClassification = rooms.length > 0 ? rooms[0].zoneClassification : "";
+    const zoneReqInsideTempC = rooms.length > 0 ? rooms[0].zoneReqInsideTempC : "";
 
     const totals = rooms.reduce((acc, room) => {
         return {
@@ -71,6 +74,8 @@ export function cumulativeZoneService(zoneName: string, rooms: ZonePayload[]): C
     return {
         zoneName: zoneName,
         zoneSystem: zoneSystem, 
+        zoneClassification: zoneClassification,
+        zoneReqInsideTempC: zoneReqInsideTempC,
         zoneArea: Number(totals.zoneArea.toFixed(2)),
         zoneVolume: Number(totals.zoneVolume.toFixed(2)),
         zoneRoomCfm: Number(totals.zoneRoomCfm.toFixed(2)),

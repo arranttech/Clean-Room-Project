@@ -96,10 +96,10 @@
             "stage3Or4": [
                 "ISO 7",
                 "ISO 6",
-                "Class10K",
-                "Class1K",
-                "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
-                "Grade B (ISO 5 at Rest & ISO 7 in Oper.)",
+                "CLASS10K",
+                "CLASS1K",
+                "GRADE C (ISO 7 AT REST & ISO 8 IN OPER.)",
+                "GRADE B (ISO 5 AT REST & ISO 7 IN OPER.)",
                 "GRADE CLASS B",
                 "GRADE CLASS C"
             ],
@@ -110,10 +110,10 @@
                 "ISO 3",
                 "ISO 2",
                 "ISO 1",
-                "Class100K",
-                "Class 100",
-                "Grade A (ISO 5 at Rest & ISO 5 in Oper.)",
-                "Grade D (ISO 8 at Rest & Not Defined)",
+                "CLASS100K",
+                "CLASS 100",
+                "GRADE A (ISO 5 AT REST & ISO 5 IN OPER.)",
+                "GRADE D (ISO 8 AT REST & NOT DEFINED)",
                 "GRADE CLASS A",
                 "GRADE CLASS D"
             ]

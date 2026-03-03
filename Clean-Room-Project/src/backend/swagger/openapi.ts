@@ -799,7 +799,7 @@ export const openApiSpec = {
 											{ type: "string", example: "Ambient" },
 										],
 									},
-									zoneClassification: { type: "string", example: "ISO 8" }
+									zoneClassification: { type: "string", example: "Grade D (ISO 8 at Rest & Not Defined)" }
 								}
 							}
 						}

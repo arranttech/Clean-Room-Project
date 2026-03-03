@@ -9,9 +9,11 @@ export type BOQPayload = CalculatedZoneResults;
 const s = boqresult.fields.NumberofStagesFilter;
 
 export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
-    // FIX: Use zone properties if room is undefined, as seen in your API request payload
+
     const currentZoneSystem = zone.zoneSystem ?? "";
-    const { showCooling, showHeating } = getSystemFlags(currentZoneSystem, room || {} as RoomPayload);
+    const { showCooling, showHeating, isTempValid } =
+        getSystemFlags(currentZoneSystem, room || {} as RoomPayload);
+
     const isHeatingandCooling = showCooling && showHeating;
 
     const b = boqresult;
@@ -31,7 +33,7 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
 
     const currentCfm = calculatedAHUCfm();
 
-   function calculateAHUWidth() {
+    function calculateAHUWidth() {
         const limits = ahu.AHUWidthCfm.AHUWdCfm;
         const widths = ahu.AHUWidthCfm.AHUWidth;
 
@@ -61,46 +63,51 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
         return height[8];
     }
 
-    //function calculateAHULength(): number {
-    //Blower Section Length
-    //const limits = ahu.AHULengthCfm.BDB;
-    //const length = ahu.AHULengthCfm.BlowerLength;
+   function calculateFilterStages() {
 
-    //if      (currentCfm <= limits[1]) return length[1];
-    //else if (currentCfm <= limits[2]) return length[2];
-    //else if (currentCfm <= limits[3]) return length[3];
-    //else if (currentCfm <= limits[4]) return length[4];
-    //else if (currentCfm <= limits[5]) return length[5];
-    //else if (currentCfm <= limits[6]) return length[6];
-    // else if (currentCfm <= limits[7]) return length[7];
+    const classification = String(
+        room?.zoneClassification ??
+        zone.zoneClassification ??
+        ""
+    ).trim().toUpperCase();
 
-    //return length[8];
-    //}
+    if (!classification) return 3;
 
- function calculateFilterStages() {
-    const temp = room?.zoneReqInsideTempC;
-    const classification = (room?.zoneClassification ?? "").trim().toUpperCase();
+    const rawTemp = zone.zoneReqInsideTempC;
+    const temp = String(rawTemp ?? "").trim().toUpperCase();
 
-    // Strict number check: will be false for "TEXT", null, or undefined
-    const isNumber = typeof temp === 'number' && Number.isFinite(temp);
+    const stage3Match = s.stage3Or4?.some(item =>
+        String(item).trim().toUpperCase() === classification
+    );
 
-    // Using .some() with .includes() directly in the if statements
-    if (s.stage3Or4.some(item => classification.includes(item.toUpperCase()))) {
-        return isNumber ? 3 : 4;
+    const stage4Match = s.stage4Or5?.some(item =>
+        String(item).trim().toUpperCase() === classification
+    );
+
+    const isNumericTemp =
+        rawTemp !== null &&
+        rawTemp !== undefined &&
+        !isNaN(Number(rawTemp));
+
+    if (!isNumericTemp && temp !== "") {
+        if (stage3Match) return 4;
+        if (stage4Match) return 5;
+        return 3;
     }
 
-    if (s.stage4Or5.some(item => classification.includes(item.toUpperCase()))) {
-        return isNumber ? 4 : 5;
+    if (isNumericTemp) {
+        if (stage3Match) return 3;
+        if (stage4Match) return 4;
     }
 
-    return 3; 
+    return 3;
 }
 
     return {
         zoneName: zone.zoneName,
         AHUCfm: currentCfm,
-        AHUWidth:calculateAHUWidth() ,
+        AHUWidth: calculateAHUWidth(),
         AHUHeight: calculateAHUHeight(),
-        stageFilter: calculateFilterStages() 
+        stageFilter: calculateFilterStages()
     };
 }

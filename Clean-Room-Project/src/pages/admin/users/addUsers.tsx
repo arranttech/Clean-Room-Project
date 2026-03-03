@@ -8,10 +8,11 @@ import {
 	FaEyeSlash,
 } from "react-icons/fa6";
 import s from "./styles";
-import { createUsers } from "../../../backend/controller/userController";
+import { createUsers, updateUser } from "../../../backend/controller/userController";
 import { createUserPassword } from "../../../backend/controller/authContoller";
 
 type AddUserProps = {
+	user?: any;
 	onCancel: () => void;
 	onSaved: () => void;
 };
@@ -123,41 +124,41 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
 	};
 
 	const saveUser = async () => {
-		const firstNameErr = validatefirstName(form.user_first_name);
-		const lastNameErr = validatelastName(form.user_last_name);
-		const emailErr = validateEmail(form.user_email_id);
-		const userIdErr = validateUserId(form.user_id);
-		const homePhoneErr = validatePhone(form.user_phone_home);
-		const workPhoneErr = validatePhone(form.user_phone_work);
-		const passwordErr = validatePassword(form.password);
-		const confirmPasswordErr = validateConfirmPassword(
-			confirmPassword,
-			form.password
-		);
+		// const firstNameErr = validatefirstName(form.user_first_name);
+		// const lastNameErr = validatelastName(form.user_last_name);
+		// const emailErr = validateEmail(form.user_email_id);
+		// const userIdErr = validateUserId(form.user_id);
+		// const homePhoneErr = validatePhone(form.user_phone_home);
+		// const workPhoneErr = validatePhone(form.user_phone_work);
+		// const passwordErr = validatePassword(form.password);
+		// const confirmPasswordErr = validateConfirmPassword(
+		// 	confirmPassword,
+		// 	form.password
+		// );
 
-		if (
-			firstNameErr ||
-			lastNameErr ||
-			emailErr ||
-			userIdErr ||
-			homePhoneErr ||
-			workPhoneErr ||
-			passwordErr ||
-			confirmPasswordErr
-		) {
-			setErrors((p) => ({
-				...p,
-				user_first_name: firstNameErr,
-				user_last_name: lastNameErr,
-				user_email_id: emailErr,
-				user_id: userIdErr,
-				user_phone_home: homePhoneErr,
-				user_phone_work: workPhoneErr,
-				password: passwordErr,
-				confirmPassword: confirmPasswordErr,
-			}));
-			return;
-		}
+		// if (
+		// 	firstNameErr ||
+		// 	lastNameErr ||
+		// 	emailErr ||
+		// 	userIdErr ||
+		// 	homePhoneErr ||
+		// 	workPhoneErr ||
+		// 	passwordErr ||
+		// 	confirmPasswordErr
+		// ) {
+		// 	setErrors((p) => ({
+		// 		...p,
+		// 		user_first_name: firstNameErr,
+		// 		user_last_name: lastNameErr,
+		// 		user_email_id: emailErr,
+		// 		user_id: userIdErr,
+		// 		user_phone_home: homePhoneErr,
+		// 		user_phone_work: workPhoneErr,
+		// 		password: passwordErr,
+		// 		confirmPassword: confirmPasswordErr,
+		// 	}));
+		// 	return;
+		// }
 
 		setSaving(true);
 
@@ -167,7 +168,7 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
 
       if (user) {
 // edit mode
-        await updateUsers(user.user_login_id, payload);
+        await updateUser(user.user_login_id, payload);
         console.log("User updated successfully");
       } else {
 // create mode

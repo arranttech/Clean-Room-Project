@@ -1,4 +1,4 @@
-import { updateUsers } from "../controller/controller";
+
 import { database } from "../dbConnection/connections";
 
 export const userRepository = {
@@ -17,6 +17,7 @@ export const userRepository = {
         updated_by,
         user_admin_flag,
         customer_id
+		status
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 			[
 				payload.user_first_name,
@@ -30,13 +31,36 @@ export const userRepository = {
 				payload.updated_by || "admin",
 				payload.user_admin_flag || "No",
 				payload.customer_id || null,
+				payload.status || "A",
 			]
 		);
 
 		return (result as any).insertId;
 	},
+	// for admin use only for getting user details
+    getUserById: async (user_login_id: number) => {
+        const [resultSets]: any =
+            await database.execute(
+                "CALL new_cleanroom_db.GetUserDetail(?)",
+                [user_login_id]
+            );
 
-	updateUsers: async (user_login_id: number, payload: any) => {
+        const rows = resultSets[0];
+
+        if (!rows || rows.length === 0){
+            return {
+                success: false,
+                message: "User not found"
+			};
+            }	
+
+        return {
+            success: true,
+            user: rows[0]
+        };
+    },
+
+	updateUser: async (user_login_id: number, payload: any) => {
 		await database.execute(
 			`UPDATE tUsers
         SET
@@ -47,6 +71,7 @@ export const userRepository = {
             user_phone_home = ?,
             user_phone_work = ?,
             user_admin_flag = ?
+			user_status = ?,
         WHERE user_login_id = ?
         `,
         [

@@ -154,6 +154,7 @@ export default function Users({ onCountChange }: UsersProps) {
 							<th className={s.th}>Address</th>
 							<th className={s.th}>Home Phone</th>
 							<th className={s.th}>Work Phone</th>
+							<th className={s.th}>Status</th>
 							{/* <th className={s.th}>Created Date</th>
 							<th className={s.th}>Created By</th>
 							<th className={s.th}>Updated Date</th>
@@ -196,6 +197,8 @@ export default function Users({ onCountChange }: UsersProps) {
 									</td>
 									<td className={s.td}>{user.updated_by}</td> */}
 									{/* <td className={s.td}>{user.customer_id}</td> */}
+									
+                                    <span className={s.statusActive}>Active</span>
 									<td className={s.td}>
 										<button
 											type="button"
@@ -211,6 +214,7 @@ export default function Users({ onCountChange }: UsersProps) {
 											className={s.deleteBtn}
 											title="Delete"
 										>
+										
 											<FiTrash2 />
 										</button>
 									</td>

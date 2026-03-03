@@ -36,28 +36,7 @@ export const authRepository = {
 			},
 		};
 	},
-// for admin use only for getting user details
-    getUserById: async (user_login_id: number) => {
-        const [resultSets]: any =
-            await database.execute(
-                "CALL new_cleanroom_db.GetUserDetail(?)",
-                [user_login_id]
-            );
 
-        const rows = resultSets[0];
-
-        if (!rows || rows.length === 0){
-            return {
-                success: false,
-                message: "User not found"
-			};
-            }	
-
-        return {
-            success: true,
-            user: rows[0]
-        };
-    },
 
 	createUserPassword: async (payload: {
 		user_login_id: number;

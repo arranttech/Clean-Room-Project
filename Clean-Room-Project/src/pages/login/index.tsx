@@ -3,8 +3,10 @@ import { FaEnvelope, FaLock } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import loginDesign from "./styles";
 import { loginUser } from "../../backend/controller/authContoller";
+import { getCustomerInfo } from "../../backend/controller/customerController";
 import { useAppDispatch } from "../../redux/hooks";
 import { setUser } from "../../redux/slices/userSlice";
+import { setCustomer } from "../../redux/slices/customerSlice";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -45,6 +47,31 @@ function login() {
       // Store in Redux (also syncs to localStorage via userSlice)
       dispatch(setUser(response.user));
 
+      // Fetch customer immediately after login so Dashboard shows "✓ Profile saved" instantly
+      try {
+        const customerResult = await getCustomerInfo(
+          response.user.user_login_id
+        );
+        if (customerResult?.success && customerResult?.customer) {
+          const c = customerResult.customer;
+          dispatch(
+            setCustomer({
+              customerId: c.customer_id,
+              customerName: c.customer_name || "",
+              phoneNumber: c.customer_phone || "",
+              customerAddress: c.customer_address || "",
+              emailAddress: c.customer_email_id || "",
+              additionalNotes:
+                c.customers_additional_notes ||
+                c.customers_addional_notes ||
+                "",
+            })
+          );
+        }
+      } catch {
+        // Customer fetch failed silently — user can still access dashboard
+      }
+
       navigate("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
@@ -55,7 +82,9 @@ function login() {
 
   const handleGoogleRedirect = () => {
     const returnTo = `${window.location.origin}/login`;
-    const url = `${API_URL}/auth/google?returnTo=${encodeURIComponent(returnTo)}`;
+    const url = `${API_URL}/auth/google?returnTo=${encodeURIComponent(
+      returnTo
+    )}`;
     window.location.assign(url);
   };
 
@@ -65,9 +94,15 @@ function login() {
         <div className={styles.card}>
           <div className={styles.fieldGroup}>
             <form onSubmit={handleLogin}>
-              <img src="/Arrant.jpeg" alt="Arrant Logo" className={styles.logoImg} />
+              <img
+                src="/Arrant.jpeg"
+                alt="Arrant Logo"
+                className={styles.logoImg}
+              />
               <h2 className={styles.cardTitle}>Welcome</h2>
-              <p className={styles.cardInfo}>Sign in to your STERI Clean Air account</p>
+              <p className={styles.cardInfo}>
+                Sign in to your STERI Clean Air account
+              </p>
 
               <label className={styles.label}>Email Address/UserID</label>
               <div className={styles.inputWrapper}>
@@ -106,7 +141,9 @@ function login() {
               <button
                 type="submit"
                 disabled={loading}
-                className={`${styles.loginButton} ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+                className={`${styles.loginButton} ${
+                  loading ? "opacity-50 cursor-not-allowed" : ""
+                }`}
               >
                 {loading ? "Signing In..." : "Sign In"}
               </button>
@@ -117,21 +154,27 @@ function login() {
                     type="button"
                     onClick={handleGoogleRedirect}
                     disabled={loading}
-                    className={`${styles.loginButton} ${loading ? "opacity-50 cursor-not-allowed" : ""} flex items-center justify-center gap-2 w-full border border-gray-300 rounded-lg py-2 px-4 bg-white hover:bg-gray-50 transition-all font-medium shadow-sm !text-black`}
+                    className={`${styles.loginButton} ${
+                      loading ? "opacity-50 cursor-not-allowed" : ""
+                    } flex items-center justify-center gap-2 w-full border border-gray-300 rounded-lg py-2 px-4 bg-white hover:bg-gray-50 transition-all font-medium shadow-sm !text-black`}
                   >
                     <img
                       src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
                       alt="Google"
                       className="w-5 h-5"
                     />
-                    <span>{loading ? "Processing..." : "Continue with Google"}</span>
+                    <span>
+                      {loading ? "Processing..." : "Continue with Google"}
+                    </span>
                   </button>
                 </div>
               </div>
 
               <Link to="/register" className={styles.nextLink}>
                 New Customer{" "}
-                <span className="text-blue-600 hover:text-blue-400">Register Here!</span>
+                <span className="text-blue-600 hover:text-blue-400">
+                  Register Here!
+                </span>
               </Link>
             </form>
           </div>

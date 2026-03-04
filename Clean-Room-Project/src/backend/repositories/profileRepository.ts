@@ -137,6 +137,22 @@ export const profileRepository = {
                 payload.updated_by || "system",
             ]
         );
+        try {
+            await database.execute(
+                `INSERT INTO tUserProfiles (user_id, system_profile_id, created_by, updated_by)
+                VALUES (?, ?, ?, ?)`,
+                [payload.user_id, payload.system_profile_id, "system", "system"]
+            );
+        }
+        catch (err: any) {
+            if (err.code === "ER_DUP_ENTRY") {
+                return {
+                    success: false,
+                    message: "This user already has a system profile assigned."
+                };
+            }
+            throw err;
+        }
         return result.insertId;
     },
 
@@ -145,6 +161,8 @@ export const profileRepository = {
         const [rows]: any = await database.execute(
             `SELECT 
                 up.user_profile_id as id,
+                u.user_id,
+                p.system_profile_id,
                 u.user_first_name,
                 u.user_last_name,
                 p.system_profile_name as profileName,
@@ -156,9 +174,20 @@ export const profileRepository = {
         );
         return rows.map((row: any) => ({
             id: row.id.toString(),
+            userId: row.user_id.toString(),
+            profileId: row.system_profile_id.toString(),
             userName: `${row.user_first_name} ${row.user_last_name}`.trim(),
             profileName: row.profileName,
             createdAt: row.createdAt,
         }));
+    },
+
+    // Delete Assigned Profile
+    deleteAssignedProfile: async (id: number) => {
+        const [result]: any = await database.execute(
+            `DELETE FROM tUserProfiles WHERE user_profile_id = ?`,
+            [id]
+        );
+        return result.affectedRows > 0;
     },
 };

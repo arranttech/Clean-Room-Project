@@ -26,3 +26,6 @@ export const assignProfileToUser = (payload: {
 
 export const getAssignedProfiles = () =>
 	request("/v1/assigned-profiles", "GET");
+
+export const deleteAssignedProfile = (id: number) =>
+	request(`/v1/assigned-profiles/${id}`, "DELETE");

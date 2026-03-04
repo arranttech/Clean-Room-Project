@@ -37,13 +37,16 @@ function login() {
 
     try {
       const response = await loginUser({ identifier, password });
-      if (!response.success) {
+      if (response.success) {
+        localStorage.setItem("token", response.token);
+        localStorage.setItem("user", JSON.stringify(response.user));
+        // Store in Redux (also syncs to localStorage via userSlice)
+        dispatch(setUser(response.user));
+        navigate("/users");
+      } else {
         setError(response.message || "Login failed");
         return;
       }
-
-      // Store in Redux (also syncs to localStorage via userSlice)
-      dispatch(setUser(response.user));
 
       navigate("/dashboard");
     } catch (err) {

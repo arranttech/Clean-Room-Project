@@ -1,5 +1,5 @@
-import { Routes, Route } from "react-router-dom";
-import Home from "./pages/landingPage";
+import { Routes, Route, BrowserRouter, Navigate, Outlet } from "react-router-dom";
+import Home from "./pages/LandingPage";
 import CustomerInfoPage from "./pages/customerInfo";
 import ProjectInfoPage from "./pages/projectInfo";
 import Dashboard from "./pages/dashboard";
@@ -12,24 +12,38 @@ import AllProjects from "./pages/dashboard/projects";
 import ApiDocs from "./pages/ApiDocs";
 import Main from "./pages/admin/adminLayout";
 
+function ProtectedRoute() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return <Outlet />;
+}
+
 function App() {
   return (
-    <>
+    <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={localStorage.getItem("token")
+      ? <Navigate to="/users" />
+      : <Navigate to="/login" />} />
         <Route path="/customer-info" element={<CustomerInfoPage />} />
         <Route path="/project-info" element={<ProjectInfoPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/standards" element={<Standard />} />
-        <Route path="/room" element={<Room />} />
-        <Route path="/results" element={<Results />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={localStorage.getItem("token") ? <Navigate to="/dashboard"/> : <Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/projects" element={<AllProjects />} />
-        <Route path="/admin" element={<Main />} />
-        <Route path="/docs" element={<ApiDocs />} />
+
+        {/* protected routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/standards" element={<Standard />} />
+          <Route path="/room" element={<Room />} />
+          <Route path="/results" element={<Results />} />
+          <Route path="/projects" element={<AllProjects />} />
+          <Route path="/admin" element={<Main />} />
+          <Route path="/docs" element={<ApiDocs />} />
+        </Route>
       </Routes>
-    </>
+    </BrowserRouter>
   );
 }
 

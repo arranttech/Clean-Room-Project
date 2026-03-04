@@ -132,6 +132,45 @@ export const userRoute: ServerRoute[] = [
     },
   },
 
+  // GET single user by user_login_id — used by edit modal to prefill form
+  {
+    method: "GET",
+    path: "/v1/users/{user_login_id}",
+    options: {
+      description: "Fetch single user by user_login_id",
+      tags: ["api", "users"],
+      validate: {
+        params: Joi.object({ user_login_id: Joi.number().required() }),
+      },
+      response: {
+        status: {
+          200: Joi.object({
+            success: Joi.boolean().required(),
+            user: Joi.object().optional(),
+          }),
+          404: Joi.object({
+            success: Joi.boolean().required(),
+            message: Joi.string().required(),
+          }),
+          500: errorSchema,
+        },
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const user_login_id = parseInt(request.params.user_login_id, 10);
+        const result = await userRepository.getUserById(user_login_id);
+        if (!result.success)
+          return h
+            .response({ success: false, message: result.message })
+            .code(404);
+        return h.response(result).code(200);
+      } catch {
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
   {
     method: "DELETE",
     path: "/v1/users/{user_login_id}",

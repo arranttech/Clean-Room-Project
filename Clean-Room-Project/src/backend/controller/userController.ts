@@ -8,9 +8,8 @@ export const createUsers = (payload: object) =>
 export const deleteUser = (user_login_id: number) =>
   request(`/v1/users/${user_login_id}`, "DELETE");
 
-// GET user by user_login_id — for UserInfoPage useEffect
 export const getUserById = (user_login_id: number) =>
-  request(`/v1/users?user_login_id=${user_login_id}`, "GET");
+  request(`/v1/users/${user_login_id}`, "GET");
 
 // Update user by user_login_id
 export const updateUser = (user_login_id: number, payload: object) =>

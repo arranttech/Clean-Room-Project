@@ -6,17 +6,19 @@ import projectInfoReducer from "./slices/projectInfoSlice";
 import standardsReducer from "./slices/standardSlice";
 import roomReducer from "./slices/roomSlice";
 import customerReducer from "./slices/customerSlice"; 
+import userReducer from "./slices/userSlice";
 
 
 // --- Persist Config ---
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["projectInfo","standards","room","customer"], // only persist these slices
+  whitelist: ["projectInfo","standards","room","customer","user"], // only persist these slices
 };
 
 // --- Root Reducer ---
 const rootReducer = combineReducers({
+  user: userReducer,
   customer: customerReducer,
   projectInfo: projectInfoReducer,
   standards: standardsReducer,

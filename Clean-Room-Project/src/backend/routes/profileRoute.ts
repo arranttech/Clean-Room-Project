@@ -263,4 +263,38 @@ export const profileRoute: ServerRoute[] = [
 			}
 		},
 	},
+	// =========================
+	// DELETE /v1/assigned-profiles/{id}
+	// =========================
+	{
+		method: "DELETE",
+		path: "/v1/assigned-profiles/{id}",
+		options: {
+			description: "Delete an assigned profile",
+			tags: ["api", "profile"],
+			validate: {
+				params: Joi.object({ id: Joi.number().integer().required() }),
+			},
+			response: {
+				status: {
+					200: Joi.object({ message: Joi.string() }),
+					404: errorSchema,
+					500: errorSchema,
+				},
+			},
+		},
+		handler: async (request, h) => {
+			try {
+				const { id } = request.params as unknown as { id: number };
+				const deleted = await profileRepository.deleteAssignedProfile(id);
+				if (!deleted)
+					return h.response({ error: "Assigned profile not found" }).code(404);
+				return h
+					.response({ message: "Assigned profile deleted successfully" })
+					.code(200);
+			} catch {
+				return h.response({ error: "Internal Server Error" }).code(500);
+			}
+		},
+	},
 ];

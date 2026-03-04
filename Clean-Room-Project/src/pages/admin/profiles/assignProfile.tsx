@@ -4,6 +4,7 @@ import { getUsers } from "../../../backend/controller/userController";
 import {
 	getProfiles,
 	assignProfileToUser,
+	getAssignedProfiles,
 } from "../../../backend/controller/profileController";
 
 type UserItem = {
@@ -20,12 +21,15 @@ type ProfileItem = {
 type AssignProfileProps = {
 	onCancel: () => void;
 	onSaved: (assignedData: { userName: string; profileName: string }) => void; //assigning Data to the parent component
+	editData?: { userId: string; assignments: { id: string; profileId: string }[] };
 };
 
 export default function AssignProfile({
 	onCancel,
 	onSaved,
+	editData,
 }: AssignProfileProps) {
+	const isEditMode = !!editData;
 	const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
 	const [selectedProfileIds, setSelectedProfileIds] = useState<string[]>([]);
 	const [userSearchTerm, setUserSearchTerm] = useState("");
@@ -34,21 +38,30 @@ export default function AssignProfile({
 	const [showPopup, setShowPopup] = useState(false);
 	const [usersList, setUsersList] = useState<UserItem[]>([]);
 	const [profilesList, setProfilesList] = useState<ProfileItem[]>([]);
+	const [showEditConfirm, setShowEditConfirm] = useState(false);
+	const [originalProfileIds, setOriginalProfileIds] = useState<string[]>([]);
 
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const [usersData, profilesData] = await Promise.all([
+				const [usersData, profilesData, assignedProfilesData] = await Promise.all([
 					getUsers(),
 					getProfiles(),
+					getAssignedProfiles(),
 				]);
+
+				const assignedProfiles = assignedProfilesData.assignedProfiles ?? assignedProfilesData ?? [];
+				const assignedUserIds = new Set(assignedProfiles.map((ap: any) => ap.userId?.toString()));
 
 				// 1. Process Users
 				const listUsers = usersData.users ?? usersData ?? [];
-				const mappedUsers = listUsers.map((u: any) => ({
-					id: u.user_id,
-					name: `${u.user_first_name} ${u.user_last_name}`.trim(),
-				}));
+				const mappedUsers = listUsers
+					.map((u: any) => ({
+						id: (u.user_id || u.id)?.toString(),
+						name: `${u.user_first_name} ${u.user_last_name}`.trim(),
+					}))
+					.filter((u: any) => isEditMode ? true : !assignedUserIds.has(u.id));
+
 				mappedUsers.sort((a: UserItem, b: UserItem) => a.name.localeCompare(b.name));
 				setUsersList(mappedUsers);
 
@@ -62,6 +75,15 @@ export default function AssignProfile({
 					}));
 				mappedProfiles.sort((a: ProfileItem, b: ProfileItem) => a.name.localeCompare(b.name));
 				setProfilesList(mappedProfiles);
+
+				if (isEditMode && editData) {
+					setSelectedUserIds([editData.userId]);
+
+					// Use all profiles from the assignments
+					const initialProfiles = editData.assignments.map(a => a.profileId);
+					setSelectedProfileIds(initialProfiles);
+					setOriginalProfileIds(initialProfiles);
+				}
 			} catch (error) {
 				console.error("Failed to fetch assign profile data:", error);
 			}
@@ -69,9 +91,13 @@ export default function AssignProfile({
 		fetchData();
 	}, []);
 
-	const filteredUsers = usersList.filter((user) =>
+	let filteredUsers = usersList.filter((user) =>
 		user.name.toLowerCase().includes(userSearchTerm.toLowerCase())
 	);
+
+	if (isEditMode) {
+		filteredUsers = filteredUsers.filter(user => selectedUserIds.includes(user.id));
+	}
 
 	const filteredProfiles = profilesList.filter((profile) =>
 		profile.name.toLowerCase().includes(profileSearchTerm.toLowerCase())
@@ -93,8 +119,27 @@ export default function AssignProfile({
 
 	//handle assign function
 	const handleAssign = async () => {
+		if (isEditMode) {
+			setShowEditConfirm(true);
+			return;
+		}
+
+		await executeAssign();
+	};
+
+	const executeAssign = async () => {
 		setSaving(true);
+		setShowEditConfirm(false);
 		try {
+			// If in edit mode, MUST delete ALL old assignment rows FIRST 
+			// to avoid UNIQUE constraint errors if they re-assign the same profile
+			if (isEditMode && editData) {
+				const { deleteAssignedProfile } = await import("../../../backend/controller/profileController");
+				for (const assignment of editData.assignments) {
+					await deleteAssignedProfile(Number(assignment.id));
+				}
+			}
+
 			// Create all combinations of selected users and selected profiles
 			const assignPromises: Promise<any>[] = [];
 
@@ -137,12 +182,21 @@ export default function AssignProfile({
 		}
 	};
 
+	const getProfileNames = (ids: string[]) => {
+		return ids
+			.map(id => profilesList.find(p => p.id === id)?.name)
+			.filter(Boolean)
+			.join(" and ");
+	};
+
 	return (
 		<div>
 			{/* Panel Header */}
 			<div className={s.panelHeader}>
 				<div className={s.panelTitleWrap}>
-					<h1 className={s.panelTitle}>Assign Profile</h1>
+					<h1 className={s.panelTitle}>
+						{isEditMode ? "Edit Assigned Profile" : "Assign Profile"}
+					</h1>
 				</div>
 			</div>
 
@@ -161,11 +215,14 @@ export default function AssignProfile({
 								<input
 									type="text"
 									placeholder="Search users..."
-									className="w-full text-sm border border-slate-200 rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500"
+									className="w-full text-sm border border-slate-200 rounded-lg pl-3 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed"
 									value={userSearchTerm}
-									onChange={(e) => setUserSearchTerm(e.target.value)}
+									onChange={(e) => {
+										if (!isEditMode) setUserSearchTerm(e.target.value);
+									}}
+									disabled={isEditMode}
 								/>
-								{userSearchTerm && (
+								{userSearchTerm && !isEditMode && (
 									<button
 										className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 font-bold text-xs"
 										onClick={() => setUserSearchTerm("")}
@@ -186,9 +243,12 @@ export default function AssignProfile({
 											<input
 												type="checkbox"
 												name={`user-${user.id}`}
-												className={`${s.assignRadio} rounded-sm`}
+												className={`${s.assignRadio} rounded-sm disabled:opacity-50 disabled:cursor-not-allowed`}
 												checked={selectedUserIds.includes(user.id)}
-												onChange={() => handleUserSelect(user.id)}
+												onChange={() => {
+													if (!isEditMode) handleUserSelect(user.id);
+												}}
+												disabled={isEditMode}
 											/>
 											<span
 												className={
@@ -285,10 +345,62 @@ export default function AssignProfile({
 							saving || selectedUserIds.length === 0 || selectedProfileIds.length === 0
 						}
 					>
-						{saving ? "Assigning..." : "Assign Profile"}
+						{saving
+							? (isEditMode ? "Editing..." : "Assigning...")
+							: (isEditMode ? "Edit Assigned Profile" : "Assign Profile")
+						}
 					</button>
 				</div>
 			</div>
+
+			{/* Edit Confirmation Popup */}
+			{showEditConfirm && isEditMode && (
+				<div className={s.popupOverlay}>
+					<div className={s.popupBackdrop} onClick={() => setShowEditConfirm(false)} />
+					<div className={`${s.popupCard} max-w-md`}>
+						<div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-4">
+							<span className="text-blue-600 text-xl font-bold">i</span>
+						</div>
+						<h3 className={s.popupTitle}>Confirm the assigned profile Change</h3>
+						<div className="text-sm text-slate-600 text-left mb-6 mt-2 space-y-3 bg-slate-50 p-4 rounded-lg border border-slate-100">
+							<p>
+								<span className="font-semibold text-slate-900">
+									{usersList.find(u => u.id === selectedUserIds[0])?.name || "This user"}
+								</span>{" "}
+								was previously assigned to:
+								<br />
+								<span className="font-medium text-blue-600">
+									{getProfileNames(originalProfileIds) || "None"}
+								</span>
+							</p>
+							<div className="h-px bg-slate-200 w-full"></div>
+							<p>
+								Now assigning to:
+								<br />
+								<span className="font-medium text-emerald-600">
+									{getProfileNames(selectedProfileIds) || "None"}
+								</span>
+							</p>
+						</div>
+						<div className="flex w-full gap-3">
+							<button
+								type="button"
+								className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all"
+								onClick={() => setShowEditConfirm(false)}
+							>
+								Cancel
+							</button>
+							<button
+								type="button"
+								className="flex-1 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-all shadow-sm"
+								onClick={executeAssign}
+							>
+								Confirm Change
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
 
 			{/* Success Popup */}
 			{showPopup && (
@@ -298,7 +410,9 @@ export default function AssignProfile({
 						<div className={s.popupIcon}>✓</div>
 						<h3 className={s.popupTitle}>Success!</h3>
 						<p className={s.popupMessage}>
-							Profile has been assigned successfully.
+							{isEditMode
+								? "Edited successfully."
+								: "Profile has been assigned successfully."}
 						</p>
 						<div className={s.popupProgressWrap}>
 							<div className={s.popupProgressBar} />

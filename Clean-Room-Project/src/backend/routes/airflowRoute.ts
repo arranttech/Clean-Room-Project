@@ -54,8 +54,8 @@ export const airflowRoute: ServerRoute[] = [
 				status: {
 					200: Joi.object({
 						roomName: Joi.string().required(),
-						area: Joi.number().required(),
-						volume: Joi.number().required(),
+						areaFt2: Joi.number().required(),
+						volumeFt3: Joi.number().required(),
 						roomCfm: Joi.number().required(),
 						freshAir: Joi.number().required(),
 						exhaustAir: Joi.number().required(),
@@ -117,7 +117,7 @@ export const airflowRoute: ServerRoute[] = [
 							Joi.number(),
 							Joi.string().valid("Invalid")
 						),
-					}).required(),
+					}).unknown(true).required(),
 
 					500: Joi.object({
 						error: Joi.string().required(),

@@ -134,22 +134,58 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
         return 0;
     }
 
-   function calculateAHULength(bdb: number | string, stages: number, coolingcoil: number | string): number | string {
-    const ahuln = boqresult.fields.AHUSize.AHULengthCfm;
-    const ahubdb = ahuln.BDB;
-    const ahudbdval = ahuln.BlowerLength;
-    // Note: the variables below aren't used in your current logic, 
-    // but I've kept them so the code remains functional.
-    const ahufltr = ahuln.FilterStages;
-    const ahufltrval = ahuln.FilterLength;
-    const ahucool = ahuln.CoolingCoil;
-    const ahucoolval = ahuln.CoilLength;
+    function calculateAHULength(bdb: number, stages: number, coolingcoil: number): number | string {
+        const ahuln = boqresult.fields.AHUSize.AHULengthCfm;
+        const ahubdb = ahuln.BDB;
+        const ahudbdval = ahuln.BlowerLength;
+
+        const ahufltr = ahuln.FilterStages;
+        const ahufltrval = ahuln.FilterLength;
+        const ahucool = ahuln.CoolingCoil;
+        const ahucoolval = ahuln.CoilLength;
 
 
-}
+        let BlowerLength: number = ahudbdval[ahudbdval.length - 1];
+        let FilterLength: number = 0;
+        let CoilLength: number = 0;
+        let AHUlength: number;
 
+        for (let i = 0; i < ahubdb.length; i++) {
+            if (bdb <= ahubdb[i]) {
+                BlowerLength = ahudbdval[i];
+                break;
+            }
+        }
+        const totalBlowerLength = BlowerLength;
 
+        for (let i = 0; i < ahufltr.length; i++) {
+            if (stages === ahufltr[i]) {
+                FilterLength = ahufltrval[i];
+                break;
+            }
+        }
 
+        const totalFilterLength = FilterLength;
+
+        for (let i = 0; i < ahucool.length; i++) {
+            if (coolingcoil <= ahucool[i]) {
+                CoilLength = ahucoolval[i];
+                break;
+            }
+        }
+
+        const totalCoilLength = CoilLength;
+
+        const totalLength = totalBlowerLength + totalFilterLength + totalCoilLength;
+
+        if (totalLength < 4000) {
+            AHUlength = totalLength;
+        }
+
+        else AHUlength = totalLength + 400;
+
+        return AHUlength;
+    }
 
     const finalCfm = calculatedAHUCfm();
     const finalStages = calculateFilterStages();
@@ -159,18 +195,21 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
     const finalWidth = calculateAHUWidth(finalCfm);
     const finalHeight = calculateAHUHeight(finalCfm);
     const finalCoolingCoil = calculateCoolingCoil(finalWidth, finalHeight, Number(AHUCoolLoadTR));
-
+    const finalLength = calculateAHULength(Number(finalBDB), finalStages, Number(finalCoolingCoil));
 
     return {
         zoneName: zone.zoneName,
         AHUCfm: finalCfm,
         AHUWidth: finalWidth,
         AHUHeight: finalHeight,
+        AHULength: finalLength,
         stageFilter: finalStages,
         staticPressure: finalStaticPressure,
         BDB: finalBDB,
         motorHP: finalMotorHP,
         AHUCoolingLoadTR: Number(AHUCoolLoadTR),
         coolingCoil: finalCoolingCoil,
+        AHUlength : finalLength,
+
     };
 }

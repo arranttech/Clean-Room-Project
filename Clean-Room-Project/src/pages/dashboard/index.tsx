@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { setCustomer } from "../../redux/slices/customerSlice";
-import { getCustomerInfo } from "../../backend/controller/customerController";
+import { getCustomerById } from "../../backend/controller/customerController";
+import { getUserById } from "../../backend/controller/userController";
 import { handleLogout } from "../../utils/logout";
 import { FiLogOut } from "react-icons/fi";
 import {
@@ -66,7 +67,6 @@ function tmpl(str: string, vars: Record<string, string | number>) {
 export default function Dashboard() {
   const [projects] = useState<Project[]>(demoProjects);
   const [showProfileAlert, setShowProfileAlert] = useState(false);
-
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -83,43 +83,36 @@ export default function Dashboard() {
 
   const counts = { total: projects.length };
 
-  // Load customer info using user_login_id from Redux
+  // Auto-fetch customer on dashboard load
+  // Same flow as CustomerInfoPage: user_login_id → getUserById → customer_id → getCustomerById
   useEffect(() => {
+    if (customerId || !loggedInUser?.user_login_id) return;
+
     const loadCustomer = async () => {
-      const user_login_id = loggedInUser?.user_login_id;
-
-      if (!user_login_id) {
-        console.log("No user_login_id in Redux — not loading customer");
-        return;
-      }
-
-      // Skip if customer already loaded in Redux
-      if (customerId) {
-        console.log("Customer already in Redux, skipping fetch");
-        return;
-      }
-
       try {
-        console.log("Fetching customer for user_login_id:", user_login_id);
-        const result = await getCustomerInfo(user_login_id);
-        console.log("Customer info result:", result);
+        // Step 1: get user row to extract customer_id
+        const userRes = await getUserById(loggedInUser.user_login_id);
+        const customer_id =
+          userRes?.user?.customer_id ?? userRes?.customer_id ?? null;
+        if (!customer_id) return;
 
-        if (result?.success && result?.customer) {
-          const c = result.customer;
-          dispatch(
-            setCustomer({
-              customerId: c.customer_id,
-              customerName: c.customer_name || "",
-              phoneNumber: c.customer_phone || "",
-              customerAddress: c.customer_address || "",
-              emailAddress: c.customer_email_id || "",
-              additionalNotes:
-                c.customers_additional_notes ||
-                c.customers_addional_notes ||
-                "",
-            })
-          );
-        }
+        // Step 2: fetch full customer details
+        const customerRes = await getCustomerById(customer_id);
+        const c = customerRes?.customer ?? customerRes;
+        if (!c) return;
+
+        // Step 3: store in Redux — "✓ Profile saved" shows instantly
+        dispatch(
+          setCustomer({
+            customerId: customer_id,
+            customerName: c.customer_name || "",
+            phoneNumber: c.customer_phone || "",
+            customerAddress: c.customer_address || "",
+            emailAddress: c.customer_email_id || "",
+            additionalNotes:
+              c.customers_additional_notes || c.customers_addional_notes || "",
+          })
+        );
       } catch (error) {
         console.error(
           "Failed to load customer info:",
@@ -241,7 +234,6 @@ export default function Dashboard() {
               {text.dashboard.quickActionsTitle}
             </div>
             <div className={s.quickGrid}>
-              {/* Create New Project — checks customerId */}
               <button
                 type="button"
                 onClick={() => {
@@ -289,7 +281,6 @@ export default function Dashboard() {
                 </div>
               </Link>
 
-              {/* Customer Info — no from flag, save → back to dashboard */}
               <Link
                 to="/customer-info"
                 className={`${s.actionCardBase} ${s.actionCardHover}`}
@@ -369,7 +360,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/*  Customer Profile Required Popup */}
       {showProfileAlert && (
         <div className={s.popupOverlay}>
           <div

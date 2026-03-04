@@ -1,5 +1,4 @@
 import { Routes, Route } from "react-router-dom";
-import EditUser from "./pages/admin/users/EditUser";
 import Home from "./pages/landingPage";
 import CustomerInfoPage from "./pages/customerInfo";
 import ProjectInfoPage from "./pages/projectInfo";
@@ -14,25 +13,24 @@ import ApiDocs from "./pages/ApiDocs";
 import Main from "./pages/admin/adminLayout";
 
 function App() {
-	return (
-		<>
-			<Routes>
-				<Route path="/" element={<Home />} />
-				<Route path="/customer-info" element={<CustomerInfoPage />} />
-				<Route path="/project-info" element={<ProjectInfoPage />} />
-				<Route path="/dashboard" element={<Dashboard />} />
-				<Route path="/standards" element={<Standard />} />
-				<Route path="/room" element={<Room />} />
-				<Route path="/results" element={<Results />} />
-				<Route path="/login" element={<Login />} />
-				<Route path="/register" element={<Register />} />
-				<Route path="/projects" element={<AllProjects />} />
-				<Route path="/admin" element={<Main />} />
-				<Route path="/docs" element={<ApiDocs />} />
-                <Route path="/edit-user/:id" element={<EditUser />} />
-			</Routes>
-		</>
-	);
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/customer-info" element={<CustomerInfoPage />} />
+        <Route path="/project-info" element={<ProjectInfoPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/standards" element={<Standard />} />
+        <Route path="/room" element={<Room />} />
+        <Route path="/results" element={<Results />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/projects" element={<AllProjects />} />
+        <Route path="/admin" element={<Main />} />
+        <Route path="/docs" element={<ApiDocs />} />
+      </Routes>
+    </>
+  );
 }
 
 export default App;

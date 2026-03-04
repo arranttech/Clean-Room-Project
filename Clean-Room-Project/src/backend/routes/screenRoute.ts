@@ -16,8 +16,8 @@ export const screenRoute: ServerRoute[] = [
 
 			validate: {
 				payload: Joi.object({
-					name: Joi.string().required().description("Screen name"),
-					description: Joi.string().optional(),
+					screen_name: Joi.string().required().description("Screen name"),
+					screen_status: Joi.string().required().description("Screen status"),
 				}),
 			},
 
@@ -61,8 +61,8 @@ export const screenRoute: ServerRoute[] = [
 					id: Joi.number().integer().required(),
 				}),
 				payload: Joi.object({
-					name: Joi.string().optional(),
-					description: Joi.string().optional(),
+					screen_name: Joi.string().optional(),
+					screen_status: Joi.string().optional(),
 				}),
 			},
 

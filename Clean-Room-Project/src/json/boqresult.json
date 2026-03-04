@@ -50,45 +50,29 @@
             },
             "AHULengthCfm": {
                 "label": "AHU Length combination with its respective AHU Cfm",
-                "BDB": {
-                    "1": 280,
-                    "2": 315,
-                    "3": 400,
-                    "4": 500,
-                    "5": 560,
-                    "6": 630,
-                    "7": 710
-                },
-                "BlowerLength": {
-                    "1": 1200,
-                    "2": 1600,
-                    "3": 1650,
-                    "4": 1700,
-                    "5": 1800,
-                    "6": 2000,
-                    "7": 2200,
-                    "8": 2500
-                },
-                "FilterStages": {
-                    "1": 2,
-                    "2": 3,
-                    "3": 4
-                },
-                "FilterLength": {
-                    "1": 1800,
-                    "2": 2300,
-                    "3": 3300
-                },
-                "CoolingCoil": {
-                    "1": 4,
-                    "2": 6,
-                    "3": 8
-                },
-                "CoilLength": {
-                    "1": 600,
-                    "2": 800,
-                    "3": 1000
-                }
+                "BDB": [
+                    280,
+                    315,
+                    400,
+                    500,
+                    560,
+                    630,
+                    710
+                ],
+                "BlowerLength": [
+                    1200,
+                    1600,
+                    1650,
+                    1700,
+                    1800,
+                    2000,
+                    2200,
+                    2500
+                ],
+                "FilterStages": [2, 3, 4],
+                "FilterLength": [1800, 2300, 3300],
+                "CoolingCoil": [4, 6, 8],
+                "CoilLength": [600, 800, 1000]
             }
         },
         "NumberofStagesFilter": {
@@ -205,9 +189,9 @@
                 "16": 75
             }
         },
-        "RowsofCoolingCoil":{
-            "label":"to calculate the number of rows of cooling coil",
-            "Coolval":[
+        "RowsofCoolingCoil": {
+            "label": "to calculate the number of rows of cooling coil",
+            "Coolval": [
                 250,
                 150,
                 10.76,

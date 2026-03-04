@@ -826,6 +826,8 @@ export const openApiSpec = {
 										BDB: { type: "number" },
 										motorHP: { type: "number" },
 										AHUCoolingLoadTR: { type: "number" },
+										coolingCoil : { type: "number" },
+										AHUlength : { type: "number" },
 									}
 								}
 							}

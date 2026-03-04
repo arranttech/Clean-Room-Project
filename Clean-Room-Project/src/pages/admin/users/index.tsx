@@ -68,8 +68,12 @@ export default function Users({ onCountChange }: UsersProps) {
   const handleEdit = async (user: User) => {
     try {
       const data = await getUserById(user.user_login_id);
-      const loaded = data.user ?? data;
-      setEditUser(loaded);
+      // route returns { success, user } — same pattern as customers
+      if (!data?.success || !data?.user) {
+        console.error("User not found or fetch failed");
+        return;
+      }
+      setEditUser(data.user);
       setShowAdd(true);
     } catch (error) {
       console.error("Failed to fetch user:", (error as Error).message);

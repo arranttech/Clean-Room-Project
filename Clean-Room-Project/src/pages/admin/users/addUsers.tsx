@@ -48,11 +48,12 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
     created_by: "admin",
     updated_by: "admin",
     user_admin_flag: "No",
-    customer_id: 0,
+    customer_id: "" as number | "",
     password: "",
-    status: "A", // default Active
+    status: "A",
   });
 
+  // Preload all fields from DB when in edit mode
   useEffect(() => {
     if (user) {
       setForm({
@@ -66,9 +67,9 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
         created_by: user.created_by || "admin",
         updated_by: "admin",
         user_admin_flag: user.user_admin_flag === "Y" ? "Yes" : "No",
-        customer_id: user.customer_id || 0,
+        customer_id: user.customer_id ?? "",
         password: "",
-        status: user.status || "A", // preload status in edit mode
+        status: user.status && user.status.trim() !== "" ? user.status : "A",
       });
     }
   }, [user]);
@@ -329,7 +330,6 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
                 <p className={s.formError}>{errors.password}</p>
               )}
             </div>
-
             <div className={s.formGroup}>
               <label className={s.formLabel}>
                 Confirm Password <span className={s.formRequired}>*</span>
@@ -367,7 +367,9 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
         )}
 
         <div className={s.formGroup}>
-          <label className={s.formLabel}>Address <span className={s.formRequired}>*</span></label>
+          <label className={s.formLabel}>
+            Address <span className={s.formRequired}>*</span>
+          </label>
           <textarea
             className={s.formTextarea}
             placeholder="Enter Address"
@@ -380,7 +382,9 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
 
         <div className={s.formRow}>
           <div>
-            <label className={s.formLabel}>Home Phone <span className={s.formRequired}>*</span></label>
+            <label className={s.formLabel}>
+              Home Phone <span className={s.formRequired}>*</span>
+            </label>
             <input
               className={s.formInput}
               placeholder="Enter Home Phone"
@@ -398,7 +402,9 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
             )}
           </div>
           <div>
-            <label className={s.formLabel}>Work Phone <span className={s.formRequired}>*</span></label>
+            <label className={s.formLabel}>
+              Work Phone <span className={s.formRequired}>*</span>
+            </label>
             <input
               className={s.formInput}
               placeholder="Enter Work Phone"
@@ -419,7 +425,9 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
 
         <div className={s.formRow}>
           <div className={s.formGroup}>
-            <label className={s.formLabel}>Admin User  <span className={s.formRequired}>*</span></label>
+            <label className={s.formLabel}>
+              Admin User <span className={s.formRequired}>*</span>
+            </label>
             <select
               className={s.formInput}
               value={form.user_admin_flag}
@@ -429,26 +437,29 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
               <option value="Yes">Yes</option>
             </select>
           </div>
-
           <div className={s.formGroup}>
-            <label className={s.formLabel}>Customer ID <span className={s.formRequired}>*</span></label>
+            <label className={s.formLabel}>
+              Customer ID <span className={s.formRequired}>*</span>
+            </label>
             <input
               type="number"
               className={s.formInput}
               placeholder="Enter Customer ID"
-              value={form.customer_id || ""}
+              value={form.customer_id}
               disabled={isEditMode}
-              onChange={(e) =>
-                handleChange("customer_id", Number(e.target.value))
-              }
+              onChange={(e) => {
+                // Accept whatever the user types — no min constraint
+                const val = e.target.value;
+                handleChange("customer_id", val === "" ? "" : Number(val));
+              }}
             />
           </div>
         </div>
 
-        {/* Status dropdown — posts 'A' or 'I' to DB, default Active */}
+        {/* Status — in add mode defaults to Active, in edit mode shows exact DB value */}
         <div className={s.formRow}>
           <div className={s.formGroup}>
-            <label className={s.formLabel}>Status </label>
+            <label className={s.formLabel}>Status</label>
             <select
               className={s.formInput}
               value={form.status}

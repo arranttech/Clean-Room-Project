@@ -12,6 +12,10 @@ const server = Hapi.server({
 			origin: ["http://localhost:5173"],
 			additionalHeaders: ["cache-control", "x-requested-with"],
 		},
+		state: {
+			parse: false,
+			failAction: "ignore",
+		},
 	},
 });
 

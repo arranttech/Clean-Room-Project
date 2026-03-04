@@ -64,11 +64,31 @@ export const userRepository = {
   },
 
   getUserById: async (user_login_id: number) => {
-    const [resultSets]: any = await database.execute(
-      "CALL new_cleanroom_db.GetUserDetail(?)",
+    // Direct query instead of stored procedure — includes all fields including status
+    const [rows]: any = await database.execute(
+      `SELECT
+        u.user_login_id,
+        u.user_id,
+        u.customer_id,
+        u.user_first_name,
+        u.user_last_name,
+        u.user_email_id,
+        u.user_address,
+        u.user_phone_home,
+        u.user_phone_work,
+        u.user_admin_flag,
+        u.created_by,
+        u.updated_by,
+        u.created_date,
+        u.updated_date,
+        CASE WHEN u.status IS NULL OR u.status = '' THEN 'A' ELSE u.status END AS status,
+        p.user_password
+      FROM tUsers u
+      LEFT JOIN tUserPassword p ON u.user_login_id = p.user_login_id
+      WHERE u.user_login_id = ?
+      LIMIT 1`,
       [user_login_id]
     );
-    const rows = resultSets[0];
     if (!rows || rows.length === 0) {
       return { success: false, message: "User not found" };
     }

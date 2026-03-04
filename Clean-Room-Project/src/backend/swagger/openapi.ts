@@ -791,7 +791,7 @@ export const openApiSpec = {
 								properties: {
 									zoneName: { type: "string", example: "Zone A" },
 									zoneSystem: { type: "string", example: "Air-Cooling System" },
-									zoneResultantCfm: { type: "number", example: 31925 },
+									zoneResultantCfm: { type: "number", example: 23925 },
 									zoneResultantHeatCfm: { type: "number", example: 25750 },
 									zoneReqInsideTempC: {
 										oneOf: [
@@ -799,7 +799,11 @@ export const openApiSpec = {
 											{ type: "string", example: "Ambient" },
 										],
 									},
-									zoneClassification: { type: "string", example: "Grade D (ISO 8 at Rest & Not Defined)" }
+									zoneClassification: { type: "string", example: "ISO 6" },
+									zoneResultCoolLoadTR: { type: "number", example: 83.5 },
+									zoneRoomACValue: { type: "number", example: 46.5 },
+									zoneCfmACLoadTR: { type: "number", example: 83.5 },
+
 								}
 							}
 						}
@@ -818,6 +822,10 @@ export const openApiSpec = {
 										AHUWidth: { type: "number" },
 										AHUHeight: { type: "number" },
 										stageFilter: { type: "number" },
+										staticPressure: { type: "number" },
+										BDB: { type: "number" },
+										motorHP: { type: "number" },
+										AHUCoolingLoadTR: { type: "number" },
 									}
 								}
 							}

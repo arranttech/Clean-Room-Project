@@ -2,7 +2,8 @@
 
 const projectInfoDesign = {
 	// Page layout
-	wrapper: "min-h-screen bg-gray-100 flex flex-col items-center px-6 py-10 font-sans",
+	wrapper:
+		"min-h-screen bg-gray-100 flex flex-col items-center px-6 py-10 font-sans",
 
 	// Header
 	top: "text-center mb-8 w-full max-w-5xl",
@@ -10,7 +11,7 @@ const projectInfoDesign = {
 	headerText: "text-sm text-blue-800 mt-1",
 
 	// Card — wide to match screenshot
-	card: "bg-white rounded-2xl shadow-sm border border-gray-200 p-8 w-full max-w-5xl",
+	card: "bg-white rounded-2xl shadow-sm border border-gray-200 p-8 w-full max-w-auto",
 	cardTitle: "text-lg font-semibold text-blue-600 mb-3",
 	divider: "border-gray-200 mb-6",
 
@@ -53,7 +54,8 @@ const projectInfoDesign = {
 	industryCheckbox: "h-5 w-5 shrink-0 rounded-md border-gray-300 text-blue-600",
 
 	// Footer
-	footer: "flex items-center justify-between w-full max-w-5xl mt-8 align-middle",
+	footer:
+		"flex items-center justify-between w-full max-w-auto mt-8 align-middle",
 	backLink:
 		"flex items-center gap-2 px-8 py-4 border border-gray-300 rounded-2xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm",
 	nextLink:

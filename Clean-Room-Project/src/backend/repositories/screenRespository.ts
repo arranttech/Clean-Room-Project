@@ -1,48 +1,39 @@
 import { database } from "../dbConnection/connections";
 
 export const screenRepository = {
-	getScreens: async () => {
-		try {
-			const [rows] = await database.execute(
-				`SELECT * FROM tSystemScreens ORDER BY screen_id ASC`
-			);
-			return rows;
-		} catch (err) {
-			// Fast fail if table missing
-			if ((err as any).code === "ER_NO_SUCH_TABLE") {
-				console.warn(
-					"Table tScreens missing. Ensure database initialization is correct."
-				);
-				return [];
-			}
-			console.error("Error in getScreens:", err);
-			throw err;
+	getScreens: async (payload?: { screen_id?: number }) => {
+		let query = `SELECT * FROM tSystemScreens`;
+		const params: any[] = [];
+
+		if (payload?.screen_id) {
+			query += ` WHERE screen_id = ?`;
+			params.push(payload.screen_id);
 		}
+
+		query += ` ORDER BY screen_id ASC`;
+
+		const [result]: any = await database.execute(query, params);
+		return result.map((r: any) => ({
+			...r,
+			screen_status: (r.screen_status === "A" || r.screen_status === "Active") ? "Active" : "Inactive"
+		}));
 	},
 
 	createScreen: async (payload: any) => {
-		try {
-			const [result] = await database.execute(
-				`INSERT INTO tSystemScreens (screen_name, screen_status) VALUES (?, ?)`,
-				[payload.name, payload.status || "Active"]
-			);
-			return (result as any).insertId;
-		} catch (err) {
-			console.error("Error in createScreen:", err);
-			throw err;
-		}
+		const status = payload.screen_status === "Active" ? "A" : "I";
+		const [result] = await database.execute(
+			`INSERT INTO tSystemScreens (screen_name, screen_status) VALUES (?, ?)`,
+			[payload.screen_name, status]
+		);
+		return (result as any).insertId;
 	},
 
-	updateScreen: async (id: number, payload: any) => {
-		try {
-			const [result]: any = await database.execute(
-				`UPDATE tSystemScreens SET screen_status = ? WHERE screen_id = ?`,
-				[payload.status, id]
-			);
-			return result.affectedRows > 0;
-		} catch (err) {
-			console.error("Error in updateScreen:", err);
-			throw err;
-		}
+	updateScreen: async (screen_id: number, payload: any) => {
+		const status = payload.screen_status === "Active" ? "A" : "I";
+		const [result]: any = await database.execute(
+			`UPDATE tSystemScreens SET screen_status = ? WHERE screen_id = ?`,
+			[status, screen_id]
+		);
+		return result.affectedRows > 0;
 	},
 };

@@ -1,225 +1,285 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { FiSearch, FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
+import { FiSearch, FiEdit2, FiTrash2, FiPlus, FiX } from "react-icons/fi";
 import s from "./styles";
 import AddUser from "./addUsers";
 import {
-	getUsers,
-	deleteUser,
+  getUsers,
+  getUserById,
+  deleteUser,
 } from "../../../backend/controller/userController";
 
 interface UsersProps {
-	onCountChange?: (count: number) => void;
+  onCountChange?: (count: number) => void;
 }
 
 type User = {
-	user_login_id: number;
-	user_first_name: string;
-	user_last_name: string;
-	user_id: string;
-	user_email_id: string;
-	user_address: string;
-	user_phone_home: string;
-	user_phone_work: string;
-	created_date: string;
-	created_by: string;
-	updated_by: string;
-	updated_date: string;
-	user_admin_flag: string;
-	customer_id: number;
+  user_login_id: number;
+  user_first_name: string;
+  user_last_name: string;
+  user_id: string;
+  user_email_id: string;
+  user_address: string;
+  user_phone_home: string;
+  user_phone_work: string;
+  created_date: string;
+  created_by: string;
+  updated_by: string;
+  updated_date: string;
+  user_admin_flag: string;
+  customer_id: number;
+  status: string;
 };
 
 export default function Users({ onCountChange }: UsersProps) {
-	const navigate = useNavigate();
-	const [users, setUsers] = useState<User[]>([]);
-	const [search, setSearch] = useState("");
-	const [showAdd, setShowAdd] = useState(false);
-	const [editUser, setEditUser] = useState<User | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "A" | "I">("ALL");
+  const [showAdd, setShowAdd] = useState(false);
+  const [editUser, setEditUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
 
-	useEffect(() => {
-		const fetchUserDetails = async () => {
-			try {
-				const data = await getUsers();
-				console.log("User data:", data);
+  const loadUsers = async () => {
+    try {
+      const data = await getUsers();
+      const list = data.users ?? data ?? [];
+      setUsers(list);
+      if (onCountChange) onCountChange(list.length);
+    } catch (error) {
+      console.error((error as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-				const list = data.users ?? data ?? [];
-				console.log(
-					"Mapped list:",
-					list.map((u) => ({ user_id: u.user_id }))
-				);
-				setUsers(list);
+  useEffect(() => {
+    loadUsers();
+  }, []);
 
-				if (onCountChange) onCountChange(list.length);
-			} catch (error) {
-				console.error((error as Error).message);
-			}
-		};
+  const filtered = users.filter((u) => {
+    const matchesSearch =
+      u.user_first_name.toLowerCase().includes(search.toLowerCase()) ||
+      u.user_email_id.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus =
+      statusFilter === "ALL" ? true : u.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
-		fetchUserDetails();
-	}, []);
+  const handleEdit = async (user: User) => {
+    try {
+      const data = await getUserById(user.user_login_id);
+      // route returns { success, user } — same pattern as customers
+      if (!data?.success || !data?.user) {
+        console.error("User not found or fetch failed");
+        return;
+      }
+      setEditUser(data.user);
+      setShowAdd(true);
+    } catch (error) {
+      console.error("Failed to fetch user:", (error as Error).message);
+    }
+  };
 
-	const filtered = users.filter(
-		(u) =>
-			u.user_first_name.toLowerCase().includes(search.toLowerCase()) ||
-			u.user_email_id.toLowerCase().includes(search.toLowerCase())
-	);
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
+    try {
+      await deleteUser(deleteTarget.user_login_id);
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.user_login_id === deleteTarget.user_login_id
+            ? { ...u, status: "I" }
+            : u
+        )
+      );
+    } catch (err) {
+      console.error("Delete error:", err);
+    } finally {
+      setDeleteTarget(null);
+    }
+  };
 
-	//Delete functionality
-	const handleDelete = async (user: User) => {
-		if (
-			!window.confirm(
-				`Are you sure you want to delete ${user.user_first_name} ${user.user_last_name}?`
-			)
-		)
-			return;
+  if (showAdd) {
+    return (
+      <AddUser
+        user={editUser}
+        onCancel={() => {
+          setShowAdd(false);
+          setEditUser(null);
+        }}
+        onSaved={async () => {
+          setShowAdd(false);
+          setEditUser(null);
+          await loadUsers();
+        }}
+      />
+    );
+  }
 
-		try {
-			console.log("Calling deleteUser API for ID:", user.user_login_id);
+  return (
+    <div>
+      {/* Header */}
+      <div className={s.panelHeader}>
+        <h1 className={s.panelTitle}>Users</h1>
+        <button
+          type="button"
+          onClick={() => {
+            setEditUser(null);
+            setShowAdd(true);
+          }}
+          className={s.addBtn}
+        >
+          <FiPlus /> Add User
+        </button>
+      </div>
 
-			const success = await deleteUser(user.user_login_id); // backend returns true/false
+      {/* Status Filter Tabs */}
+      <div className={s.filterWrap}>
+        {(["ALL", "A", "I"] as const).map((f) => (
+          <button
+            key={f}
+            type="button"
+            onClick={() => setStatusFilter(f)}
+            className={s.filterBtn(statusFilter === f, f)}
+          >
+            {f === "ALL" ? "All" : f === "A" ? "Active" : "Inactive"}
+          </button>
+        ))}
+      </div>
 
-			if (!success) {
-				alert("User not found or already deleted.");
-				return;
-			}
+      {/* Search */}
+      <div className={s.searchWrap}>
+        <FiSearch className={s.searchIcon} />
+        <input
+          type="text"
+          className={s.searchInput}
+          placeholder="Search users..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
 
-			// remove from local state instantly
-			const updated = users.filter(
-				(u) => u.user_login_id !== user.user_login_id
-			);
-			setUsers(updated);
+      {/* Table */}
+      <div className={s.tableWrap}>
+        <table className={s.table}>
+          <thead className={s.thead}>
+            <tr>
+              <th className={s.th}>Name</th>
+              <th className={s.th}>Email</th>
+              <th className={s.th}>Admin</th>
+              <th className={s.th}>User ID</th>
+              <th className={s.th}>Address</th>
+              <th className={s.th}>Home Phone</th>
+              <th className={s.th}>Work Phone</th>
+              <th className={s.th}>Status</th>
+              <th className={s.th}>Actions</th>
+            </tr>
+          </thead>
+          <tbody className={s.tbody}>
+            {loading ? (
+              <tr>
+                <td colSpan={9} className={s.emptyRow}>
+                  Loading users...
+                </td>
+              </tr>
+            ) : filtered.length === 0 ? (
+              <tr>
+                <td colSpan={9} className={s.emptyRow}>
+                  No users found.
+                </td>
+              </tr>
+            ) : (
+              filtered.map((user) => (
+                <tr key={user.user_login_id} className={s.tr}>
+                  <td className={s.tdName}>
+                    {user.user_first_name} {user.user_last_name}
+                  </td>
+                  <td className={s.tdEmail}>{user.user_email_id}</td>
+                  <td className={s.td}>
+                    {user.user_admin_flag === "Y" ? "Admin" : "User"}
+                  </td>
+                  <td className={s.td}>{user.user_id}</td>
+                  <td className={s.td}>{user.user_address}</td>
+                  <td className={s.td}>{user.user_phone_home}</td>
+                  <td className={s.td}>{user.user_phone_work}</td>
+                  <td className={s.td}>
+                    {user.status === "I" ? (
+                      <span className={s.statusInactive}>Inactive</span>
+                    ) : (
+                      <span className={s.statusActive}>Active</span>
+                    )}
+                  </td>
+                  <td className={s.td}>
+                    <button
+                      type="button"
+                      onClick={() => handleEdit(user)}
+                      className={s.editBtn}
+                      title="Edit"
+                    >
+                      <FiEdit2 />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        user.status !== "I" && setDeleteTarget(user)
+                      }
+                      className={
+                        user.status === "I"
+                          ? "text-slate-300 cursor-not-allowed p-1.5 rounded-lg"
+                          : s.deleteBtn
+                      }
+                      title={
+                        user.status === "I" ? "Already inactive" : "Delete"
+                      }
+                      disabled={user.status === "I"}
+                    >
+                      <FiTrash2 />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
-			// update count
-			onCountChange?.(updated.length);
-		} catch (err) {
-			console.error("Delete error:", err);
-			alert("Failed to delete user. Check console for details.");
-		}
-	};
-
-		//Edit functionality (now handled by navigation)
-		const handleEdit = (user: User) => {
-			navigate(`/edit-user/${user.user_login_id}`);
-		};
-
-	if (showAdd) {
-		return (
-			<AddUser
-				user={editUser}
-				onCancel={() => {
-					setShowAdd(false);
-					setEditUser(null);
-				}}
-				onSaved={async () => {
-					setShowAdd(false);
-					setEditUser(null);
-					// await fetchUsers();
-				}}
-			/>
-		);
-	}
-
-	return (
-		<div>
-			<div className={s.panelHeader}>
-				<h1 className={s.panelTitle}>Users</h1>
-				<button
-					type="button"
-					onClick={() => setShowAdd(true)}
-					className={s.addBtn}
-				>
-					<FiPlus /> Add User
-				</button>
-			</div>
-
-			<div className={s.searchWrap}>
-				<FiSearch className={s.searchIcon} />
-				<input
-					type="text"
-					className={s.searchInput}
-					placeholder="Search users..."
-					value={search}
-					onChange={(e) => setSearch(e.target.value)}
-				/>
-			</div>
-
-			<div className={s.tableWrap}>
-				<table className={s.table}>
-					<thead className={s.thead}>
-						<tr>
-							<th className={s.th}>Name</th>
-							<th className={s.th}>Email</th>
-							<th className={s.th}>Admin</th>
-							<th className={s.th}>User ID</th>
-							<th className={s.th}>Address</th>
-							<th className={s.th}>Home Phone</th>
-							<th className={s.th}>Work Phone</th>
-							{/* <th className={s.th}>Created Date</th>
-							<th className={s.th}>Created By</th>
-							<th className={s.th}>Updated Date</th>
-							<th className={s.th}>Updated By</th> */}
-							{/* <th className={s.th}>Customer</th> */}
-							<th className={s.th}>Actions</th>
-						</tr>
-					</thead>
-					<tbody className={s.tbody}>
-						{filtered.length === 0 ? (
-							<tr>
-								<td colSpan={13} className={s.emptyRow}>
-									No users match your search.
-								</td>
-							</tr>
-						) : (
-							filtered.map((user) => (
-								<tr key={user.user_login_id} className={s.tr}>
-									<td className={s.tdName}>
-										{user.user_first_name} {user.user_last_name}
-									</td>
-									<td className={s.tdEmail}>{user.user_email_id}</td>
-									<td className={s.td}>
-										{user.user_admin_flag === "Yes" ? "Admin" : "User"}
-									</td>
-									<td className={s.td}>{user.user_id}</td>
-									<td className={s.td}>{user.user_address}</td>
-									<td className={s.td}>{user.user_phone_home}</td>
-									<td className={s.td}>{user.user_phone_work}</td>
-									{/* <td className={s.td}>
-										{user.created_date
-											? user.created_date.split("T")[0]
-											: "N/A"}
-									</td>
-									<td className={s.td}>{user.created_by}</td>
-									<td className={s.td}>
-										{user.updated_date
-											? user.updated_date.split("T")[0]
-											: "N/A"}
-									</td>
-									<td className={s.td}>{user.updated_by}</td> */}
-									{/* <td className={s.td}>{user.customer_id}</td> */}
-									<td className={s.td}>
-										<button
-											type="button"
-											onClick={() => handleEdit(user)}
-											className={s.editBtn}
-											title="Edit"
-										>
-											<FiEdit2 />
-										</button>
-										<button
-											type="button"
-											onClick={() => handleDelete(user)}
-											className={s.deleteBtn}
-											title="Delete"
-										>
-											<FiTrash2 />
-										</button>
-									</td>
-								</tr>
-							))
-						)}
-					</tbody>
-				</table>
-			</div>
-		</div>
-	);
+      {/* Delete Confirmation Modal */}
+      {deleteTarget && (
+        <div className={s.deleteOverlay}>
+          <div
+            className={s.deleteBackdrop}
+            onClick={() => setDeleteTarget(null)}
+          />
+          <div className={s.deleteCard}>
+            <div className={s.deleteIconWrap}>
+              <FiTrash2 className={s.deleteIcon} />
+            </div>
+            <h2 className={s.deleteTitle}>Delete User</h2>
+            <p className={s.deleteMessage}>
+              Are you sure you want to delete{" "}
+              <span className={s.deleteUserName}>
+                {deleteTarget.user_first_name} {deleteTarget.user_last_name}
+              </span>
+              ? They will be marked as inactive.
+            </p>
+            <div className={s.deleteBtnRow}>
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                className={s.deleteCancelBtn}
+              >
+                <FiX className="text-base" /> No, Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteConfirm}
+                className={s.deleteConfirmBtn}
+              >
+                <FiTrash2 className="text-base" /> Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }

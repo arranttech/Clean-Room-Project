@@ -6,6 +6,7 @@ import {
 	createProfile,
 	updateProfile,
 	saveProfileDetails,
+	getProfileDetails,
 } from "../../../backend/controller/profileController";
 
 import { getScreens } from "../../../backend/controller/screenController";
@@ -13,7 +14,7 @@ import { getScreens } from "../../../backend/controller/screenController";
 type AddProfileProps = {
 	initialData?: any;
 	onCancel: () => void;
-	onSaved: (newProfile: any) => void;
+	onSaved: () => void;
 };
 
 export default function AddProfile({
@@ -24,6 +25,9 @@ export default function AddProfile({
 	const [profileName, setProfileName] = useState(initialData?.name || "");
 	const [profileDescription, setProfileDescription] = useState(
 		initialData?.description || ""
+	);
+	const [profileStatus, setProfileStatus] = useState<"Active" | "Inactive">(
+		initialData?.status === "Inactive" ? "Inactive" : "Active"
 	);
 	const [saving, setSaving] = useState(false);
 	const [showPopup, setShowPopup] = useState(false);
@@ -49,18 +53,42 @@ export default function AddProfile({
 				const response = await getScreens();
 				if (response.screens) {
 					const activeScreens = response.screens
-						.filter((s: any) => s.screen_status === "Active")
+						.filter((s: any) => s.screen_status === "Active" || s.screen_status === "A")
 						.map((s: any) => s.screen_name);
 					setScreensList(activeScreens);
 
-					// ensure existing permissions state has at least "None" for all active screens
-					setPermissions((prev) => {
-						const newPerms = { ...prev };
-						activeScreens.forEach((scr: string) => {
-							if (!newPerms[scr]) newPerms[scr] = "None";
+					// Load existing permissions from DB if editing
+					if (initialData?.id) {
+						try {
+							const detailsResponse = await getProfileDetails(Number(initialData.id));
+							const dbPerms = detailsResponse?.permissions || detailsResponse || {};
+							setPermissions((prev) => {
+								const merged = { ...prev };
+								activeScreens.forEach((scr: string) => {
+									merged[scr] = dbPerms[scr] || "None";
+								});
+								return merged;
+							});
+						} catch {
+							// fallback: default all to None
+							setPermissions((prev) => {
+								const newPerms = { ...prev };
+								activeScreens.forEach((scr: string) => {
+									if (!newPerms[scr]) newPerms[scr] = "None";
+								});
+								return newPerms;
+							});
+						}
+					} else {
+						// New profile: default all screens to None
+						setPermissions((prev) => {
+							const newPerms = { ...prev };
+							activeScreens.forEach((scr: string) => {
+								if (!newPerms[scr]) newPerms[scr] = "None";
+							});
+							return newPerms;
 						});
-						return newPerms;
-					});
+					}
 				}
 			} catch (err) {
 				console.error("Failed to fetch screens:", err);
@@ -107,7 +135,7 @@ export default function AddProfile({
 			const newProfileData: any = {
 				name: profileName,
 				description: profileDescription,
-				status: initialData?.status || "Active",
+				status: profileStatus,
 			};
 
 			let profileIdStr = initialData?.id;
@@ -133,7 +161,7 @@ export default function AddProfile({
 			setShowPopup(true);
 			setTimeout(() => {
 				setShowPopup(false);
-				onSaved(newProfileData);
+				onSaved();
 			}, 2000);
 		} catch (error) {
 			console.error((error as Error).message);
@@ -151,16 +179,15 @@ export default function AddProfile({
 			<div className={s.formCard}>
 				<h2 className={s.formSectionTitle}>Profile Information</h2>
 
-				<div className={s.formRow}>
-					<div className={s.formGroup}>
+				<div className="flex flex-col md:flex-row gap-6 mb-6">
+					<div className="flex-1">
 						<label className={s.formLabel}>
 							Profile Name <span className={s.formRequired}>*</span>
 						</label>
 						<input
 							type="text" //while editing the profile name  disabled.
-							className={`${s.formInput} ${
-								initialData ? "opacity-60 cursor-not-allowed bg-gray-50" : ""
-							}`}
+							className={`${s.formInput} ${initialData ? "opacity-60 cursor-not-allowed bg-gray-50" : ""
+								}`}
 							placeholder="Enter profile name"
 							value={profileName}
 							onChange={(e) => setProfileName(e.target.value)}
@@ -168,6 +195,21 @@ export default function AddProfile({
 						/>
 						{nameError && <p className={s.formError}>{nameError}</p>}
 					</div>
+
+					{/* Status Dropdown - only in Edit mode */}
+					{initialData && (
+						<div className="w-full md:w-1/3">
+							<label className={s.formLabel}>Status</label>
+							<select
+								value={profileStatus}
+								onChange={(e) => setProfileStatus(e.target.value as "Active" | "Inactive")}
+								className={s.formInput}
+							>
+								<option value="Active">Active</option>
+								<option value="Inactive">Inactive</option>
+							</select>
+						</div>
+					)}
 				</div>
 
 				<div className={s.formRow}>
@@ -176,9 +218,8 @@ export default function AddProfile({
 							Profile Description <span className={s.formRequired}>*</span>
 						</label>
 						<textarea
-							className={`${s.formInput} ${
-								initialData ? "opacity-60 cursor-not-allowed bg-gray-50" : ""
-							}`}
+							className={`${s.formInput} ${initialData ? "opacity-60 cursor-not-allowed bg-gray-50" : ""
+								}`}
 							placeholder="Enter profile description"
 							value={profileDescription}
 							onChange={(e) => setProfileDescription(e.target.value)}
@@ -201,13 +242,13 @@ export default function AddProfile({
 								<thead className={s.thead}>
 									<tr>
 										<th className={s.th}>Screen Name</th>
-										<th className="px-5 py-4 text-center text-xs font-bold text-slate-700 tracking-wider">
+										<th className="px-5 py-4 text-center text-xs font-bold text-white tracking-wider">
 											Full Access
 										</th>
-										<th className="px-5 py-4 text-center text-xs font-bold text-slate-700 tracking-wider">
+										<th className="px-5 py-4 text-center text-xs font-bold text-white tracking-wider">
 											Read Only
 										</th>
-										<th className="px-5 py-4 text-center text-xs font-bold text-slate-700 tracking-wider">
+										<th className="px-5 py-4 text-center text-xs font-bold text-white tracking-wider">
 											None
 										</th>
 									</tr>
@@ -283,8 +324,8 @@ export default function AddProfile({
 						{saving
 							? "Saving..."
 							: initialData
-							? "Save Changes"
-							: "Create Profile"}
+								? "Save Changes"
+								: "Create Profile"}
 					</button>
 				</div>
 			</div>

@@ -1,17 +1,41 @@
 import { ServerRoute } from "@hapi/hapi";
+import Joi from "joi";
 import { screenRepository } from "../repositories";
+
+const errorSchema = Joi.object({
+	error: Joi.string().required(),
+});
 
 export const screenRoute: ServerRoute[] = [
 	{
 		method: "POST",
 		path: "/v1/screens",
+		options: {
+			description: "Create a new screen",
+			tags: ["api", "screens"],
+
+			validate: {
+				payload: Joi.object({
+					screen_name: Joi.string().required().description("Screen name"),
+					screen_status: Joi.string().required().description("Screen status"),
+				}),
+			},
+
+			response: {
+				status: {
+					201: Joi.object({
+						message: Joi.string().required(),
+						screen_id: Joi.number().required(),
+					}),
+					400: errorSchema,
+					500: errorSchema,
+				},
+			},
+		},
+
 		handler: async (request, h) => {
 			try {
-				const payload = request.payload as any;
-				if (!payload.name)
-					return h.response({ error: "Screen name required" }).code(400);
-
-				const screenId = await screenRepository.createScreen(payload);
+				const screenId = await screenRepository.createScreen(request.payload);
 
 				return h
 					.response({
@@ -24,21 +48,48 @@ export const screenRoute: ServerRoute[] = [
 			}
 		},
 	},
+
 	{
 		method: "PUT",
 		path: "/v1/screens/{id}",
+		options: {
+			description: "Update an existing screen",
+			tags: ["api", "screens"],
+
+			validate: {
+				params: Joi.object({
+					id: Joi.number().integer().required(),
+				}),
+				payload: Joi.object({
+					screen_name: Joi.string().optional(),
+					screen_status: Joi.string().optional(),
+				}),
+			},
+
+			response: {
+				status: {
+					200: Joi.object({
+						message: Joi.string().required(),
+					}),
+					400: errorSchema,
+					404: errorSchema,
+					500: errorSchema,
+				},
+			},
+		},
+
 		handler: async (request, h) => {
 			try {
 				const id = Number(request.params.id);
-				if (!id) return h.response({ error: "Invalid screen ID" }).code(400);
 
 				const updated = await screenRepository.updateScreen(
 					id,
 					request.payload
 				);
 
-				if (!updated)
+				if (!updated) {
 					return h.response({ error: "Screen not found" }).code(404);
+				}
 
 				return h.response({ message: "Screen updated successfully" }).code(200);
 			} catch {
@@ -46,9 +97,24 @@ export const screenRoute: ServerRoute[] = [
 			}
 		},
 	},
+
 	{
 		method: "GET",
 		path: "/v1/screens",
+		options: {
+			description: "Get all screens",
+			tags: ["api", "screens"],
+
+			response: {
+				status: {
+					200: Joi.object({
+						screens: Joi.array().items(Joi.object()).required(),
+					}),
+					500: errorSchema,
+				},
+			},
+		},
+
 		handler: async (_, h) => {
 			try {
 				const screens = await screenRepository.getScreens();

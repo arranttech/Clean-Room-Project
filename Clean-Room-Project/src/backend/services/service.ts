@@ -398,6 +398,7 @@ export function airflowService(room: RoomPayload): AirflowResults {
   return {
     roomName: room.roomName,
     zoneSystem: String(room.zoneSystem),
+    zoneReqInsideTempC: room.zoneReqInsideTempC ?? 0,
     areaFt2: Number(areaFt2.toFixed(2)),
     volumeFt3: Number(volumeFt3.toFixed(2)),
     roomCfm: Number(roomCfm.toFixed(3)),

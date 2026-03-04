@@ -7,107 +7,170 @@ export type RoomBOQPayload = RoomPayload;
 export type BOQPayload = CalculatedZoneResults;
 
 const s = boqresult.fields.NumberofStagesFilter;
+const sp = boqresult.fields.StaticPressure;
+const bdb = boqresult.fields.BDB;
+const m = boqresult.fields.MotorHP;
+const c = boqresult.fields.RowsofCoolingCoil.Coolval;
 
 export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
 
     const currentZoneSystem = zone.zoneSystem ?? "";
-    const { showCooling, showHeating, isTempValid } =
+    const { showCooling, showHeating } =
         getSystemFlags(currentZoneSystem, room || {} as RoomPayload);
 
     const isHeatingandCooling = showCooling && showHeating;
+    const ahu = boqresult.fields.AHUSize;
 
-    const b = boqresult;
-    const ahu = b.fields.AHUSize;
+    let classification = String(room?.zoneClassification ?? zone.zoneClassification ?? "").trim().toUpperCase();
+    let rawTemp = zone.zoneReqInsideTempC;
+    let temp = String(rawTemp ?? "").trim().toUpperCase();
+    let isNumericTemp = rawTemp !== null && rawTemp !== undefined && !isNaN(Number(rawTemp));
+
+    const AHUCoolLoadTR = zone.zoneResultCoolLoadTR;
 
     function calculatedAHUCfm(): number {
-        // Ensure values exist to prevent NaN errors
         const coolingCfm = Math.ceil((zone.zoneResultantCfm || 0) / 250) * 250;
         const heatingCfm = Math.ceil((zone.zoneResultantHeatCfm || 0) / 250) * 250;
 
         if (isHeatingandCooling) return Math.max(coolingCfm, heatingCfm);
         if (showCooling) return coolingCfm;
         if (showHeating) return heatingCfm;
+        return 0;
+    }
+
+    function calculateAHUWidth(cfm: number) {
+        const limits = ahu.AHUWidthCfm.AHUWdCfm;
+        const widths = ahu.AHUWidthCfm.AHUWidth;
+        for (const key in limits) {
+            const k = key as keyof typeof limits;
+            if (cfm <= limits[k]) return widths[k];
+        }
+        return widths[8];
+    }
+
+    function calculateAHUHeight(cfm: number) {
+        const limits = ahu.AHUHeightCfm.AHUHtCfm;
+        const height = ahu.AHUHeightCfm.AHUHeight;
+        for (const key in limits) {
+            const k = key as keyof typeof limits;
+            if (cfm <= limits[k]) return height[k];
+        }
+        return height[8];
+    }
+
+    function calculateFilterStages(): number {
+        if (!classification) return 3;
+        const stage3Match = s.stage3Or4?.some(item => String(item).trim().toUpperCase() === classification);
+        const stage4Match = s.stage4Or5?.some(item => String(item).trim().toUpperCase() === classification);
+
+        if (!isNumericTemp && temp !== "") {
+            if (stage3Match) return 4;
+            if (stage4Match) return 5;
+            return 3;
+        }
+        if (isNumericTemp) {
+            if (stage3Match) return 3;
+            if (stage4Match) return 4;
+        }
+        return 3;
+    }
+
+    function calculateStaticPressure(stages: number): number {
+        const sptemp = sp.SPTempNum;
+        const spval = sp.SPVal;
+
+        if (isNumericTemp) {
+            if (stages === sptemp[4]) return spval[8];
+            else if (stages === sptemp[3]) return spval[6];
+            else if (stages === sptemp[2]) return spval[5];
+            else if (stages === sptemp[1]) return spval[4];
+            else return spval[6];
+        }
+        if (!isNumericTemp && temp !== "") {
+            if (stages === sptemp[5]) return spval[7];
+            else if (stages === sptemp[4]) return spval[5];
+            else if (stages === sptemp[3]) return spval[3];
+            else if (stages === sptemp[2]) return spval[2];
+            else if (stages === sptemp[1]) return spval[1];
+            return spval[4];
+        }
+        return 0;
+    }
+
+    function calculateBDB(cfm: number): number | string {
+        const bdbCfm = bdb.BDBCfm;
+        const bdbVal = bdb.BDBVal;
+        for (const key in bdbCfm) {
+            const k = key as keyof typeof bdbCfm;
+            if (cfm <= bdbCfm[k]) return bdbVal[k];
+        }
+        return "Refer";
+    }
+
+    function calculateMotorHP(cfm: number, staticPressure: number): number | string {
+        const mtpw = m.powerval;
+        const mtbdb = m.BDBKw;
+        const powerValue = (cfm * staticPressure) / mtpw;
+
+        for (const key in mtbdb) {
+            const k = key as keyof typeof mtbdb;
+            if (powerValue <= mtbdb[k]) return mtbdb[k];
+        }
+        return "Refer";
+    }
+
+    function calculateCoolingCoil(width: number, height: number, ahucoolload: number): number | any {
+        const requiredload = Math.max(zone.zoneRoomACValue, zone.zoneCfmACLoadTR);
+        const baseCapacity = ((width - c[0]) * (height - c[1]) * c[2]) / c[3];
+
+        if (ahucoolload === 0 && (!isNumericTemp && temp !== "")) {
+            return zone.zoneReqInsideTempC;
+        }
+
+        if (baseCapacity >= requiredload) return 4;
+        else if (baseCapacity * c[4] >= requiredload) return 6;
+        else if (baseCapacity * c[5] >= requiredload) return 8;
 
         return 0;
     }
 
-    const currentCfm = calculatedAHUCfm();
+   function calculateAHULength(bdb: number | string, stages: number, coolingcoil: number | string): number | string {
+    const ahuln = boqresult.fields.AHUSize.AHULengthCfm;
+    const ahubdb = ahuln.BDB;
+    const ahudbdval = ahuln.BlowerLength;
+    // Note: the variables below aren't used in your current logic, 
+    // but I've kept them so the code remains functional.
+    const ahufltr = ahuln.FilterStages;
+    const ahufltrval = ahuln.FilterLength;
+    const ahucool = ahuln.CoolingCoil;
+    const ahucoolval = ahuln.CoilLength;
 
-    function calculateAHUWidth() {
-        const limits = ahu.AHUWidthCfm.AHUWdCfm;
-        const widths = ahu.AHUWidthCfm.AHUWidth;
 
-        if (currentCfm <= limits[1]) return widths[1];
-        else if (currentCfm <= limits[2]) return widths[2];
-        else if (currentCfm <= limits[3]) return widths[3];
-        else if (currentCfm <= limits[4]) return widths[4];
-        else if (currentCfm <= limits[5]) return widths[5];
-        else if (currentCfm <= limits[6]) return widths[6];
-        else if (currentCfm <= limits[7]) return widths[7];
-
-        return widths[8];
-    }
-
-    function calculateAHUHeight() {
-        const limits = ahu.AHUHeightCfm.AHUHtCfm;
-        const height = ahu.AHUHeightCfm.AHUHeight;
-
-        if (currentCfm <= limits[1]) return height[1];
-        else if (currentCfm <= limits[2]) return height[2];
-        else if (currentCfm <= limits[3]) return height[3];
-        else if (currentCfm <= limits[4]) return height[4];
-        else if (currentCfm <= limits[5]) return height[5];
-        else if (currentCfm <= limits[6]) return height[6];
-        else if (currentCfm <= limits[7]) return height[7];
-
-        return height[8];
-    }
-
-   function calculateFilterStages() {
-
-    const classification = String(
-        room?.zoneClassification ??
-        zone.zoneClassification ??
-        ""
-    ).trim().toUpperCase();
-
-    if (!classification) return 3;
-
-    const rawTemp = zone.zoneReqInsideTempC;
-    const temp = String(rawTemp ?? "").trim().toUpperCase();
-
-    const stage3Match = s.stage3Or4?.some(item =>
-        String(item).trim().toUpperCase() === classification
-    );
-
-    const stage4Match = s.stage4Or5?.some(item =>
-        String(item).trim().toUpperCase() === classification
-    );
-
-    const isNumericTemp =
-        rawTemp !== null &&
-        rawTemp !== undefined &&
-        !isNaN(Number(rawTemp));
-
-    if (!isNumericTemp && temp !== "") {
-        if (stage3Match) return 4;
-        if (stage4Match) return 5;
-        return 3;
-    }
-
-    if (isNumericTemp) {
-        if (stage3Match) return 3;
-        if (stage4Match) return 4;
-    }
-
-    return 3;
 }
+
+
+
+
+    const finalCfm = calculatedAHUCfm();
+    const finalStages = calculateFilterStages();
+    const finalStaticPressure = calculateStaticPressure(finalStages);
+    const finalBDB = calculateBDB(finalCfm);
+    const finalMotorHP = calculateMotorHP(finalCfm, finalStaticPressure);
+    const finalWidth = calculateAHUWidth(finalCfm);
+    const finalHeight = calculateAHUHeight(finalCfm);
+    const finalCoolingCoil = calculateCoolingCoil(finalWidth, finalHeight, Number(AHUCoolLoadTR));
+
 
     return {
         zoneName: zone.zoneName,
-        AHUCfm: currentCfm,
-        AHUWidth: calculateAHUWidth(),
-        AHUHeight: calculateAHUHeight(),
-        stageFilter: calculateFilterStages()
+        AHUCfm: finalCfm,
+        AHUWidth: finalWidth,
+        AHUHeight: finalHeight,
+        stageFilter: finalStages,
+        staticPressure: finalStaticPressure,
+        BDB: finalBDB,
+        motorHP: finalMotorHP,
+        AHUCoolingLoadTR: Number(AHUCoolLoadTR),
+        coolingCoil: finalCoolingCoil,
     };
 }

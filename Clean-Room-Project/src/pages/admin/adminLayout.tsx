@@ -38,6 +38,8 @@ export default function Main() {
     const [customerCount, setCustomerCount] = useState(0);
     const [userCount, setUserCount] = useState(0);
     const [screenCount, setScreenCount] = useState(0);
+    const [profileCount, setProfileCount] = useState(0);
+    const [assignmentCount, setAssignmentCount] = useState(0);
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -65,6 +67,18 @@ export default function Main() {
                 const screenData = await screenRes.json();
                 const screenList = screenData.screens ?? [];
                 setScreenCount(screenList.length);
+
+                // Fetch profiles count
+                const profileRes = await fetch("http://localhost:3000/v1/profiles");
+                const profileData = await profileRes.json();
+                const profileList = profileData.profiles ?? [];
+                setProfileCount(profileList.length);
+
+                // Fetch assignments count
+                const assignRes = await fetch("http://localhost:3000/v1/assigned-profiles");
+                const assignData = await assignRes.json();
+                const assignList = assignData.assignedProfiles ?? [];
+                setAssignmentCount(assignList.length);
             } catch (error) {
                 console.error("Count fetch error:", error);
             }
@@ -172,7 +186,19 @@ export default function Main() {
                                                 onClick={() => setActivePanel(sub.key)}
                                                 className={activePanel === sub.key ? s.navSubItemActive : s.navSubItem}
                                             >
-                                                {sub.label}
+                                                <div className="flex items-center justify-between w-full">
+                                                    <span>{sub.label}</span>
+                                                    {(sub.key === "createEditProfile" && profileCount > 0) && (
+                                                        <span className={activePanel === sub.key ? s.navSubBadgeActive : s.navSubBadge}>
+                                                            {profileCount}
+                                                        </span>
+                                                    )}
+                                                    {(sub.key === "assignProfile" && assignmentCount > 0) && (
+                                                        <span className={activePanel === sub.key ? s.navSubBadgeActive : s.navSubBadge}>
+                                                            {assignmentCount}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </button>
                                         ))}
                                     </div>

@@ -28,6 +28,10 @@ const ScreensDesign = {
 		"px-5 py-3.5 text-left text-xs font-bold text-white uppercase tracking-wider",
 	emptyRow: "px-6 py-12 text-center text-slate-500",
 
+	// --- Status Badges ---
+	statusActive: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700",
+	statusInactive: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-600",
+
 	// --- Action Buttons ---
 	editBtn:
 		"inline-flex items-center justify-center p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer",
@@ -57,14 +61,12 @@ const ScreensDesign = {
 	// --- Popup ---
 	popupOverlay: "fixed inset-0 z-50 flex items-center justify-center p-4",
 	popupBackdrop: "absolute inset-0 bg-slate-900/40 backdrop-blur-sm",
-	popupCard:
-		"relative bg-white rounded-xl shadow-xl w-[400px] p-8 flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-200",
-	popupIcon: "text-5xl text-green-500 mb-4",
-	popupTitle: "text-xl font-bold text-slate-900 mb-2",
-	popupMessage: "text-slate-500 mb-6",
-	popupProgressWrap: "w-full h-1 bg-slate-100 rounded-full overflow-hidden",
-	popupProgressBar:
-		"h-full bg-green-500 w-full origin-left animate-[progress_2s_ease-in-out]",
+	popupCard: "relative z-10 bg-white rounded-2xl shadow-2xl px-10 py-8 flex flex-col items-center gap-3 min-w-[320px]",
+	popupIcon: "text-green-500 text-5xl",
+	popupTitle: "text-xl font-bold text-slate-900",
+	popupMessage: "text-sm text-slate-500 text-center",
+	popupProgressWrap: "w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-2",
+	popupProgressBar: "h-full bg-green-500 rounded-full animate-[progress_2s_linear_forwards]",
 };
 
 export default ScreensDesign;

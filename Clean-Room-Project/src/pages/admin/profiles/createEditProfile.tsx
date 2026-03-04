@@ -16,6 +16,7 @@ const initialProfiles: ProfileToken[] = [];
 export default function CreateEditProfile() {
 	const [profiles, setProfiles] = useState<ProfileToken[]>(initialProfiles);
 	const [searchTerm, setSearchTerm] = useState("");
+	const [statusFilter, setStatusFilter] = useState<"ALL" | "Active" | "Inactive">("ALL");
 	const [showAdd, setShowAdd] = useState(false);
 	const [editData, setEditData] = useState<ProfileToken | null>(null);
 
@@ -34,11 +35,14 @@ export default function CreateEditProfile() {
 		fetchProfiles();
 	}, []);
 
-	const filteredData = profiles.filter(
-		(item) =>
+	const filteredData = profiles.filter((item) => {
+		const matchesSearch =
 			item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			item.description.toLowerCase().includes(searchTerm.toLowerCase())
-	);
+			item.description.toLowerCase().includes(searchTerm.toLowerCase());
+		const matchesStatus =
+			statusFilter === "ALL" ? true : item.status === statusFilter;
+		return matchesSearch && matchesStatus;
+	});
 
 	if (showAdd || editData) {
 		return (
@@ -76,6 +80,27 @@ export default function CreateEditProfile() {
 				</button>
 			</div>
 
+			{/* Status Filter Tabs */}
+			<div className="flex items-center gap-2 mb-4">
+				{(["ALL", "Active", "Inactive"] as const).map((f) => (
+					<button
+						key={f}
+						type="button"
+						onClick={() => setStatusFilter(f)}
+						className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all ${statusFilter === f
+							? f === "Inactive"
+								? "bg-red-500 text-white border-red-500"
+								: f === "Active"
+									? "bg-green-500 text-white border-green-500"
+									: "bg-slate-800 text-white border-slate-800"
+							: "bg-white text-slate-500 border-slate-200 hover:border-slate-400"
+							}`}
+					>
+						{f === "ALL" ? "All" : f}
+					</button>
+				))}
+			</div>
+
 			{/* Search Bar */}
 			<div className={s.searchWrap}>
 				<FiSearch className={s.searchIcon} />
@@ -106,15 +131,11 @@ export default function CreateEditProfile() {
 									<td className={s.tdProfileName}>{row.name}</td>
 									<td className={s.td}>{row.description}</td>
 									<td className={s.td}>
-										<span
-											className={
-												row.status === "Active"
-													? s.badgeActive
-													: s.badgeInactive
-											}
-										>
-											{row.status}
-										</span>
+										{row.status === "Inactive" ? (
+											<span className={s.statusInactive}>Inactive</span>
+										) : (
+											<span className={s.statusActive}>Active</span>
+										)}
 									</td>
 									<td className={s.tdActions}>
 										<button

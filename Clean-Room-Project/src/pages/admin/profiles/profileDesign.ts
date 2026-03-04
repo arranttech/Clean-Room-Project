@@ -30,10 +30,8 @@ const profileDesign = {
 	tdActions: "px-5 py-4 text-right",
 
 	// --- Badges ---
-	badgeActive:
-		"px-2.5 py-1 text-[11px] font-bold rounded-md bg-green-100 text-green-700",
-	badgeInactive:
-		"px-2.5 py-1 text-[11px] font-bold rounded-md bg-slate-100 text-slate-500",
+	statusActive: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700",
+	statusInactive: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-600",
 
 	// --- Action Buttons Styling ---
 	editBtn:
@@ -82,15 +80,12 @@ const profileDesign = {
 	// --- Success Popup ---
 	popupOverlay: "fixed inset-0 z-50 flex items-center justify-center",
 	popupBackdrop: "absolute inset-0 bg-black/40 backdrop-blur-sm",
-	popupCard:
-		"relative z-10 bg-white rounded-2xl shadow-2xl px-10 py-8 flex flex-col items-center gap-3 min-w-[320px]",
+	popupCard: "relative z-10 bg-white rounded-2xl shadow-2xl px-10 py-8 flex flex-col items-center gap-3 min-w-[320px]",
 	popupIcon: "text-green-500 text-5xl",
 	popupTitle: "text-xl font-bold text-slate-900",
 	popupMessage: "text-sm text-slate-500 text-center",
-	popupProgressWrap:
-		"w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-2",
-	popupProgressBar:
-		"h-full bg-green-500 rounded-full animate-[progress_2s_linear_forwards]",
+	popupProgressWrap: "w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-2",
+	popupProgressBar: "h-full bg-green-500 rounded-full animate-[progress_2s_linear_forwards]",
 
 	// --- Layout and Placeholder Styling ---
 	placeholderWrap:

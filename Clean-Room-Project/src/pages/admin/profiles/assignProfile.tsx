@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { FaCircleCheck } from "react-icons/fa6";
 import s from "./profileDesign";
 import { getUsers } from "../../../backend/controller/userController";
 import {
@@ -407,7 +408,7 @@ export default function AssignProfile({
 				<div className={s.popupOverlay}>
 					<div className={s.popupBackdrop} />
 					<div className={s.popupCard}>
-						<div className={s.popupIcon}>✓</div>
+						<FaCircleCheck className={s.popupIcon} />
 						<h3 className={s.popupTitle}>Success!</h3>
 						<p className={s.popupMessage}>
 							{isEditMode

@@ -17,6 +17,7 @@ type ScreensProps = {
 export default function Screens({ onCountChange }: ScreensProps) {
 	const [screens, setScreens] = useState<Screen[]>([]);
 	const [searchTerm, setSearchTerm] = useState("");
+	const [statusFilter, setStatusFilter] = useState<"ALL" | "Active" | "Inactive">("ALL");
 	const [showAdd, setShowAdd] = useState(false);
 	const [editData, setEditData] = useState<Screen | null>(null);
 
@@ -44,11 +45,14 @@ export default function Screens({ onCountChange }: ScreensProps) {
 	};
 
 	// filter screen based on search declaration
-	const filteredData = screens.filter(
-		(item) =>
+	const filteredData = screens.filter((item) => {
+		const matchesSearch =
 			item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			item.id.toLowerCase().includes(searchTerm.toLowerCase())
-	);
+			item.id.toLowerCase().includes(searchTerm.toLowerCase());
+		const matchesStatus =
+			statusFilter === "ALL" ? true : item.status === statusFilter;
+		return matchesSearch && matchesStatus;
+	});
 	// if i go to actions and enter edit button it should open the add screen form with the data of the screen
 	if (showAdd || editData) {
 		return (
@@ -81,6 +85,27 @@ export default function Screens({ onCountChange }: ScreensProps) {
 				</button>
 			</div>
 
+			{/* Status Filter Tabs */}
+			<div className="flex items-center gap-2 mb-4">
+				{(["ALL", "Active", "Inactive"] as const).map((f) => (
+					<button
+						key={f}
+						type="button"
+						onClick={() => setStatusFilter(f)}
+						className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all ${statusFilter === f
+							? f === "Inactive"
+								? "bg-red-500 text-white border-red-500"
+								: f === "Active"
+									? "bg-green-500 text-white border-green-500"
+									: "bg-slate-800 text-white border-slate-800"
+							: "bg-white text-slate-500 border-slate-200 hover:border-slate-400"
+							}`}
+					>
+						{f === "ALL" ? "All" : f}
+					</button>
+				))}
+			</div>
+
 			{/* Search Bar */}
 			<div className={s.searchWrap}>
 				<FiSearch className={s.searchIcon} />
@@ -110,7 +135,13 @@ export default function Screens({ onCountChange }: ScreensProps) {
 								<tr key={row.id} className={s.tr}>
 									<td className={s.tdScreenId}>{row.id}</td>
 									<td className={s.tdScreenName}>{row.name}</td>
-									<td className={s.td}>{row.status}</td>
+									<td className={s.td}>
+										{row.status === "Inactive" ? (
+											<span className={s.statusInactive}>Inactive</span>
+										) : (
+											<span className={s.statusActive}>Active</span>
+										)}
+									</td>
 									<td className={s.tdActions}>
 										<button
 											className={s.editBtn}

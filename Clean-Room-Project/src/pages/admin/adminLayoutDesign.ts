@@ -28,6 +28,11 @@ const adminDesign = {
 	navSubItemActive:
 		"block w-full text-left px-4 py-2 text-sm font-semibold text-blue-700 bg-blue-50 rounded-lg shadow-sm cursor-pointer",
 
+	navSubBadge:
+		"text-[9px] font-bold bg-blue-50 text-blue-600 rounded-full px-1 py-0.5 min-w-[16px] text-center border border-blue-100",
+	navSubBadgeActive:
+		"text-[9px] font-bold bg-blue-600 text-white rounded-full px-1 py-0.5 min-w-[16px] text-center",
+
 	// --- Content Area ---
 	content: "flex-1 p-8 overflow-auto",
 };

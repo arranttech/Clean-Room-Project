@@ -127,33 +127,24 @@ export const profileRepository = {
 
     // Assign Profile to User
     assignProfileToUser: async (payload: any) => {
-        const [result]: any = await database.execute(
-            `INSERT INTO tUserProfiles (user_id, system_profile_id, created_by, updated_by)
-             VALUES (?, ?, ?, ?)`,
-            [
-                payload.user_id,
-                payload.system_profile_id,
-                payload.created_by || "system",
-                payload.updated_by || "system",
-            ]
-        );
         try {
-            await database.execute(
+            const [result]: any = await database.execute(
                 `INSERT INTO tUserProfiles (user_id, system_profile_id, created_by, updated_by)
-                VALUES (?, ?, ?, ?)`,
-                [payload.user_id, payload.system_profile_id, "system", "system"]
+                 VALUES (?, ?, ?, ?)`,
+                [
+                    payload.user_id,
+                    payload.system_profile_id,
+                    payload.created_by || "system",
+                    payload.updated_by || "system",
+                ]
             );
-        }
-        catch (err: any) {
+            return result.insertId;
+        } catch (err: any) {
             if (err.code === "ER_DUP_ENTRY") {
-                return {
-                    success: false,
-                    message: "This user already has a system profile assigned."
-                };
+                return 0; // successfully ignored duplicate
             }
             throw err;
         }
-        return result.insertId;
     },
 
     // Get Assigned Profiles

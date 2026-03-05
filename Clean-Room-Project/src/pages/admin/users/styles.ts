@@ -1,7 +1,7 @@
 const usersDesign = {
     // --- Header ---
     panelHeader: "flex items-center justify-between mb-6",
-    panelTitle: "text-2xl font-bold text-slate-900 ml-4",
+    panelTitle:"text-2xl font-extrabold bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent tracking-tight",
     addBtn: "flex items-center gap-2 bg-blue-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-colors shadow-sm",
   
     // --- Filter Tabs ---

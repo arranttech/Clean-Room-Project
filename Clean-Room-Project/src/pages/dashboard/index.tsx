@@ -4,7 +4,6 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { setCustomer } from "../../redux/slices/customerSlice";
 import { getCustomerById } from "../../backend/controller/customerController";
 import { getUserById } from "../../backend/controller/userController";
-import { handleLogout } from "../../utils/logout";
 import { FiLogOut } from "react-icons/fi";
 import {
   FaFolderOpen,
@@ -133,9 +132,9 @@ export default function Dashboard() {
 
   const features = text.dashboard.features;
 
-  const onLogout = () => {
-    handleLogout(dispatch);
-    navigate("/");
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login", { replace: true });
   };
 
   const displayName = userFullName || loggedInUser?.name || "User";
@@ -180,7 +179,7 @@ export default function Dashboard() {
               )}
             </div>
             <div className="w-px h-8 bg-slate-200 mr-4 hidden sm:block" />
-            <button type="button" className={s.logout} onClick={onLogout}>
+            <button type="button" className={s.logout} onClick={handleLogout}>
               <FiLogOut className="text-[18px]" />
               Logout
             </button>

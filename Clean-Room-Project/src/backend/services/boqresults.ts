@@ -27,6 +27,9 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
     let isNumericTemp = rawTemp !== null && rawTemp !== undefined && !isNaN(Number(rawTemp));
 
     const AHUCoolLoadTR = zone.zoneResultCoolLoadTR;
+    let ChilledWaterGPM = 0;
+    let HotWaterGPM = 0;
+
 
     function calculatedAHUCfm(): number {
         const coolingCfm = Math.ceil((zone.zoneResultantCfm || 0) / 250) * 250;
@@ -187,6 +190,16 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
         return AHUlength;
     }
 
+    function calculateGPM(): number {
+        ChilledWaterGPM = Math.max(zone.zoneRoomACValue, zone.zoneCfmACLoadTR) * 4;
+        HotWaterGPM = Math.max(zone.zoneRoomHeatLoadTR, zone.zoneCfmHeatLoadTRValue) * 4;
+
+        if (isHeatingandCooling) return Math.max(ChilledWaterGPM, HotWaterGPM);
+        if (showCooling) return ChilledWaterGPM;
+        if (showHeating) return HotWaterGPM;
+        return 0;
+    }
+
     const finalCfm = calculatedAHUCfm();
     const finalStages = calculateFilterStages();
     const finalStaticPressure = calculateStaticPressure(finalStages);
@@ -196,6 +209,7 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
     const finalHeight = calculateAHUHeight(finalCfm);
     const finalCoolingCoil = calculateCoolingCoil(finalWidth, finalHeight, Number(AHUCoolLoadTR));
     const finalLength = calculateAHULength(Number(finalBDB), finalStages, Number(finalCoolingCoil));
+
 
     return {
         zoneName: zone.zoneName,
@@ -209,7 +223,7 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
         motorHP: finalMotorHP,
         AHUCoolingLoadTR: Number(AHUCoolLoadTR),
         coolingCoil: finalCoolingCoil,
-        AHUlength : finalLength,
-
+        AHUlength: finalLength,
+        WaterGPM : calculateGPM(),
     };
 }

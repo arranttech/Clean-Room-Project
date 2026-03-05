@@ -67,41 +67,49 @@ function tmpl(str: string, vars: Record<string, string | number>) {
 export default function Dashboard() {
   const [projects] = useState<Project[]>(demoProjects);
   const [showProfileAlert, setShowProfileAlert] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
+  const [userFullName, setUserFullName] = useState("");
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  // Read from Redux — userSlice is rehydrated from redux-persist on load
   const loggedInUser = useAppSelector((state: any) => state.user);
   const customerId = useAppSelector((state: any) => state.customer.customerId);
-  const customerName = useAppSelector(
-    (state: any) => state.customer.customerName
-  );
-
-  const userName = loggedInUser?.name
-    ? loggedInUser.name.split(" ")[0]
-    : "User";
 
   const counts = { total: projects.length };
 
+  // Fetch user details (name + email) from DB on load
+  useEffect(() => {
+    if (!loggedInUser?.user_login_id) return;
+    const fetchUserDetails = async () => {
+      try {
+        const res = await getUserById(loggedInUser.user_login_id);
+        const u = res?.user ?? res;
+        if (u) {
+          setUserFullName(
+            `${u.user_first_name || ""} ${u.user_last_name || ""}`.trim()
+          );
+          setUserEmail(u.user_email_id || "");
+        }
+      } catch (e) {
+        console.error("Failed to fetch user details:", e);
+      }
+    };
+    fetchUserDetails();
+  }, [loggedInUser?.user_login_id]);
+
   // Auto-fetch customer on dashboard load
-  // Same flow as CustomerInfoPage: user_login_id → getUserById → customer_id → getCustomerById
   useEffect(() => {
     if (customerId || !loggedInUser?.user_login_id) return;
-
     const loadCustomer = async () => {
       try {
-        // Step 1: get user row to extract customer_id
         const userRes = await getUserById(loggedInUser.user_login_id);
         const customer_id =
           userRes?.user?.customer_id ?? userRes?.customer_id ?? null;
         if (!customer_id) return;
-
-        // Step 2: fetch full customer details
         const customerRes = await getCustomerById(customer_id);
         const c = customerRes?.customer ?? customerRes;
         if (!c) return;
-
-        // Step 3: store in Redux — "✓ Profile saved" shows instantly
         dispatch(
           setCustomer({
             customerId: customer_id,
@@ -120,7 +128,6 @@ export default function Dashboard() {
         );
       }
     };
-
     loadCustomer();
   }, [loggedInUser?.user_login_id]);
 
@@ -131,10 +138,15 @@ export default function Dashboard() {
     navigate("/");
   };
 
+  const displayName = userFullName || loggedInUser?.name || "User";
+  const firstName = displayName.split(" ")[0];
+
   return (
     <div className={s.page}>
+      {/* ── Header ── */}
       <header className={s.header}>
         <div className={s.headerInner}>
+          {/* Left — Logo */}
           <div className={s.left}>
             <div className={s.logoTile}>
               <img
@@ -148,17 +160,26 @@ export default function Dashboard() {
               <div>DYNAMICS</div>
             </div>
           </div>
+
+          {/* Center — App name */}
           <div className={s.center}>
             <div className={s.title1}>STERI Clean Air</div>
             <div className={s.subtitle1}>HVAC Matrix Platform</div>
           </div>
+
+          {/* Right — User info + logout */}
           <div className={s.right}>
-            {customerName && (
-              <div className="text-sm text-white mr-4 hidden sm:block">
-                <span className="opacity-70">Customer: </span>
-                <span className="font-semibold">{customerName}</span>
-              </div>
-            )}
+            <div className="flex flex-col items-end mr-4 hiddn sm:flex">
+              <span className="text-sm font-bold text-blue-600">
+                {displayName || "User Dashboard"}
+              </span>
+              {userEmail && (
+                <span className="text-xs text-slate-500 mt-0.5">
+                  {userEmail}
+                </span>
+              )}
+            </div>
+            <div className="w-px h-8 bg-slate-200 mr-4 hidden sm:block" />
             <button type="button" className={s.logout} onClick={onLogout}>
               <FiLogOut className="text-[18px]" />
               Logout
@@ -169,27 +190,62 @@ export default function Dashboard() {
 
       <div className={s.contentWrap}>
         <div className={s.container}>
+          {/* ── Welcome ── */}
           <div className={s.headerWrap}>
             <div className={s.title2}>
-              {tmpl(text.dashboard.welcomeTitle, { name: userName })}
+              {tmpl(text.dashboard.welcomeTitle, { name: firstName })}
             </div>
             <div className={s.subtitle2}>{text.dashboard.welcomeSubtitle}</div>
           </div>
 
+          {/* ── Metrics ── */}
           <div className={s.metricsRow}>
             <div className={s.metricCard}>
-              <div className={s.metricIconWrap}>
+              <div className={`${s.metricIconWrap} bg-blue-100`}>
                 <FaFolderOpen className="text-blue-700 text-2xl" />
               </div>
               <div>
-                <div className={s.metricNumber}>{counts.total}</div>
-                <div className={s.metricLabel}>
-                  {text.dashboard.metric.totalProjects}
+                <div className={`${s.metricNumber} text-blue-700`}>
+                  {counts.total}
+                </div>
+                <div className={s.metricLabel}>Total Projects</div>
+              </div>
+            </div>
+            <div className={s.metricCard}>
+              <div className={`${s.metricIconWrap} bg-orange-100`}>
+                <FaLayerGroup className="text-orange-500 text-2xl" />
+              </div>
+              <div>
+                <div className={`${s.metricNumber} text-orange-500`}>4</div>
+                <div className={s.metricLabel}>In Progress</div>
+              </div>
+            </div>
+            <div className={s.metricCard}>
+              <div className={`${s.metricIconWrap} bg-green-100`}>
+                <FaCheck className="text-green-600 text-2xl" />
+              </div>
+              <div>
+                <div className={`${s.metricNumber} text-green-600`}>8</div>
+                <div className={s.metricLabel}>Completed</div>
+              </div>
+            </div>
+            <div className={s.metricCard}>
+              <div>
+                <div className="text-xs text-slate-400 font-medium uppercase tracking-widest mb-1">
+                  Last Activity
+                </div>
+                <div className="text-lg font-bold text-slate-900">
+                  {new Date().toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
                 </div>
               </div>
             </div>
           </div>
 
+          {/* ── Current Projects ── */}
           <div className={s.sectionCard}>
             <div className={s.cardHeader}>
               <div className={s.sectionTitle}>
@@ -229,6 +285,7 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* ── Quick Actions ── */}
           <div className={s.sectionCard}>
             <div className={s.sectionTitle}>
               {text.dashboard.quickActionsTitle}
@@ -305,6 +362,7 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* ── Platform Features ── */}
           <div className={s.featuresCard}>
             <div className={s.featuresTitle}>
               {text.dashboard.featuresTitle}
@@ -319,7 +377,7 @@ export default function Dashboard() {
                 <div className={s.featureList}>
                   {features[0].bullets.map((b: string, i: number) => (
                     <div key={i} className={s.featureBullet}>
-                      <FaCheck className="mt-1 text-black-700" />
+                      <FaCheck className="mt-1 text-blue-600" />
                       <div>{b}</div>
                     </div>
                   ))}
@@ -334,7 +392,7 @@ export default function Dashboard() {
                 <div className={s.featureList}>
                   {features[1].bullets.map((b: string, i: number) => (
                     <div key={i} className={s.featureBullet}>
-                      <FaCheck className="mt-1 text-black-700" />
+                      <FaCheck className="mt-1 text-blue-600" />
                       <div>{b}</div>
                     </div>
                   ))}
@@ -349,7 +407,7 @@ export default function Dashboard() {
                 <div className={s.featureList}>
                   {features[2].bullets.map((b: string, i: number) => (
                     <div key={i} className={s.featureBullet}>
-                      <FaCheck className="mt-1 text-black-600" />
+                      <FaCheck className="mt-1 text-blue-600" />
                       <div>{b}</div>
                     </div>
                   ))}
@@ -360,6 +418,7 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* ── Profile Alert Popup ── */}
       {showProfileAlert && (
         <div className={s.popupOverlay}>
           <div

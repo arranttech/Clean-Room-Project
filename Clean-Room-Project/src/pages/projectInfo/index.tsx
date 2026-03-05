@@ -9,15 +9,15 @@ import { FaLocationDot, FaXmark } from "react-icons/fa6";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./styles";
 import {
-	projectInfo,
-	getProjectByCustomerId,
+  projectInfo,
+  getProjectByCustomerId,
 } from "../../backend/controller/projectController";
 
 function ProjectInfoPage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
-  // customerId from customerSlice
+// customerId from customerSlice
   const customerId = useAppSelector((s: any) => s.customer.customerId);
   const customerName = useAppSelector((s: any) => s.customer.customerName);
 
@@ -112,11 +112,17 @@ function ProjectInfoPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // GET
+  // Fetch project from DB ONLY when:
+  // 1. customerId exists
+  // 2. No projectId in Redux (not yet saved)
+  // 3. No projectName in Redux (not prefilled yet — prevents refetch on refresh)
+  // 4. Not a new project flow
   useEffect(() => {
     if (!customerId) return;
-    if (projectIdFromRedux) return;
-    if (isNewProjectRef.current) return;
+    if (projectIdFromRedux) return; // already have a project saved
+    if (projectName) return; // already prefilled — skip on refresh
+    if (isNewProjectRef.current) return; // new project flow — don't prefill
+
     const fetchProject = async () => {
       try {
         const data = await getProjectByCustomerId(customerId);
@@ -154,7 +160,7 @@ function ProjectInfoPage() {
       }
     };
     fetchProject();
-  }, [customerId, projectIdFromRedux]); // ← isNewProject NOT in deps — ref used instead
+  }, [customerId, projectIdFromRedux]);
 
   const generateUniqueId = (name: string, project: string) => {
     if (!name || !project) return "";
@@ -251,8 +257,6 @@ function ProjectInfoPage() {
   };
 
   const saveProjectInfo = async () => {
-    // ─── CHANGE 2: guard updated — only skip POST when projectId exists AND isNewProject is false ───
-    // if isNewProject is true (came back from results) — always POST fresh project
     if (projectIdFromRedux && !isNewProject) {
       console.log(
         "Project already saved, skipping POST. ProjectId:",
@@ -271,7 +275,6 @@ function ProjectInfoPage() {
     }
     dispatch(updateField({ field: "isNewProject", value: false }));
 
-    // POST
     const payload = {
       customer_id: customerId,
       projectName,

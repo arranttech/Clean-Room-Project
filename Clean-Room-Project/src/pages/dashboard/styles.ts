@@ -3,7 +3,7 @@ const dashboardDesign = {
 	page: "min-h-screen bg-slate-50",
 
 	header: "w-full bg-white border-b border-slate-200 shadow-sm",
-	headerInner: "mx-auto max-w-7xl px-6 h-20 flex items-center",
+	headerInner: "mx-auto max-w-auto px-14 h-20 flex items-center",
 
 	left: "flex items-center gap-4 flex-1",
 	logoTile: "h-12 w-12 rounded-2xl flex items-center justify-center shadow",

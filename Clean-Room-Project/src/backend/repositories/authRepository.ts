@@ -34,6 +34,7 @@ export const authRepository = {
         name: `${user?.user_first_name || ""} ${
           user?.user_last_name || ""
         }`.trim(),
+        status: user?.status,
       },
     };
   },

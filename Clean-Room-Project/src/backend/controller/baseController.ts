@@ -7,11 +7,16 @@ export async function request(
 	method: string = "GET",
 	payload: object | null = null
 ) {
+	const token = localStorage.getItem("token"); 
+	const headers: any = { "Content-Type": "application/json",
+	};
+	if (token) {
+		headers.Authorization = `Bearer ${token}`;
+		}
+
 	const options: RequestInit = {
 		method,
-		headers: {
-			"Content-Type": "application/json",
-		},
+		headers,
 	};
 
 	if (payload) {

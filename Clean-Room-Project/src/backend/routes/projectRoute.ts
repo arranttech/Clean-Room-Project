@@ -75,6 +75,7 @@ export const projectRoute: ServerRoute[] = [
 					minTemp: Joi.number().required(),
 					relativeHumidityMin: Joi.number().required(),
 					relativeHumidityMax: Joi.number().required(),
+					unitBranch: Joi.string().required(),
 				}),
 			},
 

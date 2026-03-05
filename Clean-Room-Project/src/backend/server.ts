@@ -20,6 +20,15 @@ const swaggerOptions = {
 		title: "Clean Room Project API",
 		version: "1.0.0",
 	},
+	grouping: "tags", // ⭐ this enables grouping
+	tags: [
+		{ name: "auth", description: "Authentication APIs" },
+		{ name: "customer", description: "Customer management APIs" },
+		{ name: "project", description: "Project APIs" },
+		{ name: "users", description: "User management APIs" },
+		{ name: "profiles", description: "Profile and permission APIs" },
+		{ name: "calculation", description: "Engineering calculation APIs" },
+	],
 };
 
 const startServer = async () => {

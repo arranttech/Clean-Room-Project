@@ -10,7 +10,7 @@ export const inputRoute: ServerRoute[] = [
 		path: "/v1/alldetails",
 		options: {
 			description: "Fetch all input details for a room",
-			tags: ["api", "input"],
+			tags: ["api", "project"],
 			validate: {
 				query: Joi.object({
 					room_id: Joi.number().integer().default(8).optional(),

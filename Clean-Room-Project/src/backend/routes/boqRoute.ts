@@ -114,6 +114,8 @@ export const boqRoute: ServerRoute[] = [
 					zoneResultCoolLoadTR: Joi.number().required(),
 					zoneRoomACValue: Joi.number().required(),
 					zoneCfmACLoadTR: Joi.number().required(),
+					zoneRoomHeatLoadTR: Joi.number().required(),
+					zoneCfmHeatLoadTRValue: Joi.number().required(),
 				}).unknown(false),
 			},
 			response: {

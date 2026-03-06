@@ -5,7 +5,7 @@ import { combineReducers } from "redux";
 import projectInfoReducer from "./slices/projectInfoSlice";
 import standardsReducer from "./slices/standardSlice";
 import roomReducer from "./slices/roomSlice";
-import customerReducer from "./slices/customerSlice"; 
+import customerReducer from "./slices/customerSlice";
 import userReducer from "./slices/userSlice";
 
 

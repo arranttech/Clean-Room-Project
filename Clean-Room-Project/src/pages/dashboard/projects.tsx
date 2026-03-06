@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FiLogOut } from "react-icons/fi";
+import Header from "../../components/header";
 import {
 	FaArrowLeft,
 	FaEye,
@@ -74,37 +74,7 @@ export default function AllProjects() {
 	return (
 		<div className={s.page}>
 			{/* header */}
-			<header className={s.header}>
-				<div className={s.headerInner}>
-					<div className={s.left}>
-						<div className={s.logoTile}>
-							<img
-								src="/Arrant.jpeg"
-								alt="Arrant Dynamics"
-								className={s.logoImg}
-							/>
-						</div>
-						<div className={s.brand}>
-							<div>ARRANT</div>
-							<div>DYNAMICS</div>
-						</div>
-					</div>
-
-					<div className={s.center}>
-						<div className={s.title1}>STERI Clean Air</div>
-						<div className={s.subtitle1}>HVAC Matrix Platform</div>
-					</div>
-
-					<div className={s.right}>
-						<Link to="/">
-							<button type="button" className={s.logout}>
-								<FiLogOut className="text-[18px]" />
-								Logout
-							</button>
-						</Link>
-					</div>
-				</div>
-			</header>
+		<Header/>
 
 			<div className={s.contentWrap}>
 				<div className={s.container1}>

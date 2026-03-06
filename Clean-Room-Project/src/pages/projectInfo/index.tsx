@@ -12,6 +12,7 @@ import {
   projectInfo,
   getProjectByCustomerId,
 } from "../../backend/controller/projectController";
+import Header from "../../components/header";
 
 function ProjectInfoPage() {
   const dispatch = useAppDispatch();
@@ -309,6 +310,7 @@ function ProjectInfoPage() {
   };
 
   return (
+    <><Header/>
     <div className={styles.wrapper}>
       <div className={styles.top}>
         <h1 className={styles.title}>Project Information</h1>
@@ -589,6 +591,7 @@ function ProjectInfoPage() {
         </button>
       </div>
     </div>
+    </>
   );
 }
 

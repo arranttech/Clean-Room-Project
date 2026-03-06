@@ -4,7 +4,6 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { setCustomer } from "../../redux/slices/customerSlice";
 import { getCustomerById } from "../../backend/controller/customerController";
 import { getUserById } from "../../backend/controller/userController";
-import { FiLogOut } from "react-icons/fi";
 import {
   FaFolderOpen,
   FaPlus,
@@ -18,6 +17,7 @@ import {
 import { MdApartment } from "react-icons/md";
 import s from "./styles";
 import text from "../../json/dashboard.json";
+import Header from "../../components/header";
 
 type Project = {
   id: string;
@@ -66,38 +66,29 @@ function tmpl(str: string, vars: Record<string, string | number>) {
 export default function Dashboard() {
   const [projects] = useState<Project[]>(demoProjects);
   const [showProfileAlert, setShowProfileAlert] = useState(false);
-  const [userEmail, setUserEmail] = useState("");
-  const [userFullName, setUserFullName] = useState("");
+  const [firstName, setFirstName] = useState("User");
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const loggedInUser = useAppSelector((state: any) => state.user);
   const customerId = useAppSelector((state: any) => state.customer.customerId);
-
   const counts = { total: projects.length };
 
-  // Fetch user details (name + email) from DB on load
   useEffect(() => {
     if (!loggedInUser?.user_login_id) return;
-    const fetchUserDetails = async () => {
+    const fetchUser = async () => {
       try {
         const res = await getUserById(loggedInUser.user_login_id);
         const u = res?.user ?? res;
-        if (u) {
-          setUserFullName(
-            `${u.user_first_name || ""} ${u.user_last_name || ""}`.trim()
-          );
-          setUserEmail(u.user_email_id || "");
-        }
+        if (u) setFirstName(u.user_first_name?.trim() || "User");
       } catch (e) {
-        console.error("Failed to fetch user details:", e);
+        console.error(e);
       }
     };
-    fetchUserDetails();
+    fetchUser();
   }, [loggedInUser?.user_login_id]);
 
-  // Auto-fetch customer on dashboard load
   useEffect(() => {
     if (customerId || !loggedInUser?.user_login_id) return;
     const loadCustomer = async () => {
@@ -132,64 +123,12 @@ export default function Dashboard() {
 
   const features = text.dashboard.features;
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login", { replace: true });
-  };
-
-  const displayName = userFullName || loggedInUser?.name || "User";
-  const firstName = displayName.split(" ")[0];
-
   return (
     <div className={s.page}>
-      {/* ── Header ── */}
-      <header className={s.header}>
-        <div className={s.headerInner}>
-          {/* Left — Logo */}
-          <div className={s.left}>
-            <div className={s.logoTile}>
-              <img
-                src="/Arrant.jpeg"
-                alt="Arrant Dynamics"
-                className={s.logoImg}
-              />
-            </div>
-            <div className={s.brand}>
-              <div>ARRANT</div>
-              <div>DYNAMICS</div>
-            </div>
-          </div>
-
-          {/* Center — App name */}
-          <div className={s.center}>
-            <div className={s.title1}>STERI Clean Air</div>
-            <div className={s.subtitle1}>HVAC Matrix Platform</div>
-          </div>
-
-          {/* Right — User info + logout */}
-          <div className={s.right}>
-            <div className="flex flex-col items-end mr-4 hiddn sm:flex">
-              <span className="text-sm font-bold text-blue-600">
-                {displayName || "User Dashboard"}
-              </span>
-              {userEmail && (
-                <span className="text-xs text-slate-500 mt-0.5">
-                  {userEmail}
-                </span>
-              )}
-            </div>
-            <div className="w-px h-8 bg-slate-200 mr-4 hidden sm:block" />
-            <button type="button" className={s.logout} onClick={handleLogout}>
-              <FiLogOut className="text-[18px]" />
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <div className={s.contentWrap}>
         <div className={s.container}>
-          {/* ── Welcome ── */}
           <div className={s.headerWrap}>
             <div className={s.title2}>
               {tmpl(text.dashboard.welcomeTitle, { name: firstName })}
@@ -197,7 +136,6 @@ export default function Dashboard() {
             <div className={s.subtitle2}>{text.dashboard.welcomeSubtitle}</div>
           </div>
 
-          {/* ── Metrics ── */}
           <div className={s.metricsRow}>
             <div className={s.metricCard}>
               <div className={`${s.metricIconWrap} bg-blue-100`}>
@@ -244,7 +182,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* ── Current Projects ── */}
           <div className={s.sectionCard}>
             <div className={s.cardHeader}>
               <div className={s.sectionTitle}>
@@ -284,7 +221,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* ── Quick Actions ── */}
           <div className={s.sectionCard}>
             <div className={s.sectionTitle}>
               {text.dashboard.quickActionsTitle}
@@ -293,11 +229,8 @@ export default function Dashboard() {
               <button
                 type="button"
                 onClick={() => {
-                  if (!customerId) {
-                    setShowProfileAlert(true);
-                  } else {
-                    navigate("/project-info");
-                  }
+                  if (!customerId) setShowProfileAlert(true);
+                  else navigate("/project-info");
                 }}
                 className={`${s.actionCardBase} ${s.actionCardHover} text-left`}
               >
@@ -316,7 +249,6 @@ export default function Dashboard() {
                   </div>
                 </div>
               </button>
-
               <Link
                 to="/projects"
                 className={`${s.actionCardBase} ${s.actionCardHover}`}
@@ -336,7 +268,6 @@ export default function Dashboard() {
                   </div>
                 </div>
               </Link>
-
               <Link
                 to="/customer-info"
                 className={`${s.actionCardBase} ${s.actionCardHover}`}
@@ -361,63 +292,33 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* ── Platform Features ── */}
           <div className={s.featuresCard}>
             <div className={s.featuresTitle}>
               {text.dashboard.featuresTitle}
             </div>
             <div className={s.featuresGrid}>
-              <div className={s.featureItem}>
-                <div className={s.featureIconWrap}>
-                  <FaBuilding className="text-blue-700 text-2xl" />
+              {[FaBuilding, FaLayerGroup, FaCalculator].map((Icon, i) => (
+                <div key={i} className={s.featureItem}>
+                  <div className={s.featureIconWrap}>
+                    <Icon className="text-blue-700 text-2xl" />
+                  </div>
+                  <div className={s.featureTitle}>{features[i].title}</div>
+                  <div className={s.featureDesc}>{features[i].desc}</div>
+                  <div className={s.featureList}>
+                    {features[i].bullets.map((b: string, j: number) => (
+                      <div key={j} className={s.featureBullet}>
+                        <FaCheck className="mt-1 text-blue-600" />
+                        <div>{b}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className={s.featureTitle}>{features[0].title}</div>
-                <div className={s.featureDesc}>{features[0].desc}</div>
-                <div className={s.featureList}>
-                  {features[0].bullets.map((b: string, i: number) => (
-                    <div key={i} className={s.featureBullet}>
-                      <FaCheck className="mt-1 text-blue-600" />
-                      <div>{b}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className={s.featureItem}>
-                <div className={s.featureIconWrap}>
-                  <FaLayerGroup className="text-blue-700 text-2xl" />
-                </div>
-                <div className={s.featureTitle}>{features[1].title}</div>
-                <div className={s.featureDesc}>{features[1].desc}</div>
-                <div className={s.featureList}>
-                  {features[1].bullets.map((b: string, i: number) => (
-                    <div key={i} className={s.featureBullet}>
-                      <FaCheck className="mt-1 text-blue-600" />
-                      <div>{b}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className={s.featureItem}>
-                <div className={s.featureIconWrap}>
-                  <FaCalculator className="text-blue-700 text-2xl" />
-                </div>
-                <div className={s.featureTitle}>{features[2].title}</div>
-                <div className={s.featureDesc}>{features[2].desc}</div>
-                <div className={s.featureList}>
-                  {features[2].bullets.map((b: string, i: number) => (
-                    <div key={i} className={s.featureBullet}>
-                      <FaCheck className="mt-1 text-blue-600" />
-                      <div>{b}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Profile Alert Popup ── */}
       {showProfileAlert && (
         <div className={s.popupOverlay}>
           <div

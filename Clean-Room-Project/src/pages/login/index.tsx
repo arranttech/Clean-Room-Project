@@ -1,16 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import loginDesign from "./styles";
 import { loginUser } from "../../backend/controller/authContoller";
+import { getUserById } from "../../backend/controller/userController";
 import { getCustomerInfo } from "../../backend/controller/customerController";
 import { useAppDispatch } from "../../redux/hooks";
 import { setUser } from "../../redux/slices/userSlice";
 import { setCustomer } from "../../redux/slices/customerSlice";
+import { persistor } from "../../redux/store";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
-function login() {
+function Login() {
   const styles = loginDesign;
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -19,19 +21,6 @@ function login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get("token");
-    if (!token) return;
-    params.delete("token");
-    const cleanedQuery = params.toString();
-    const cleanUrl = cleanedQuery
-      ? `${window.location.pathname}?${cleanedQuery}`
-      : window.location.pathname;
-    window.history.replaceState({}, "", cleanUrl);
-    navigate("/dashboard", { replace: true });
-  }, [navigate]);
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -39,21 +28,38 @@ function login() {
 
     try {
       const response = await loginUser({ identifier, password });
-      if (response.success) {
-        localStorage.setItem("token", response.token);
-        localStorage.setItem("user", JSON.stringify(response.user));
-        // Store in Redux (also syncs to localStorage via userSlice)
-        dispatch(setUser(response.user));
-        navigate("/users");
-      } else {
+
+      if (!response.success) {
         setError(response.message || "Login failed");
         return;
       }
 
-      // Store in Redux (also syncs to localStorage via userSlice)
-      dispatch(setUser(response.user));
+      // Store token only
+      localStorage.setItem("token", response.token);
 
-      // Fetch customer immediately after login so Dashboard shows "✓ Profile saved" instantly
+      // Purge any stale data from previous session
+      persistor.purge();
+
+      // Fetch full user details from DB
+      const userRes = await getUserById(response.user.user_login_id);
+      const u = userRes?.user ?? userRes;
+
+      // Dispatch user to Redux
+      dispatch(
+        setUser({
+          user_login_id: response.user.user_login_id,
+          user_id: response.user.user_id,
+          customer_id: response.user.customer_id,
+          name: u
+            ? `${u.user_first_name || ""} ${u.user_last_name || ""}`.trim()
+            : response.user.name,
+          firstName: u?.user_first_name || "",
+          lastName: u?.user_last_name || "",
+          email: u?.user_email_id || "",
+        })
+      );
+
+      // Fetch customer info
       try {
         const customerResult = await getCustomerInfo(
           response.user.user_login_id
@@ -75,7 +81,7 @@ function login() {
           );
         }
       } catch {
-        // Customer fetch failed silently — user can still access dashboard
+        // Customer fetch failed silently
       }
 
       navigate("/dashboard");
@@ -190,4 +196,4 @@ function login() {
   );
 }
 
-export default login;
+export default Login;

@@ -15,6 +15,8 @@ import {
 import { createProjectZone } from "../../backend/controller/zoneController";
 import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
+import Header from "../../components/header";
+import store from "../../redux/store";
 
 type StandardItem = {
   id: number;
@@ -100,6 +102,7 @@ export default function Standard() {
   const projectIdFromRedux = useAppSelector(
     (state: any) => state.projectInfo.projectId
   );
+  // Use location.state first, then Redux — covers both fresh navigation and page refresh
   const projectId = location.state?.projectId ?? projectIdFromRedux;
 
   const zoneIdFromRedux = useAppSelector(
@@ -528,12 +531,6 @@ export default function Standard() {
     coolingFlowVelocity,
   ]);
 
-  useEffect(() => {
-    console.group("STANDARD SCREEN - CURRENT STATE");
-    console.log(roomPayload);
-    console.groupEnd();
-  }, [roomPayload]);
-
   const isFormValid = (() => {
     if (!standard || errors.standard) return false;
     if (!classification || errors.classification) return false;
@@ -550,8 +547,22 @@ export default function Standard() {
   })();
 
   const createProjectZones = async () => {
-    const payload = { project_id: projectId, zone_name: "Zone 001" };
-    console.log("ZONE PAYLOAD:", payload);
+    // Read directly from store as ultimate fallback — handles rehydration timing issues
+    const freshProjectId =
+      location.state?.projectId ??
+      projectIdFromRedux ??
+      (store.getState() as any).projectInfo?.projectId;
+
+    console.log("ZONE PAYLOAD project_id:", freshProjectId);
+
+    if (!freshProjectId) {
+      alert(
+        "Project ID is missing. Please go back to Project Info and try again."
+      );
+      throw new Error("Missing project_id for zone creation");
+    }
+
+    const payload = { project_id: freshProjectId, zone_name: "Zone 001" };
     try {
       const data = await createProjectZone(payload);
       console.log("Project zone created:", data);
@@ -563,8 +574,13 @@ export default function Standard() {
   };
 
   const saveroomStandards = async () => {
+    const freshProjectId =
+      location.state?.projectId ??
+      projectIdFromRedux ??
+      (store.getState() as any).projectInfo?.projectId;
+
     const payload = {
-      project_id: projectId,
+      project_id: freshProjectId,
       system,
       systemType,
       heatingMethod,
@@ -597,14 +613,12 @@ export default function Standard() {
 
   const handleNext = async (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
-
     if (!isFormValid) {
       alert("Please fill all required fields correctly before proceeding.");
       return;
     }
 
     try {
-      // ─── If zoneId already exists, user is going back/forward — skip POST ───
       if (zoneIdFromRedux) {
         console.log("Zone already exists, skipping POST — navigating directly");
         navigate("/room", {
@@ -617,7 +631,6 @@ export default function Standard() {
         return;
       }
 
-      // ─── No zoneId — first time OR after Add Another Zone reset ───
       const zoneData = await createProjectZones();
       const standardData = await saveroomStandards();
 
@@ -653,574 +666,638 @@ export default function Standard() {
   };
 
   return (
-    <div className={s.page}>
-      <div className={s.top}>
-        <h1 className={s.title}>{t.page.title}</h1>
-        <p className={s.subtitle}>{t.page.subtitle}</p>
-      </div>
+    <>
+      <Header />
+      <div className={s.page}>
+        <div className={s.top}>
+          <h1 className={s.title}>{t.page.title}</h1>
+          <p className={s.subtitle}>{t.page.subtitle}</p>
+        </div>
 
-      <div className={s.cardWrap}>
-        <div className={s.card}>
-          <div className={s.cardHeader}>
-            <div className={s.cardHeaderTitle}>{t.page.cardTitle}</div>
-          </div>
-          <div className={s.divider} />
-          <div className={s.body}>
-            <div className={s.grid2}>
-              <div className={s.field}>
-                <label className={s.label}>
-                  {t.labels.system} <span className={s.required}>*</span>
-                  <Tooltip
-                    id="system"
-                    content={constants.Tooltip.systemTooltip}
-                  />
-                </label>
-                <select
-                  className={s.select}
-                  value={system}
-                  onChange={(e) => {
-                    dispatch(
-                      updateStandardsField({
-                        field: "system",
-                        value: e.target.value,
-                      })
-                    );
-                    dispatch(
-                      updateStandardsField({ field: "systemType", value: "" })
-                    );
-                  }}
-                  required={true}
-                >
-                  <option value="">{t.placeholders.system}</option>
-                  <option value={t.options.systems.heating}>
-                    {t.options.systems.heating}
-                  </option>
-                  <option value={t.options.systems.cooling}>
-                    {t.options.systems.cooling}
-                  </option>
-                  <option value={t.options.systems.ventilation}>
-                    {t.options.systems.ventilation}
-                  </option>
-                  <option value={t.options.systems.coolingVentilation}>
-                    {t.options.systems.coolingVentilation}
-                  </option>
-                  <option value={t.options.systems.heatingVentilation}>
-                    {t.options.systems.heatingVentilation}
-                  </option>
-                  <option value={t.options.systems.heatingCooling}>
-                    {t.options.systems.heatingCooling}
-                  </option>
-                </select>
-              </div>
-              {system !== "" && (
-                <div className={s.field}>
-                  <label className={s.label}>
-                    {systemTypeLabel} <span className={s.required}>*</span>
-                    <Tooltip
-                      id="systemType"
-                      content={
-                        systemTypeLabel === t.labels.systemTypeGeneric
-                          ? constants.Tooltip.heatingSystemTypeTooltip
-                          : systemTypeLabel === t.labels.systemTypeHeating
-                          ? constants.Tooltip.heatingSystemTypeTooltip
-                          : systemTypeLabel === t.labels.systemTypeCooling
-                          ? constants.Tooltip.coolingSystemTypeTooltip
-                          : constants.Tooltip.ventilationSystemTypeTooltip
-                      }
-                    />
-                  </label>
-                  <select
-                    className={s.select}
-                    value={systemType}
-                    onChange={(e) => {
-                      dispatch(
-                        updateStandardsField({
-                          field: "systemType",
-                          value: e.target.value,
-                        })
-                      );
-                      dispatch(
-                        updateStandardsField({
-                          field: "classification",
-                          value: "",
-                        })
-                      );
-                      dispatch(
-                        updateStandardsField({ field: "acph", value: "" })
-                      );
-                    }}
-                    required={true}
-                  >
-                    <option value="">{systemTypePlaceholder}</option>
-                    {systemTypes.map((v: string) => (
-                      <option key={v} value={v}>
-                        {v}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
+        <div className={s.cardWrap}>
+          <div className={s.card}>
+            <div className={s.cardHeader}>
+              <div className={s.cardHeaderTitle}>{t.page.cardTitle}</div>
             </div>
-
-            {(showHeatingMethod || showCoolingMethod) && (
-              <div className={"mt-6 " + s.grid2}>
-                {showHeatingMethod && (
-                  <div className={s.field}>
-                    <label className={s.label}>
-                      {t.labels.heatingMethod}{" "}
-                      <span className={s.required}>*</span>
-                      <Tooltip
-                        id="heatingMethod"
-                        content={constants.Tooltip.heatingMethodTooltip}
-                      />
-                    </label>
-                    <select
-                      className={s.select}
-                      value={heatingMethod}
-                      onChange={(e) =>
-                        dispatch(
-                          updateStandardsField({
-                            field: "heatingMethod",
-                            value: e.target.value,
-                          })
-                        )
-                      }
-                      required={true}
-                    >
-                      <option value="">{t.placeholders.heatingMethod}</option>
-                      {heatingMethods.map((m: string) => (
-                        <option key={m} value={m}>
-                          {m}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-                {showCoolingMethod && (
-                  <div className={s.field}>
-                    <label className={s.label}>
-                      {t.labels.coolingMethod}{" "}
-                      <span className={s.required}>*</span>
-                      <Tooltip
-                        id="coolingMethod"
-                        content={constants.Tooltip.coolingMethodTooltip}
-                      />
-                    </label>
-                    <select
-                      className={s.select}
-                      value={coolingMethod}
-                      onChange={(e) =>
-                        dispatch(
-                          updateStandardsField({
-                            field: "coolingMethod",
-                            value: e.target.value,
-                          })
-                        )
-                      }
-                      required={true}
-                    >
-                      <option value="">{t.placeholders.coolingMethod}</option>
-                      {coolingMethods.map((m: string) => (
-                        <option key={m} value={m}>
-                          {m}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className={s.sectionSpacer}>
-              <div className={s.grid3}>
+            <div className={s.divider} />
+            <div className={s.body}>
+              <div className={s.grid2}>
                 <div className={s.field}>
                   <label className={s.label}>
-                    {t.labels.standard} <span className={s.required}>*</span>
+                    {t.labels.system} <span className={s.required}>*</span>
                     <Tooltip
-                      id="standard"
-                      content={constants.Tooltip.standardTooltip}
+                      id="system"
+                      content={constants.Tooltip.systemTooltip}
                     />
                   </label>
                   <select
                     className={s.select}
-                    value={standard}
+                    value={system}
                     onChange={(e) => {
                       dispatch(
                         updateStandardsField({
-                          field: "standard",
+                          field: "system",
                           value: e.target.value,
                         })
                       );
                       dispatch(
-                        updateStandardsField({
-                          field: "classification",
-                          value: "",
-                        })
-                      );
-                      dispatch(
-                        updateStandardsField({ field: "acph", value: "" })
+                        updateStandardsField({ field: "systemType", value: "" })
                       );
                     }}
                     required={true}
                   >
-                    <option value="">{t.placeholders.standard}</option>
-                    {filteredStandardsData.map((item) => (
-                      <option key={item.id} value={item.title}>
-                        {item.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className={s.field}>
-                  <label className={s.label}>
-                    {t.labels.classification}{" "}
-                    <span className={s.required}>*</span>
-                    <Tooltip
-                      id="classification"
-                      content={constants.Tooltip.classificationTooltip}
-                    />
-                  </label>
-                  <select
-                    className={selectedStandard ? s.select : s.selectDisabled}
-                    disabled={!selectedStandard}
-                    value={classification}
-                    onChange={(e) =>
-                      dispatch(
-                        updateStandardsField({
-                          field: "classification",
-                          value: e.target.value,
-                        })
-                      )
-                    }
-                    required={true}
-                  >
-                    <option value="">
-                      {selectedStandard
-                        ? t.placeholders.classification
-                        : t.placeholders.classificationDisabled}
+                    <option value="">{t.placeholders.system}</option>
+                    <option value={t.options.systems.heating}>
+                      {t.options.systems.heating}
                     </option>
-                    {classList.map((c) => (
-                      <option key={c.name} value={c.name}>
-                        {c.name}
-                      </option>
-                    ))}
+                    <option value={t.options.systems.cooling}>
+                      {t.options.systems.cooling}
+                    </option>
+                    <option value={t.options.systems.ventilation}>
+                      {t.options.systems.ventilation}
+                    </option>
+                    <option value={t.options.systems.coolingVentilation}>
+                      {t.options.systems.coolingVentilation}
+                    </option>
+                    <option value={t.options.systems.heatingVentilation}>
+                      {t.options.systems.heatingVentilation}
+                    </option>
+                    <option value={t.options.systems.heatingCooling}>
+                      {t.options.systems.heatingCooling}
+                    </option>
                   </select>
                 </div>
-                <div className={s.field}>
-                  <label className={s.label}>
-                    {t.labels.acph} <span className={s.required}>*</span>
-                    <Tooltip
-                      id="acph"
-                      content={constants.Tooltip.acphTooltip}
-                    />
-                  </label>
-                  <select
-                    className={!acphDisabled ? s.select : s.selectDisabled}
-                    disabled={acphDisabled}
-                    value={acph}
-                    onChange={(e) =>
-                      dispatch(
-                        updateStandardsField({
-                          field: "acph",
-                          value: e.target.value,
-                        })
-                      )
-                    }
-                    required={true}
-                  >
-                    {acphDisabled ? (
-                      <option value="">{t.placeholders.acphDisabled}</option>
-                    ) : (
-                      acphOptions.map((v) => (
+                {system !== "" && (
+                  <div className={s.field}>
+                    <label className={s.label}>
+                      {systemTypeLabel} <span className={s.required}>*</span>
+                      <Tooltip
+                        id="systemType"
+                        content={
+                          systemTypeLabel === t.labels.systemTypeGeneric
+                            ? constants.Tooltip.heatingSystemTypeTooltip
+                            : systemTypeLabel === t.labels.systemTypeHeating
+                            ? constants.Tooltip.heatingSystemTypeTooltip
+                            : systemTypeLabel === t.labels.systemTypeCooling
+                            ? constants.Tooltip.coolingSystemTypeTooltip
+                            : constants.Tooltip.ventilationSystemTypeTooltip
+                        }
+                      />
+                    </label>
+                    <select
+                      className={s.select}
+                      value={systemType}
+                      onChange={(e) => {
+                        dispatch(
+                          updateStandardsField({
+                            field: "systemType",
+                            value: e.target.value,
+                          })
+                        );
+                        dispatch(
+                          updateStandardsField({
+                            field: "classification",
+                            value: "",
+                          })
+                        );
+                        dispatch(
+                          updateStandardsField({ field: "acph", value: "" })
+                        );
+                      }}
+                      required={true}
+                    >
+                      <option value="">{systemTypePlaceholder}</option>
+                      {systemTypes.map((v: string) => (
                         <option key={v} value={v}>
                           {v}
                         </option>
-                      ))
-                    )}
-                  </select>
-                  {selectedClass?.minAir != null &&
-                    selectedClass?.maxAir != null && (
-                      <div className={s.range}>
-                        {t.misc.rangeLabel}{" "}
-                        <span className={s.rangeValue}>
-                          {selectedClass.minAir} - {selectedClass.maxAir}
-                        </span>
-                      </div>
-                    )}
-                </div>
-              </div>
-            </div>
-
-            <div className={s.sectionLine} />
-
-            <div className={s.sectionSpacer}>
-              <div className={s.sectionTitle}>{t.sections.tempHumTitle}</div>
-              <div className={s.unitRow}>
-                <div className={s.unitLabel}>{t.labels.tempUnit}</div>
-                <div className={s.unitGroup}>
-                  <label className={s.unitOption}>
-                    <input
-                      className={s.unitRadio}
-                      type="radio"
-                      name="tempUnit"
-                      value="C"
-                      checked={tempUnit === "C"}
-                      onChange={() =>
-                        dispatch(
-                          updateStandardsField({
-                            field: "tempUnit",
-                            value: "C",
-                          })
-                        )
-                      }
-                      disabled={ventilationOnly}
-                    />
-                    <span>{t.options.units.c}</span>
-                  </label>
-                  <label className={s.unitOption}>
-                    <input
-                      className={s.unitRadio}
-                      type="radio"
-                      name="tempUnit"
-                      value="F"
-                      checked={tempUnit === "F"}
-                      onChange={() =>
-                        dispatch(
-                          updateStandardsField({
-                            field: "tempUnit",
-                            value: "F",
-                          })
-                        )
-                      }
-                      disabled={ventilationOnly}
-                    />
-                    <span>{t.options.units.f}</span>
-                  </label>
-                </div>
-                {ventilationOnly && (
-                  <div className={s.unitHint}>{t.misc.ventilationUnitHint}</div>
+                      ))}
+                    </select>
+                  </div>
                 )}
               </div>
 
-              <div className={"mt-6 " + s.grid2}>
-                <div className={s.field}>
-                  <label className={s.label}>
-                    {t.labels.reqInsideTemp} ({tempUnit === "C" ? "°C" : "°F"}){" "}
-                    <span className={s.required}>*</span>
-                    <Tooltip
-                      id="requiredTemperature"
-                      content={constants.Tooltip.requiredTemperatureTooltip}
-                    />
-                  </label>
-                  <input
-                    className={ventilationOnly ? s.inputDisabled : s.input}
-                    inputMode="decimal"
-                    placeholder={tempPlaceholder}
-                    value={reqInsideTempDisplay}
-                    maxLength={3}
-                    required={true}
-                    onChange={(e) => {
-                      onReqInsideTempChange(e.target.value);
-                      setErrors((p) => ({
-                        ...p,
-                        temperature: validateTemperature(e.target.value),
-                      }));
-                    }}
-                    disabled={ventilationOnly}
-                  />
-                  {errors.temperature && (
-                    <div className="text-red-500 text-xs mt-1">
-                      {errors.temperature}
-                    </div>
-                  )}
-                  {!ventilationOnly &&
-                    reqInsideTempC &&
-                    reqInsideTempC !== t.misc.ambient && (
-                      <div className={s.tempHelper}>
-                        {t.misc.storedInternally} <b>{reqInsideTempC} °C</b>
-                      </div>
-                    )}
-                </div>
-                <div className={s.field}>
-                  <label className={s.label}>
-                    {t.labels.reqInsideHum}{" "}
-                    <span className={s.required}>*</span>
-                    <Tooltip
-                      id="requiredHumidity"
-                      content={constants.Tooltip.requiredHumidityTooltip}
-                    />
-                  </label>
-                  <input
-                    className={ventilationOnly ? s.inputDisabled : s.input}
-                    inputMode="decimal"
-                    placeholder={t.placeholders.reqHumidity}
-                    maxLength={3}
-                    value={reqInsideHum}
-                    required={true}
-                    onChange={(e) => {
-                      allowNumericInput(
-                        (v) =>
+              {(showHeatingMethod || showCoolingMethod) && (
+                <div className={"mt-6 " + s.grid2}>
+                  {showHeatingMethod && (
+                    <div className={s.field}>
+                      <label className={s.label}>
+                        {t.labels.heatingMethod}{" "}
+                        <span className={s.required}>*</span>
+                        <Tooltip
+                          id="heatingMethod"
+                          content={constants.Tooltip.heatingMethodTooltip}
+                        />
+                      </label>
+                      <select
+                        className={s.select}
+                        value={heatingMethod}
+                        onChange={(e) =>
                           dispatch(
                             updateStandardsField({
-                              field: "reqInsideHum",
-                              value: v,
+                              field: "heatingMethod",
+                              value: e.target.value,
                             })
-                          ),
-                        e.target.value
-                      );
-                      setErrors((p) => ({
-                        ...p,
-                        humidity: validateHumidity(e.target.value),
-                      }));
-                    }}
-                    disabled={ventilationOnly}
-                  />
-                  {errors.humidity && (
-                    <div className="text-red-500 text-xs mt-1">
-                      {errors.humidity}
+                          )
+                        }
+                        required={true}
+                      >
+                        <option value="">{t.placeholders.heatingMethod}</option>
+                        {heatingMethods.map((m: string) => (
+                          <option key={m} value={m}>
+                            {m}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                  {showCoolingMethod && (
+                    <div className={s.field}>
+                      <label className={s.label}>
+                        {t.labels.coolingMethod}{" "}
+                        <span className={s.required}>*</span>
+                        <Tooltip
+                          id="coolingMethod"
+                          content={constants.Tooltip.coolingMethodTooltip}
+                        />
+                      </label>
+                      <select
+                        className={s.select}
+                        value={coolingMethod}
+                        onChange={(e) =>
+                          dispatch(
+                            updateStandardsField({
+                              field: "coolingMethod",
+                              value: e.target.value,
+                            })
+                          )
+                        }
+                        required={true}
+                      >
+                        <option value="">{t.placeholders.coolingMethod}</option>
+                        {coolingMethods.map((m: string) => (
+                          <option key={m} value={m}>
+                            {m}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   )}
                 </div>
-              </div>
+              )}
 
-              <div className={"mt-6 " + s.grid4}>
-                <div className={s.field}>
-                  <label className={s.label}>
-                    {t.labels.minTemp} ({tempUnit === "C" ? "°C" : "°F"})
-                  </label>
-                  <input
-                    className={s.inputDisabled}
-                    value={tempToDisplay(minTempC) || "-"}
-                    disabled
-                  />
-                </div>
-                <div className={s.field}>
-                  <label className={s.label}>
-                    {t.labels.maxTemp} ({tempUnit === "C" ? "°C" : "°F"})
-                  </label>
-                  <input
-                    className={s.inputDisabled}
-                    value={tempToDisplay(maxTempC) || "-"}
-                    disabled
-                  />
-                </div>
-                <div className={s.field}>
-                  <label className={s.label}>{t.labels.rhMin}</label>
-                  <input
-                    className={s.inputDisabled}
-                    value={rhMin || "-"}
-                    disabled
-                  />
-                </div>
-                <div className={s.field}>
-                  <label className={s.label}>{t.labels.rhMax}</label>
-                  <input
-                    className={s.inputDisabled}
-                    value={rhMax || "-"}
-                    disabled
-                  />
-                </div>
-              </div>
-
-              {!ventilationOnly &&
-                system === t.options.systems.heatingCooling &&
-                showHeatingMethod &&
-                showCoolingMethod && (
-                  <div className={s.dualFlowBlock}>
-                    <div className={s.dualFlowGrid}>
-                      <div className={s.dualFlowCard}>
-                        <div className={s.dualFlowTitle}>
-                          Heating Flow Velocity –{" "}
-                          {formatMediumLabel(heatingMethod)}
-                          <span className={s.required}>*</span>
+              <div className={s.sectionSpacer}>
+                <div className={s.grid3}>
+                  <div className={s.field}>
+                    <label className={s.label}>
+                      {t.labels.standard} <span className={s.required}>*</span>
+                      <Tooltip
+                        id="standard"
+                        content={constants.Tooltip.standardTooltip}
+                      />
+                    </label>
+                    <select
+                      className={s.select}
+                      value={standard}
+                      onChange={(e) => {
+                        dispatch(
+                          updateStandardsField({
+                            field: "standard",
+                            value: e.target.value,
+                          })
+                        );
+                        dispatch(
+                          updateStandardsField({
+                            field: "classification",
+                            value: "",
+                          })
+                        );
+                        dispatch(
+                          updateStandardsField({ field: "acph", value: "" })
+                        );
+                      }}
+                      required={true}
+                    >
+                      <option value="">{t.placeholders.standard}</option>
+                      {filteredStandardsData.map((item) => (
+                        <option key={item.id} value={item.title}>
+                          {item.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className={s.field}>
+                    <label className={s.label}>
+                      {t.labels.classification}{" "}
+                      <span className={s.required}>*</span>
+                      <Tooltip
+                        id="classification"
+                        content={constants.Tooltip.classificationTooltip}
+                      />
+                    </label>
+                    <select
+                      className={selectedStandard ? s.select : s.selectDisabled}
+                      disabled={!selectedStandard}
+                      value={classification}
+                      onChange={(e) =>
+                        dispatch(
+                          updateStandardsField({
+                            field: "classification",
+                            value: e.target.value,
+                          })
+                        )
+                      }
+                      required={true}
+                    >
+                      <option value="">
+                        {selectedStandard
+                          ? t.placeholders.classification
+                          : t.placeholders.classificationDisabled}
+                      </option>
+                      {classList.map((c) => (
+                        <option key={c.name} value={c.name}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className={s.field}>
+                    <label className={s.label}>
+                      {t.labels.acph} <span className={s.required}>*</span>
+                      <Tooltip
+                        id="acph"
+                        content={constants.Tooltip.acphTooltip}
+                      />
+                    </label>
+                    <select
+                      className={!acphDisabled ? s.select : s.selectDisabled}
+                      disabled={acphDisabled}
+                      value={acph}
+                      onChange={(e) =>
+                        dispatch(
+                          updateStandardsField({
+                            field: "acph",
+                            value: e.target.value,
+                          })
+                        )
+                      }
+                      required={true}
+                    >
+                      {acphDisabled ? (
+                        <option value="">{t.placeholders.acphDisabled}</option>
+                      ) : (
+                        acphOptions.map((v) => (
+                          <option key={v} value={v}>
+                            {v}
+                          </option>
+                        ))
+                      )}
+                    </select>
+                    {selectedClass?.minAir != null &&
+                      selectedClass?.maxAir != null && (
+                        <div className={s.range}>
+                          {t.misc.rangeLabel}{" "}
+                          <span className={s.rangeValue}>
+                            {selectedClass.minAir} - {selectedClass.maxAir}
+                          </span>
                         </div>
-                        <div className={s.dualFlowRow}>
-                          <div className={s.dualFlowMin}>
-                            {heatingFlowRange.min}
+                      )}
+                  </div>
+                </div>
+              </div>
+
+              <div className={s.sectionLine} />
+
+              <div className={s.sectionSpacer}>
+                <div className={s.sectionTitle}>{t.sections.tempHumTitle}</div>
+                <div className={s.unitRow}>
+                  <div className={s.unitLabel}>{t.labels.tempUnit}</div>
+                  <div className={s.unitGroup}>
+                    <label className={s.unitOption}>
+                      <input
+                        className={s.unitRadio}
+                        type="radio"
+                        name="tempUnit"
+                        value="C"
+                        checked={tempUnit === "C"}
+                        onChange={() =>
+                          dispatch(
+                            updateStandardsField({
+                              field: "tempUnit",
+                              value: "C",
+                            })
+                          )
+                        }
+                        disabled={ventilationOnly}
+                      />
+                      <span>{t.options.units.c}</span>
+                    </label>
+                    <label className={s.unitOption}>
+                      <input
+                        className={s.unitRadio}
+                        type="radio"
+                        name="tempUnit"
+                        value="F"
+                        checked={tempUnit === "F"}
+                        onChange={() =>
+                          dispatch(
+                            updateStandardsField({
+                              field: "tempUnit",
+                              value: "F",
+                            })
+                          )
+                        }
+                        disabled={ventilationOnly}
+                      />
+                      <span>{t.options.units.f}</span>
+                    </label>
+                  </div>
+                  {ventilationOnly && (
+                    <div className={s.unitHint}>
+                      {t.misc.ventilationUnitHint}
+                    </div>
+                  )}
+                </div>
+
+                <div className={"mt-6 " + s.grid2}>
+                  <div className={s.field}>
+                    <label className={s.label}>
+                      {t.labels.reqInsideTemp} ({tempUnit === "C" ? "°C" : "°F"}
+                      ) <span className={s.required}>*</span>
+                      <Tooltip
+                        id="requiredTemperature"
+                        content={constants.Tooltip.requiredTemperatureTooltip}
+                      />
+                    </label>
+                    <input
+                      className={ventilationOnly ? s.inputDisabled : s.input}
+                      inputMode="decimal"
+                      placeholder={tempPlaceholder}
+                      value={reqInsideTempDisplay}
+                      maxLength={3}
+                      required={true}
+                      onChange={(e) => {
+                        onReqInsideTempChange(e.target.value);
+                        setErrors((p) => ({
+                          ...p,
+                          temperature: validateTemperature(e.target.value),
+                        }));
+                      }}
+                      disabled={ventilationOnly}
+                    />
+                    {errors.temperature && (
+                      <div className="text-red-500 text-xs mt-1">
+                        {errors.temperature}
+                      </div>
+                    )}
+                    {!ventilationOnly &&
+                      reqInsideTempC &&
+                      reqInsideTempC !== t.misc.ambient && (
+                        <div className={s.tempHelper}>
+                          {t.misc.storedInternally} <b>{reqInsideTempC} °C</b>
+                        </div>
+                      )}
+                  </div>
+                  <div className={s.field}>
+                    <label className={s.label}>
+                      {t.labels.reqInsideHum}{" "}
+                      <span className={s.required}>*</span>
+                      <Tooltip
+                        id="requiredHumidity"
+                        content={constants.Tooltip.requiredHumidityTooltip}
+                      />
+                    </label>
+                    <input
+                      className={ventilationOnly ? s.inputDisabled : s.input}
+                      inputMode="decimal"
+                      placeholder={t.placeholders.reqHumidity}
+                      maxLength={3}
+                      value={reqInsideHum}
+                      required={true}
+                      onChange={(e) => {
+                        allowNumericInput(
+                          (v) =>
+                            dispatch(
+                              updateStandardsField({
+                                field: "reqInsideHum",
+                                value: v,
+                              })
+                            ),
+                          e.target.value
+                        );
+                        setErrors((p) => ({
+                          ...p,
+                          humidity: validateHumidity(e.target.value),
+                        }));
+                      }}
+                      disabled={ventilationOnly}
+                    />
+                    {errors.humidity && (
+                      <div className="text-red-500 text-xs mt-1">
+                        {errors.humidity}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className={"mt-6 " + s.grid4}>
+                  <div className={s.field}>
+                    <label className={s.label}>
+                      {t.labels.minTemp} ({tempUnit === "C" ? "°C" : "°F"})
+                    </label>
+                    <input
+                      className={s.inputDisabled}
+                      value={tempToDisplay(minTempC) || "-"}
+                      disabled
+                    />
+                  </div>
+                  <div className={s.field}>
+                    <label className={s.label}>
+                      {t.labels.maxTemp} ({tempUnit === "C" ? "°C" : "°F"})
+                    </label>
+                    <input
+                      className={s.inputDisabled}
+                      value={tempToDisplay(maxTempC) || "-"}
+                      disabled
+                    />
+                  </div>
+                  <div className={s.field}>
+                    <label className={s.label}>{t.labels.rhMin}</label>
+                    <input
+                      className={s.inputDisabled}
+                      value={rhMin || "-"}
+                      disabled
+                    />
+                  </div>
+                  <div className={s.field}>
+                    <label className={s.label}>{t.labels.rhMax}</label>
+                    <input
+                      className={s.inputDisabled}
+                      value={rhMax || "-"}
+                      disabled
+                    />
+                  </div>
+                </div>
+
+                {!ventilationOnly &&
+                  system === t.options.systems.heatingCooling &&
+                  showHeatingMethod &&
+                  showCoolingMethod && (
+                    <div className={s.dualFlowBlock}>
+                      <div className={s.dualFlowGrid}>
+                        <div className={s.dualFlowCard}>
+                          <div className={s.dualFlowTitle}>
+                            Heating Flow Velocity –{" "}
+                            {formatMediumLabel(heatingMethod)}
+                            <span className={s.required}>*</span>
                           </div>
-                          <input
-                            type="range"
-                            className={s.dualFlowSlider}
-                            min={heatingFlowRange.min}
-                            max={heatingFlowRange.max}
-                            step={0.1}
-                            value={heatingFlowVelocity}
-                            onChange={(e) =>
-                              dispatch(
-                                updateStandardsField({
-                                  field: "heatingFlowVelocity",
-                                  value: clamp(
-                                    Number(e.target.value),
-                                    heatingFlowRange.min,
-                                    heatingFlowRange.max
-                                  ),
-                                })
-                              )
-                            }
-                          />
-                          <div className={s.dualFlowMax}>
-                            {heatingFlowRange.max}
-                          </div>
-                          <input
-                            className={s.dualFlowValueBox}
-                            value={heatingFlowVelocity}
-                            required={true}
-                            onChange={(e) => {
-                              const v = Number(e.target.value);
-                              if (!Number.isNaN(v))
+                          <div className={s.dualFlowRow}>
+                            <div className={s.dualFlowMin}>
+                              {heatingFlowRange.min}
+                            </div>
+                            <input
+                              type="range"
+                              className={s.dualFlowSlider}
+                              min={heatingFlowRange.min}
+                              max={heatingFlowRange.max}
+                              step={0.1}
+                              value={heatingFlowVelocity}
+                              onChange={(e) =>
                                 dispatch(
                                   updateStandardsField({
                                     field: "heatingFlowVelocity",
                                     value: clamp(
-                                      v,
+                                      Number(e.target.value),
                                       heatingFlowRange.min,
                                       heatingFlowRange.max
                                     ),
                                   })
-                                );
-                            }}
-                          />
-                          <div className={s.dualFlowUnit}>m/s</div>
+                                )
+                              }
+                            />
+                            <div className={s.dualFlowMax}>
+                              {heatingFlowRange.max}
+                            </div>
+                            <input
+                              className={s.dualFlowValueBox}
+                              value={heatingFlowVelocity}
+                              required={true}
+                              onChange={(e) => {
+                                const v = Number(e.target.value);
+                                if (!Number.isNaN(v))
+                                  dispatch(
+                                    updateStandardsField({
+                                      field: "heatingFlowVelocity",
+                                      value: clamp(
+                                        v,
+                                        heatingFlowRange.min,
+                                        heatingFlowRange.max
+                                      ),
+                                    })
+                                  );
+                              }}
+                            />
+                            <div className={s.dualFlowUnit}>m/s</div>
+                          </div>
+                        </div>
+                        <div className={s.dualFlowCard}>
+                          <div className={s.dualFlowTitle}>
+                            Cooling Flow Velocity -{" "}
+                            {formatMediumLabel(coolingMethod)}
+                            <span className={s.required}>*</span>
+                          </div>
+                          <div className={s.dualFlowRow}>
+                            <div className={s.dualFlowMin}>
+                              {coolingFlowRange.min}
+                            </div>
+                            <input
+                              type="range"
+                              className={s.dualFlowSlider}
+                              min={coolingFlowRange.min}
+                              max={coolingFlowRange.max}
+                              step={0.1}
+                              value={coolingFlowVelocity}
+                              onChange={(e) =>
+                                dispatch(
+                                  updateStandardsField({
+                                    field: "coolingFlowVelocity",
+                                    value: clamp(
+                                      Number(e.target.value),
+                                      coolingFlowRange.min,
+                                      coolingFlowRange.max
+                                    ),
+                                  })
+                                )
+                              }
+                            />
+                            <div className={s.dualFlowMax}>
+                              {coolingFlowRange.max}
+                            </div>
+                            <input
+                              className={s.dualFlowValueBox}
+                              inputMode="decimal"
+                              value={String(coolingFlowVelocity)}
+                              required={true}
+                              onChange={(e) => {
+                                const v = e.target.value;
+                                if (v === "" || isNumericLike(v)) {
+                                  const n = Number(v);
+                                  if (Number.isNaN(n)) return;
+                                  dispatch(
+                                    updateStandardsField({
+                                      field: "coolingFlowVelocity",
+                                      value: clamp(
+                                        n,
+                                        coolingFlowRange.min,
+                                        coolingFlowRange.max
+                                      ),
+                                    })
+                                  );
+                                }
+                              }}
+                            />
+                            <div className={s.dualFlowUnit}>m/s</div>
+                          </div>
                         </div>
                       </div>
-                      <div className={s.dualFlowCard}>
-                        <div className={s.dualFlowTitle}>
-                          Cooling Flow Velocity -{" "}
-                          {formatMediumLabel(coolingMethod)}
-                          <span className={s.required}>*</span>
+                    </div>
+                  )}
+
+                {!ventilationOnly &&
+                  system !== t.options.systems.heatingCooling &&
+                  (showCoolingMethod || showHeatingMethod) && (
+                    <div className={s.flowBlock}>
+                      <div className={s.flowLabelRow}>
+                        <div className={s.flowTitle}>
+                          Flow Velocity - {formatMediumLabel(flowMedium)}
+                          <span className={s.required}> *</span>
                         </div>
-                        <div className={s.dualFlowRow}>
-                          <div className={s.dualFlowMin}>
-                            {coolingFlowRange.min}
-                          </div>
+                        <div className={s.flowUnit}></div>
+                      </div>
+                      <div className={s.flowRow}>
+                        <div className={s.flowMin}>{flowRange.min} m/s</div>
+                        <input
+                          className={s.flowSlider}
+                          type="range"
+                          min={flowRange.min}
+                          max={flowRange.max}
+                          step={0.1}
+                          value={flowVelocity}
+                          onChange={(e) =>
+                            dispatch(
+                              updateStandardsField({
+                                field: "flowVelocity",
+                                value: Number(e.target.value),
+                              })
+                            )
+                          }
+                        />
+                        <div className={s.flowMax}>{flowRange.max} m/s</div>
+                        <div className={s.flowValueBoxWrap}>
                           <input
-                            type="range"
-                            className={s.dualFlowSlider}
-                            min={coolingFlowRange.min}
-                            max={coolingFlowRange.max}
-                            step={0.1}
-                            value={coolingFlowVelocity}
-                            onChange={(e) =>
-                              dispatch(
-                                updateStandardsField({
-                                  field: "coolingFlowVelocity",
-                                  value: clamp(
-                                    Number(e.target.value),
-                                    coolingFlowRange.min,
-                                    coolingFlowRange.max
-                                  ),
-                                })
-                              )
-                            }
-                          />
-                          <div className={s.dualFlowMax}>
-                            {coolingFlowRange.max}
-                          </div>
-                          <input
-                            className={s.dualFlowValueBox}
+                            className={s.flowValueBox}
                             inputMode="decimal"
-                            value={String(coolingFlowVelocity)}
-                            required={true}
+                            value={String(flowVelocity)}
                             onChange={(e) => {
                               const v = e.target.value;
                               if (v === "" || isNumericLike(v)) {
@@ -1228,100 +1305,45 @@ export default function Standard() {
                                 if (Number.isNaN(n)) return;
                                 dispatch(
                                   updateStandardsField({
-                                    field: "coolingFlowVelocity",
+                                    field: "flowVelocity",
                                     value: clamp(
                                       n,
-                                      coolingFlowRange.min,
-                                      coolingFlowRange.max
+                                      flowRange.min,
+                                      flowRange.max
                                     ),
                                   })
                                 );
                               }
                             }}
                           />
-                          <div className={s.dualFlowUnit}>m/s</div>
                         </div>
+                        <div className={s.flowUnitSmall}>m/s</div>
                       </div>
                     </div>
-                  </div>
-                )}
-
-              {!ventilationOnly &&
-                system !== t.options.systems.heatingCooling &&
-                (showCoolingMethod || showHeatingMethod) && (
-                  <div className={s.flowBlock}>
-                    <div className={s.flowLabelRow}>
-                      <div className={s.flowTitle}>
-                        Flow Velocity - {formatMediumLabel(flowMedium)}
-                        <span className={s.required}> *</span>
-                      </div>
-                      <div className={s.flowUnit}></div>
-                    </div>
-                    <div className={s.flowRow}>
-                      <div className={s.flowMin}>{flowRange.min} m/s</div>
-                      <input
-                        className={s.flowSlider}
-                        type="range"
-                        min={flowRange.min}
-                        max={flowRange.max}
-                        step={0.1}
-                        value={flowVelocity}
-                        onChange={(e) =>
-                          dispatch(
-                            updateStandardsField({
-                              field: "flowVelocity",
-                              value: Number(e.target.value),
-                            })
-                          )
-                        }
-                      />
-                      <div className={s.flowMax}>{flowRange.max} m/s</div>
-                      <div className={s.flowValueBoxWrap}>
-                        <input
-                          className={s.flowValueBox}
-                          inputMode="decimal"
-                          value={String(flowVelocity)}
-                          onChange={(e) => {
-                            const v = e.target.value;
-                            if (v === "" || isNumericLike(v)) {
-                              const n = Number(v);
-                              if (Number.isNaN(n)) return;
-                              dispatch(
-                                updateStandardsField({
-                                  field: "flowVelocity",
-                                  value: clamp(n, flowRange.min, flowRange.max),
-                                })
-                              );
-                            }
-                          }}
-                        />
-                      </div>
-                      <div className={s.flowUnitSmall}>m/s</div>
-                    </div>
-                  </div>
-                )}
+                  )}
+              </div>
             </div>
+          </div>
+
+          <div className={s.quickView}>
+            Standard: <b>{standard || "-"}</b> | Classification:{" "}
+            <b>{classification || "-"}</b> | ACPH: <b>{acph || "-"}</b>
           </div>
         </div>
 
-        <div className={s.quickView}>
-          Standard: <b>{standard || "-"}</b> | Classification:{" "}
-          <b>{classification || "-"}</b> | ACPH: <b>{acph || "-"}</b>
+        <div className={s.footer}>
+          <Link to="/project-info" className={s.backLink}>
+            <FaArrowLeft /> {t.buttons.back}
+          </Link>
+          <button
+            type="button"
+            className={`${s.nextLink} ${!isFormValid ? s.disabled : ""}`}
+            onClick={handleNext}
+          >
+            {t.buttons.next} <FaArrowRight />
+          </button>
         </div>
       </div>
-
-      <div className={s.footer}>
-        <Link to="/project-info" className={s.backLink}>
-          <FaArrowLeft /> {t.buttons.back}
-        </Link>
-        <button
-          type="button"
-          className={`${s.nextLink} ${!isFormValid ? s.disabled : ""}`}
-          onClick={handleNext}
-        >
-          {t.buttons.next} <FaArrowRight />
-        </button>
-      </div>
-    </div>
+    </>
   );
 }

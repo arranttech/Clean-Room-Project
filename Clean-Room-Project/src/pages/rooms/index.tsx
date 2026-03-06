@@ -12,10 +12,7 @@ import {
   resetStandards,
   updateStandardsField,
 } from "../../redux/slices/standardSlice";
-import { resetProjectInfo } from "../../redux/slices/projectInfoSlice";
-import { resetRoom } from "../../redux/slices/roomSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-
 import {
   updateRoomFormField,
   resetRoomForm,
@@ -23,16 +20,17 @@ import {
   removeRoom,
   openNewRoomForm,
 } from "../../redux/slices/roomSlice";
-
 import s from "./styles";
 import T from "../../json/room.json";
 import standardDataJson from "../../json/standardData.json";
 import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
-import { addRooms, getZoneRooms } from "../../backend/controller/roomController";
+import {
+  addRooms,
+  getZoneRooms,
+} from "../../backend/controller/roomController";
 import { storeresults } from "../../backend/controller/resultsController";
 import { airflowService } from "../../backend/services/service";
-import { persistor } from "../../redux/store";
 
 type StandardItem = {
   id: number;
@@ -69,34 +67,59 @@ export default function Room() {
   const location = useLocation();
 
   const form = useAppSelector((state: any) => state.room.form) as RoomForm;
-  const savedRooms = useAppSelector((state: any) => state.room.savedRooms) as any[];
-  const isFormVisible = useAppSelector((state: any) => state.room.isFormVisible) as boolean;
+  const savedRooms = useAppSelector(
+    (state: any) => state.room.savedRooms
+  ) as any[];
+  const isFormVisible = useAppSelector(
+    (state: any) => state.room.isFormVisible
+  ) as boolean;
 
   const [acphDeviation, setAcphDeviation] = useState<number>(0);
 
-  const zoneIdFromRedux = useAppSelector((state: any) => state.standards.zoneId);
-  const projectStandardIdFromRedux = useAppSelector((state: any) => state.standards.projectStandardId);
+  const zoneIdFromRedux = useAppSelector(
+    (state: any) => state.standards.zoneId
+  );
+  const projectStandardIdFromRedux = useAppSelector(
+    (state: any) => state.standards.projectStandardId
+  );
 
   const zoneId = location.state?.zoneId ?? zoneIdFromRedux;
-  const projectStandardId = location.state?.projectStandardId ?? projectStandardIdFromRedux;
+  const projectStandardId =
+    location.state?.projectStandardId ?? projectStandardIdFromRedux;
 
   const standard = useAppSelector((state: any) => state.standards.standard);
-  const classification = useAppSelector((state: any) => state.standards.classification);
+  const classification = useAppSelector(
+    (state: any) => state.standards.classification
+  );
   const standardsAcph = useAppSelector((state: any) => state.standards.acph);
   const system = useAppSelector((state: any) => state.standards.system);
   const systemType = useAppSelector((state: any) => state.standards.systemType);
-  const coolingMethod = useAppSelector((state: any) => state.standards.coolingMethod);
-  const heatingMethod = useAppSelector((state: any) => state.standards.heatingMethod);
-  const reqInsideTempC = useAppSelector((state: any) => state.standards.reqInsideTempC);
-  const reqInsideHum = useAppSelector((state: any) => state.standards.reqInsideHum);
+  const coolingMethod = useAppSelector(
+    (state: any) => state.standards.coolingMethod
+  );
+  const heatingMethod = useAppSelector(
+    (state: any) => state.standards.heatingMethod
+  );
+  const reqInsideTempC = useAppSelector(
+    (state: any) => state.standards.reqInsideTempC
+  );
+  const reqInsideHum = useAppSelector(
+    (state: any) => state.standards.reqInsideHum
+  );
 
   const minTempC = useAppSelector((state: any) => state.projectInfo.minTemp);
   const maxTempC = useAppSelector((state: any) => state.projectInfo.maxTemp);
-  const rhMin = useAppSelector((state: any) => state.projectInfo.relativeHumidityMin);
-  const rhMax = useAppSelector((state: any) => state.projectInfo.relativeHumidityMax);
+  const rhMin = useAppSelector(
+    (state: any) => state.projectInfo.relativeHumidityMin
+  );
+  const rhMax = useAppSelector(
+    (state: any) => state.projectInfo.relativeHumidityMax
+  );
   const projectId = useAppSelector((state: any) => state.projectInfo.projectId);
 
-  const [selectedAcph, setSelectedAcph] = useState<number | string>(standardsAcph ?? "");
+  const [selectedAcph, setSelectedAcph] = useState<number | string>(
+    standardsAcph ?? ""
+  );
 
   useEffect(() => {
     setSelectedAcph(standardsAcph ?? "");
@@ -111,7 +134,11 @@ export default function Room() {
     system === "Ventilation System" || systemType === "Ventilation System";
 
   const ventilationAllowedFields: (keyof RoomForm)[] = [
-    "roomName", "length", "width", "height", "exhaustAir",
+    "roomName",
+    "length",
+    "width",
+    "height",
+    "exhaustAir",
   ];
 
   const updateFieldValue = (key: keyof RoomForm, value: string) => {
@@ -130,26 +157,46 @@ export default function Room() {
   );
   const selectedClassObj = useMemo(() => {
     if (!selectedStandardObj) return null;
-    return selectedStandardObj.classifications.find((c) => c.name === classification) || null;
+    return (
+      selectedStandardObj.classifications.find(
+        (c) => c.name === classification
+      ) || null
+    );
   }, [selectedStandardObj, classification]);
 
-  const acphMin = useMemo(() => selectedClassObj?.minAir ?? null, [selectedClassObj]);
-  const acphMax = useMemo(() => selectedClassObj?.maxAir ?? null, [selectedClassObj]);
+  const acphMin = useMemo(
+    () => selectedClassObj?.minAir ?? null,
+    [selectedClassObj]
+  );
+  const acphMax = useMemo(
+    () => selectedClassObj?.maxAir ?? null,
+    [selectedClassObj]
+  );
 
   const acphOptions = useMemo(() => {
     if (acphMin == null || acphMax == null) return [];
     const opts: number[] = [];
-    for (let v = Math.min(acphMin, acphMax); v <= Math.max(acphMin, acphMax); v++) opts.push(v);
+    for (
+      let v = Math.min(acphMin, acphMax);
+      v <= Math.max(acphMin, acphMax);
+      v++
+    )
+      opts.push(v);
     return opts;
   }, [acphMin, acphMax]);
 
   useEffect(() => {
     if (!acphOptions.length) return;
-    const standardsVal = standardsAcph !== "" && standardsAcph != null ? Number(standardsAcph) : null;
-    const current = selectedAcph === "" || selectedAcph == null ? null : Number(selectedAcph);
+    const standardsVal =
+      standardsAcph !== "" && standardsAcph != null
+        ? Number(standardsAcph)
+        : null;
+    const current =
+      selectedAcph === "" || selectedAcph == null ? null : Number(selectedAcph);
     const isCurrentValid = current != null && acphOptions.includes(current);
     if (!isCurrentValid) {
-      if (standardsVal != null && acphOptions.includes(standardsVal)) setSelectedAcph(standardsVal);
+      if (standardsVal != null && acphOptions.includes(standardsVal))
+        setSelectedAcph(standardsVal);
       else setSelectedAcph(acphOptions[acphOptions.length - 1]);
     }
   }, [acphOptions, standardsAcph]);
@@ -225,7 +272,13 @@ export default function Room() {
       return;
     }
 
-    const resultsPayload = { minTempC, maxTempC, rhMin, rhMax, rooms: savedRooms };
+    const resultsPayload = {
+      minTempC,
+      maxTempC,
+      rhMin,
+      rhMax,
+      rooms: savedRooms,
+    };
 
     try {
       const allAirflowResults = savedRooms.map((room: any) =>
@@ -256,9 +309,16 @@ export default function Room() {
         })
       );
 
+      const roomsSnapshot = [...savedRooms];
+      console.log(
+        "roomsSnapshot:",
+        roomsSnapshot.map((r: any) => r.roomName)
+      );
+
       await Promise.all(
         allAirflowResults.map(async (result: any, idx: number) => {
-          const roomName = savedRooms[idx]?.roomName || result.roomName || "Room";
+          const roomName = roomsSnapshot[idx]?.roomName || `Room_${idx + 1}`;
+          console.log(`Saving result ${idx} with roomName: ${roomName}`);
           await storeresults({
             project_id: projectId,
             roomName,
@@ -272,7 +332,9 @@ export default function Room() {
       );
 
       console.log("All results saved to DB successfully");
-      navigate("/results", { state: { ...resultsPayload, airflowResults: allAirflowResults } });
+      navigate("/results", {
+        state: { ...resultsPayload, airflowResults: allAirflowResults },
+      });
     } catch (error) {
       console.error("Failed to process airflow results:", error);
       alert("Failed to process airflow results.");
@@ -314,7 +376,8 @@ export default function Room() {
   };
 
   const renderInput = (key: keyof RoomForm) => {
-    const disabled = isVentilationOnly && !ventilationAllowedFields.includes(key);
+    const disabled =
+      isVentilationOnly && !ventilationAllowedFields.includes(key);
     return (
       <div className={s.field} key={key}>
         <label className={s.label}>
@@ -322,17 +385,27 @@ export default function Room() {
           <Tooltip
             id={key}
             content={
-              key === "roomName" ? constants.Tooltip.roomNameTooltip
-              : key === "length" ? constants.Tooltip.lengthTooltip
-              : key === "width" ? constants.Tooltip.widthTooltip
-              : key === "height" ? constants.Tooltip.heightTooltip
-              : key === "occupancy" ? constants.Tooltip.occupancyTooltip
-              : key === "equipmentLoad" ? constants.Tooltip.equipmentLoadTooltip
-              : key === "lightingLoad" ? constants.Tooltip.lightingLoadTooltip
-              : key === "infiltrationsPerHour" ? constants.Tooltip.infiltrationsTooltip
-              : key === "freshAirPercent" ? constants.Tooltip.freshAirTooltip
-              : key === "exhaustAir" ? constants.Tooltip.exhaustAirTooltip
-              : ""
+              key === "roomName"
+                ? constants.Tooltip.roomNameTooltip
+                : key === "length"
+                ? constants.Tooltip.lengthTooltip
+                : key === "width"
+                ? constants.Tooltip.widthTooltip
+                : key === "height"
+                ? constants.Tooltip.heightTooltip
+                : key === "occupancy"
+                ? constants.Tooltip.occupancyTooltip
+                : key === "equipmentLoad"
+                ? constants.Tooltip.equipmentLoadTooltip
+                : key === "lightingLoad"
+                ? constants.Tooltip.lightingLoadTooltip
+                : key === "infiltrationsPerHour"
+                ? constants.Tooltip.infiltrationsTooltip
+                : key === "freshAirPercent"
+                ? constants.Tooltip.freshAirTooltip
+                : key === "exhaustAir"
+                ? constants.Tooltip.exhaustAirTooltip
+                : ""
             }
           />
         </label>
@@ -341,7 +414,11 @@ export default function Room() {
           inputMode={key === "roomName" ? "text" : "decimal"}
           value={form[key]}
           disabled={disabled}
-          placeholder={disabled ? "Not required for ventilation" : (T.fields as any)[key].placeholder}
+          placeholder={
+            disabled
+              ? "Not required for ventilation"
+              : (T.fields as any)[key].placeholder
+          }
           onChange={(e) => updateFieldValue(key, e.target.value)}
         />
       </div>
@@ -367,13 +444,19 @@ export default function Room() {
                   <FaRegListAlt className={s.emptyIcon} />
                 </div>
                 <div className={s.emptyTitle}>
-                  {savedRooms.length ? "Room Details Saved" : "No Rooms Added Yet"}
+                  {savedRooms.length
+                    ? "Room Details Saved"
+                    : "No Rooms Added Yet"}
                 </div>
                 <div className={s.emptySubtitle}>
                   Click "Add Room" to start adding room specifications
                 </div>
                 <div className="mt-8">
-                  <button type="button" onClick={() => dispatch(openNewRoomForm())} className={s.saveBtn}>
+                  <button
+                    type="button"
+                    onClick={() => dispatch(openNewRoomForm())}
+                    className={s.saveBtn}
+                  >
                     <FaPlus /> {T.buttons.addRoom}
                   </button>
                 </div>
@@ -386,7 +469,11 @@ export default function Room() {
           <div className={s.card}>
             <div className={s.cardInner}>
               <div className={s.topActions}>
-                <button type="button" onClick={() => dispatch(resetRoomForm())} className={s.clrBtn}>
+                <button
+                  type="button"
+                  onClick={() => dispatch(resetRoomForm())}
+                  className={s.clrBtn}
+                >
                   Clear
                 </button>
               </div>
@@ -395,7 +482,10 @@ export default function Room() {
               <div className={s.sectionDivider} />
               <div className={s.sectionTitle}>
                 {T.sections.roomDimensions}
-                <Tooltip id="roomDimensions" content={constants.Tooltip.roomDimensionsTooltip} />
+                <Tooltip
+                  id="roomDimensions"
+                  content={constants.Tooltip.roomDimensionsTooltip}
+                />
               </div>
               <div className={s.grid3}>
                 {renderInput("length")}
@@ -408,7 +498,9 @@ export default function Room() {
                 {renderInput("equipmentLoad")}
                 {renderInput("lightingLoad")}
               </div>
-              <div className={s.sectionTitle}>{T.sections.airflowParameters}</div>
+              <div className={s.sectionTitle}>
+                {T.sections.airflowParameters}
+              </div>
               <div className={s.grid3}>
                 {renderInput("infiltrationsPerHour")}
                 {renderInput("freshAirPercent")}
@@ -416,7 +508,10 @@ export default function Room() {
                 <div>
                   <label className={s.label}>
                     ACPH Value <span className={s.required1}>*</span>
-                    <Tooltip id="acphValue" content={constants.Tooltip.acphValueTooltip} />
+                    <Tooltip
+                      id="acphValue"
+                      content={constants.Tooltip.acphValueTooltip}
+                    />
                   </label>
                   <select
                     className={acphOptions.length ? s.select : s.selectDisabled}
@@ -424,21 +519,53 @@ export default function Room() {
                     onChange={(e) => setSelectedAcph(e.target.value)}
                     disabled={!acphOptions.length}
                   >
-                    {!acphOptions.length && <option value="">ACPH not available</option>}
+                    {!acphOptions.length && (
+                      <option value="">ACPH not available</option>
+                    )}
                     {acphOptions.map((v) => (
-                      <option key={v} value={v}>{v}</option>
+                      <option key={v} value={v}>
+                        {v}
+                      </option>
                     ))}
                   </select>
                   {acphOptions.length > 0 && (
-                    <div>Range: <span className={s.range}>{acphMin}-{acphMax}</span></div>
+                    <div>
+                      Range:{" "}
+                      <span className={s.range}>
+                        {acphMin}-{acphMax}
+                      </span>
+                    </div>
                   )}
                 </div>
                 <div>
                   <label className={s.label}>ACPH Deviation</label>
                   <div className={s.deviationBox}>
-                    <button type="button" onClick={() => setAcphDeviation((p) => (p > -20 ? p - 5 : p))} disabled={acphDeviation <= -20} className={s.deviationBtn}>−</button>
-                    <input type="text" value={`${acphDeviation}%`} readOnly className={s.deviationInput} />
-                    <button type="button" onClick={() => setAcphDeviation((p) => (p < 20 ? p + 5 : p))} disabled={acphDeviation >= 20} className={s.deviationBtn}>+</button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setAcphDeviation((p) => (p > -20 ? p - 5 : p))
+                      }
+                      disabled={acphDeviation <= -20}
+                      className={s.deviationBtn}
+                    >
+                      −
+                    </button>
+                    <input
+                      type="text"
+                      value={`${acphDeviation}%`}
+                      readOnly
+                      className={s.deviationInput}
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setAcphDeviation((p) => (p < 20 ? p + 5 : p))
+                      }
+                      disabled={acphDeviation >= 20}
+                      className={s.deviationBtn}
+                    >
+                      +
+                    </button>
                   </div>
                   <div className={s.rangeText}>Range: -20% to +20%</div>
                 </div>
@@ -448,11 +575,15 @@ export default function Room() {
               <div className={s.acphBannerStyle}>
                 <p className={s.bannerTitle}>
                   Default ACPH from Classification:{" "}
-                  <span className={s.bannerValue}>{acphMin} - {acphMax}</span>
+                  <span className={s.bannerValue}>
+                    {acphMin} - {acphMax}
+                  </span>
                 </p>
                 <p className={s.bannerText}>Pre-filled with Maximum</p>
               </div>
-              <span className={s.bannerValue}>({standard} - {classification})</span>
+              <span className={s.bannerValue}>
+                ({standard} - {classification})
+              </span>
             </div>
           </div>
         )}
@@ -462,26 +593,46 @@ export default function Room() {
             <div className={s.savedHeaderRow}>
               <div className={s.savedHeaderTitle}>Saved Room Details</div>
               <div className={s.savedHeaderCount}>
-                {savedRooms.length ? `${savedRooms.length} saved` : "No rooms saved"}
+                {savedRooms.length
+                  ? `${savedRooms.length} saved`
+                  : "No rooms saved"}
               </div>
             </div>
             <div className={s.divider} />
             <div className={s.roomsList}>
               {savedRooms.length === 0 ? (
-                <div className={s.emptyState}>No rooms added yet. Click <b>Add Room</b> to begin.</div>
+                <div className={s.emptyState}>
+                  No rooms added yet. Click <b>Add Room</b> to begin.
+                </div>
               ) : (
                 savedRooms.map((r: any, i: number) => (
                   <div key={r.id || i} className={s.roomCard}>
                     <div className="flex items-start justify-between gap-4">
-                      <div className={s.roomCardTitle}>Room {i + 1}: {r.roomName}</div>
-                      <button type="button" onClick={() => removeSavedRoomById(r.id)} className={s.deleteBtn}>
+                      <div className={s.roomCardTitle}>
+                        Room {i + 1}: {r.roomName}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeSavedRoomById(r.id)}
+                        className={s.deleteBtn}
+                      >
                         <FaTrash />
                       </button>
                     </div>
-                    <div className={s.roomCardLine}>Zone: {r.zoneId ?? "-"} | System: {r.zoneSystem || "-"}</div>
-                    <div className={s.roomCardLine}>Length:{r.length} | Width:{r.width} | Height:{r.height}</div>
-                    <div className={s.roomCardLine}>Occupancy:{r.occupancy} | Equipment:{r.equipmentLoad} | Lighting:{r.lightingLoad}</div>
-                    <div className={s.roomCardLine}>Infil/hr:{r.infiltrationsPerHour} | Fresh Air:{r.freshAirPercent}% | Exhaust:{r.exhaustAir}</div>
+                    <div className={s.roomCardLine}>
+                      Zone: {r.zoneId ?? "-"} | System: {r.zoneSystem || "-"}
+                    </div>
+                    <div className={s.roomCardLine}>
+                      Length:{r.length} | Width:{r.width} | Height:{r.height}
+                    </div>
+                    <div className={s.roomCardLine}>
+                      Occupancy:{r.occupancy} | Equipment:{r.equipmentLoad} |
+                      Lighting:{r.lightingLoad}
+                    </div>
+                    <div className={s.roomCardLine}>
+                      Infil/hr:{r.infiltrationsPerHour} | Fresh Air:
+                      {r.freshAirPercent}% | Exhaust:{r.exhaustAir}
+                    </div>
                     <div className={s.roomCardLine}>ACPH: {r.acph ?? "-"}</div>
                   </div>
                 ))
@@ -498,10 +649,18 @@ export default function Room() {
             <FaPlus /> Add Another Zone
           </button>
           <div className="flex gap-4">
-            <button type="button" onClick={saveCurrentRoom} className={s.backBtn}>
+            <button
+              type="button"
+              onClick={saveCurrentRoom}
+              className={s.backBtn}
+            >
               {T.buttons.saveRoom}
             </button>
-            <button type="button" onClick={goToResultsPage} className={s.saveBtn}>
+            <button
+              type="button"
+              onClick={goToResultsPage}
+              className={s.saveBtn}
+            >
               {T.buttons.generate} <FaSave />
             </button>
           </div>

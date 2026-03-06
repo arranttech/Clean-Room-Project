@@ -10,6 +10,7 @@ import { getUserById } from "../../backend/controller/userController";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { setCustomer } from "../../redux/slices/customerSlice";
 import { updateField } from "../../redux/slices/projectInfoSlice";
+import Header from "../../components/header";
 
 function CustomerInfoPage() {
   const navigate = useNavigate();
@@ -185,6 +186,7 @@ function CustomerInfoPage() {
   }
 
   return (
+    <><Header/>
     <div className={styles.wrapper}>
       <div className={styles.top}>
         <h1 className={styles.title}>Customer Information</h1>
@@ -333,6 +335,8 @@ function CustomerInfoPage() {
         </div>
       )}
     </div>
+   </>
+
   );
 }
 

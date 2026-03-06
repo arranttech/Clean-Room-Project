@@ -2,6 +2,7 @@ import { ServerRoute } from "@hapi/hapi";
 import Joi from "joi";
 import { cumulativeZoneService } from "../services/cummulativecal";
 import { boqresults, BOQPayload } from "../services/boqresults";
+import { truncate } from "node:fs/promises";
 
 export const boqRoute: ServerRoute[] = [
 
@@ -116,7 +117,7 @@ export const boqRoute: ServerRoute[] = [
 					zoneCfmACLoadTR: Joi.number().required(),
 					zoneRoomHeatLoadTR: Joi.number().required(),
 					zoneCfmHeatLoadTRValue: Joi.number().required(),
-				}).unknown(false),
+				}).unknown(true),
 			},
 			response: {
 				status: {

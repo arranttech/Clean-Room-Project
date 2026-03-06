@@ -26,6 +26,9 @@ export type CalculatedZoneResults = {
 	zoneCfmHeatLoadTRValue: number;
 	zoneRoomHeatLoadTR: number;
 	zoneResultHeatLoadTR: number;
+	flowVelocity?: number;
+	heatingFlowVelocity?: number;
+	coolingFlowVelocity?: number;
 };
 
 const ensureNumber = (val: any): number => {

@@ -6,11 +6,14 @@ import { getSystemFlags } from "./service.ts";
 export type RoomBOQPayload = RoomPayload;
 export type BOQPayload = CalculatedZoneResults;
 
+
 const s = boqresult.fields.NumberofStagesFilter;
 const sp = boqresult.fields.StaticPressure;
 const bdb = boqresult.fields.BDB;
 const m = boqresult.fields.MotorHP;
 const c = boqresult.fields.RowsofCoolingCoil.Coolval;
+const w = boqresult.fields.WaterLS.waterval;
+
 
 export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
 
@@ -200,6 +203,13 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
         return 0;
     }
 
+    function calculateWaterLS(GPM: number): number {
+        const ChilledWaterLS = GPM * w;
+        return Math.round(ChilledWaterLS * 10) / 10;
+    }
+
+
+
     const finalCfm = calculatedAHUCfm();
     const finalStages = calculateFilterStages();
     const finalStaticPressure = calculateStaticPressure(finalStages);
@@ -209,6 +219,8 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
     const finalHeight = calculateAHUHeight(finalCfm);
     const finalCoolingCoil = calculateCoolingCoil(finalWidth, finalHeight, Number(AHUCoolLoadTR));
     const finalLength = calculateAHULength(Number(finalBDB), finalStages, Number(finalCoolingCoil));
+    const finalWaterGPM = calculateGPM();
+    const finalWaterLS = calculateWaterLS(finalWaterGPM);
 
 
     return {
@@ -224,6 +236,7 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
         AHUCoolingLoadTR: Number(AHUCoolLoadTR),
         coolingCoil: finalCoolingCoil,
         AHUlength: finalLength,
-        WaterGPM : calculateGPM(),
+        WaterGPM: finalWaterGPM,
+        WaterLS: finalWaterLS
     };
 }

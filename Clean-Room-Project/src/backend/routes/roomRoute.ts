@@ -62,15 +62,32 @@ export const roomRoute: ServerRoute[] = [
 
 			validate: {
 				payload: Joi.object({
-					system: Joi.string().required(),
-					systemType: Joi.string().required(),
-					heatingMethod: Joi.string().required(),
-					coolingMethod: Joi.string().required(),
-					classification: Joi.string().required(),
-					acph: Joi.number().required(),
-					reqInsideTempC: Joi.number().required(),
-					reqInsideHum: Joi.number().required(),
-				}),
+					project_id: Joi.number().required(),
+					system: Joi.string(),
+					systemType: Joi.string(),
+					heatingMethod: Joi.string().allow(null, ""),
+					coolingMethod: Joi.string().allow(null, ""),
+					standard: Joi.string(),
+					classification: Joi.string(),
+					acph: Joi.number(),
+					tempUnit: Joi.string(),
+					reqInsideTempC: Joi.number(),
+					reqInsideHum: Joi.number(),
+					maxTempC: Joi.number(),
+					minTempC: Joi.number(),
+					rhMin: Joi.number(),
+					rhMax: Joi.number(),
+					flowVelocity: Joi.number(),
+					heatingFlowVelocity: Joi.number(),
+					coolingFlowVelocity: Joi.number(),
+				})
+					.unknown(true)
+					.options({ convert: true }),
+
+				failAction: (request, h, err) => {
+					console.log("Validation Error:", err);
+					throw err;
+				},
 			},
 
 			response: {
@@ -86,6 +103,7 @@ export const roomRoute: ServerRoute[] = [
 		handler: async (request, h) => {
 			try {
 				const id = await roomRepository.createRoomStandards(request.payload);
+				console.log("Created room standards with ID:", id);
 				return h.response({ roomStandardsId: id }).code(201);
 			} catch {
 				return h.response({ error: "Internal Server Error" }).code(500);

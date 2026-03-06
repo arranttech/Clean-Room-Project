@@ -13,14 +13,7 @@ export const zoneRoute: ServerRoute[] = [
 
 			validate: {
 				payload: Joi.object({
-					projectId: Joi.number()
-						.integer()
-						.required()
-						.description("ID of the project this zone belongs to"),
-
-					zone_name: Joi.string()
-						.optional()
-						.description("Optional name for the new zone"),
+					project_id: Joi.number().required(),
 				}),
 			},
 

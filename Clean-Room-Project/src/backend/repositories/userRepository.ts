@@ -1,4 +1,3 @@
-
 import { database } from "../dbConnection/connections";
 
 export const userRepository = {
@@ -107,17 +106,6 @@ export const userRepository = {
       [user_login_id]
     );
     return (result as any).affectedRows;
-  },
-
-  getUserByEmail: async (email: string) => {
-    const [rows]: any = await database.execute(
-      `SELECT * FROM tUsers WHERE user_email_id = ? AND status = 'A' LIMIT 1`,
-      [email]
-    );
-    if (!rows || rows.length === 0) {
-      return { success: false, message: "User not found" };
-    }
-    return { success: true, user: rows[0] };
   },
 
   getUserDetails: async (payload?: { admin_id?: string }) => {

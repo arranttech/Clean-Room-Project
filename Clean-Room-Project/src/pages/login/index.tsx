@@ -9,7 +9,6 @@ import { useAppDispatch } from "../../redux/hooks";
 import { setUser } from "../../redux/slices/userSlice";
 import { setCustomer } from "../../redux/slices/customerSlice";
 import { persistor } from "../../redux/store";
-import { useGoogleLogin } from "@react-oauth/google";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -93,37 +92,13 @@ function Login() {
     }
   };
 
-  const handleGoogleRedirect = useGoogleLogin({
-    onSuccess: async (tokenResponse: any) => {
-      console.log("Google token response:", tokenResponse);
-      const response = await fetch(`${API_URL}/auth/v1/google-login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ access_token: tokenResponse.access_token }),
-      });
-
-        const data = await response.json();
-        if (!data.success) {
-          alert(data.message);
-          return;
-        }
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/dashboard");
-    },
-    onError: () => {
-      alert("Google authentication failed");
-    }
-  });
-
-  //   const returnTo = `${window.location.origin}/login`;
-  //   const url = `${API_URL}/auth/google?returnTo=${encodeURIComponent(
-  //     returnTo
-  //   )}`;
-  //   window.location.assign(url);
-  // };
+  const handleGoogleRedirect = () => {
+    const returnTo = `${window.location.origin}/login`;
+    const url = `${API_URL}/auth/google?returnTo=${encodeURIComponent(
+      returnTo
+    )}`;
+    window.location.assign(url);
+  };
 
   return (
     <div className={styles.wrapper}>
@@ -189,7 +164,7 @@ function Login() {
                 <div className="w-full">
                   <button
                     type="button"
-                    onClick={() => handleGoogleRedirect()}
+                    onClick={handleGoogleRedirect}
                     disabled={loading}
                     className={`${styles.loginButton} ${
                       loading ? "opacity-50 cursor-not-allowed" : ""

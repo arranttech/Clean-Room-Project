@@ -10,6 +10,7 @@ const server = Hapi.server({
 	routes: {
 		cors: {
 			origin: ["http://localhost:5173"],
+			credentials: true,
 			additionalHeaders: ["cache-control", "x-requested-with"],
 		},
 		state: {

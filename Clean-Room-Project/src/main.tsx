@@ -7,6 +7,7 @@ import store, { persistor } from "./redux/store";
 import App from "./App";
 import "./index.css";
 import { initAutoLogout } from './utils/auth.ts';
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 // Schedule auto logout if there's an existing token
 initAutoLogout(() => {
@@ -16,8 +17,9 @@ initAutoLogout(() => {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>  
     {/* Redux Provider — makes store available to all components */}
-    <Provider store={store}>
+      <Provider store={store}>
       {/* PersistGate — restores saved state from localStorage before rendering */}
       <PersistGate loading={null} persistor={persistor}>
         <BrowserRouter>
@@ -25,5 +27,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </BrowserRouter>
       </PersistGate>
     </Provider>
-  </React.StrictMode>
+  </GoogleOAuthProvider>
+</React.StrictMode>
 );

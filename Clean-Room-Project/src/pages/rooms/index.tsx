@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   FaCalculator,
@@ -8,16 +8,11 @@ import {
   FaPlus,
   FaTrash,
 } from "react-icons/fa";
-import {
-  resetStandards,
-  updateStandardsField,
-} from "../../redux/slices/standardSlice";
+import { resetStandards } from "../../redux/slices/standardSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import {
   updateRoomFormField,
   resetRoomForm,
-  saveRoom,
-  removeRoom,
   openNewRoomForm,
 } from "../../redux/slices/roomSlice";
 import s from "./styles";
@@ -25,10 +20,7 @@ import T from "../../json/room.json";
 import standardDataJson from "../../json/standardData.json";
 import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
-import {
-  addRooms,
-  getZoneRooms,
-} from "../../backend/controller/roomController";
+import { addRooms } from "../../backend/controller/roomController";
 import { storeresults } from "../../backend/controller/resultsController";
 import { airflowService } from "../../backend/services/service";
 
@@ -57,36 +49,46 @@ type RoomForm = {
   exhaustAir: string;
 };
 
+// Full saved room — all zone context captured at save time, backendRoomId from DB
+type SavedRoom = RoomForm & {
+  id: string;
+  acph: number;
+  backendRoomId: number | null;
+  zoneId: number | string;
+  projectStandardId: number | string | null;
+  zoneStandard: string;
+  zoneClassification: string;
+  zoneSystem: string;
+  zoneSystemType: string;
+  zoneCoolingMethod: string;
+  zoneHeatingMethod: string;
+  zoneReqInsideTempC: string | number | null;
+  zoneReqInsideHum: string | number;
+};
+
 const generateId = () =>
   Date.now().toString(36) + Math.random().toString(36).substring(2, 9);
+
 const isDecimalLike = (v: string) => /^\d*\.?\d*$/.test(v);
+
+const toNullableNumber = (value: any): number | null => {
+  if (value === undefined || value === null || value === "") return null;
+  const num = Number(value);
+  return Number.isFinite(num) ? num : null;
+};
 
 export default function Room() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
+  // ── Redux: form UI state only ──
   const form = useAppSelector((state: any) => state.room.form) as RoomForm;
-  const savedRooms = useAppSelector(
-    (state: any) => state.room.savedRooms
-  ) as any[];
   const isFormVisible = useAppSelector(
     (state: any) => state.room.isFormVisible
   ) as boolean;
 
-  const [acphDeviation, setAcphDeviation] = useState<number>(0);
-
-  const zoneIdFromRedux = useAppSelector(
-    (state: any) => state.standards.zoneId
-  );
-  const projectStandardIdFromRedux = useAppSelector(
-    (state: any) => state.standards.projectStandardId
-  );
-
-  const zoneId = location.state?.zoneId ?? zoneIdFromRedux;
-  const projectStandardId =
-    location.state?.projectStandardId ?? projectStandardIdFromRedux;
-
+  // ── Redux: zone/standard display values (read-only in this component) ──
   const standard = useAppSelector((state: any) => state.standards.standard);
   const classification = useAppSelector(
     (state: any) => state.standards.classification
@@ -107,6 +109,7 @@ export default function Room() {
     (state: any) => state.standards.reqInsideHum
   );
 
+  // ── Redux: project-level climate data ──
   const minTempC = useAppSelector((state: any) => state.projectInfo.minTemp);
   const maxTempC = useAppSelector((state: any) => state.projectInfo.maxTemp);
   const rhMin = useAppSelector(
@@ -117,18 +120,39 @@ export default function Room() {
   );
   const projectId = useAppSelector((state: any) => state.projectInfo.projectId);
 
+  // ── DB IDs: sourced ONLY from location.state set by Standards page handleNext ──
+  // Never from Redux — this guarantees correct IDs after addAnotherZone too
+  const zoneIdFromNav = location.state?.zoneId ?? null;
+  const projectStandardIdFromNav = location.state?.projectStandardId ?? null;
+
+  // useRef holds current zone's DB IDs between renders without re-render side effects
+  // Updated whenever Standards navigates here with fresh IDs
+  const currentZoneIdRef = useRef<number | string | null>(zoneIdFromNav);
+  const currentProjectStandardIdRef = useRef<number | string | null>(
+    projectStandardIdFromNav
+  );
+
+  useEffect(() => {
+    if (zoneIdFromNav != null) {
+      currentZoneIdRef.current = zoneIdFromNav;
+    }
+    if (projectStandardIdFromNav != null) {
+      currentProjectStandardIdRef.current = projectStandardIdFromNav;
+    }
+  }, [zoneIdFromNav, projectStandardIdFromNav]);
+
+  // ── Local state: saved rooms — single source of truth, never Redux ──
+  const [savedRooms, setSavedRooms] = useState<SavedRoom[]>([]);
+  const [acphDeviation, setAcphDeviation] = useState<number>(0);
   const [selectedAcph, setSelectedAcph] = useState<number | string>(
     standardsAcph ?? ""
   );
+  const [isSaving, setIsSaving] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     setSelectedAcph(standardsAcph ?? "");
   }, [standardsAcph]);
-
-  const zoneRooms = useMemo(() => {
-    if (!zoneId) return [];
-    return savedRooms.filter((r: any) => String(r.zoneId) === String(zoneId));
-  }, [savedRooms, zoneId]);
 
   const isVentilationOnly =
     system === "Ventilation System" || systemType === "Ventilation System";
@@ -210,19 +234,9 @@ export default function Room() {
     );
   }, [form, isVentilationOnly]);
 
-  useEffect(() => {
-    if (!zoneId) return;
-    const fetchRooms = async () => {
-      try {
-        const data = await getZoneRooms(zoneId);
-        console.log("Fetched zone rooms from DB:", data.rooms);
-      } catch (error) {
-        console.error("Failed to fetch zone rooms:", error);
-      }
-    };
-    fetchRooms();
-  }, [zoneId]);
-
+  // ── saveCurrentRoom ──
+  // Reads zoneId/projectStandardId from ref (set from location.state, never Redux)
+  // Posts room to DB → gets backendRoomId → stores in local savedRooms state
   const saveCurrentRoom = async () => {
     if (!isRoomReadyToSave) {
       alert("Please fill all fields.");
@@ -233,55 +247,95 @@ export default function Room() {
       return;
     }
 
-    const roomToSave = {
-      ...form,
-      id: generateId(),
-      acph: Number(selectedAcph),
-      zoneId,
-      zoneStandard: standard,
-      zoneClassification: classification,
-      zoneSystem: system,
-      zoneSystemType: systemType,
-      zoneCoolingMethod: coolingMethod,
-      zoneHeatingMethod: heatingMethod,
-      zoneReqInsideTempC: reqInsideTempC,
-      zoneReqInsideHum: reqInsideHum,
-    };
+    const zoneId = currentZoneIdRef.current;
+    const projectStandardId = currentProjectStandardIdRef.current;
 
+    if (!zoneId) {
+      alert("Zone ID is missing. Please go back to Standards and try again.");
+      return;
+    }
+
+    setIsSaving(true);
     try {
-      const backendRoomId = await saveZoneRooms(roomToSave);
-      dispatch(saveRoom({ ...roomToSave, backendRoomId }));
+      // 1. Post room to DB — get integer PK back
+      const dbPayload = {
+        zone_id: zoneId,
+        projectStandardId,
+        roomName: form.roomName,
+        length: form.length,
+        width: form.width,
+        height: form.height,
+        occupancy: form.occupancy,
+        equipmentLoad: form.equipmentLoad,
+        lightingLoad: form.lightingLoad,
+        infiltrationsPerHour: form.infiltrationsPerHour,
+        freshAirPercent: form.freshAirPercent,
+        exhaustAir: form.exhaustAir,
+        selectedAcph: Number(selectedAcph),
+      };
+
+      const data = await addRooms(dbPayload);
+      const backendRoomId: number | null = data?.zoneRoomsId ?? null;
+
+      console.log(
+        `Room posted to DB | zoneId: ${zoneId} | backendRoomId: ${backendRoomId}`
+      );
+
+      // 2. Freeze all zone context at the moment of save — stored in local state
+      const savedRoom: SavedRoom = {
+        ...form,
+        id: generateId(),
+        acph: Number(selectedAcph),
+        backendRoomId,
+        zoneId,
+        projectStandardId,
+        zoneStandard: standard,
+        zoneClassification: classification,
+        zoneSystem: system,
+        zoneSystemType: systemType,
+        zoneCoolingMethod: coolingMethod,
+        zoneHeatingMethod: heatingMethod,
+        zoneReqInsideTempC: reqInsideTempC,
+        zoneReqInsideHum: reqInsideHum,
+      };
+
+      // 3. Append to local state — no Redux involved
+      setSavedRooms((prev) => [...prev, savedRoom]);
+
+      // 4. Reset form UI for next room
+      dispatch(resetRoomForm());
+      dispatch({ type: "room/setFormVisible", payload: false });
       setSelectedAcph(standardsAcph ?? "");
     } catch (error) {
       console.error("Failed to save room:", error);
-      alert("Failed to save room.");
+      alert("Failed to save room. Please try again.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const removeSavedRoomById = (id: string) => {
-    dispatch(removeRoom(id));
-    const remainingRooms = savedRooms.filter((r: any) => r.id !== id);
-    if (remainingRooms.length === 0) {
-      dispatch(updateStandardsField({ field: "zoneId", value: null }));
-    }
+    setSavedRooms((prev) => prev.filter((r) => r.id !== id));
   };
 
+  // ── goToResultsPage ──
+  // All rooms already in DB. Compute airflow → post results sequentially → navigate.
   const goToResultsPage = async () => {
     if (!savedRooms.length) {
       alert("Please add at least one room.");
       return;
     }
 
-    const resultsPayload = {
-      minTempC,
-      maxTempC,
-      rhMin,
-      rhMax,
-      rooms: savedRooms,
-    };
-
+    setIsGenerating(true);
     try {
-      const allAirflowResults = savedRooms.map((room: any) =>
+      const roomsSnapshot = [...savedRooms];
+      const zoneCount = new Set(roomsSnapshot.map((r) => r.zoneId)).size;
+      console.log(
+        `Generating results: ${roomsSnapshot.length} rooms across ${zoneCount} zone(s)`
+      );
+
+      // Compute all airflow synchronously before any async work
+      const allAirflowResults = roomsSnapshot.map((room) =>
         airflowService({
           roomName: room.roomName,
           length: room.length,
@@ -309,70 +363,83 @@ export default function Room() {
         })
       );
 
-      const roomsSnapshot = [...savedRooms];
-      console.log(
-        "roomsSnapshot:",
-        roomsSnapshot.map((r: any) => r.roomName)
-      );
+      // Sequential DB saves to avoid race conditions
+      for (let idx = 0; idx < roomsSnapshot.length; idx++) {
+        const room = roomsSnapshot[idx];
+        const result = allAirflowResults[idx];
 
-      await Promise.all(
-        allAirflowResults.map(async (result: any, idx: number) => {
-          const roomName = roomsSnapshot[idx]?.roomName || `Room_${idx + 1}`;
-          console.log(`Saving result ${idx} with roomName: ${roomName}`);
-          await storeresults({
-            project_id: projectId,
-            roomName,
-            project_Area: result.areaFt2 ?? null,
-            project_Volume: result.volumeFt3 ?? null,
-            project_RoomCfm: result.roomCfm ?? null,
-            project_FreshAir: result.freshAir ?? null,
-            project_ExhaustAir: result.exhaustAir ?? null,
-          });
-        })
-      );
+        console.log(
+          `Saving result ${idx + 1}/${roomsSnapshot.length} | ` +
+            `room: "${room.roomName}" | zoneId: ${room.zoneId} | backendRoomId: ${room.backendRoomId}`
+        );
 
-      console.log("All results saved to DB successfully");
+        await storeresults({
+          project_RoomId: toNullableNumber(room.backendRoomId),
+          project_id: projectId,
+          roomName: room.roomName,
+          project_Area: toNullableNumber(result.areaFt2),
+          project_Volume: toNullableNumber(result.volumeFt3),
+          project_RoomCfm: toNullableNumber(result.roomCfm),
+          project_FreshAir: toNullableNumber(result.freshAir),
+          project_ExhaustAir: toNullableNumber(result.exhaustAir),
+          project_DehumidCfm: toNullableNumber(result.dehumidValue),
+          project_Rem_Water_Vapour: toNullableNumber(result.removedWater),
+          project_ResultCfm: toNullableNumber(result.resultantCfm),
+          project_Room_Termi_Supply_Mod: toNullableNumber(
+            result.roomTermSupplyValue
+          ),
+          project_Room_AC_Load_TR: toNullableNumber(result.roomACValue),
+          project_Cfm_AC_Load_TR: toNullableNumber(result.cfmACLoadTR),
+          project_Res_Cooling_Load_TR: toNullableNumber(result.resultCoolLoadTR),
+          project_add_Water_Vapour: toNullableNumber(result.addWaterValue),
+          project_HumidCfm: toNullableNumber(result.humidValue),
+          project_ResultCfm_Hot: toNullableNumber(result.resultantheatCfm),
+          project_Room_Term_Supply_Mod: toNullableNumber(
+            result.roomTermSupplyHeatValue
+          ),
+          project_Room_Heating_Load_TR: toNullableNumber(result.roomHeatLoadTR),
+          project_Cfm_Heating_Load_TR: toNullableNumber(
+            result.cfmHeatLoadTRValue
+          ),
+          project_Result_Heating_Load_TR: toNullableNumber(
+            result.resultHeatLoadTR
+          ),
+        });
+      }
+
+      console.log("All results saved to DB.");
+
+      // Results page recomputes display from rooms — no airflow data needed in state
       navigate("/results", {
-        state: { ...resultsPayload, airflowResults: allAirflowResults },
+        state: {
+          minTempC,
+          maxTempC,
+          rhMin,
+          rhMax,
+          rooms: roomsSnapshot,
+        },
       });
     } catch (error) {
-      console.error("Failed to process airflow results:", error);
-      alert("Failed to process airflow results.");
+      console.error("Failed to generate results:", error);
+      alert("Failed to generate results. Please try again.");
+    } finally {
+      setIsGenerating(false);
     }
   };
 
+  // ── addAnotherZone ──
+  // Clears refs so new zone IDs from Standards page take effect cleanly
+  // Does NOT clear savedRooms — previous zone's rooms are preserved
   const addAnotherZone = () => {
     if (!savedRooms.length) {
       alert("Please add at least one room before adding another zone.");
       return;
     }
+    currentZoneIdRef.current = null;
+    currentProjectStandardIdRef.current = null;
     dispatch(resetStandards());
+    dispatch(resetRoomForm());
     navigate("/standards");
-  };
-
-  const saveZoneRooms = async (roomData: any): Promise<number | null> => {
-    const payload = {
-      zone_id: zoneId,
-      projectStandardId,
-      roomName: roomData.roomName,
-      length: roomData.length,
-      width: roomData.width,
-      height: roomData.height,
-      occupancy: roomData.occupancy,
-      equipmentLoad: roomData.equipmentLoad,
-      lightingLoad: roomData.lightingLoad,
-      infiltrationsPerHour: roomData.infiltrationsPerHour,
-      freshAirPercent: roomData.freshAirPercent,
-      exhaustAir: roomData.exhaustAir,
-      selectedAcph: roomData.acph,
-    };
-    try {
-      const data = await addRooms(payload);
-      return data?.zoneRoomsId || null;
-    } catch (error) {
-      console.error("Failed to save zone room:", error);
-      throw error;
-    }
   };
 
   const renderInput = (key: keyof RoomForm) => {
@@ -605,8 +672,8 @@ export default function Room() {
                   No rooms added yet. Click <b>Add Room</b> to begin.
                 </div>
               ) : (
-                savedRooms.map((r: any, i: number) => (
-                  <div key={r.id || i} className={s.roomCard}>
+                savedRooms.map((r, i) => (
+                  <div key={r.id} className={s.roomCard}>
                     <div className="flex items-start justify-between gap-4">
                       <div className={s.roomCardTitle}>
                         Room {i + 1}: {r.roomName}
@@ -623,15 +690,15 @@ export default function Room() {
                       Zone: {r.zoneId ?? "-"} | System: {r.zoneSystem || "-"}
                     </div>
                     <div className={s.roomCardLine}>
-                      Length:{r.length} | Width:{r.width} | Height:{r.height}
+                      Length: {r.length} | Width: {r.width} | Height: {r.height}
                     </div>
                     <div className={s.roomCardLine}>
-                      Occupancy:{r.occupancy} | Equipment:{r.equipmentLoad} |
-                      Lighting:{r.lightingLoad}
+                      Occupancy: {r.occupancy} | Equipment: {r.equipmentLoad} |
+                      Lighting: {r.lightingLoad}
                     </div>
                     <div className={s.roomCardLine}>
-                      Infil/hr:{r.infiltrationsPerHour} | Fresh Air:
-                      {r.freshAirPercent}% | Exhaust:{r.exhaustAir}
+                      Infil/hr: {r.infiltrationsPerHour} | Fresh Air:{" "}
+                      {r.freshAirPercent}% | Exhaust: {r.exhaustAir}
                     </div>
                     <div className={s.roomCardLine}>ACPH: {r.acph ?? "-"}</div>
                   </div>
@@ -652,16 +719,18 @@ export default function Room() {
             <button
               type="button"
               onClick={saveCurrentRoom}
+              disabled={isSaving}
               className={s.backBtn}
             >
-              {T.buttons.saveRoom}
+              {isSaving ? "Saving..." : T.buttons.saveRoom}
             </button>
             <button
               type="button"
               onClick={goToResultsPage}
+              disabled={isGenerating}
               className={s.saveBtn}
             >
-              {T.buttons.generate} <FaSave />
+              {isGenerating ? "Generating..." : T.buttons.generate} <FaSave />
             </button>
           </div>
         </div>

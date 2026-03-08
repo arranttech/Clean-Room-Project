@@ -54,12 +54,11 @@ const projectInfoDesign = {
 	industryCheckbox: "h-5 w-5 shrink-0 rounded-md border-gray-300 text-blue-600",
 
 	// Footer
-	footer:
-		"flex items-center justify-between w-full max-w-auto mt-8 align-middle",
+	footer: "flex items-center justify-between w-full max-w-auto mt-8 align-middle",
 	backLink:
-		"flex items-center gap-2 px-8 py-4 border border-gray-300 rounded-2xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-colors shadow-sm",
+		"inline-flex items-center gap-3 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 shadow-lg",
 	nextLink:
-		"flex items-center gap-2 bg-blue-700 text-white text-sm font-semibold px-8 py-4 rounded-2xl hover:bg-blue-800 transition-colors shadow-md",
+		"inline-flex items-center gap-3 bg-blue-800 text-white px-6 py-2 rounded-lg hover:bg-blue-900 shadow-lg",
 	disabled: "opacity-50 cursor-not-allowed pointer-events-none",
 };
 

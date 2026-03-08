@@ -27,7 +27,8 @@ function App() {
         <Route path="/" element={<Home />}/>
         <Route path="/customer-info" element={<CustomerInfoPage />} />
         <Route path="/project-info" element={<ProjectInfoPage />} />
-        <Route path="/login" element={localStorage.getItem("token") ? <Navigate to="/dashboard"/> : <Login />} />
+        {/* <Route path="/login" element={localStorage.getItem("token") ? <Navigate to="/dashboard"/> : <Login />} /> */}
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/admin" element={<Main />} />
 

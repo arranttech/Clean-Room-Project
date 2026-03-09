@@ -4,6 +4,10 @@ import { authRepository } from "../repositories";
 import jwt from "jsonwebtoken";
 
 const errorSchema = Joi.object({ error: Joi.string().required() });
+const authErrorSchema = Joi.object({
+  success: Joi.boolean().required(),
+  message: Joi.string().required(),
+});
 const loginSuccessSchema = Joi.object({
   success: Joi.boolean().required(),
   token: Joi.string().required(),
@@ -134,6 +138,69 @@ export const authRoute: ServerRoute[] = [
         success: false,
         message: "Internal server error",
       }).code(500);
+    }
+  },
+},
+{
+  method: "POST",
+  path: "/v1/session/refresh",
+  options: {
+    auth: false,
+    cors: true,
+    description: "Refresh session token",
+    tags: ["api", "auth"],
+    response: {
+      status: {
+        200: Joi.object({
+          success: Joi.boolean().required(),
+          message: Joi.string().required(),
+          token: Joi.string().required(),
+        }),
+        401: authErrorSchema,
+        500: authErrorSchema,
+      },
+    },
+  },
+  handler: async (request, h) => {
+    try {
+      const rawAuthHeader = request.headers.authorization;
+      const authHeader = Array.isArray(rawAuthHeader)
+        ? rawAuthHeader[0]
+        : rawAuthHeader || "";
+      const token = authHeader.startsWith("Bearer ")
+        ? authHeader.slice(7)
+        : null;
+
+      if (!token) {
+        return h
+          .response({ success: false, message: "Unauthorized" })
+          .code(401);
+      }
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+      if (!decoded || !decoded.user_id) {
+        return h
+          .response({ success: false, message: "Invalid or expired token" })
+          .code(401);
+      }
+
+      const nextToken = jwt.sign(
+        { user_id: decoded.user_id },
+        process.env.JWT_SECRET!,
+        { expiresIn: process.env.JWT_EXPIRES || "20m" }
+      );
+
+      return h
+        .response({
+          success: true,
+          message: "Session extended",
+          token: nextToken,
+        })
+        .code(200);
+    } catch {
+      return h
+        .response({ success: false, message: "Internal server error" })
+        .code(500);
     }
   },
 },

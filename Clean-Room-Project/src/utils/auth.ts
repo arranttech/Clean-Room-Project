@@ -22,35 +22,62 @@ export function parseJwt(token: string) {
 }
 
 let logoutTimer: ReturnType<typeof setTimeout> | null = null;
+let warningTimer: ReturnType<typeof setTimeout> | null = null;
 
-export function scheduleAutoLogout(token: string, onLogout: () => void) {
-  clearAutoLogout();
+type SessionTimerOptions = {
+  warnBeforeMs: number;
+  onWarn: () => void;
+  onExpire: () => void;
+};
+
+export function clearSessionTimers() {
+  if (warningTimer) {
+    clearTimeout(warningTimer);
+    warningTimer = null;
+  }
+
+  if (logoutTimer) {
+    clearTimeout(logoutTimer);
+    logoutTimer = null;
+  }
+}
+
+export function scheduleSessionTimers(token: string, options: SessionTimerOptions) {
+  clearSessionTimers();
   const decoded = parseJwt(token);
   if (!decoded || !decoded.exp) {
     return;
   }
 
-  const expiresAt = decoded.exp * 1000; // exp is in seconds
-  const now = Date.now();
-  const ms = expiresAt - now;
+  const expiresAt = decoded.exp * 1000;
+  const ms = expiresAt - Date.now();
 
   if (ms <= 0) {
-    onLogout();
+    options.onExpire();
     return;
   }
 
-  // Cap timeout to a safe value
-  const timeoutMs = Math.min(ms, 2 ** 31 - 1);
-  logoutTimer = setTimeout(() => {
-    onLogout();
-  }, timeoutMs);
+  const maxDelay = 2 ** 31 - 1;
+  const warningMs = ms - options.warnBeforeMs;
+  if (warningMs <= 0) {
+    options.onWarn();
+  } else {
+    warningTimer = setTimeout(options.onWarn, Math.min(warningMs, maxDelay));
+  }
+
+  logoutTimer = setTimeout(options.onExpire, Math.min(ms, maxDelay));
+}
+
+export function scheduleAutoLogout(token: string, onLogout: () => void) {
+  scheduleSessionTimers(token, {
+    warnBeforeMs: 0,
+    onWarn: () => {},
+    onExpire: onLogout,
+  });
 }
 
 export function clearAutoLogout() {
-  if (logoutTimer) {
-    clearTimeout(logoutTimer);
-    logoutTimer = null;
-  }
+  clearSessionTimers();
 }
 
 export function initAutoLogout(onLogout: () => void) {

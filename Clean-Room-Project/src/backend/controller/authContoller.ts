@@ -8,3 +8,5 @@ export const createUserPassword = (payload: {
 	user_login_id: number;
 	password: string;
 }) => request("/v1/userpassword", "POST", payload);
+
+export const refreshSession = () => request("/v1/session/refresh", "POST");

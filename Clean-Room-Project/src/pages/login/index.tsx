@@ -44,6 +44,11 @@ function login() {
         return;
       }
 
+      if (response.token) {
+        localStorage.setItem("token", response.token);
+        window.dispatchEvent(new Event("auth-token-updated"));
+      }
+
       // Store in Redux (also syncs to localStorage via userSlice)
       dispatch(setUser(response.user));
 

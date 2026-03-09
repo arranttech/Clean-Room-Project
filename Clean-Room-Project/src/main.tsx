@@ -6,13 +6,6 @@ import { PersistGate } from "redux-persist/integration/react";
 import store, { persistor } from "./redux/store";
 import App from "./App";
 import "./index.css";
-import { initAutoLogout } from './utils/auth.ts';
-
-// Schedule auto logout if there's an existing token
-initAutoLogout(() => {
-  localStorage.removeItem('token');
-  window.location.href = '/login';
-});
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

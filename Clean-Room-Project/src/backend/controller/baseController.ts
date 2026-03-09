@@ -5,12 +5,14 @@ const BASE_URL = "http://localhost:3000";
 export async function request(
 	endpoint: string,
 	method: string = "GET",
-	payload: object | null = null
+	payload: object | null = null,
+	extraHeaders: Record<string, string> = {}
 ) {
 	const options: RequestInit = {
 		method,
 		headers: {
 			"Content-Type": "application/json",
+			...extraHeaders,
 		},
 	};
 

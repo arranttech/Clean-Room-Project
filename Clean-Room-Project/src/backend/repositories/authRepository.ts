@@ -1,5 +1,6 @@
 import { database } from "../dbConnection/connections";
 import bcrypt from "bcrypt";
+import { generateToken } from "../utils/jwt";
 
 export const authRepository = {
   loginUser: async (identifier: string, password: string) => {
@@ -35,6 +36,7 @@ export const authRepository = {
           user?.user_last_name || ""
         }`.trim(),
       },
+      token: generateToken({ user_id: user?.user_login_id }),
     };
   },
 

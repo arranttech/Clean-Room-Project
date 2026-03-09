@@ -1,4 +1,4 @@
-// src/api/roomApi.ts
+
 import { request } from "./baseController";
 
 export const roomStandards = (payload: object) =>

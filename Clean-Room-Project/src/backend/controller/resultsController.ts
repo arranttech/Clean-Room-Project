@@ -1,4 +1,4 @@
-// src/api/resultApi.ts
+
 import { request } from "./baseController";
 
 export const storeresults = (payload: object) =>

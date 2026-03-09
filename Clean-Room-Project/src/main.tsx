@@ -16,9 +16,7 @@ initAutoLogout(() => {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    {/* Redux Provider — makes store available to all components */}
     <Provider store={store}>
-      {/* PersistGate — restores saved state from localStorage before rendering */}
       <PersistGate loading={null} persistor={persistor}>
         <BrowserRouter>
           <App />

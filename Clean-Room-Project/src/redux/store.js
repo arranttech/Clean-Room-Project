@@ -1,22 +1,18 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { persistStore, persistReducer } from "redux-persist";
-import storage from "redux-persist/lib/storage";
+import { 
+  persistStore, 
+  persistReducer, 
+  FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER 
+} from "redux-persist";
+import storage from "redux-persist/lib/storage/session";
 import { combineReducers } from "redux";
+
 import projectInfoReducer from "./slices/projectInfoSlice";
 import standardsReducer from "./slices/standardSlice";
 import roomReducer from "./slices/roomSlice";
 import customerReducer from "./slices/customerSlice";
 import userReducer from "./slices/userSlice";
 
-
-// --- Persist Config ---
-const persistConfig = {
-  key: "root",
-  storage,
-  whitelist: ["projectInfo","standards","room","customer","user"], // only persist these slices
-};
-
-// --- Root Reducer ---
 const rootReducer = combineReducers({
   user: userReducer,
   customer: customerReducer,
@@ -25,16 +21,20 @@ const rootReducer = combineReducers({
   room: roomReducer,
 });
 
-// --- Persisted Reducer ---
+const persistConfig = {
+  key: "root",
+  storage,
+  whitelist: ["user", "customer", "projectInfo", "standards", "room"],
+};
+
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-// --- Store ---
 const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
     }),
 });

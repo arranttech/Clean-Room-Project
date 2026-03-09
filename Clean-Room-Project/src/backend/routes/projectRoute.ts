@@ -10,38 +10,38 @@ export const projectRoute: ServerRoute[] = [
   // =========================
   // GET /v1/projectinfo
   // =========================
-  {
-    method: "GET",
-    path: "/v1/projectinfo",
-    options: {
-      description: "Get project by customer ID",
-      tags: ["api", "project"],
-      validate: {
-        query: Joi.object({
-          customer_id: Joi.number().integer().required(),
-        }),
-      },
-      response: {
-        status: {
-          200: Joi.object({ project: Joi.object().allow(null).required() }),
-          400: errorSchema,
-          500: errorSchema,
-        },
-      },
-    },
-    handler: async (request, h) => {
-      try {
-        const query = request.query as any;
-        const customer_id = parseInt(query.customer_id, 10);
-        const project = await projectRepository.getProjectByCustomerId(
-          customer_id
-        );
-        return h.response({ project: project || null }).code(200);
-      } catch {
-        return h.response({ error: "Internal Server Error" }).code(500);
-      }
-    },
-  },
+  // {
+  //   method: "GET",
+  //   path: "/v1/projectinfo",
+  //   options: {
+  //     description: "Get project by customer ID",
+  //     tags: ["api", "project"],
+  //     validate: {
+  //       query: Joi.object({
+  //         customer_id: Joi.number().integer().required(),
+  //       }),
+  //     },
+  //     response: {
+  //       status: {
+  //         200: Joi.object({ project: Joi.object().allow(null).required() }),
+  //         400: errorSchema,
+  //         500: errorSchema,
+  //       },
+  //     },
+  //   },
+  //   handler: async (request, h) => {
+  //     try {
+  //       const query = request.query as any;
+  //       const customer_id = parseInt(query.customer_id, 10);
+  //       const project = await projectRepository.getProjectByCustomerId(
+  //         customer_id
+  //       );
+  //       return h.response({ project: project || null }).code(200);
+  //     } catch {
+  //       return h.response({ error: "Internal Server Error" }).code(500);
+  //     }
+  //   },
+  // },
 
   // =========================
   // POST /v1/projectinfo

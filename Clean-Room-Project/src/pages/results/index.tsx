@@ -1,8 +1,11 @@
 import resultsDesign from "./styles";
 import resultsText from "../../json/resultsText.json";
 import { useEffect, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { Home } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import Header from "../../components/header";
+import { CleanProjectDetails } from "../../utils/logout";
 
 // Types
 type RoomForm = {
@@ -96,6 +99,8 @@ function calcTotals(results: any[]) {
 export default function Results() {
 	const s = resultsDesign;
 	const t = resultsText;
+	const navigate = useNavigate();
+	const dispatch = useDispatch();
 
 	const location = useLocation();
 	const props = (location.state || {}) as ResultsPayload;
@@ -123,6 +128,12 @@ export default function Results() {
 		});
 		console.log("=========================");
 	}, [rooms]);
+
+	// ─── Handle "Go Back Home" ───
+	const handleGoHome = () => {
+		CleanProjectDetails(dispatch);
+		navigate("/dashboard");
+	};
 
 	// ─── Group rooms by zoneId ───
 	const zoneGroups = useMemo(() => {
@@ -988,6 +999,15 @@ export default function Results() {
 							No rooms added yet.
 						</div>
 					)}
+
+					{/* ── Go Back Home ── */}
+					<div className={s.footer}>
+						<p className={s.footerTitle}>Want to add another project?</p>
+						<button onClick={handleGoHome} className={s.goHomeBtn}>
+							<Home size={16} />
+							Go Back Home
+						</button>
+					</div>
 				</div>
 			</div>
 		</>

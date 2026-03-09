@@ -27,6 +27,7 @@ const roomSlice = createSlice({
     },
     resetRoomForm: (state) => {
       state.form = { ...initialState.form };
+      state.isFormVisible = false;
     },
     setFormVisible: (state, action) => {
       state.isFormVisible = action.payload;
@@ -45,6 +46,12 @@ const roomSlice = createSlice({
       state.form = { ...initialState.form };
       state.isFormVisible = true;
     },
+    // Only clears form — savedRooms preserved 
+    resetRoomFormOnly: (state) => {
+      state.form = { ...initialState.form };
+      state.isFormVisible = false;
+    },
+    // Clears everything including savedRooms (used after final submit)
     resetRoom: () => initialState,
   },
 });
@@ -52,6 +59,7 @@ const roomSlice = createSlice({
 export const {
   updateRoomFormField,
   resetRoomForm,
+  resetRoomFormOnly,
   setFormVisible,
   saveRoom,
   removeRoom,

@@ -5,8 +5,7 @@ const BASE_URL = "http://localhost:3000";
 export async function request(
 	endpoint: string,
 	method: string = "GET",
-	payload: object | null = null,
-	extraHeaders: Record<string, string> = {}
+	payload: object | null = null
 ) {
 	const token = localStorage.getItem("token"); 
 	const headers: any = { "Content-Type": "application/json",
@@ -17,10 +16,7 @@ export async function request(
 
 	const options: RequestInit = {
 		method,
-		headers: {
-			"Content-Type": "application/json",
-			...extraHeaders,
-		},
+		headers,
 	};
 
 	if (payload) {

@@ -4,11 +4,6 @@ import { request } from "./baseController";
 export const loginUser = (payload: { identifier: string; password: string }) =>
 	request("/v1/login", "POST", payload);
 
-export const refreshSession = (token: string) =>
-	request("/v1/session/refresh", "POST", null, {
-		Authorization: `Bearer ${token}`,
-	});
-
 export const createUserPassword = (payload: {
 	user_login_id: number;
 	password: string;

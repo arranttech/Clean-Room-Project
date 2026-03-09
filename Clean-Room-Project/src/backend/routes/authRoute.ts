@@ -1,12 +1,13 @@
 import { ServerRoute } from "@hapi/hapi";
 import Joi from "joi";
 import { authRepository } from "../repositories";
-import jwt from "jsonwebtoken";
+import { generateToken, verifyToken } from "../utils/jwt";
 
 const errorSchema = Joi.object({ error: Joi.string().required() });
 const loginSuccessSchema = Joi.object({
   success: Joi.boolean().required(),
-  token: Joi.string().required(),
+  message: Joi.string().required(),
+  token: Joi.string().optional(),
   user: Joi.object({
     user_login_id: Joi.number().optional(),
     user_id: Joi.string().optional(),
@@ -95,11 +96,74 @@ export const authRoute: ServerRoute[] = [
         password: string;
       };
 
-      if (!identifier || !password) {
-        return h.response({
-          success: false,
-          message: "Identifier and password are required",
-        }).code(400);
+        return h
+          .response({
+            success: true,
+            message: "Login successful",
+            user: result.user,
+            token: result.token,
+          })
+          .code(200);
+      } catch {
+        return h.response({ success: false, message: "Internal server error" }).code(500);
+      }
+    },
+  },
+
+  // Session refresh
+  {
+    method: "POST",
+    path: "/v1/session/refresh",
+    options: {
+      auth: false,
+      cors: true,
+      description: "Refresh session token",
+      tags: ["api", "auth"],
+      response: {
+        status: {
+          200: Joi.object({
+            success: Joi.boolean().required(),
+            message: Joi.string().required(),
+            token: Joi.string().required(),
+          }),
+          401: authErrorSchema,
+          500: authErrorSchema,
+        },
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const rawAuthHeader = request.headers.authorization;
+        const authHeader = Array.isArray(rawAuthHeader)
+          ? rawAuthHeader[0]
+          : rawAuthHeader || "";
+        const token = authHeader.startsWith("Bearer ")
+          ? authHeader.slice(7)
+          : null;
+
+        if (!token) {
+          return h
+            .response({ success: false, message: "Unauthorized" })
+            .code(401);
+        }
+
+        const decoded = verifyToken(token) as any;
+        if (!decoded || !decoded.user_id) {
+          return h
+            .response({ success: false, message: "Invalid or expired token" })
+            .code(401);
+        }
+
+        const nextToken = generateToken({ user_id: decoded.user_id });
+        return h
+          .response({
+            success: true,
+            message: "Session extended",
+            token: nextToken,
+          })
+          .code(200);
+      } catch {
+        return h.response({ success: false, message: "Internal server error" }).code(500);
       }
 
       const result = await authRepository.loginUser(identifier, password);

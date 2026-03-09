@@ -22,35 +22,72 @@ export function parseJwt(token: string) {
 }
 
 let logoutTimer: ReturnType<typeof setTimeout> | null = null;
+let warningTimer: ReturnType<typeof setTimeout> | null = null;
 
-export function scheduleAutoLogout(token: string, onLogout: () => void) {
-  clearAutoLogout();
+type SessionTimerOptions = {
+  onWarn?: () => void;
+  onExpire: () => void;
+  warnBeforeMs?: number;
+};
+
+function getTokenExpiryMs(token: string): number | null {
   const decoded = parseJwt(token);
   if (!decoded || !decoded.exp) {
-    return;
+    return null;
   }
 
   const expiresAt = decoded.exp * 1000; // exp is in seconds
   const now = Date.now();
-  const ms = expiresAt - now;
+  return expiresAt - now;
+}
+
+export function clearSessionTimers() {
+  if (warningTimer) {
+    clearTimeout(warningTimer);
+    warningTimer = null;
+  }
+
+  if (logoutTimer) {
+    clearTimeout(logoutTimer);
+    logoutTimer = null;
+  }
+}
+
+export function scheduleSessionTimers(token: string, options: SessionTimerOptions) {
+  const { onWarn, onExpire, warnBeforeMs = 2 * 60 * 1000 } = options;
+
+  clearSessionTimers();
+
+  const ms = getTokenExpiryMs(token);
+  if (ms === null) {
+    return;
+  }
 
   if (ms <= 0) {
-    onLogout();
+    onExpire();
     return;
+  }
+
+  const warningDelay = ms - warnBeforeMs;
+  if (onWarn && warningDelay > 0) {
+    warningTimer = setTimeout(() => {
+      onWarn();
+    }, warningDelay);
   }
 
   // Cap timeout to a safe value
   const timeoutMs = Math.min(ms, 2 ** 31 - 1);
   logoutTimer = setTimeout(() => {
-    onLogout();
+    onExpire();
   }, timeoutMs);
 }
 
+export function scheduleAutoLogout(token: string, onLogout: () => void) {
+  scheduleSessionTimers(token, { onExpire: onLogout });
+}
+
 export function clearAutoLogout() {
-  if (logoutTimer) {
-    clearTimeout(logoutTimer);
-    logoutTimer = null;
-  }
+  clearSessionTimers();
 }
 
 export function initAutoLogout(onLogout: () => void) {

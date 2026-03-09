@@ -1,17 +1,17 @@
 const roomDesign = {
-	page: "min-h-screen bg-slate-50 px-4 py-10",
-	headerWrap: "mx-auto max-w-5xl text-center mb-8",
+	page: "min-h-screen bg-white px-4 py-6",
+	headerWrap: "mx-auto max-w-5xl text-center mb-4",
 	headerIconWrap:
-		"mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 shadow-md",
-	headerTitle: "text-4xl font-extrabold text-slate-900",
-	headerSubtitle: "mt-2 text-base text-slate-500",
+		"mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 shadow-md",
+	headerTitle: "text-2xl font-bold text-gray-950 tracking-tight",
+	headerSubtitle: "mt-2 text-base text-blue-600",
 
 	cardWrap: "mx-auto max-w-auto",
 	card: "mt-6 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden",
 	cardInner: "px-8 py-8",
 
 	sectionTitle:
-		"mt-6 text-xm font-bold tracking-widest text-slate-500 uppercase",
+		"mt-6 text-sm font-bold tracking-widest text-gray-900 uppercase",
 	sectionDivider: "mt-4 border-t border-slate-300",
 
 	grid2: "mt-4 grid grid-cols-1 md:grid-cols-2 gap-6",

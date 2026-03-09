@@ -8,7 +8,6 @@ import { getCustomerInfo } from "../../backend/controller/customerController";
 import { useAppDispatch } from "../../redux/hooks";
 import { setUser } from "../../redux/slices/userSlice";
 import { setCustomer } from "../../redux/slices/customerSlice";
-import { persistor } from "../../redux/store";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
@@ -37,8 +36,6 @@ function Login() {
       // Store token only
       localStorage.setItem("token", response.token);
 
-      // Purge any stale data from previous session
-      persistor.purge();
 
       // Fetch full user details from DB
       const userRes = await getUserById(response.user.user_login_id);

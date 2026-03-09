@@ -1,5 +1,5 @@
-
-import { Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom"; // ← add useLocation
+import { useEffect } from "react"; // ← add this import
 import Home from "./pages/LandingPage";
 import CustomerInfoPage from "./pages/customerInfo";
 import ProjectInfoPage from "./pages/projectInfo";
@@ -13,6 +13,15 @@ import AllProjects from "./pages/dashboard/projects";
 import ApiDocs from "./pages/ApiDocs";
 import Main from "./pages/admin/adminLayout";
 
+// scroll
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 function ProtectedRoute() {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -23,8 +32,10 @@ function ProtectedRoute() {
 
 function App() {
   return (
+    <>
+      <ScrollToTop />
       <Routes>
-        <Route path="/" element={<Home />}/>
+        <Route path="/" element={<Home />} />
         <Route path="/customer-info" element={<CustomerInfoPage />} />
         <Route path="/project-info" element={<ProjectInfoPage />} />
         {/* <Route path="/login" element={localStorage.getItem("token") ? <Navigate to="/dashboard"/> : <Login />} /> */}
@@ -42,6 +53,7 @@ function App() {
           <Route path="/docs" element={<ApiDocs />} />
         </Route>
       </Routes>
+    </>
   );
 }
 

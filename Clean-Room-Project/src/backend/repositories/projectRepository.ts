@@ -53,11 +53,11 @@ export const projectRepository = {
     return (result as any).insertId;
   },
 
-  getProjectByCustomerId: async (customer_id: number) => {
-    const [rows]: any = await database.execute(
-      `SELECT * FROM tProjects WHERE customer_id = ? ORDER BY project_id DESC LIMIT 1`,
-      [customer_id]
-    );
-    return rows[0] || null;
-  },
+  // getProjectByCustomerId: async (customer_id: number) => {
+  //   const [rows]: any = await database.execute(
+  //     `SELECT * FROM tProjects WHERE customer_id = ? ORDER BY project_id DESC LIMIT 1`,
+  //     [customer_id]
+  //   );
+  //   return rows[0] || null;
+  // },
 };

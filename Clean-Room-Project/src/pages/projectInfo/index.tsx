@@ -10,7 +10,6 @@ import { Link, useNavigate } from "react-router-dom";
 import styles from "./styles";
 import {
   projectInfo,
-  getProjectByCustomerId,
 } from "../../backend/controller/projectController";
 import Header from "../../components/header";
 
@@ -108,11 +107,11 @@ function ProjectInfoPage() {
   const validateBranch = (branch: string) =>
     /^[A-Za-z0-9\s]{1,20}$/.test(branch)
       ? ""
-      : "Branch must be 1–20 characters";
+      : "Branch must be 1-20 characters";
   const validateProject = (project: string) =>
     /^[A-Za-z-_0-9\s]{1,20}$/.test(project)
       ? ""
-      : "Project Name must be 1–20 characters";
+      : "Project Name must be 1-20 characters";
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -131,55 +130,50 @@ function ProjectInfoPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Fetch project from DB ONLY when:
-  // 1. customerId exists
-  // 2. No projectId in Redux (not yet saved)
-  // 3. No projectName in Redux (not prefilled yet — prevents refetch on refresh)
-  // 4. Not a new project flow
-  useEffect(() => {
-    if (!customerId) return;
-    if (projectIdFromRedux) return; // already have a project saved
-    if (projectName) return; // already prefilled — skip on refresh
-    if (isNewProjectRef.current) return; // new project flow — don't prefill
+  // useEffect(() => {
+  //   if (!customerId) return;
+  //   if (projectIdFromRedux) return; 
+  //   if (projectName) return; 
+  //   if (isNewProjectRef.current) return; 
 
-    const fetchProject = async () => {
-      try {
-        const data = await getProjectByCustomerId(customerId);
-        const p = data?.project;
-        if (p) {
-          dispatch(
-            updateMultipleFields({
-              projectId: p.project_id,
-              projectName: p.project_name || "",
-              unitBranch: p.project_unit_branch || "",
-              industry: p.project_Industry
-                ? JSON.parse(p.project_Industry)
-                : [],
-              handling: p.project_Handling
-                ? JSON.parse(p.project_Handling)
-                : [],
-              locationQuery: p.project_Location || "",
-              selectedLocation: p.project_Location
-                ? { display_name: p.project_Location }
-                : null,
-              minTemp: p.project_min_temp ? String(p.project_min_temp) : "",
-              maxTemp: p.project_max_temp ? String(p.project_max_temp) : "",
-              relativeHumidityMin: p.project_relative_min_humid
-                ? String(p.project_relative_min_humid)
-                : "",
-              relativeHumidityMax: p.project_relative_max_humid
-                ? String(p.project_relative_max_humid)
-                : "",
-            }),
-          );
-          console.log("Project pre-filled from DB:", p.project_id);
-        }
-      } catch (error) {
-        console.error("Failed to fetch project:", error);
-      }
-    };
-    fetchProject();
-  }, [customerId, projectIdFromRedux]);
+  //   const fetchProject = async () => {
+  //     try {
+  //       const data = await getProjectByCustomerId(customerId);
+  //       const p = data?.project;
+  //       if (p) {
+  //         dispatch(
+  //           updateMultipleFields({
+  //             projectId: p.project_id,
+  //             projectName: p.project_name || "",
+  //             unitBranch: p.project_unit_branch || "",
+  //             industry: p.project_Industry
+  //               ? JSON.parse(p.project_Industry)
+  //               : [],
+  //             handling: p.project_Handling
+  //               ? JSON.parse(p.project_Handling)
+  //               : [],
+  //             locationQuery: p.project_Location || "",
+  //             selectedLocation: p.project_Location
+  //               ? { display_name: p.project_Location }
+  //               : null,
+  //             minTemp: p.project_min_temp ? String(p.project_min_temp) : "",
+  //             maxTemp: p.project_max_temp ? String(p.project_max_temp) : "",
+  //             relativeHumidityMin: p.project_relative_min_humid
+  //               ? String(p.project_relative_min_humid)
+  //               : "",
+  //             relativeHumidityMax: p.project_relative_max_humid
+  //               ? String(p.project_relative_max_humid)
+  //               : "",
+  //           }),
+  //         );
+  //         console.log("Project pre-filled from DB:", p.project_id);
+  //       }
+  //     } catch (error) {
+  //       console.error("Failed to fetch project:", error);
+  //     }
+  //   };
+  //   fetchProject();
+  // }, [customerId, projectIdFromRedux]);
 
   const generateUniqueId = (name: string, project: string) => {
     if (!name || !project) return "";
@@ -394,9 +388,6 @@ function ProjectInfoPage() {
               )}
             </div>
           </div>
-
-          {/* --- START OF UPDATED SECTION --- */}
-
           {/* Industry / Sector - Now in its own container to take full width */}
           <div className="w-full mb-4">
             <div

@@ -1,4 +1,4 @@
-// src/api/index.ts
+
 
 export * from "./authContoller";
 export * from "./userController";

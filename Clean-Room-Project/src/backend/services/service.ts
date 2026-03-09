@@ -1,4 +1,4 @@
-import resultsText from "../../json/resultsText.json";
+import resultsText from "../../json/resultsText";
 
 export type RoomPayload = {
   roomName: string;
@@ -12,16 +12,14 @@ export type RoomPayload = {
   equipmentLoad: string;
   lightingLoad: string;
   infiltrationsPerHour: string;
-  zoneId?: string;
+  zoneId?: string | number;
   zoneSystem?: string;
   zoneSystemType?: string;
   zoneCoolingMethod?: string;
   zoneHeatingMethod?: string;
   zoneClassification?: string;
-
-  zoneReqInsideTempC?: number | string;
+  zoneReqInsideTempC?: string | number | null;
   zoneReqInsideHum?: number | string;
-
   minTempC?: number | string;
   maxTempC?: number | string;
   rhMin?: number | string;

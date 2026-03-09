@@ -1,4 +1,3 @@
-// src/api/projectApi.ts
 import { request } from "./baseController";
 //GET profiles in profile page
 

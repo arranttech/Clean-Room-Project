@@ -5,6 +5,7 @@ import { customerRepository } from "../repositories";
 const errorSchema = Joi.object({ error: Joi.string().required() });
 
 export const customerRoute: ServerRoute[] = [
+  // GET all customers
   {
     method: "GET",
     path: "/v1/customers",
@@ -25,10 +26,7 @@ export const customerRoute: ServerRoute[] = [
     },
     handler: async (request, h) => {
       try {
-        const { admin_id } = request.query as { admin_id: string };
-        const customers = await customerRepository.getCustomerDetails({
-          admin_user_id: admin_id,
-        });
+        const customers = await customerRepository.getCustomerDetails();
         return h.response({ customers }).code(200);
       } catch {
         return h.response({ error: "Internal Server Error" }).code(500);
@@ -36,6 +34,47 @@ export const customerRoute: ServerRoute[] = [
     },
   },
 
+  // GET customer by user_login_id — MUST be before /v1/customers/{customer_id}
+  // otherwise Hapi matches "user" as a customer_id param
+  {
+    method: "GET",
+    path: "/v1/customers/user/{user_login_id}",
+    options: {
+      description: "Fetch customer details by user_login_id",
+      tags: ["api", "customer"],
+      validate: {
+        params: Joi.object({ user_login_id: Joi.number().required() }),
+      },
+      response: {
+        status: {
+          200: Joi.object({
+            success: Joi.boolean().required(),
+            customer: Joi.object().optional(),
+          }),
+          404: Joi.object({
+            success: Joi.boolean().required(),
+            message: Joi.string().required(),
+          }),
+          500: errorSchema,
+        },
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const user_login_id = parseInt(request.params.user_login_id, 10);
+        const result = await customerRepository.getCustomerInfo(user_login_id);
+        if (!result.success)
+          return h
+            .response({ success: false, message: result.message })
+            .code(404);
+        return h.response(result).code(200);
+      } catch {
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
+  // GET single customer by customer_id
   {
     method: "GET",
     path: "/v1/customers/{customer_id}",
@@ -66,6 +105,7 @@ export const customerRoute: ServerRoute[] = [
     },
   },
 
+  // POST create customer
   {
     method: "POST",
     path: "/v1/customerinfo",
@@ -104,6 +144,7 @@ export const customerRoute: ServerRoute[] = [
     },
   },
 
+  // PUT update customer
   {
     method: "PUT",
     path: "/v1/customers/{customer_id}",
@@ -149,6 +190,7 @@ export const customerRoute: ServerRoute[] = [
     },
   },
 
+  // DELETE (soft) customer
   {
     method: "DELETE",
     path: "/v1/customers/{customer_id}",

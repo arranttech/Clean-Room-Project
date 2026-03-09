@@ -1,9 +1,5 @@
-// Admin Panel Shell
-
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import {
-    FiLogOut,
     FiBriefcase,
     FiUsers,
     FiUser,
@@ -11,14 +7,13 @@ import {
     FiLock
 } from "react-icons/fi";
 import s from "./adminLayoutDesign";
-import ds from "../dashboard/styles";
 import Customers from "./customers/customers";
 import Users from "./users";
 import Screens from "./screens/screens";
 import ProfilesPlaceholder from "./profiles/profilesPlaceholder";
 import CreateEditProfile from "./profiles/createEditProfile";
 import AssignProfileDetails from "./profiles/assignProfileDetails";
-
+import Header from "../../components/header";
 const ICON_MAP = {
     customers: FiBriefcase,
     users: FiUsers,
@@ -40,12 +35,6 @@ export default function Main() {
     const [screenCount, setScreenCount] = useState(0);
     const [profileCount, setProfileCount] = useState(0);
     const [assignmentCount, setAssignmentCount] = useState(0);
-    const navigate = useNavigate();
-
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        navigate("/");
-    };
 
     useEffect(() => {
         const fetchCounts = async () => {
@@ -116,36 +105,7 @@ export default function Main() {
 
     return (
         <div className={s.page}>
-            <header className={ds.header}>
-                <div className={ds.headerInner}>
-                    <div className={ds.left}>
-                        <div className={ds.logoTile}>
-                            <img
-                                src="/Arrant.jpeg"
-                                alt="Arrant Dynamics"
-                                className={ds.logoImg}
-                            />
-                        </div>
-                        <div className={ds.brand}>
-                            <div>ARRANT</div>
-                            <div>DYNAMICS</div>
-                        </div>
-                    </div>
-
-                    <div className={ds.center}>
-                        <div className={ds.title1}>STERI Clean Air</div>
-                        <div className={ds.subtitle1}>HVAC Matrix Platform</div>
-                    </div>
-
-                    <div className={ds.right}>
-                        <button type="button" className={ds.logout} onClick={handleLogout}>
-                            <FiLogOut className="text-[18px]" />
-                            Logout
-                        </button>
-                    </div>
-                </div>
-            </header>
-
+           <Header/>
             <div className={s.body}>
                 {/* Sidebar */}
                 <aside className={s.sidebar}>

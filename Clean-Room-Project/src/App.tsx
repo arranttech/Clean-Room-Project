@@ -19,6 +19,23 @@ const SESSION_WARNING_BEFORE_MS = 2 * 60 * 1000;
 const SESSION_TOTAL_MINUTES = 20;
 const SESSION_WARNING_MINUTES = SESSION_WARNING_BEFORE_MS / (60 * 1000);
 
+// scroll
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
+function ProtectedRoute() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return <Outlet />;
+}
+
 function App() {
   const navigate = useNavigate();
   const [showSessionPopup, setShowSessionPopup] = useState(false);
@@ -94,19 +111,25 @@ function App() {
 
   return (
     <>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/customer-info" element={<CustomerInfoPage />} />
         <Route path="/project-info" element={<ProjectInfoPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/standards" element={<Standard />} />
-        <Route path="/room" element={<Room />} />
-        <Route path="/results" element={<Results />} />
+        {/* <Route path="/login" element={localStorage.getItem("token") ? <Navigate to="/dashboard"/> : <Login />} /> */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/projects" element={<AllProjects />} />
         <Route path="/admin" element={<Main />} />
-        <Route path="/docs" element={<ApiDocs />} />
+
+        {/* protected routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/standards" element={<Standard />} />
+          <Route path="/room" element={<Room />} />
+          <Route path="/results" element={<Results />} />
+          <Route path="/projects" element={<AllProjects />} />
+          <Route path="/docs" element={<ApiDocs />} />
+        </Route>
       </Routes>
 
       {showSessionPopup && (

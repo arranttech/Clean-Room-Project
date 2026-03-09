@@ -1,4 +1,4 @@
-// src/api/baseApi.ts
+
 
 const BASE_URL = "http://localhost:3000";
 
@@ -8,6 +8,13 @@ export async function request(
 	payload: object | null = null,
 	extraHeaders: Record<string, string> = {}
 ) {
+	const token = localStorage.getItem("token"); 
+	const headers: any = { "Content-Type": "application/json",
+	};
+	if (token) {
+		headers.Authorization = `Bearer ${token}`;
+		}
+
 	const options: RequestInit = {
 		method,
 		headers: {

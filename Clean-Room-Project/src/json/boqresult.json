@@ -75,6 +75,9 @@
                 "CoilLength": [600, 800, 1000]
             }
         },
+         "WaterLS":{
+            "waterval": 0.06309
+        },
         "NumberofStagesFilter": {
             "label": "To calculate the number of stages Filter",
             "stage3Or4": [
@@ -200,5 +203,6 @@
                 2.0
             ]
         }
+       
     }
 }

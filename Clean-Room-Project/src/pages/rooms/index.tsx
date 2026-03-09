@@ -1,759 +1,784 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
-	FaCalculator,
-	FaRegListAlt,
-	FaArrowLeft,
-	FaSave,
-	FaPlus,
-	FaTrash,
+  FaCalculator,
+  FaRegListAlt,
+  FaArrowLeft,
+  FaSave,
+  FaPlus,
+  FaTrash,
 } from "react-icons/fa";
-import {
-	resetStandards,
-	updateStandardsField,
-} from "../../redux/slices/standardSlice";
-import { resetProjectInfo } from "../../redux/slices/projectInfoSlice";
-import { resetRoom } from "../../redux/slices/roomSlice";
+import { resetStandards } from "../../redux/slices/standardSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-
 import {
-	updateRoomFormField,
-	resetRoomForm,
-	saveRoom,
-	removeRoom,
-	openNewRoomForm,
+  updateRoomFormField,
+  resetRoomForm,
+  saveRoom,
+  removeRoom,
+  openNewRoomForm,
+  resetRoom,
 } from "../../redux/slices/roomSlice";
-
+import { resetProjectInfo } from "../../redux/slices/projectInfoSlice";
 import s from "./styles";
 import T from "../../json/room.json";
 import standardDataJson from "../../json/standardData.json";
 import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
-import {
-	addRooms,
-	getZoneRooms,
-} from "../../backend/controller/roomController";
+import { addRooms } from "../../backend/controller/roomController";
 import { storeresults } from "../../backend/controller/resultsController";
 import { airflowService } from "../../backend/services/service";
-import { persistor } from "../../redux/store";
+import Header from "../../components/header";
 
 type StandardItem = {
-	id: number;
-	title: string;
-	classifications: {
-		name: string;
-		minAir: number | null;
-		maxAir: number | null;
-	}[];
+  id: number;
+  title: string;
+  classifications: {
+    name: string;
+    minAir: number | null;
+    maxAir: number | null;
+  }[];
 };
-
-type StandardJson = {
-	standards: StandardItem[];
-	text: any;
-};
-
+type StandardJson = { standards: StandardItem[]; text: any };
 const standardsDb = (standardDataJson as unknown as StandardJson).standards;
 
 type RoomForm = {
-	roomName: string;
-	length: string;
-	width: string;
-	height: string;
-	occupancy: string;
-	equipmentLoad: string;
-	lightingLoad: string;
-	infiltrationsPerHour: string;
-	freshAirPercent: string;
-	exhaustAir: string;
+  roomName: string;
+  length: string;
+  width: string;
+  height: string;
+  occupancy: string;
+  equipmentLoad: string;
+  lightingLoad: string;
+  infiltrationsPerHour: string;
+  freshAirPercent: string;
+  exhaustAir: string;
 };
 
-const generateId = () => {
-	return Date.now().toString(36) + Math.random().toString(36).substring(2, 9);
+type SavedRoom = RoomForm & {
+  id: string;
+  acph: number;
+  backendRoomId: number | null;
+  zoneId: number | string;
+  projectStandardId: number | string | null;
+  zoneStandard: string;
+  zoneClassification: string;
+  zoneSystem: string;
+  zoneSystemType: string;
+  zoneCoolingMethod: string;
+  zoneHeatingMethod: string;
+  zoneReqInsideTempC: string | number | null;
+  zoneReqInsideHum: string | number;
 };
+
+const generateId = () =>
+  Date.now().toString(36) + Math.random().toString(36).substring(2, 9);
 
 const isDecimalLike = (v: string) => /^\d*\.?\d*$/.test(v);
 
+const toNullableNumber = (value: any): number | null => {
+  if (value === undefined || value === null || value === "") return null;
+  const num = Number(value);
+  return Number.isFinite(num) ? num : null;
+};
+
 export default function Room() {
-	const dispatch = useAppDispatch();
-	const navigate = useNavigate();
-	const location = useLocation();
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-	// ─── Room slice ───
-	const form = useAppSelector((state: any) => state.room.form) as RoomForm;
-	const savedRooms = useAppSelector(
-		(state: any) => state.room.savedRooms
-	) as any[];
-	const isFormVisible = useAppSelector(
-		(state: any) => state.room.isFormVisible
-	) as boolean;
+  const form = useAppSelector((state: any) => state.room.form) as RoomForm;
+  const isFormVisible = useAppSelector(
+    (state: any) => state.room.isFormVisible
+  ) as boolean;
 
-	const [acphDeviation, setAcphDeviation] = useState<number>(0);
+  // ── savedRooms from Redux — persists across navigation ──
+  const savedRooms = useAppSelector(
+    (state: any) => state.room.savedRooms
+  ) as SavedRoom[];
 
-	// ─── Standards slice ───
-	const zoneIdFromRedux = useAppSelector(
-		(state: any) => state.standards.zoneId
-	);
-	const projectStandardIdFromRedux = useAppSelector(
-		(state: any) => state.standards.projectStandardId
-	);
+  const standard = useAppSelector((state: any) => state.standards.standard);
+  const classification = useAppSelector(
+    (state: any) => state.standards.classification
+  );
+  const standardsAcph = useAppSelector((state: any) => state.standards.acph);
+  const system = useAppSelector((state: any) => state.standards.system);
+  const systemType = useAppSelector((state: any) => state.standards.systemType);
+  const coolingMethod = useAppSelector(
+    (state: any) => state.standards.coolingMethod
+  );
+  const heatingMethod = useAppSelector(
+    (state: any) => state.standards.heatingMethod
+  );
+  const reqInsideTempC = useAppSelector(
+    (state: any) => state.standards.reqInsideTempC
+  );
+  const reqInsideHum = useAppSelector(
+    (state: any) => state.standards.reqInsideHum
+  );
 
-	// router state first (freshest after navigation from StandardPage), Redux as fallback
-	const zoneId = location.state?.zoneId ?? zoneIdFromRedux;
-	const projectStandardId =
-		location.state?.projectStandardId ?? projectStandardIdFromRedux;
+  const minTempC = useAppSelector((state: any) => state.projectInfo.minTemp);
+  const maxTempC = useAppSelector((state: any) => state.projectInfo.maxTemp);
+  const rhMin = useAppSelector(
+    (state: any) => state.projectInfo.relativeHumidityMin
+  );
+  const rhMax = useAppSelector(
+    (state: any) => state.projectInfo.relativeHumidityMax
+  );
+  const projectId = useAppSelector((state: any) => state.projectInfo.projectId);
 
-	const standard = useAppSelector((state: any) => state.standards.standard);
-	const classification = useAppSelector(
-		(state: any) => state.standards.classification
-	);
-	const standardsAcph = useAppSelector((state: any) => state.standards.acph);
-	const system = useAppSelector((state: any) => state.standards.system);
-	const systemType = useAppSelector((state: any) => state.standards.systemType);
-	const coolingMethod = useAppSelector(
-		(state: any) => state.standards.coolingMethod
-	);
-	const heatingMethod = useAppSelector(
-		(state: any) => state.standards.heatingMethod
-	);
-	const reqInsideTempC = useAppSelector(
-		(state: any) => state.standards.reqInsideTempC
-	);
-	const reqInsideHum = useAppSelector(
-		(state: any) => state.standards.reqInsideHum
-	);
+  const zoneIdFromNav = location.state?.zoneId ?? null;
+  const projectStandardIdFromNav = location.state?.projectStandardId ?? null;
 
-	// ─── ProjectInfo slice ───
-	const minTempC = useAppSelector((state: any) => state.projectInfo.minTemp);
-	const maxTempC = useAppSelector((state: any) => state.projectInfo.maxTemp);
-	const rhMin = useAppSelector(
-		(state: any) => state.projectInfo.relativeHumidityMin
-	);
-	const rhMax = useAppSelector(
-		(state: any) => state.projectInfo.relativeHumidityMax
-	);
+  const currentZoneIdRef = useRef<number | string | null>(zoneIdFromNav);
+  const currentProjectStandardIdRef = useRef<number | string | null>(
+    projectStandardIdFromNav
+  );
 
-	// real projectId from Redux
-	const projectId = useAppSelector((state: any) => state.projectInfo.projectId);
+  useEffect(() => {
+    if (zoneIdFromNav != null) {
+      currentZoneIdRef.current = zoneIdFromNav;
+    }
+    if (projectStandardIdFromNav != null) {
+      currentProjectStandardIdRef.current = projectStandardIdFromNav;
+    }
+  }, [zoneIdFromNav, projectStandardIdFromNav]);
 
-	// ─── Local ACPH ───
-	const [selectedAcph, setSelectedAcph] = useState<number | string>(
-		standardsAcph ?? ""
-	);
+  const [acphDeviation, setAcphDeviation] = useState<number>(0);
+  const [selectedAcph, setSelectedAcph] = useState<number | string>(
+    standardsAcph ?? ""
+  );
+  const [isSaving, setIsSaving] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
-	useEffect(() => {
-		setSelectedAcph(standardsAcph ?? "");
-	}, [standardsAcph]);
+  // ── Modal state ──
+  const [showMissingPopup, setShowMissingPopup] = useState(false);
+  const [missingItems, setMissingItems] = useState<string[]>([]);
 
-	// ─── Zone rooms — only filter when zoneId is actually set ───
-	const zoneRooms = useMemo(() => {
-		if (!zoneId) return [];
-		return savedRooms.filter((r: any) => String(r.zoneId) === String(zoneId));
-	}, [savedRooms, zoneId]);
+  useEffect(() => {
+    setSelectedAcph(standardsAcph ?? "");
+  }, [standardsAcph]);
 
-	const isVentilationOnly =
-		system === "Ventilation System" || systemType === "Ventilation System";
+  const isVentilationOnly =
+    system === "Ventilation System" || systemType === "Ventilation System";
 
-	const ventilationAllowedFields: (keyof RoomForm)[] = [
-		"roomName",
-		"length",
-		"width",
-		"height",
-		"exhaustAir",
-	];
+  const ventilationAllowedFields: (keyof RoomForm)[] = [
+    "roomName",
+    "length",
+    "width",
+    "height",
+    "exhaustAir",
+  ];
 
-	const updateFieldValue = (key: keyof RoomForm, value: string) => {
-		if (isVentilationOnly && !ventilationAllowedFields.includes(key)) return;
-		if (key === "roomName") {
-			if (value && !/^[a-zA-Z\s]+$/.test(value)) return;
-		} else {
-			if (value && !isDecimalLike(value)) return;
-		}
-		dispatch(updateRoomFormField({ field: key, value }));
-	};
+  const updateFieldValue = (key: keyof RoomForm, value: string) => {
+    if (isVentilationOnly && !ventilationAllowedFields.includes(key)) return;
+    if (key === "roomName") {
+      if (value && !/^[a-zA-Z\s]+$/.test(value)) return;
+    } else {
+      if (value && !isDecimalLike(value)) return;
+    }
+    dispatch(updateRoomFormField({ field: key, value }));
+  };
 
-	// ─── ACPH from standardData.json ───
-	const selectedStandardObj = useMemo(() => {
-		return standardsDb.find((s) => s.title === standard) || null;
-	}, [standard]);
+  const selectedStandardObj = useMemo(
+    () => standardsDb.find((s) => s.title === standard) || null,
+    [standard]
+  );
+  const selectedClassObj = useMemo(() => {
+    if (!selectedStandardObj) return null;
+    return (
+      selectedStandardObj.classifications.find(
+        (c) => c.name === classification
+      ) || null
+    );
+  }, [selectedStandardObj, classification]);
 
-	const selectedClassObj = useMemo(() => {
-		if (!selectedStandardObj) return null;
-		return (
-			selectedStandardObj.classifications.find(
-				(c) => c.name === classification
-			) || null
-		);
-	}, [selectedStandardObj, classification]);
+  const acphMin = useMemo(
+    () => selectedClassObj?.minAir ?? null,
+    [selectedClassObj]
+  );
+  const acphMax = useMemo(
+    () => selectedClassObj?.maxAir ?? null,
+    [selectedClassObj]
+  );
 
-	const acphMin = useMemo(
-		() => selectedClassObj?.minAir ?? null,
-		[selectedClassObj]
-	);
-	const acphMax = useMemo(
-		() => selectedClassObj?.maxAir ?? null,
-		[selectedClassObj]
-	);
+  const acphOptions = useMemo(() => {
+    if (acphMin == null || acphMax == null) return [];
+    const opts: number[] = [];
+    for (
+      let v = Math.min(acphMin, acphMax);
+      v <= Math.max(acphMin, acphMax);
+      v++
+    )
+      opts.push(v);
+    return opts;
+  }, [acphMin, acphMax]);
 
-	const acphOptions = useMemo(() => {
-		if (acphMin == null || acphMax == null) return [];
-		const opts: number[] = [];
-		const start = Math.min(acphMin, acphMax);
-		const end = Math.max(acphMin, acphMax);
-		for (let v = start; v <= end; v++) opts.push(v);
-		return opts;
-	}, [acphMin, acphMax]);
+  useEffect(() => {
+    if (!acphOptions.length) return;
+    const standardsVal =
+      standardsAcph !== "" && standardsAcph != null
+        ? Number(standardsAcph)
+        : null;
+    const current =
+      selectedAcph === "" || selectedAcph == null ? null : Number(selectedAcph);
+    const isCurrentValid = current != null && acphOptions.includes(current);
+    if (!isCurrentValid) {
+      if (standardsVal != null && acphOptions.includes(standardsVal))
+        setSelectedAcph(standardsVal);
+      else setSelectedAcph(acphOptions[acphOptions.length - 1]);
+    }
+  }, [acphOptions, standardsAcph]);
 
-	useEffect(() => {
-		if (!acphOptions.length) return;
-		const standardsVal =
-			standardsAcph !== "" && standardsAcph != null
-				? Number(standardsAcph)
-				: null;
-		const current =
-			selectedAcph === "" || selectedAcph == null ? null : Number(selectedAcph);
-		const isCurrentValid = current != null && acphOptions.includes(current);
-		if (!isCurrentValid) {
-			if (standardsVal != null && acphOptions.includes(standardsVal)) {
-				setSelectedAcph(standardsVal);
-			} else {
-				setSelectedAcph(acphOptions[acphOptions.length - 1]);
-			}
-		}
-	}, [acphOptions, standardsAcph]);
+  const isRoomReadyToSave = useMemo(() => {
+    const fieldsToCheck = isVentilationOnly
+      ? ventilationAllowedFields
+      : (Object.keys(form) as (keyof RoomForm)[]);
+    return fieldsToCheck.every((key) =>
+      key === "roomName" ? form[key].trim() !== "" : form[key] !== ""
+    );
+  }, [form, isVentilationOnly]);
 
-	const isRoomReadyToSave = useMemo(() => {
-		const fieldsToCheck = isVentilationOnly
-			? ventilationAllowedFields
-			: (Object.keys(form) as (keyof RoomForm)[]);
-		return fieldsToCheck.every((key) =>
-			key === "roomName" ? form[key].trim() !== "" : form[key] !== ""
-		);
-	}, [form, isVentilationOnly]);
+  const saveCurrentRoom = async () => {
+    if (!isRoomReadyToSave) {
+      alert("Please fill all fields.");
+      return;
+    }
+    if (selectedAcph === "" || selectedAcph == null) {
+      alert("Please select an ACPH value.");
+      return;
+    }
 
-	const handleOpenNewRoomForm = () => dispatch(openNewRoomForm());
-	const handleResetRoomForm = () => dispatch(resetRoomForm());
+    const zoneId = currentZoneIdRef.current;
+    const projectStandardId = currentProjectStandardIdRef.current;
 
-	// GET
-	useEffect(() => {
-		if (!zoneId) return;
-		const fetchRooms = async () => {
-			try {
-				const data = await getZoneRooms(zoneId);
-				console.log("Fetched zone rooms from DB:", data.rooms);
-			} catch (error) {
-				console.error("Failed to fetch zone rooms:", error);
-			}
-		};
-		fetchRooms();
-	}, [zoneId]);
+    if (!zoneId) {
+      alert("Zone ID is missing. Please go back to Standards and try again.");
+      return;
+    }
 
-	// ─── Save room WITH zone standards snapshot ───
-	const saveCurrentRoom = async () => {
-		if (!isRoomReadyToSave) {
-			alert("Please fill all fields.");
-			return;
-		}
+    setIsSaving(true);
+    try {
+      const dbPayload = {
+        zone_id: zoneId,
+        projectStandardId,
+        roomName: form.roomName,
+        length: form.length,
+        width: form.width,
+        height: form.height,
+        occupancy: form.occupancy,
+        equipmentLoad: form.equipmentLoad,
+        lightingLoad: form.lightingLoad,
+        infiltrationsPerHour: form.infiltrationsPerHour,
+        freshAirPercent: form.freshAirPercent,
+        exhaustAir: form.exhaustAir,
+        selectedAcph: Number(selectedAcph),
+      };
 
-		if (selectedAcph === "" || selectedAcph == null) {
-			alert("Please select an ACPH value.");
-			return;
-		}
+      const data = await addRooms(dbPayload);
+      const backendRoomId: number | null = data?.zoneRoomsId ?? null;
 
-		const roomToSave = {
-			...form,
-			id: generateId(),
-			acph: Number(selectedAcph),
-			zoneId: zoneId,
-			zoneStandard: standard,
-			zoneClassification: classification,
-			zoneSystem: system,
-			zoneSystemType: systemType,
-			zoneCoolingMethod: coolingMethod,
-			zoneHeatingMethod: heatingMethod,
-			zoneReqInsideTempC: reqInsideTempC,
-			zoneReqInsideHum: reqInsideHum,
-		};
+      const savedRoom: SavedRoom = {
+        ...form,
+        id: generateId(),
+        acph: Number(selectedAcph),
+        backendRoomId,
+        zoneId,
+        projectStandardId,
+        zoneStandard: standard,
+        zoneClassification: classification,
+        zoneSystem: system,
+        zoneSystemType: systemType,
+        zoneCoolingMethod: coolingMethod,
+        zoneHeatingMethod: heatingMethod,
+        zoneReqInsideTempC: reqInsideTempC,
+        zoneReqInsideHum: reqInsideHum,
+      };
 
-		console.log("=== SAVING ROOM ===");
-		console.log("Room:", roomToSave);
-		console.log("====================");
+      // Save to Redux — persists across navigation
+      dispatch(saveRoom(savedRoom));
+      setSelectedAcph(standardsAcph ?? "");
+    } catch (error) {
+      console.error("Failed to save room:", error);
+      alert("Failed to save room. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
-		try {
-			// POST
-			const backendRoomId = await saveZoneRooms(roomToSave);
-			const roomWithId = { ...roomToSave, backendRoomId };
-			dispatch(saveRoom(roomWithId));
-			setSelectedAcph(standardsAcph ?? "");
-		} catch (error) {
-			console.error("Failed to save room:", error);
-			alert("Failed to save room.");
-		}
-	};
+  const removeSavedRoomById = (id: string) => {
+    dispatch(removeRoom(id));
+  };
 
-	// clear zoneId to null when all rooms deleted
-	const removeSavedRoomById = (id: string) => {
-		dispatch(removeRoom(id));
-		const remainingRooms = savedRooms.filter((r: any) => r.id !== id);
-		if (remainingRooms.length === 0) {
-			dispatch(updateStandardsField({ field: "zoneId", value: null }));
-		}
-	};
+  const goToResultsPage = async () => {
+    const missing: string[] = [];
+    if (!projectId)
+      missing.push("Project Information (Project details not saved)");
+    if (!currentZoneIdRef.current)
+      missing.push("Classification & Standards (Zone not configured)");
+    if (!savedRooms.length)
+      missing.push("Room Details (At least one room must be added)");
 
-	const goToResultsPage = async () => {
-		if (!savedRooms.length) {
-			alert("Please add at least one room.");
-			return;
-		}
+    if (missing.length > 0) {
+      setMissingItems(missing);
+      setShowMissingPopup(true);
+      return;
+    }
 
-		const resultsPayload = {
-			minTempC,
-			maxTempC,
-			rhMin,
-			rhMax,
-			rooms: savedRooms,
-		};
+    setIsGenerating(true);
+    try {
+      const roomsSnapshot = [...savedRooms];
 
-		console.log("=== NAVIGATING TO RESULTS ===");
-		console.log("Total rooms:", savedRooms.length);
+      const allAirflowResults = roomsSnapshot.map((room) =>
+        airflowService({
+          roomName: room.roomName,
+          length: room.length,
+          width: room.width,
+          height: room.height,
+          acph: Number(room.acph),
+          freshAirPercent: room.freshAirPercent,
+          exhaustAir: room.exhaustAir,
+          occupancy: room.occupancy,
+          equipmentLoad: room.equipmentLoad,
+          lightingLoad: room.lightingLoad,
+          infiltrationsPerHour: room.infiltrationsPerHour,
+          zoneId: room.zoneId,
+          zoneSystem: room.zoneSystem,
+          zoneSystemType: room.zoneSystemType,
+          zoneCoolingMethod: room.zoneCoolingMethod,
+          zoneHeatingMethod: room.zoneHeatingMethod,
+          zoneClassification: room.zoneClassification,
+          zoneReqInsideTempC: room.zoneReqInsideTempC,
+          zoneReqInsideHum: room.zoneReqInsideHum,
+          minTempC,
+          maxTempC,
+          rhMin,
+          rhMax,
+        })
+      );
 
-		const zoneIds = [...new Set(savedRooms.map((r: any) => r.zoneId))];
-		zoneIds.forEach((zid) => {
-			const zRooms = savedRooms.filter(
-				(r: any) => String(r.zoneId) === String(zid)
-			);
-			console.log(
-				`Zone ${zid}: ${zRooms.length} rooms | System: ${zRooms[0]?.zoneSystem}`
-			);
-		});
+      for (let idx = 0; idx < roomsSnapshot.length; idx++) {
+        const room = roomsSnapshot[idx];
+        const result = allAirflowResults[idx];
 
-		try {
-			const allAirflowResults = savedRooms.map((room: any) => {
-				return airflowService({
-					roomName: room.roomName,
-					length: room.length,
-					width: room.width,
-					height: room.height,
-					acph: Number(room.acph),
-					freshAirPercent: room.freshAirPercent,
-					exhaustAir: room.exhaustAir,
-					occupancy: room.occupancy,
-					equipmentLoad: room.equipmentLoad,
-					lightingLoad: room.lightingLoad,
-					infiltrationsPerHour: room.infiltrationsPerHour,
-					zoneId: room.zoneId,
-					zoneSystem: room.zoneSystem,
-					zoneSystemType: room.zoneSystemType,
-					zoneCoolingMethod: room.zoneCoolingMethod,
-					zoneHeatingMethod: room.zoneHeatingMethod,
-					zoneClassification: room.zoneClassification,
-					zoneReqInsideTempC: room.zoneReqInsideTempC,
-					zoneReqInsideHum: room.zoneReqInsideHum,
-					minTempC,
-					maxTempC,
-					rhMin,
-					rhMax,
-				});
-			});
+        await storeresults({
+          project_RoomId: toNullableNumber(room.backendRoomId),
+          project_id: projectId,
+          roomName: room.roomName,
+          project_Area: toNullableNumber(result.areaFt2),
+          project_Volume: toNullableNumber(result.volumeFt3),
+          project_RoomCfm: toNullableNumber(result.roomCfm),
+          project_FreshAir: toNullableNumber(result.freshAir),
+          project_ExhaustAir: toNullableNumber(result.exhaustAir),
+          project_DehumidCfm: toNullableNumber(result.dehumidValue),
+          project_Rem_Water_Vapour: toNullableNumber(result.removedWater),
+          project_ResultCfm: toNullableNumber(result.resultantCfm),
+          project_Room_Termi_Supply_Mod: toNullableNumber(
+            result.roomTermSupplyValue
+          ),
+          project_Room_AC_Load_TR: toNullableNumber(result.roomACValue),
+          project_Cfm_AC_Load_TR: toNullableNumber(result.cfmACLoadTR),
+          project_Res_Cooling_Load_TR: toNullableNumber(
+            result.resultCoolLoadTR
+          ),
+          project_add_Water_Vapour: toNullableNumber(result.addWaterValue),
+          project_HumidCfm: toNullableNumber(result.humidValue),
+          project_ResultCfm_Hot: toNullableNumber(result.resultantheatCfm),
+          project_Room_Term_Supply_Mod: toNullableNumber(
+            result.roomTermSupplyHeatValue
+          ),
+          project_Room_Heating_Load_TR: toNullableNumber(result.roomHeatLoadTR),
+          project_Cfm_Heating_Load_TR: toNullableNumber(
+            result.cfmHeatLoadTRValue
+          ),
+          project_Result_Heating_Load_TR: toNullableNumber(
+            result.resultHeatLoadTR
+          ),
+        });
+      }
 
-			console.log("All airflow results calculated:", allAirflowResults);
+      // ── Clear ALL Redux state after successful submit ──
+      dispatch(resetRoom());
+      dispatch(resetStandards());
+      dispatch(resetProjectInfo());
 
-			// POST
-			await Promise.all(
-				allAirflowResults.map(async (result: any, idx: number) => {
-					const room = savedRooms[idx];
-					await storeresults({
-						project_id: projectId,
-						roomName: result.roomName,
-						project_RoomId: room.backendRoomId || null,
-						project_Area: result.areaFt2,
-						project_Volume: result.volumeFt3,
-						project_RoomCfm: result.roomCfm,
-						project_FreshAir: result.freshAir,
-						project_ExhaustAir: result.exhaustAir,
-					});
-				})
-			);
+      navigate("/results", {
+        state: {
+          minTempC,
+          maxTempC,
+          rhMin,
+          rhMax,
+          rooms: roomsSnapshot,
+          airflowResults: allAirflowResults,
+        },
+      });
+    } catch (error) {
+      console.error("Failed to generate results:", error);
+      alert("Failed to generate results. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
-			console.log("All airflow results saved successfully");
+  // ── addAnotherZone: only resets form and standards, NOT savedRooms ──
+  const addAnotherZone = () => {
+    if (!savedRooms.length) {
+      alert("Please add at least one room before adding another zone.");
+      return;
+    }
+    currentZoneIdRef.current = null;
+    currentProjectStandardIdRef.current = null;
+    dispatch(resetStandards());
+    dispatch(resetRoomForm()); // only clears form fields, savedRooms untouched
+    navigate("/standards");
+  };
 
-			navigate("/results", {
-				state: {
-					...resultsPayload,
-					airflowResults: allAirflowResults,
-				},
-			});
-		} catch (error) {
-			console.error("Failed to process airflow results:", error);
-			alert("Failed to process airflow results.");
-		}
-	};
+  const renderInput = (key: keyof RoomForm) => {
+    const disabled =
+      isVentilationOnly && !ventilationAllowedFields.includes(key);
+    return (
+      <div className={s.field} key={key}>
+        <label className={s.label}>
+          {(T.fields as any)[key].label} <span className={s.required1}>*</span>
+          <Tooltip
+            id={key}
+            content={
+              key === "roomName"
+                ? constants.Tooltip.roomNameTooltip
+                : key === "length"
+                ? constants.Tooltip.lengthTooltip
+                : key === "width"
+                ? constants.Tooltip.widthTooltip
+                : key === "height"
+                ? constants.Tooltip.heightTooltip
+                : key === "occupancy"
+                ? constants.Tooltip.occupancyTooltip
+                : key === "equipmentLoad"
+                ? constants.Tooltip.equipmentLoadTooltip
+                : key === "lightingLoad"
+                ? constants.Tooltip.lightingLoadTooltip
+                : key === "infiltrationsPerHour"
+                ? constants.Tooltip.infiltrationsTooltip
+                : key === "freshAirPercent"
+                ? constants.Tooltip.freshAirTooltip
+                : key === "exhaustAir"
+                ? constants.Tooltip.exhaustAirTooltip
+                : ""
+            }
+          />
+        </label>
+        <input
+          className={disabled ? s.inputDisabled : s.input}
+          inputMode={key === "roomName" ? "text" : "decimal"}
+          value={form[key]}
+          disabled={disabled}
+          placeholder={
+            disabled
+              ? "Not required for ventilation"
+              : (T.fields as any)[key].placeholder
+          }
+          onChange={(e) => updateFieldValue(key, e.target.value)}
+        />
+      </div>
+    );
+  };
 
-	// Add Another Zone:
-	const addAnotherZone = () => {
-		if (!savedRooms.length) {
-			alert("Please add at least one room before adding another zone.");
-			return;
-		}
-		console.log("=== ADD ANOTHER ZONE === clearing zone, going to standards");
-		dispatch(resetStandards());
-		navigate("/standards");
-	};
+  return (
+    <>
+      <Header />
+      <div className={s.page}>
+        <div className={s.headerWrap}>
+          <div className={s.headerIconWrap}>
+            <FaCalculator className="text-white text-2xl" />
+          </div>
+          <h1 className={s.headerTitle}>{T.header.title}</h1>
+          <p className={s.headerSubtitle}>{T.header.subtitle}</p>
+        </div>
 
-	const increaseDeviation = () => {
-		setAcphDeviation((prev) => (prev < 20 ? prev + 5 : prev));
-	};
+        <div className={s.cardWrap}>
+          {!isFormVisible && (
+            <div className={s.card}>
+              <div className={s.cardInner}>
+                <div className={s.emptyWrap}>
+                  <div className={s.emptyIconBox}>
+                    <FaRegListAlt className={s.emptyIcon} />
+                  </div>
+                  <div className={s.emptyTitle}>
+                    {savedRooms.length
+                      ? "Room Details Saved"
+                      : "No Rooms Added Yet"}
+                  </div>
+                  <div className={s.emptySubtitle}>
+                    Click "Add Room" to start adding room specifications
+                  </div>
+                  <div className="mt-8">
+                    <button
+                      type="button"
+                      onClick={() => dispatch(openNewRoomForm())}
+                      className={s.saveBtn}
+                    >
+                      <FaPlus /> {T.buttons.addRoom}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
-	const decreaseDeviation = () => {
-		setAcphDeviation((prev) => (prev > -20 ? prev - 5 : prev));
-	};
+          {isFormVisible && (
+            <div className={s.card}>
+              <div className={s.cardInner}>
+                <div className={s.topActions}>
+                  <button
+                    type="button"
+                    onClick={() => dispatch(resetRoomForm())}
+                    className={s.clrBtn}
+                  >
+                    Clear
+                  </button>
+                </div>
+                <div className={s.sectionTitle}>{T.sections.roomDetails}</div>
+                <div className={s.grid2}>{renderInput("roomName")}</div>
+                <div className={s.sectionDivider} />
+                <div className={s.sectionTitle}>
+                  {T.sections.roomDimensions}
+                  <Tooltip
+                    id="roomDimensions"
+                    content={constants.Tooltip.roomDimensionsTooltip}
+                  />
+                </div>
+                <div className={s.grid3}>
+                  {renderInput("length")}
+                  {renderInput("width")}
+                  {renderInput("height")}
+                </div>
+                <div className={s.sectionTitle}>{T.sections.occupancyLoad}</div>
+                <div className={s.grid3}>
+                  {renderInput("occupancy")}
+                  {renderInput("equipmentLoad")}
+                  {renderInput("lightingLoad")}
+                </div>
+                <div className={s.sectionTitle}>
+                  {T.sections.airflowParameters}
+                </div>
+                <div className={s.grid3}>
+                  {renderInput("infiltrationsPerHour")}
+                  {renderInput("freshAirPercent")}
+                  {renderInput("exhaustAir")}
+                  <div>
+                    <label className={s.label}>
+                      ACPH Value <span className={s.required1}>*</span>
+                      <Tooltip
+                        id="acphValue"
+                        content={constants.Tooltip.acphValueTooltip}
+                      />
+                    </label>
+                    <select
+                      className={
+                        acphOptions.length ? s.select : s.selectDisabled
+                      }
+                      value={selectedAcph ?? ""}
+                      onChange={(e) => setSelectedAcph(e.target.value)}
+                      disabled={!acphOptions.length}
+                    >
+                      {!acphOptions.length && (
+                        <option value="">ACPH not available</option>
+                      )}
+                      {acphOptions.map((v) => (
+                        <option key={v} value={v}>
+                          {v}
+                        </option>
+                      ))}
+                    </select>
+                    {acphOptions.length > 0 && (
+                      <div>
+                        Range:{" "}
+                        <span className={s.range}>
+                          {acphMin}-{acphMax}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <label className={s.label}>ACPH Deviation</label>
+                    <div className={s.deviationBox}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setAcphDeviation((p) => (p > -20 ? p - 5 : p))
+                        }
+                        disabled={acphDeviation <= -20}
+                        className={s.deviationBtn}
+                      >
+                        −
+                      </button>
+                      <input
+                        type="text"
+                        value={`${acphDeviation}%`}
+                        readOnly
+                        className={s.deviationInput}
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setAcphDeviation((p) => (p < 20 ? p + 5 : p))
+                        }
+                        disabled={acphDeviation >= 20}
+                        className={s.deviationBtn}
+                      >
+                        +
+                      </button>
+                    </div>
+                    <div className={s.rangeText}>Range: -20% to +20%</div>
+                  </div>
+                </div>
+              </div>
+              <div className={s.acphBanner}>
+                <div className={s.acphBannerStyle}>
+                  <p className={s.bannerTitle}>
+                    Default ACPH from Classification:{" "}
+                    <span className={s.bannerValue}>
+                      {acphMin} - {acphMax}
+                    </span>
+                  </p>
+                  <p className={s.bannerText}>Pre-filled with Maximum</p>
+                </div>
+                <span className={s.bannerValue}>
+                  ({standard} - {classification})
+                </span>
+              </div>
+            </div>
+          )}
 
-	// POST
-	const saveZoneRooms = async (roomData: any): Promise<number | null> => {
-		const payload = {
-			zone_id: zoneId,
-			projectStandardId: projectStandardId,
-			roomName: roomData.roomName,
-			length: roomData.length,
-			width: roomData.width,
-			height: roomData.height,
-			occupancy: roomData.occupancy,
-			equipmentLoad: roomData.equipmentLoad,
-			lightingLoad: roomData.lightingLoad,
-			infiltrationsPerHour: roomData.infiltrationsPerHour,
-			freshAirPercent: roomData.freshAirPercent,
-			exhaustAir: roomData.exhaustAir,
-			selectedAcph: roomData.acph,
-		};
+          <div className={s.card}>
+            <div className={s.cardInner}>
+              <div className={s.savedHeaderRow}>
+                <div className={s.savedHeaderTitle}>Saved Room Details</div>
+                <div className={s.savedHeaderCount}>
+                  {savedRooms.length
+                    ? `${savedRooms.length} saved`
+                    : "No rooms saved"}
+                </div>
+              </div>
+              <div className={s.divider} />
+              <div className={s.roomsList}>
+                {savedRooms.length === 0 ? (
+                  <div className={s.emptyState}>
+                    No rooms added yet. Click <b>Add Room</b> to begin.
+                  </div>
+                ) : (
+                  savedRooms.map((r, i) => (
+                    <div key={r.id} className={s.roomCard}>
+                      <div className="flex items-start justify-between gap-4">
+                        <div className={s.roomCardTitle}>
+                          Room {i + 1}: {r.roomName}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeSavedRoomById(r.id)}
+                          className={s.deleteBtn}
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                      <div className={s.roomCardLine}>
+                        Zone: {r.zoneId ?? "-"} | System: {r.zoneSystem || "-"}
+                      </div>
+                      <div className={s.roomCardLine}>
+                        Length: {r.length} | Width: {r.width} | Height:{" "}
+                        {r.height}
+                      </div>
+                      <div className={s.roomCardLine}>
+                        Occupancy: {r.occupancy} | Equipment: {r.equipmentLoad}{" "}
+                        | Lighting: {r.lightingLoad}
+                      </div>
+                      <div className={s.roomCardLine}>
+                        Infil/hr: {r.infiltrationsPerHour} | Fresh Air:{" "}
+                        {r.freshAirPercent}% | Exhaust: {r.exhaustAir}
+                      </div>
+                      <div className={s.roomCardLine}>
+                        ACPH: {r.acph ?? "-"}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
 
-		try {
-			console.log("Saving zone room with payload:", payload);
-			const data = await addRooms(payload);
-			console.log("Zone room saved:", data);
-			return data?.zoneRoomsId || null;
-		} catch (error) {
-			console.error("Failed to save zone room:", error);
-			throw error;
-		}
-	};
+          <div className={s.footer}>
+            <Link to="/standards" className={s.backBtn}>
+              <FaArrowLeft /> {T.buttons.back}
+            </Link>
+            <button
+              type="button"
+              onClick={addAnotherZone}
+              className={s.zoneBtn}
+            >
+              <FaPlus /> Add Another Zone
+            </button>
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={saveCurrentRoom}
+                disabled={isSaving}
+                className={s.backBtn}
+              >
+                {isSaving ? "Saving..." : T.buttons.saveRoom}
+              </button>
+              <button
+                type="button"
+                onClick={goToResultsPage}
+                disabled={isGenerating}
+                className={s.saveBtn}
+              >
+                {isGenerating ? "Generating..." : T.buttons.generate} <FaSave />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-	// ─── Console Debug ───
-	useEffect(() => {
-		console.log("=== ROOM PAGE DEBUG ===");
-		console.log(
-			"zoneId:",
-			zoneId ?? "NOT SET (waiting for backend)",
-			"| projectStandardId:",
-			projectStandardId ?? "NOT SET",
-			"| projectId:",
-			projectId ?? "NOT SET"
-		);
-		console.log("System:", system, "| Classification:", classification);
-		console.log(
-			"Zone Rooms:",
-			zoneRooms.length,
-			"| All Rooms:",
-			savedRooms.length
-		);
-		console.log("========================");
-	}, [zoneId, system, classification, zoneRooms.length, savedRooms.length]);
-
-	const renderInput = (key: keyof RoomForm) => {
-		const disabled =
-			isVentilationOnly && !ventilationAllowedFields.includes(key);
-		return (
-			<div className={s.field} key={key}>
-				<label className={s.label}>
-					{(T.fields as any)[key].label} <span className={s.required1}>*</span>
-					<Tooltip
-						id={key}
-						content={
-							key === "roomName"
-								? constants.Tooltip.roomNameTooltip
-								: key === "length"
-								? constants.Tooltip.lengthTooltip
-								: key === "width"
-								? constants.Tooltip.widthTooltip
-								: key === "height"
-								? constants.Tooltip.heightTooltip
-								: key === "occupancy"
-								? constants.Tooltip.occupancyTooltip
-								: key === "equipmentLoad"
-								? constants.Tooltip.equipmentLoadTooltip
-								: key === "lightingLoad"
-								? constants.Tooltip.lightingLoadTooltip
-								: key === "infiltrationsPerHour"
-								? constants.Tooltip.infiltrationsTooltip
-								: key === "freshAirPercent"
-								? constants.Tooltip.freshAirTooltip
-								: key === "exhaustAir"
-								? constants.Tooltip.exhaustAirTooltip
-								: ""
-						}
-					/>
-				</label>
-				<input
-					className={disabled ? s.inputDisabled : s.input}
-					inputMode={key === "roomName" ? "text" : "decimal"}
-					value={form[key]}
-					disabled={disabled}
-					placeholder={
-						disabled
-							? "Not required for ventilation"
-							: (T.fields as any)[key].placeholder
-					}
-					onChange={(e) => updateFieldValue(key, e.target.value)}
-				/>
-			</div>
-		);
-	};
-
-	return (
-		<div className={s.page}>
-			<div className={s.headerWrap}>
-				<div className={s.headerIconWrap}>
-					<FaCalculator className="text-white text-2xl" />
-				</div>
-				<h1 className={s.headerTitle}>{T.header.title}</h1>
-				<p className={s.headerSubtitle}>{T.header.subtitle}</p>
-			</div>
-
-			<div className={s.cardWrap}>
-				{!isFormVisible && (
-					<div className={s.card}>
-						<div className={s.cardInner}>
-							<div className={s.emptyWrap}>
-								<div className={s.emptyIconBox}>
-									<FaRegListAlt className={s.emptyIcon} />
-								</div>
-								<div className={s.emptyTitle}>
-									{savedRooms.length
-										? "Room Details Saved"
-										: "No Rooms Added Yet"}
-								</div>
-								<div className={s.emptySubtitle}>
-									Click "Add Room" to start adding room specifications
-								</div>
-								<div className="mt-8">
-									<button
-										type="button"
-										onClick={handleOpenNewRoomForm}
-										className={s.saveBtn}
-									>
-										<FaPlus /> {T.buttons.addRoom}
-									</button>
-								</div>
-							</div>
-						</div>
-					</div>
-				)}
-
-				{isFormVisible && (
-					<div className={s.card}>
-						<div className={s.cardInner}>
-							<div className={s.topActions}>
-								<button
-									type="button"
-									onClick={handleResetRoomForm}
-									className={s.clrBtn}
-								>
-									Clear
-								</button>
-							</div>
-
-							<div className={s.sectionTitle}>{T.sections.roomDetails}</div>
-							<div className={s.grid2}>{renderInput("roomName")}</div>
-							<div className={s.sectionDivider} />
-
-							<div className={s.sectionTitle}>
-								{T.sections.roomDimensions}
-								<Tooltip
-									id="roomDimensions"
-									content={constants.Tooltip.roomDimensionsTooltip}
-								/>
-							</div>
-							<div className={s.grid3}>
-								{renderInput("length")}
-								{renderInput("width")}
-								{renderInput("height")}
-							</div>
-
-							<div className={s.sectionTitle}>{T.sections.occupancyLoad}</div>
-							<div className={s.grid3}>
-								{renderInput("occupancy")}
-								{renderInput("equipmentLoad")}
-								{renderInput("lightingLoad")}
-							</div>
-
-							<div className={s.sectionTitle}>
-								{T.sections.airflowParameters}
-							</div>
-							<div className={s.grid3}>
-								{renderInput("infiltrationsPerHour")}
-								{renderInput("freshAirPercent")}
-								{renderInput("exhaustAir")}
-								<div>
-									<label className={s.label}>
-										ACPH Value <span className={s.required1}>*</span>
-										<Tooltip
-											id="acphValue"
-											content={constants.Tooltip.acphValueTooltip}
-										/>
-									</label>
-									<select
-										className={acphOptions.length ? s.select : s.selectDisabled}
-										value={selectedAcph ?? ""}
-										onChange={(e) => setSelectedAcph(e.target.value)}
-										disabled={!acphOptions.length}
-										required={true}
-									>
-										{!acphOptions.length && (
-											<option value="">ACPH not available</option>
-										)}
-										{acphOptions.map((v) => (
-											<option key={v} value={v}>
-												{v}
-											</option>
-										))}
-									</select>
-									{acphOptions.length > 0 && (
-										<div>
-											Range:{" "}
-											<span className={s.range}>
-												{acphMin}-{acphMax}
-											</span>
-										</div>
-									)}
-								</div>
-
-								{/* ACPH Deviation Field */}
-								<div>
-									<label className={s.label}>ACPH Deviation</label>
-									<div className={s.deviationBox}>
-										<button
-											type="button"
-											onClick={decreaseDeviation}
-											disabled={acphDeviation <= -20}
-											className={s.deviationBtn}
-										>
-											−
-										</button>
-										<input
-											type="text"
-											value={`${acphDeviation}%`}
-											readOnly
-											className={s.deviationInput}
-										/>
-										<button
-											type="button"
-											onClick={increaseDeviation}
-											disabled={acphDeviation >= 20}
-											className={s.deviationBtn}
-										>
-											+
-										</button>
-									</div>
-									<div className={s.rangeText}>Range: -20% to +20%</div>
-								</div>
-							</div>
-						</div>
-
-						<div className={s.acphBanner}>
-							<div className={s.acphBannerStyle}>
-								<p className={s.bannerTitle}>
-									Default ACPH from Classification:{" "}
-									<span className={s.bannerValue}>
-										{acphMin} - {acphMax}
-									</span>
-								</p>
-								<p className={s.bannerText}> Pre-filled with Maximum</p>
-							</div>
-							<span className={s.bannerValue}>
-								({standard} - {classification})
-							</span>
-						</div>
-					</div>
-				)}
-
-				{/* saved rooms list — ALL zones */}
-				<div className={s.card}>
-					<div className={s.cardInner}>
-						<div className={s.savedHeaderRow}>
-							<div className={s.savedHeaderTitle}>Saved Room Details</div>
-							<div className={s.savedHeaderCount}>
-								{savedRooms.length
-									? `${savedRooms.length} saved`
-									: "No rooms saved"}
-							</div>
-						</div>
-						<div className={s.divider} />
-						<div className={s.roomsList}>
-							{savedRooms.length === 0 ? (
-								<div className={s.emptyState}>
-									No rooms added yet. Click <b>Add Room</b> to begin.
-								</div>
-							) : (
-								savedRooms.map((r: any, i: number) => (
-									<div key={r.id || i} className={s.roomCard}>
-										<div className="flex items-start justify-between gap-4">
-											<div className={s.roomCardTitle}>
-												Room {i + 1}: {r.roomName}
-											</div>
-											<button
-												type="button"
-												onClick={() => removeSavedRoomById(r.id)}
-												className={s.deleteBtn}
-											>
-												<FaTrash />
-											</button>
-										</div>
-										<div className={s.roomCardLine}>
-											Zone: {r.zoneId ?? "-"} | System: {r.zoneSystem || "-"}
-										</div>
-										<div className={s.roomCardLine}>
-											Length:{r.length} | Width:{r.width} | Height:{r.height}
-										</div>
-										<div className={s.roomCardLine}>
-											Occupancy:{r.occupancy} | Equipment:{r.equipmentLoad} |
-											Lighting:{r.lightingLoad}
-										</div>
-										<div className={s.roomCardLine}>
-											Infil/hr:{r.infiltrationsPerHour} | Fresh Air:
-											{r.freshAirPercent}% | Exhaust:{r.exhaustAir}
-										</div>
-										<div className={s.roomCardLine}>ACPH: {r.acph ?? "-"}</div>
-									</div>
-								))
-							)}
-						</div>
-					</div>
-				</div>
-
-				{/* footer */}
-				<div className={s.footer}>
-					<Link to="/standards" className={s.backBtn}>
-						<FaArrowLeft /> {T.buttons.back}
-					</Link>
-					<button type="button" onClick={addAnotherZone} className={s.zoneBtn}>
-						<FaPlus /> Add Another Zone
-					</button>
-					<div className="flex gap-4">
-						<button
-							type="button"
-							onClick={saveCurrentRoom}
-							className={s.backBtn}
-						>
-							{T.buttons.saveRoom}
-						</button>
-						<button
-							type="button"
-							onClick={goToResultsPage}
-							className={s.saveBtn}
-						>
-							{T.buttons.generate} <FaSave />
-						</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	);
+      {/* ── Missing Info Modal ── */}
+      {showMissingPopup && (
+        <div className={s.popupOverlay}>
+          <div className={s.popupCard}>
+            <div className={s.popupHeader}>
+              <div className={s.popupIconWrap}>
+                <span className={s.popupIconText}>!</span>
+              </div>
+              <h2 className={s.popupTitle}>Missing Required Information</h2>
+            </div>
+            <p className={s.popupDescription}>
+              Before you can view results, please ensure all required
+              information has been entered:
+            </p>
+            <ul className={s.popupList}>
+              {missingItems.map((item, i) => (
+                <li key={i} className={s.popupListItem}>
+                  <span className={s.popupBullet} />
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <div className={s.popupTipBox}>
+              <p className={s.popupTipText}>
+                <span className="font-semibold">Tip:</span> Navigate back to the
+                Classification and Project Information pages to complete all
+                required fields before viewing results.
+              </p>
+            </div>
+            <div className={s.popupFooter}>
+              <button
+                type="button"
+                onClick={() => setShowMissingPopup(false)}
+                className={s.popupBtn}
+              >
+                Got It
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }

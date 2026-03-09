@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import loginDesign from "./styles";
 import { loginUser } from "../../backend/controller/authContoller";
+import { getUserById } from "../../backend/controller/userController";
 import { getCustomerInfo } from "../../backend/controller/customerController";
 import { useAppDispatch } from "../../redux/hooks";
 import { setUser } from "../../redux/slices/userSlice";
@@ -180,13 +181,13 @@ function login() {
                 <span className="text-blue-600 hover:text-blue-400">
                   Register Here!
                 </span>
-              </Link>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+              </Link> */}
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
 }
 
-export default login;
+export default Login;

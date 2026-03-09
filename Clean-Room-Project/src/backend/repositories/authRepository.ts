@@ -35,6 +35,7 @@ export const authRepository = {
         name: `${user?.user_first_name || ""} ${
           user?.user_last_name || ""
         }`.trim(),
+        status: user?.status,
       },
       token: generateToken({ user_id: user?.user_login_id }),
     };

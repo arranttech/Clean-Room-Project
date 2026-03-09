@@ -1,20 +1,20 @@
 const standardDesign = {
-	page: "min-h-screen bg-slate-50 px-4 py-12",
+	page: "min-h-screen bg-white px-4 py-6",
 
-	top: "mx-auto max-w-5xl text-center",
-	title: "text-3xl md:text-4xl font-extrabold text-slate-900 text-blue-600",
-	subtitle: "mt-2 text-base text-slate-500",
+	top: "mx-auto max-w-5xl text-center mb-4",
+	title: "text-2xl font-bold text-gray-950 tracking-tight",
+	subtitle: "mt-2 text-base text-blue-600",
 
 	cardWrap: "mx-auto mt-10 max-w-auto",
 	card: "bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden",
 
 	cardHeader: "px-8 pt-8 pb-4",
-	cardHeaderTitle: "text-xl font-bold text-blue-600",
+	cardHeaderTitle: "text-sm font-bold tracking-widest text-gray-900 uppercase",
 	divider: "border-t border-slate-200",
 
 	body: "px-8 py-8",
 
-	sectionTitle: "text-xl font-bold text-blue-600",
+	sectionTitle: "text-sm font-bold tracking-widest text-gray-900 uppercase",
 	sectionSpacer: "mt-10",
 	sectionLine: "mt-6 border-t border-slate-200",
 

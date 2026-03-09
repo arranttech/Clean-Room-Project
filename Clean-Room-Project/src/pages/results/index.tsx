@@ -1,7 +1,11 @@
 import resultsDesign from "./styles";
 import resultsText from "../../json/resultsText.json";
 import { useEffect, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { Home } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import Header from "../../components/header";
+import { CleanProjectDetails } from "../../utils/logout";
 
 // Types
 type RoomForm = {
@@ -95,6 +99,8 @@ function calcTotals(results: any[]) {
 export default function Results() {
 	const s = resultsDesign;
 	const t = resultsText;
+	const navigate = useNavigate();
+	const dispatch = useDispatch();
 
 	const location = useLocation();
 	const props = (location.state || {}) as ResultsPayload;
@@ -122,6 +128,12 @@ export default function Results() {
 		});
 		console.log("=========================");
 	}, [rooms]);
+
+	// ─── Handle "Go Back Home" ───
+	const handleGoHome = () => {
+		CleanProjectDetails(dispatch);
+		navigate("/dashboard");
+	};
 
 	// ─── Group rooms by zoneId ───
 	const zoneGroups = useMemo(() => {
@@ -511,261 +523,72 @@ export default function Results() {
 
 	// UI
 	return (
-		<div className={s.wrap}>
-			<div className={s.card}>
-				<div className={s.headerSection}>
-					<div className={s.title}>{t.title}</div>
-					<div className={s.subtitle}>{t.subtitle}</div>
-				</div>
+		<>
+			<Header />
+			<div className={s.wrap}>
+				<div className={s.card}>
+					<div className={s.headerSection}>
+						<div className={s.title}>{t.title}</div>
+						<div className={s.subtitle}>{t.subtitle}</div>
+					</div>
 
-				{zoneData.map(
-					({
-						zoneId,
-						results,
-						showCooling,
-						showHeating,
-						isHeatingandCoolingSystem,
-						zoneSystem,
-						zoneStandard,
-						zoneClassification,
-					}) => {
-						const totals = calcTotals(results);
+					{zoneData.map(
+						({
+							zoneId,
+							results,
+							showCooling,
+							showHeating,
+							isHeatingandCoolingSystem,
+							zoneSystem,
+							zoneStandard,
+							zoneClassification,
+						}) => {
+							const totals = calcTotals(results);
 
-						return (
-							<div key={zoneId} style={{ marginBottom: "48px" }}>
-								{/* Zone header with system info */}
-								<h2
-									style={{
-										fontSize: "1.25rem",
-										fontWeight: 700,
-										padding: "12px 16px",
-										marginBottom: "12px",
-										background: "#f0f4ff",
-										borderRadius: "8px",
-										color: "#1e3a5f",
-									}}
-								>
-									Zone {zoneId} — {zoneSystem} ({zoneStandard} /{" "}
-									{zoneClassification})
-								</h2>
+							return (
+								<div key={zoneId} style={{ marginBottom: "48px" }}>
+									{/* Zone header with system info */}
+									<h2
+										style={{
+											fontSize: "1.25rem",
+											fontWeight: 700,
+											padding: "12px 16px",
+											marginBottom: "12px",
+											background: "#f0f4ff",
+											borderRadius: "8px",
+											color: "#1e3a5f",
+										}}
+									>
+										Zone {zoneId} — {zoneSystem} ({zoneStandard} /{" "}
+										{zoneClassification})
+									</h2>
 
-								{/* ══════ Case 1: Heating AND Cooling → 2 tables ══════ */}
-								{isHeatingandCoolingSystem ? (
-									<>
-										<h3 className={s.headerSubTitle}>Cooling Results</h3>
-										<div
-											className={s.tableOuter}
-											style={{ marginBottom: "40px" }}
-										>
-											<div className={s.tableScroll}>
-												<table className={s.table}>
-													<thead className={s.thead}>
-														<tr>
-															<th className={s.thRoom}>Room Name</th>
-															<th className={s.th}>{t.fields.area.label}</th>
-															<th className={s.th}>{t.fields.volume.label}</th>
-															<th className={s.th}>{t.fields.roomCfm.label}</th>
-															<th className={s.th}>
-																{t.fields.freshAir.label}
-															</th>
-															<th className={s.th}>
-																{t.fields.exhaustAir.label}
-															</th>
-															<th className={s.th}>
-																{t.fields.Dehumidification.label}
-															</th>
-															<th className={s.th}>
-																{t.fields.remWaterVapour.label}
-															</th>
-															<th className={s.th}>
-																{t.fields.resultantCfm.label}
-															</th>
-															<th className={s.th}>
-																{t.fields.RoomACloadTR.label}
-															</th>
-															<th className={s.th}>
-																{t.fields.RoomTerminalSupply.label}
-															</th>
-															<th className={s.th}>
-																{t.fields.cfmACLoadTR.label}
-															</th>
-															<th className={s.th}>
-																{t.fields.ResultCoolLoadTR.label}
-															</th>
-														</tr>
-													</thead>
-													<tbody>
-														{results.map((r: any, idx: number) => (
-															<tr key={idx} className={s.tr}>
-																<td className={s.tdRoom}>
-																	{r.roomName || `Room ${idx + 1}`}
-																</td>
-																<td className={s.td}>{r.area}</td>
-																<td className={s.td}>{r.volume}</td>
-																<td className={s.td}>{r.roomCfm}</td>
-																<td className={s.td}>{r.freshAir}</td>
-																<td className={s.td}>{r.exhaustAir}</td>
-																<td className={s.td}>{r.dehumid}</td>
-																<td className={s.td}>{r.removedWaterVapor}</td>
-																<td className={s.td}>{r.resultant}</td>
-																<td className={s.td}>{r.roomACValue}</td>
-																<td className={s.td}>
-																	{r.roomTermSupplyValue}
-																</td>
-																<td className={s.td}>{r.cfmACLoadTRValue}</td>
-																<td className={s.td}>
-																	{r.resultCoolLoadTRValue}
-																</td>
-															</tr>
-														))}
-														<tr className={s.tr} style={{ fontWeight: "bold" }}>
-															<td className={s.tdRoom}>TOTAL</td>
-															<td className={s.td}>{totals.area.toFixed(2)}</td>
-															<td className={s.td}>
-																{totals.volume.toFixed(2)}
-															</td>
-															<td className={s.td}>
-																{totals.roomCfm.toFixed(2)}
-															</td>
-															<td className={s.td}>
-																{totals.freshAir.toFixed(2)}
-															</td>
-															<td className={s.td}>
-																{totals.exhaustAir.toFixed(2)}
-															</td>
-															<td className={s.td}>{totals.dehumid}</td>
-															<td className={s.td}>
-																{totals.removedWaterVapor.toFixed(3)}
-															</td>
-															<td className={s.td}>{totals.resultant}</td>
-															<td className={s.td}>
-																{totals.roomACValue.toFixed(2)}
-															</td>
-															<td className={s.td}>
-																{totals.roomTermSupplyValue}
-															</td>
-															<td className={s.td}>
-																{totals.cfmACLoadTRValue.toFixed(2)}
-															</td>
-															<td className={s.td}>
-																{totals.resultCoolLoadTRValue.toFixed(2)}
-															</td>
-														</tr>
-													</tbody>
-												</table>
-											</div>
-										</div>
-
-										<h3 className={s.headerSubTitle}>Heating Results</h3>
-										<div className={s.tableOuter}>
-											<div className={s.tableScroll}>
-												<table className={s.table}>
-													<thead className={s.thead}>
-														<tr>
-															<th className={s.thRoom}>Room Name</th>
-															<th className={s.th}>{t.fields.area.label}</th>
-															<th className={s.th}>{t.fields.volume.label}</th>
-															<th className={s.th}>{t.fields.roomCfm.label}</th>
-															<th className={s.th}>
-																{t.fields.freshAir.label}
-															</th>
-															<th className={s.th}>
-																{t.fields.exhaustAir.label}
-															</th>
-															<th className={s.th}>
-																{t.fields.AddWaterVapour.label}
-															</th>
-															<th className={s.th}>
-																{t.fields.Humidification.label}
-															</th>
-															<th className={s.th}>
-																{t.fields.HeatResultantCfm.label}
-															</th>
-															<th className={s.th}>
-																{t.fields.HeatRoomTerminalSupply.label}
-															</th>
-															<th className={s.th}>
-																{t.fields.CfmHeatingLoadTR.label}
-															</th>
-															<th className={s.th}>
-																{t.fields.RoomHeatingLoadinTR.label}
-															</th>
-															<th className={s.th}>
-																{t.fields.ResHeatingLoadinTR.label}
-															</th>
-														</tr>
-													</thead>
-													<tbody>
-														{results.map((r: any, idx: number) => (
-															<tr key={idx} className={s.tr}>
-																<td className={s.tdRoom}>
-																	{r.roomName || `Room ${idx + 1}`}
-																</td>
-																<td className={s.td}>{r.area}</td>
-																<td className={s.td}>{r.volume}</td>
-																<td className={s.td}>{r.roomCfm}</td>
-																<td className={s.td}>{r.freshAir}</td>
-																<td className={s.td}>{r.exhaustAir}</td>
-																<td className={s.td}>{r.AddWaterVapour}</td>
-																<td className={s.td}>{r.humidcfm}</td>
-																<td className={s.td}>{r.resultantCfm}</td>
-																<td className={s.td}>{r.heatroomtermsup}</td>
-																<td className={s.td}>{r.cfmHeatLoadTRValue}</td>
-																<td className={s.td}>{r.roomHeatLoad}</td>
-																<td className={s.td}>{r.resultHeatLoadTR}</td>
-															</tr>
-														))}
-														<tr className={s.tr} style={{ fontWeight: "bold" }}>
-															<td className={s.tdRoom}>TOTAL</td>
-															<td className={s.td}>{totals.area.toFixed(2)}</td>
-															<td className={s.td}>
-																{totals.volume.toFixed(2)}
-															</td>
-															<td className={s.td}>
-																{totals.roomCfm.toFixed(2)}
-															</td>
-															<td className={s.td}>
-																{totals.freshAir.toFixed(2)}
-															</td>
-															<td className={s.td}>
-																{totals.exhaustAir.toFixed(2)}
-															</td>
-															<td className={s.td}>
-																{totals.AddWaterVapour.toFixed(3)}
-															</td>
-															<td className={s.td}>{totals.humidcfm}</td>
-															<td className={s.td}>{totals.resultantCfm}</td>
-															<td className={s.td}>{totals.heatroomtermsup}</td>
-															<td className={s.td}>
-																{totals.cfmHeatLoadTRValue}
-															</td>
-															<td className={s.td}>{totals.roomHeatLoad}</td>
-															<td className={s.td}>
-																{totals.resultHeatLoadTR}
-															</td>
-														</tr>
-													</tbody>
-												</table>
-											</div>
-										</div>
-									</>
-								) : (
-									/* ══════ Case 2: Single system — conditional columns ══════ */
-									<div className={s.tableOuter}>
-										<div className={s.tableScroll}>
-											<table className={s.table}>
-												<thead className={s.thead}>
-													<tr>
-														<th className={s.thRoom}>Room Name</th>
-														<th className={s.th}>{t.fields.area.label}</th>
-														<th className={s.th}>{t.fields.volume.label}</th>
-														<th className={s.th}>{t.fields.roomCfm.label}</th>
-														<th className={s.th}>{t.fields.freshAir.label}</th>
-														<th className={s.th}>
-															{t.fields.exhaustAir.label}
-														</th>
-														{showCooling && (
-															<>
+									{/* ══════ Case 1: Heating AND Cooling → 2 tables ══════ */}
+									{isHeatingandCoolingSystem ? (
+										<>
+											<h3 className={s.headerSubTitle}>Cooling Results</h3>
+											<div
+												className={s.tableOuter}
+												style={{ marginBottom: "40px" }}
+											>
+												<div className={s.tableScroll}>
+													<table className={s.table}>
+														<thead className={s.thead}>
+															<tr>
+																<th className={s.thRoom}>Room Name</th>
+																<th className={s.th}>{t.fields.area.label}</th>
+																<th className={s.th}>
+																	{t.fields.volume.label}
+																</th>
+																<th className={s.th}>
+																	{t.fields.roomCfm.label}
+																</th>
+																<th className={s.th}>
+																	{t.fields.freshAir.label}
+																</th>
+																<th className={s.th}>
+																	{t.fields.exhaustAir.label}
+																</th>
 																<th className={s.th}>
 																	{t.fields.Dehumidification.label}
 																</th>
@@ -787,10 +610,97 @@ export default function Results() {
 																<th className={s.th}>
 																	{t.fields.ResultCoolLoadTR.label}
 																</th>
-															</>
-														)}
-														{showHeating && (
-															<>
+															</tr>
+														</thead>
+														<tbody>
+															{results.map((r: any, idx: number) => (
+																<tr key={idx} className={s.tr}>
+																	<td className={s.tdRoom}>
+																		{r.roomName || `Room ${idx + 1}`}
+																	</td>
+																	<td className={s.td}>{r.area}</td>
+																	<td className={s.td}>{r.volume}</td>
+																	<td className={s.td}>{r.roomCfm}</td>
+																	<td className={s.td}>{r.freshAir}</td>
+																	<td className={s.td}>{r.exhaustAir}</td>
+																	<td className={s.td}>{r.dehumid}</td>
+																	<td className={s.td}>
+																		{r.removedWaterVapor}
+																	</td>
+																	<td className={s.td}>{r.resultant}</td>
+																	<td className={s.td}>{r.roomACValue}</td>
+																	<td className={s.td}>
+																		{r.roomTermSupplyValue}
+																	</td>
+																	<td className={s.td}>{r.cfmACLoadTRValue}</td>
+																	<td className={s.td}>
+																		{r.resultCoolLoadTRValue}
+																	</td>
+																</tr>
+															))}
+															<tr
+																className={s.tr}
+																style={{ fontWeight: "bold" }}
+															>
+																<td className={s.tdRoom}>TOTAL</td>
+																<td className={s.td}>
+																	{totals.area.toFixed(2)}
+																</td>
+																<td className={s.td}>
+																	{totals.volume.toFixed(2)}
+																</td>
+																<td className={s.td}>
+																	{totals.roomCfm.toFixed(2)}
+																</td>
+																<td className={s.td}>
+																	{totals.freshAir.toFixed(2)}
+																</td>
+																<td className={s.td}>
+																	{totals.exhaustAir.toFixed(2)}
+																</td>
+																<td className={s.td}>{totals.dehumid}</td>
+																<td className={s.td}>
+																	{totals.removedWaterVapor.toFixed(3)}
+																</td>
+																<td className={s.td}>{totals.resultant}</td>
+																<td className={s.td}>
+																	{totals.roomACValue.toFixed(2)}
+																</td>
+																<td className={s.td}>
+																	{totals.roomTermSupplyValue}
+																</td>
+																<td className={s.td}>
+																	{totals.cfmACLoadTRValue.toFixed(2)}
+																</td>
+																<td className={s.td}>
+																	{totals.resultCoolLoadTRValue.toFixed(2)}
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+
+											<h3 className={s.headerSubTitle}>Heating Results</h3>
+											<div className={s.tableOuter}>
+												<div className={s.tableScroll}>
+													<table className={s.table}>
+														<thead className={s.thead}>
+															<tr>
+																<th className={s.thRoom}>Room Name</th>
+																<th className={s.th}>{t.fields.area.label}</th>
+																<th className={s.th}>
+																	{t.fields.volume.label}
+																</th>
+																<th className={s.th}>
+																	{t.fields.roomCfm.label}
+																</th>
+																<th className={s.th}>
+																	{t.fields.freshAir.label}
+																</th>
+																<th className={s.th}>
+																	{t.fields.exhaustAir.label}
+																</th>
 																<th className={s.th}>
 																	{t.fields.AddWaterVapour.label}
 																</th>
@@ -812,145 +722,294 @@ export default function Results() {
 																<th className={s.th}>
 																	{t.fields.ResHeatingLoadinTR.label}
 																</th>
-															</>
-														)}
-													</tr>
-												</thead>
-												<tbody>
-													{results.length > 0 ? (
-														results.map((r: any, idx: number) => (
-															<tr key={idx} className={s.tr}>
-																<td className={s.tdRoom}>
-																	{r.roomName || `Room ${idx + 1}`}
+															</tr>
+														</thead>
+														<tbody>
+															{results.map((r: any, idx: number) => (
+																<tr key={idx} className={s.tr}>
+																	<td className={s.tdRoom}>
+																		{r.roomName || `Room ${idx + 1}`}
+																	</td>
+																	<td className={s.td}>{r.area}</td>
+																	<td className={s.td}>{r.volume}</td>
+																	<td className={s.td}>{r.roomCfm}</td>
+																	<td className={s.td}>{r.freshAir}</td>
+																	<td className={s.td}>{r.exhaustAir}</td>
+																	<td className={s.td}>{r.AddWaterVapour}</td>
+																	<td className={s.td}>{r.humidcfm}</td>
+																	<td className={s.td}>{r.resultantCfm}</td>
+																	<td className={s.td}>{r.heatroomtermsup}</td>
+																	<td className={s.td}>
+																		{r.cfmHeatLoadTRValue}
+																	</td>
+																	<td className={s.td}>{r.roomHeatLoad}</td>
+																	<td className={s.td}>{r.resultHeatLoadTR}</td>
+																</tr>
+															))}
+															<tr
+																className={s.tr}
+																style={{ fontWeight: "bold" }}
+															>
+																<td className={s.tdRoom}>TOTAL</td>
+																<td className={s.td}>
+																	{totals.area.toFixed(2)}
 																</td>
-																<td className={s.td}>{r.area}</td>
-																<td className={s.td}>{r.volume}</td>
-																<td className={s.td}>{r.roomCfm}</td>
-																<td className={s.td}>{r.freshAir}</td>
-																<td className={s.td}>{r.exhaustAir}</td>
+																<td className={s.td}>
+																	{totals.volume.toFixed(2)}
+																</td>
+																<td className={s.td}>
+																	{totals.roomCfm.toFixed(2)}
+																</td>
+																<td className={s.td}>
+																	{totals.freshAir.toFixed(2)}
+																</td>
+																<td className={s.td}>
+																	{totals.exhaustAir.toFixed(2)}
+																</td>
+																<td className={s.td}>
+																	{totals.AddWaterVapour.toFixed(3)}
+																</td>
+																<td className={s.td}>{totals.humidcfm}</td>
+																<td className={s.td}>{totals.resultantCfm}</td>
+																<td className={s.td}>
+																	{totals.heatroomtermsup}
+																</td>
+																<td className={s.td}>
+																	{totals.cfmHeatLoadTRValue}
+																</td>
+																<td className={s.td}>{totals.roomHeatLoad}</td>
+																<td className={s.td}>
+																	{totals.resultHeatLoadTR}
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+											</div>
+										</>
+									) : (
+										/* ══════ Case 2: Single system — conditional columns ══════ */
+										<div className={s.tableOuter}>
+											<div className={s.tableScroll}>
+												<table className={s.table}>
+													<thead className={s.thead}>
+														<tr>
+															<th className={s.thRoom}>Room Name</th>
+															<th className={s.th}>{t.fields.area.label}</th>
+															<th className={s.th}>{t.fields.volume.label}</th>
+															<th className={s.th}>{t.fields.roomCfm.label}</th>
+															<th className={s.th}>
+																{t.fields.freshAir.label}
+															</th>
+															<th className={s.th}>
+																{t.fields.exhaustAir.label}
+															</th>
+															{showCooling && (
+																<>
+																	<th className={s.th}>
+																		{t.fields.Dehumidification.label}
+																	</th>
+																	<th className={s.th}>
+																		{t.fields.remWaterVapour.label}
+																	</th>
+																	<th className={s.th}>
+																		{t.fields.resultantCfm.label}
+																	</th>
+																	<th className={s.th}>
+																		{t.fields.RoomACloadTR.label}
+																	</th>
+																	<th className={s.th}>
+																		{t.fields.RoomTerminalSupply.label}
+																	</th>
+																	<th className={s.th}>
+																		{t.fields.cfmACLoadTR.label}
+																	</th>
+																	<th className={s.th}>
+																		{t.fields.ResultCoolLoadTR.label}
+																	</th>
+																</>
+															)}
+															{showHeating && (
+																<>
+																	<th className={s.th}>
+																		{t.fields.AddWaterVapour.label}
+																	</th>
+																	<th className={s.th}>
+																		{t.fields.Humidification.label}
+																	</th>
+																	<th className={s.th}>
+																		{t.fields.HeatResultantCfm.label}
+																	</th>
+																	<th className={s.th}>
+																		{t.fields.HeatRoomTerminalSupply.label}
+																	</th>
+																	<th className={s.th}>
+																		{t.fields.CfmHeatingLoadTR.label}
+																	</th>
+																	<th className={s.th}>
+																		{t.fields.RoomHeatingLoadinTR.label}
+																	</th>
+																	<th className={s.th}>
+																		{t.fields.ResHeatingLoadinTR.label}
+																	</th>
+																</>
+															)}
+														</tr>
+													</thead>
+													<tbody>
+														{results.length > 0 ? (
+															results.map((r: any, idx: number) => (
+																<tr key={idx} className={s.tr}>
+																	<td className={s.tdRoom}>
+																		{r.roomName || `Room ${idx + 1}`}
+																	</td>
+																	<td className={s.td}>{r.area}</td>
+																	<td className={s.td}>{r.volume}</td>
+																	<td className={s.td}>{r.roomCfm}</td>
+																	<td className={s.td}>{r.freshAir}</td>
+																	<td className={s.td}>{r.exhaustAir}</td>
+																	{showCooling && (
+																		<>
+																			<td className={s.td}>{r.dehumid}</td>
+																			<td className={s.td}>
+																				{r.removedWaterVapor}
+																			</td>
+																			<td className={s.td}>{r.resultant}</td>
+																			<td className={s.td}>{r.roomACValue}</td>
+																			<td className={s.td}>
+																				{r.roomTermSupplyValue}
+																			</td>
+																			<td className={s.td}>
+																				{r.cfmACLoadTRValue}
+																			</td>
+																			<td className={s.td}>
+																				{r.resultCoolLoadTRValue}
+																			</td>
+																		</>
+																	)}
+																	{showHeating && (
+																		<>
+																			<td className={s.td}>
+																				{r.AddWaterVapour}
+																			</td>
+																			<td className={s.td}>{r.humidcfm}</td>
+																			<td className={s.td}>{r.resultantCfm}</td>
+																			<td className={s.td}>
+																				{r.heatroomtermsup}
+																			</td>
+																			<td className={s.td}>
+																				{r.cfmHeatLoadTRValue}
+																			</td>
+																			<td className={s.td}>{r.roomHeatLoad}</td>
+																			<td className={s.td}>
+																				{r.resultHeatLoadTR}
+																			</td>
+																		</>
+																	)}
+																</tr>
+															))
+														) : (
+															<tr>
+																<td className={s.emptyRow} colSpan={20}>
+																	No rooms added yet.
+																</td>
+															</tr>
+														)}
+														{results.length > 0 && (
+															<tr
+																className={s.tr}
+																style={{ fontWeight: "bold" }}
+															>
+																<td className={s.tdRoom}>TOTAL</td>
+																<td className={s.td}>
+																	{totals.area.toFixed(2)}
+																</td>
+																<td className={s.td}>
+																	{totals.volume.toFixed(2)}
+																</td>
+																<td className={s.td}>
+																	{totals.roomCfm.toFixed(2)}
+																</td>
+																<td className={s.td}>
+																	{totals.freshAir.toFixed(2)}
+																</td>
+																<td className={s.td}>
+																	{totals.exhaustAir.toFixed(2)}
+																</td>
 																{showCooling && (
 																	<>
-																		<td className={s.td}>{r.dehumid}</td>
+																		<td className={s.td}>{totals.dehumid}</td>
 																		<td className={s.td}>
-																			{r.removedWaterVapor}
+																			{totals.removedWaterVapor.toFixed(3)}
 																		</td>
-																		<td className={s.td}>{r.resultant}</td>
-																		<td className={s.td}>{r.roomACValue}</td>
+																		<td className={s.td}>{totals.resultant}</td>
 																		<td className={s.td}>
-																			{r.roomTermSupplyValue}
-																		</td>
-																		<td className={s.td}>
-																			{r.cfmACLoadTRValue}
+																			{totals.roomACValue.toFixed(2)}
 																		</td>
 																		<td className={s.td}>
-																			{r.resultCoolLoadTRValue}
+																			{totals.roomTermSupplyValue}
+																		</td>
+																		<td className={s.td}>
+																			{totals.cfmACLoadTRValue.toFixed(2)}
+																		</td>
+																		<td className={s.td}>
+																			{totals.resultCoolLoadTRValue.toFixed(2)}
 																		</td>
 																	</>
 																)}
 																{showHeating && (
 																	<>
-																		<td className={s.td}>{r.AddWaterVapour}</td>
-																		<td className={s.td}>{r.humidcfm}</td>
-																		<td className={s.td}>{r.resultantCfm}</td>
 																		<td className={s.td}>
-																			{r.heatroomtermsup}
+																			{totals.AddWaterVapour.toFixed(3)}
+																		</td>
+																		<td className={s.td}>{totals.humidcfm}</td>
+																		<td className={s.td}>
+																			{totals.resultantCfm}
 																		</td>
 																		<td className={s.td}>
-																			{r.cfmHeatLoadTRValue}
+																			{totals.heatroomtermsup}
 																		</td>
-																		<td className={s.td}>{r.roomHeatLoad}</td>
 																		<td className={s.td}>
-																			{r.resultHeatLoadTR}
+																			{totals.cfmHeatLoadTRValue}
+																		</td>
+																		<td className={s.td}>
+																			{totals.roomHeatLoad}
+																		</td>
+																		<td className={s.td}>
+																			{totals.resultHeatLoadTR}
 																		</td>
 																	</>
 																)}
 															</tr>
-														))
-													) : (
-														<tr>
-															<td className={s.emptyRow} colSpan={20}>
-																No rooms added yet.
-															</td>
-														</tr>
-													)}
-													{results.length > 0 && (
-														<tr className={s.tr} style={{ fontWeight: "bold" }}>
-															<td className={s.tdRoom}>TOTAL</td>
-															<td className={s.td}>{totals.area.toFixed(2)}</td>
-															<td className={s.td}>
-																{totals.volume.toFixed(2)}
-															</td>
-															<td className={s.td}>
-																{totals.roomCfm.toFixed(2)}
-															</td>
-															<td className={s.td}>
-																{totals.freshAir.toFixed(2)}
-															</td>
-															<td className={s.td}>
-																{totals.exhaustAir.toFixed(2)}
-															</td>
-															{showCooling && (
-																<>
-																	<td className={s.td}>{totals.dehumid}</td>
-																	<td className={s.td}>
-																		{totals.removedWaterVapor.toFixed(3)}
-																	</td>
-																	<td className={s.td}>{totals.resultant}</td>
-																	<td className={s.td}>
-																		{totals.roomACValue.toFixed(2)}
-																	</td>
-																	<td className={s.td}>
-																		{totals.roomTermSupplyValue}
-																	</td>
-																	<td className={s.td}>
-																		{totals.cfmACLoadTRValue.toFixed(2)}
-																	</td>
-																	<td className={s.td}>
-																		{totals.resultCoolLoadTRValue.toFixed(2)}
-																	</td>
-																</>
-															)}
-															{showHeating && (
-																<>
-																	<td className={s.td}>
-																		{totals.AddWaterVapour.toFixed(3)}
-																	</td>
-																	<td className={s.td}>{totals.humidcfm}</td>
-																	<td className={s.td}>
-																		{totals.resultantCfm}
-																	</td>
-																	<td className={s.td}>
-																		{totals.heatroomtermsup}
-																	</td>
-																	<td className={s.td}>
-																		{totals.cfmHeatLoadTRValue}
-																	</td>
-																	<td className={s.td}>
-																		{totals.roomHeatLoad}
-																	</td>
-																	<td className={s.td}>
-																		{totals.resultHeatLoadTR}
-																	</td>
-																</>
-															)}
-														</tr>
-													)}
-												</tbody>
-											</table>
+														)}
+													</tbody>
+												</table>
+											</div>
 										</div>
-									</div>
-								)}
-							</div>
-						);
-					}
-				)}
+									)}
+								</div>
+							);
+						}
+					)}
 
-				{zoneData.length === 0 && (
-					<div style={{ padding: "40px", textAlign: "center", color: "#999" }}>
-						No rooms added yet.
+					{zoneData.length === 0 && (
+						<div
+							style={{ padding: "40px", textAlign: "center", color: "#999" }}
+						>
+							No rooms added yet.
+						</div>
+					)}
+
+					{/* ── Go Back Home ── */}
+					<div className={s.footer}>
+						<p className={s.footerTitle}>Want to add another project?</p>
+						<button onClick={handleGoHome} className={s.goHomeBtn}>
+							<Home size={16} />
+							Go Back Home
+						</button>
 					</div>
-				)}
+				</div>
 			</div>
-		</div>
+		</>
 	);
 }

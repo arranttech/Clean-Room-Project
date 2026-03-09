@@ -1,31 +1,33 @@
-import resultsText from "../../json/resultsText.json";
+import resultsText from "../../json/resultsText";
 
 export type RoomPayload = {
-	roomName: string;
-	length: string;
-	width: string;
-	height: string;
-	acph: number;
-	freshAirPercent: string;
-	exhaustAir: string;
-	occupancy: string;
-	equipmentLoad: string;
-	lightingLoad: string;
-	infiltrationsPerHour: string;
-	zoneId?: string;
-	zoneSystem?: string;
-	zoneSystemType?: string;
-	zoneCoolingMethod?: string;
-	zoneHeatingMethod?: string;
-	zoneClassification?: string;
+  roomName: string;
+  length: string;
+  width: string;
+  height: string;
+  acph: number;
+  freshAirPercent: string;
+  exhaustAir: string;
+  occupancy: string;
+  equipmentLoad: string;
+  lightingLoad: string;
+  infiltrationsPerHour: string;
+  zoneId?: string | number;
+  zoneSystem?: string;
+  zoneSystemType?: string;
+  zoneCoolingMethod?: string;
+  zoneHeatingMethod?: string;
+  zoneClassification?: string;
+  zoneReqInsideTempC?: string | number | null;
+  zoneReqInsideHum?: number | string;
+  minTempC?: number | string;
+  maxTempC?: number | string;
+  rhMin?: number | string;
+  rhMax?: number | string;
 
-	zoneReqInsideTempC?: number | string;
-	zoneReqInsideHum?: number | string;
-
-	minTempC?: number | string;
-	maxTempC?: number | string;
-	rhMin?: number | string;
-	rhMax?: number | string;
+  flowVelocity?: number;
+  heatingFlowVelocity?: number;
+  coolingFlowVelocity?: number,
 };
 
 const t = resultsText;
@@ -33,61 +35,64 @@ const t = resultsText;
 // ================= UTILITY: SYSTEM FLAGS =================
 
 export function getSystemFlags(zoneSystem: string, room: RoomPayload) {
-	const zoneSystemName = String(zoneSystem || "")
-		.toUpperCase()
-		.trim();
+  const zoneSystemName = String(zoneSystem || "")
+    .toUpperCase()
+    .trim();
 
-	// Centralized Validation Logic
-	const reqInsideTempLocal = Number(room.zoneReqInsideTempC || 0);
-	const isTempValid =
-		!isNaN(reqInsideTempLocal) && room.zoneReqInsideTempC !== "";
+  // Centralized Validation Logic
+  const reqInsideTempLocal = Number(room.zoneReqInsideTempC || 0);
+  const isTempValid =
+    !isNaN(reqInsideTempLocal) && room.zoneReqInsideTempC !== "";
 
-	const isCoolingSystem = t.fields.SystemCond.cooling.some(
-		(name: string) => name.toUpperCase() === zoneSystemName
-	);
+  const isCoolingSystem = t.fields.SystemCond.cooling.some(
+    (name: string) => name.toUpperCase() === zoneSystemName
+  );
 
-	const isHeatingSystem = t.fields.SystemCond.heating.some(
-		(name: string) => name.toUpperCase() === zoneSystemName
-	);
+  const isHeatingSystem = t.fields.SystemCond.heating.some(
+    (name: string) => name.toUpperCase() === zoneSystemName
+  );
 
-	const isHeatingandCoolingSystem = t.fields.SystemCond.heatandcold.some(
-		(name: string) => name.toUpperCase() === zoneSystemName
-	);
+  const isHeatingandCoolingSystem = t.fields.SystemCond.heatandcold.some(
+    (name: string) => name.toUpperCase() === zoneSystemName
+  );
 
-	return {
-		isCoolingSystem,
-		isHeatingSystem,
-		isHeatingandCoolingSystem,
-		isTempValid, // For external use in boqresults.ts
-		showCooling: isCoolingSystem || isHeatingandCoolingSystem,
-		showHeating: isHeatingSystem || isHeatingandCoolingSystem,
-	};
+  return {
+    isCoolingSystem,
+    isHeatingSystem,
+    isHeatingandCoolingSystem,
+    isTempValid, // For external use in boqresults.ts
+    showCooling: isCoolingSystem || isHeatingandCoolingSystem,
+    showHeating: isHeatingSystem || isHeatingandCoolingSystem,
+  };
 }
 
 export type AirflowResults = {
-	zoneReqInsideTempC: number | string;
-	roomName: string;
-	areaFt2: number;
-	volumeFt3: number;
-	roomCfm: number;
-	freshAir: number;
-	exhaustAir: number;
-	dehumidValue: number | string;
-	removedWater: number | string;
-	resultantCfm: number | string;
-	roomACValue: number | string;
-	roomTermSupplyValue: number | string;
-	cfmACLoadTR: number | string;
-	resultCoolLoadTR: number | string;
-	addWaterValue: number | string;
-	humidValue: number | string;
-	resultantheatCfm: number | string;
-	roomTermSupplyHeatValue: number | string;
-	cfmHeatLoadTRValue: number | string;
-	roomHeatLoadTR: number | string;
-	resultHeatLoadTR: number | string;
-	zoneSystem: string;
-	zoneClassification?: string;
+  zoneReqInsideTempC: number | string;
+  roomName: string;
+  areaFt2: number;
+  volumeFt3: number;
+  roomCfm: number;
+  freshAir: number;
+  exhaustAir: number;
+  dehumidValue: number | string;
+  removedWater: number | string;
+  resultantCfm: number | string;
+  roomACValue: number | string;
+  roomTermSupplyValue: number | string;
+  cfmACLoadTR: number | string;
+  resultCoolLoadTR: number | string;
+  addWaterValue: number | string;
+  humidValue: number | string;
+  resultantheatCfm: number | string;
+  roomTermSupplyHeatValue: number | string;
+  cfmHeatLoadTRValue: number | string;
+  roomHeatLoadTR: number | string;
+  resultHeatLoadTR: number | string;
+  zoneSystem: string;
+  zoneClassification?: string;
+  flowVelocity?: number;
+  heatingFlowVelocity?: number;
+  coolingFlowVelocity?: number;
 };
 
 // ================= SERVICE: AIRFLOW CALCULATION =================
@@ -95,7 +100,6 @@ export type AirflowResults = {
 export function airflowService(room: RoomPayload): AirflowResults {
 
   // ================= BASIC VALUES =================
-  // reqInsideTemp is kept here to ensure local math formulas work correctly
   const reqInsideTemp = Number(room.zoneReqInsideTempC || 0);
   const reqInsideHum = Number(room.zoneReqInsideHum || 0);
 

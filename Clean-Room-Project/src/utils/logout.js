@@ -5,13 +5,18 @@ import { resetCustomer } from "../redux/slices/customerSlice";
 import { clearUser } from "../redux/slices/userSlice";
 import { persistor } from "../redux/store";
 
-// Clears all Redux state + persisted localStorage.
 export const handleLogout = async (dispatch) => {
   dispatch(resetProjectInfo());
-  dispatch(resetStandards());  ;
-  dispatch(resetRoom()); 
-  dispatch(resetCustomer());  
-  dispatch(clearUser());       // clears user_login_id, user_id, customer_id, name
-  await persistor.purge();     // wipes redux-persist from localStorage
-  localStorage.removeItem("persist:root");
+  dispatch(resetStandards());
+  dispatch(resetRoom());
+  dispatch(resetCustomer());
+  dispatch(clearUser());
+  localStorage.removeItem("token");
+  await persistor.purge(); // clears sessionStorage
+};
+
+export const CleanProjectDetails = (dispatch) => {
+  dispatch(resetProjectInfo());
+  dispatch(resetStandards());
+  dispatch(resetRoom());
 };

@@ -64,6 +64,49 @@ export const roomRepository = {
     const [result] = await database.execute(query, params);
     return result;
   },
+  updateRoomStandards: async (standardId: number, payload: any) => {
+    await database.execute(
+      `UPDATE tRoomStandards SET
+        project_system = ?,
+        project_system_type = ?,
+        project_heating_method = ?,
+        project_cooling_method = ?,
+        project_standard = ?,
+        project_classification_name = ?,
+        project_ACPH = ?,
+        project_temp_unit = ?,
+        project_required_inside_temp = ?,
+        project_required_inside_humid = ?,
+        project_max_temp = ?,
+        project_min_temp = ?,
+        project_relative_min_humid = ?,
+        project_relative_max_humid = ?,
+        flow_velocity = ?,
+        heating_flow_velocity = ?,
+        cooling_flow_velocity = ?
+      WHERE project_standard_id = ?`,
+      [
+        payload.system ?? null,
+        payload.systemType ?? null,
+        payload.heatingMethod ?? null,
+        payload.coolingMethod ?? null,
+        payload.standard ?? null,
+        payload.classification ?? null,
+        toNum(payload.acph),
+        payload.tempUnit ?? null,
+        toNum(payload.reqInsideTempC),
+        toNum(payload.reqInsideHum),
+        toNum(payload.maxTempC),
+        toNum(payload.minTempC),
+        toNum(payload.rhMin),
+        toNum(payload.rhMax),
+        toNum(payload.flowVelocity),
+        toNum(payload.heatingFlowVelocity),
+        toNum(payload.coolingFlowVelocity),
+        standardId,
+      ]
+    );
+  },
 
   createZoneRooms: async (payload: any) => {
     const [result] = await database.execute(
@@ -111,4 +154,30 @@ export const roomRepository = {
     const [result] = await database.execute(query, params);
     return result;
   },
+
+  deleteZoneRoom: async (roomId: number, zoneId: number) => {
+    // Step 1: delete the room
+    await database.execute(
+      `DELETE FROM tZoneRooms WHERE project_RoomId = ?`,
+      [roomId]
+    );
+  
+    // count remaining rooms in that zone
+    const [rows] = await database.execute(
+      `SELECT COUNT(*) as count FROM tZoneRooms WHERE zone_id = ?`,
+      [zoneId]
+    );
+    const remaining = (rows as any)[0].count;
+    console.log(`Zone ${zoneId} has ${remaining} rooms remaining`);
+  
+    // no rooms left, delete the zone
+    if (remaining === 0) {
+      console.log(`Deleting zone ${zoneId}`);
+      await database.execute(
+        `DELETE FROM tProjectZones WHERE zone_id = ?`,
+        [zoneId]
+      );
+    }
+  },
+ 
 };

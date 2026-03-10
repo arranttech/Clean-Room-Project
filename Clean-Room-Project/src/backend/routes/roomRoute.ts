@@ -142,4 +142,78 @@ export const roomRoute: ServerRoute[] = [
       }
     },
   },
+
+  // PUT /v1/roomstandards/{standardId}
+  {
+    method: "PUT",
+    path: "/v1/roomstandards/{standardId}",
+    options: {
+      description: "Update existing room standards",
+      tags: ["api", "rooms"],
+      validate: {
+        params: Joi.object({
+          standardId: Joi.number().integer().required(),
+        }),
+        payload: Joi.object({
+          project_id: Joi.number().integer().optional(),
+          system: strOrNull,
+          systemType: strOrNull,
+          heatingMethod: strOrNull,
+          coolingMethod: strOrNull,
+          standard: strOrNull,
+          classification: strOrNull,
+          acph: numOrNull,
+          tempUnit: strOrNull,
+          reqInsideTempC: numOrNull,
+          reqInsideHum: numOrNull,
+          maxTempC: numOrNull,
+          minTempC: numOrNull,
+          rhMin: numOrNull,
+          rhMax: numOrNull,
+          flowVelocity: numOrNull,
+          heatingFlowVelocity: numOrNull,
+          coolingFlowVelocity: numOrNull,
+        }),
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const { standardId } = request.params as any;
+        await roomRepository.updateRoomStandards(parseInt(standardId), request.payload);
+        return h.response({ success: true }).code(200);
+      } catch (error) {
+        console.error("updateRoomStandards error:", error);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+// DELETE /v1/zonerooms/{roomId}?zone_id=X
+{
+  method: "DELETE",
+  path: "/v1/zonerooms/{roomId}",
+  options: {
+    description: "Delete a zone room. Deletes zone too if it was the last room.",
+    tags: ["api", "zones"],
+    validate: {
+      params: Joi.object({
+        roomId: Joi.number().integer().required(),
+      }),
+      query: Joi.object({
+        zone_id: Joi.number().integer().required(),
+      }),
+    },
+  },
+  handler: async (request, h) => {
+    try {
+      const { roomId } = request.params as any;
+      const { zone_id } = request.query as any; 
+      await roomRepository.deleteZoneRoom(parseInt(roomId), parseInt(zone_id)); 
+      return h.response({ success: true }).code(200);
+    } catch (error) {
+      console.error("deleteZoneRoom error:", error);
+      return h.response({ error: "Internal Server Error" }).code(500);
+    }
+  },
+},
+ 
 ];

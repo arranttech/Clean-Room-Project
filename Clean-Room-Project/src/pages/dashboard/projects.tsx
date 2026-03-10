@@ -67,7 +67,7 @@ export default function AllProjects() {
 	const [projects] = useState<Project[]>(demoProjects);
 
 	const onViewDetails = (p: Project) => alert(`View Details: ${p.id}`);
-	const onExpand = (p: Project) => alert(`Expand: ${p.id}`);
+
 
 	const isThreeOrMore = projects.length >= 3;
 
@@ -118,14 +118,6 @@ export default function AllProjects() {
 												onClick={() => onViewDetails(p)}
 											>
 												<FaEye /> {text.projects.buttons.viewDetails}
-											</button>
-
-											<button
-												type="button"
-												className={s.secondaryBtn}
-												onClick={() => onExpand(p)}
-											>
-												<FaChevronDown /> {text.projects.buttons.expand}
 											</button>
 										</div>
 									)}
@@ -193,14 +185,6 @@ export default function AllProjects() {
 											onClick={() => onViewDetails(p)}
 										>
 											<FaEye /> {text.projects.buttons.viewDetails}
-										</button>
-
-										<button
-											type="button"
-											className={s.secondaryBtn}
-											onClick={() => onExpand(p)}
-										>
-											<FaChevronDown /> {text.projects.buttons.expand}
 										</button>
 									</div>
 								)}

@@ -10,6 +10,7 @@ import { Link, useNavigate } from "react-router-dom";
 import styles from "./styles";
 import {
   projectInfo,
+  updateProjectInfo,
 } from "../../backend/controller/projectController";
 import Header from "../../components/header";
 
@@ -25,13 +26,6 @@ function ProjectInfoPage() {
   const projectIdFromRedux = useAppSelector(
     (s: any) => s.projectInfo.projectId,
   );
-
-  // isNewProject
-  const isNewProject = useAppSelector((s: any) => s.projectInfo.isNewProject);
-  const isNewProjectRef = useRef(isNewProject);
-  useEffect(() => {
-    isNewProjectRef.current = isNewProject;
-  }, [isNewProject]);
 
   const projectName = useAppSelector((s: any) => s.projectInfo.projectName);
   const unitBranch = useAppSelector((s: any) => s.projectInfo.unitBranch);
@@ -130,51 +124,6 @@ function ProjectInfoPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // useEffect(() => {
-  //   if (!customerId) return;
-  //   if (projectIdFromRedux) return; 
-  //   if (projectName) return; 
-  //   if (isNewProjectRef.current) return; 
-
-  //   const fetchProject = async () => {
-  //     try {
-  //       const data = await getProjectByCustomerId(customerId);
-  //       const p = data?.project;
-  //       if (p) {
-  //         dispatch(
-  //           updateMultipleFields({
-  //             projectId: p.project_id,
-  //             projectName: p.project_name || "",
-  //             unitBranch: p.project_unit_branch || "",
-  //             industry: p.project_Industry
-  //               ? JSON.parse(p.project_Industry)
-  //               : [],
-  //             handling: p.project_Handling
-  //               ? JSON.parse(p.project_Handling)
-  //               : [],
-  //             locationQuery: p.project_Location || "",
-  //             selectedLocation: p.project_Location
-  //               ? { display_name: p.project_Location }
-  //               : null,
-  //             minTemp: p.project_min_temp ? String(p.project_min_temp) : "",
-  //             maxTemp: p.project_max_temp ? String(p.project_max_temp) : "",
-  //             relativeHumidityMin: p.project_relative_min_humid
-  //               ? String(p.project_relative_min_humid)
-  //               : "",
-  //             relativeHumidityMax: p.project_relative_max_humid
-  //               ? String(p.project_relative_max_humid)
-  //               : "",
-  //           }),
-  //         );
-  //         console.log("Project pre-filled from DB:", p.project_id);
-  //       }
-  //     } catch (error) {
-  //       console.error("Failed to fetch project:", error);
-  //     }
-  //   };
-  //   fetchProject();
-  // }, [customerId, projectIdFromRedux]);
-
   const generateUniqueId = (name: string, project: string) => {
     if (!name || !project) return "";
     const slug = (text: string) =>
@@ -270,24 +219,6 @@ function ProjectInfoPage() {
   };
 
   const saveProjectInfo = async () => {
-    if (projectIdFromRedux && !isNewProject) {
-      console.log(
-        "Project already saved, skipping POST. ProjectId:",
-        projectIdFromRedux,
-      );
-      navigate("/standards", {
-        state: {
-          minimumTemp: minTemp,
-          maximumTemp: maxTemp,
-          minRelativeHumidity: relativeHumidityMin,
-          maxRelativeHumidity: relativeHumidityMax,
-          projectId: projectIdFromRedux,
-        },
-      });
-      return;
-    }
-    dispatch(updateField({ field: "isNewProject", value: false }));
-
     const payload = {
       customer_id: customerId,
       projectName,
@@ -301,21 +232,31 @@ function ProjectInfoPage() {
       relativeHumidityMin,
       relativeHumidityMax,
     };
+
     try {
-      const data = await projectInfo(payload);
-      console.log("Project saved:", data);
-      if (data) {
+      let finalProjectId = projectIdFromRedux;
+
+      if (projectIdFromRedux) {
+        // PUT — update existing row, no new row created
+        await updateProjectInfo(projectIdFromRedux, payload);
+        console.log("Project updated:", projectIdFromRedux);
+      } else {
+        // POST — create new row
+        const data = await projectInfo(payload);
+        console.log("Project created:", data);
+        finalProjectId = data.projectId;
         dispatch(updateField({ field: "projectId", value: data.projectId }));
-        navigate("/standards", {
-          state: {
-            minimumTemp: minTemp,
-            maximumTemp: maxTemp,
-            minRelativeHumidity: relativeHumidityMin,
-            maxRelativeHumidity: relativeHumidityMax,
-            projectId: data.projectId,
-          },
-        });
       }
+
+      navigate("/standards", {
+        state: {
+          minimumTemp: minTemp,
+          maximumTemp: maxTemp,
+          minRelativeHumidity: relativeHumidityMin,
+          maxRelativeHumidity: relativeHumidityMax,
+          projectId: finalProjectId,
+        },
+      });
     } catch (error) {
       console.error((error as Error).message);
     }
@@ -388,7 +329,8 @@ function ProjectInfoPage() {
               )}
             </div>
           </div>
-          {/* Industry / Sector - Now in its own container to take full width */}
+
+          {/* Industry / Sector */}
           <div className="w-full mb-4">
             <div
               ref={industryRef}
@@ -458,7 +400,7 @@ function ProjectInfoPage() {
             </div>
           </div>
 
-          {/* Handling - Now in its own container on a new line */}
+          {/* Handling */}
           <div className="w-full mb-4">
             <div
               ref={handlingRef}

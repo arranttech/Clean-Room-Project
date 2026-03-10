@@ -107,4 +107,48 @@ export const projectRoute: ServerRoute[] = [
       }
     },
   },
+
+  //update or put project info
+  {
+    method: "PUT",
+    path: "/v1/projectinfo/{projectId}",
+    options: {
+      description: "Update existing project",
+      tags: ["api", "project"],
+      validate: {
+        params: Joi.object({
+          projectId: Joi.number().integer().required(),
+        }),
+        payload: Joi.object({
+          customer_id: Joi.number().integer().optional(),
+          uniqueId: Joi.string().optional().allow("", null), // ← missing
+          projectName: Joi.string().required(),
+          unitBranch: Joi.string().optional().allow("", null),
+          industry: Joi.array().items(Joi.string()).optional().default([]),
+          handling: Joi.array().items(Joi.string()).optional().default([]),
+          selectedLocation: Joi.alternatives()
+            .try(
+              Joi.object({ display_name: Joi.string().optional() }).unknown(true),
+              Joi.string(),
+              Joi.allow(null)
+            )
+            .optional(),
+          maxTemp: Joi.alternatives().try(Joi.number(), Joi.string()).optional().allow("", null),
+          minTemp: Joi.alternatives().try(Joi.number(), Joi.string()).optional().allow("", null),
+          relativeHumidityMin: Joi.alternatives().try(Joi.number(), Joi.string()).optional().allow("", null),
+          relativeHumidityMax: Joi.alternatives().try(Joi.number(), Joi.string()).optional().allow("", null),
+        }),
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const { projectId } = request.params as any;
+        await projectRepository.updateProject(parseInt(projectId), request.payload);
+        return h.response({ success: true }).code(200);
+      } catch (err) {
+        console.error("PROJECT UPDATE ERROR:", err);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
 ];

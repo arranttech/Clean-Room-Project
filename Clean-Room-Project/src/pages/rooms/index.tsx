@@ -24,7 +24,7 @@ import T from "../../json/room.json";
 import standardDataJson from "../../json/standardData.json";
 import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
-import { addRooms } from "../../backend/controller/roomController";
+import { addRooms, deleteZoneRoom } from "../../backend/controller/roomController";
 import { storeresults } from "../../backend/controller/resultsController";
 import { airflowService } from "../../backend/services/service";
 import Header from "../../components/header";
@@ -91,7 +91,6 @@ export default function Room() {
     (state: any) => state.room.isFormVisible
   ) as boolean;
 
-  // ── savedRooms from Redux — persists across navigation ──
   const savedRooms = useAppSelector(
     (state: any) => state.room.savedRooms
   ) as SavedRoom[];
@@ -150,9 +149,13 @@ export default function Room() {
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // ── Modal state ──
+  // ── Missing info modal ──
   const [showMissingPopup, setShowMissingPopup] = useState(false);
   const [missingItems, setMissingItems] = useState<string[]>([]);
+
+  // ── Delete confirmation modal ──
+  const [deleteTarget, setDeleteTarget] = useState<SavedRoom | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     setSelectedAcph(standardsAcph ?? "");
@@ -294,7 +297,6 @@ export default function Room() {
         zoneReqInsideHum: reqInsideHum,
       };
 
-      // Save to Redux — persists across navigation
       dispatch(saveRoom(savedRoom));
       setSelectedAcph(standardsAcph ?? "");
     } catch (error) {
@@ -305,8 +307,27 @@ export default function Room() {
     }
   };
 
-  const removeSavedRoomById = (id: string) => {
-    dispatch(removeRoom(id));
+  // ── Opens the delete confirmation modal ──
+  const confirmDeleteRoom = (room: SavedRoom) => {
+    setDeleteTarget(room);
+  };
+
+  // ── Called when user clicks Yes in modal ──
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    try {
+      if (deleteTarget.backendRoomId) {
+        await deleteZoneRoom(deleteTarget.backendRoomId, deleteTarget.zoneId);
+      }
+      dispatch(removeRoom(deleteTarget.id));
+    } catch (error) {
+      console.error("Failed to delete room:", error);
+      alert("Failed to delete room. Please try again.");
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+    }
   };
 
   const goToResultsPage = async () => {
@@ -396,7 +417,6 @@ export default function Room() {
         });
       }
 
-      // ── Clear ALL Redux state after successful submit ──
       dispatch(resetRoom());
       dispatch(resetStandards());
       dispatch(resetProjectInfo());
@@ -419,7 +439,6 @@ export default function Room() {
     }
   };
 
-  // ── addAnotherZone: only resets form and standards, NOT savedRooms ──
   const addAnotherZone = () => {
     if (!savedRooms.length) {
       alert("Please add at least one room before adding another zone.");
@@ -428,7 +447,7 @@ export default function Room() {
     currentZoneIdRef.current = null;
     currentProjectStandardIdRef.current = null;
     dispatch(resetStandards());
-    dispatch(resetRoomForm()); // only clears form fields, savedRooms untouched
+    dispatch(resetRoomForm());
     navigate("/standards");
   };
 
@@ -674,7 +693,7 @@ export default function Room() {
                         </div>
                         <button
                           type="button"
-                          onClick={() => removeSavedRoomById(r.id)}
+                          onClick={() => confirmDeleteRoom(r)}
                           className={s.deleteBtn}
                         >
                           <FaTrash />
@@ -779,6 +798,70 @@ export default function Room() {
           </div>
         </div>
       )}
+{/* ── Delete Confirmation Modal ── */}
+{deleteTarget && (
+  <div className={s.popupOverlay}>
+    <div className={s.popupCard}>
+      <div className={s.popupHeader}>
+        <div
+          className={s.popupIconWrap}
+          style={{ backgroundColor: "#fff1f1" }}
+        >
+          <FaTrash style={{ color: "#ef4444", fontSize: "1.1rem" }} />
+        </div>
+        <h2 className={s.popupTitle}>Delete Room</h2>
+      </div>
+      <p className={s.popupDescription}>
+        Are you sure you want to delete{" "}
+        <strong>{deleteTarget.roomName}</strong>? This action cannot be
+        undone.
+      </p>
+      <div className={s.popupFooter} style={{ gap: "12px" }}>
+        <button
+          type="button"
+          onClick={() => setDeleteTarget(null)}
+          disabled={isDeleting}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            backgroundColor: "#fff",
+            color: "#374151",
+            border: "1.5px solid #d1d5db",
+            borderRadius: "8px",
+            padding: "10px 20px",
+            fontWeight: 600,
+            cursor: isDeleting ? "not-allowed" : "pointer",
+            opacity: isDeleting ? 0.7 : 1,
+          }}
+        >
+          No, Cancel
+        </button>
+        <button
+          type="button"
+          onClick={handleConfirmDelete}
+          disabled={isDeleting}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            backgroundColor: "#ef4444",
+            color: "#fff",
+            border: "none",
+            borderRadius: "8px",
+            padding: "10px 20px",
+            fontWeight: 600,
+            cursor: isDeleting ? "not-allowed" : "pointer",
+            opacity: isDeleting ? 0.7 : 1,
+          }}
+        >
+          <FaTrash />
+          {isDeleting ? "Deleting..." : "Yes, Delete"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </>
   );
 }

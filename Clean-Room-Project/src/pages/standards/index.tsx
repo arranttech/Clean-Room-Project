@@ -4,6 +4,7 @@ import { useAppSelector, useAppDispatch } from "../../redux/hooks";
 import {
   updateStandardsField,
   updateMultipleStandardsFields,
+
 } from "../../redux/slices/standardSlice";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import standardDesign from "./styles";
@@ -11,6 +12,7 @@ import standardDataJson from "../../json/standardData.json";
 import {
   roomStandards,
   getRoomStandards,
+  updateRoomStandards
 } from "../../backend/controller/roomController";
 import { createProjectZone } from "../../backend/controller/zoneController";
 import { Tooltip } from "../../components/Tooltip/index";
@@ -592,21 +594,18 @@ export default function Standard() {
   };
 
   // ── handleNext ──
-  // Always creates a fresh zone + standard in DB (zoneId is null after resetStandards)
-  // Dispatches IDs to Redux for display purposes only
-  // Passes IDs via location.state to Room.tsx — this is the reliable source of truth
   const handleNext = async (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
     if (!isFormValid) {
       alert("Please fill all required fields correctly before proceeding.");
       return;
     }
-
+  
     try {
       let finalZoneId = zoneIdFromRedux;
       let finalProjectStandardId = projectStandardIdFromRedux;
-
-      // Create zone if none exists (null after resetStandards or first visit)
+  
+      // Create zone only if none exists
       if (!finalZoneId) {
         const zoneData = await createProjectZones();
         finalZoneId = zoneData?.zoneId;
@@ -614,20 +613,44 @@ export default function Standard() {
           alert("Failed to create zone. Please try again.");
           return;
         }
-        // Update Redux for display only — Room.tsx reads from location.state
         dispatch(updateStandardsField({ field: "zoneId", value: finalZoneId }));
         console.log("Zone created, ID:", finalZoneId);
       }
-
-      // Create project standard if none exists
-      if (!finalProjectStandardId) {
-        const standardData = await saveroomStandards();
+  
+      const freshProjectId = getFreshProjectId();
+      const payload = {
+        project_id: freshProjectId,
+        system,
+        systemType,
+        heatingMethod,
+        coolingMethod,
+        standard,
+        classification,
+        acph,
+        tempUnit,
+        reqInsideTempC,
+        reqInsideHum,
+        maxTempC,
+        minTempC,
+        rhMin,
+        rhMax,
+        flowVelocity,
+        heatingFlowVelocity,
+        coolingFlowVelocity,
+      };
+  
+      if (finalProjectStandardId) {
+        // PUT — update existing row, no new row created
+        await updateRoomStandards(finalProjectStandardId, payload);
+        console.log("Room standards updated:", finalProjectStandardId);
+      } else {
+        // POST — create new row
+        const standardData = await roomStandards(payload);
         finalProjectStandardId = standardData?.roomStandardsId;
         if (!finalProjectStandardId) {
           alert("Failed to save project standard. Please try again.");
           return;
         }
-        // Update Redux for display only
         dispatch(
           updateStandardsField({
             field: "projectStandardId",
@@ -636,16 +659,7 @@ export default function Standard() {
         );
         console.log("Standard created, ID:", finalProjectStandardId);
       }
-
-      console.log(
-        "Navigating to /room | zoneId:",
-        finalZoneId,
-        "| projectStandardId:",
-        finalProjectStandardId
-      );
-
-      // Pass IDs via location.state — Room.tsx reads these into useRef immediately
-      // This is the reliable, Redux-independent channel for DB IDs
+  
       navigate("/room", {
         state: {
           ...roomPayload,

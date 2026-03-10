@@ -60,4 +60,31 @@ export const projectRepository = {
   //   );
   //   return rows[0] || null;
   // },
+  updateProject: async (projectId: number, payload: any) => {
+    await database.execute(
+      `UPDATE tProjects SET
+        project_name = ?,
+        project_unit_branch = ?,
+        project_Industry = ?,
+        project_Handling = ?,
+        project_Location = ?,
+        project_max_temp = ?,
+        project_min_temp = ?,
+        project_relative_min_humid = ?,
+        project_relative_max_humid = ?
+      WHERE project_id = ?`,
+      [
+        payload.projectName,
+        payload.unitBranch || null,
+        JSON.stringify(payload.industry || []),
+        JSON.stringify(payload.handling || []),
+        payload.selectedLocation?.display_name || payload.selectedLocation || "",
+        toFloat(payload.maxTemp),
+        toFloat(payload.minTemp),
+        toFloat(payload.relativeHumidityMin),
+        toFloat(payload.relativeHumidityMax),
+        projectId,
+      ]
+    );
+  },
 };

@@ -18,6 +18,7 @@ import { MdApartment } from "react-icons/md";
 import s from "./styles";
 import text from "../../json/dashboard.json";
 import Header from "../../components/header";
+import { resetProjectInfo } from "../../redux/slices/projectInfoSlice";
 
 type Project = {
   id: string;
@@ -230,7 +231,10 @@ export default function Dashboard() {
                 type="button"
                 onClick={() => {
                   if (!customerId) setShowProfileAlert(true);
-                  else navigate("/project-info");
+                  else {
+                    dispatch(resetProjectInfo());
+                    navigate("/project-info");
+                  }
                 }}
                 className={`${s.actionCardBase} ${s.actionCardHover} text-left`}
               >

@@ -45,8 +45,8 @@ export default function Header() {
       <header className={s.header}>
         <div className={s.headerInner}>
           <div className={s.left}>
-            <div className={s.logoTile}>
-              <img src="/Arrant.jpeg" alt="Arrant Dynamics" className={s.logoImg} />
+            <div className={s.logoTile} onClick={() => navigate("/dashboard")} style={{ cursor: "pointer" }}>
+              <img src="/Arrant.jpeg" alt="Arrant Dynamics" className={s.logoImg}  />
             </div>
             <div className={s.brand}>
               <div>ARRANT</div>

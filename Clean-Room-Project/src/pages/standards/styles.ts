@@ -60,7 +60,7 @@ const standardDesign = {
 	unitRadio: "h-4 w-4 accent-blue-600",
 	unitHint: "text-xs text-slate-500",
 	tempHelper: "mt-3 text-xs text-slate-500",
-	disabled: "opacity-40 cursor-not-allowed pointer-events-none",
+	disabled: "opacity-40 cursor-not-allowed",
 
 	flowBlock: "mt-8",
 	flowLabelRow: "flex items-center justify-between",

@@ -230,7 +230,7 @@ const AHUFiltration = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [flowMedium, heatingMethod, coolingMethod]);
 
-    const isPlantRoomDistanceValid = plantRoomDistance !== "" && Number(plantRoomDistance) >= 30 && Number(plantRoomDistance) <= 100;
+
 
     return (
         <>
@@ -249,51 +249,45 @@ const AHUFiltration = () => {
                                 </div>
                                 <div className={s.specialBoxValue}>Range: 30-100 meters</div>
                             </div>
-                            <div className={s.specialBoxInputGroup}>
-                                <input
-                                    type="number"
-                                    className={s.specialBoxInput}
-                                    placeholder="eg: 55"
-                                    value={plantRoomDistance}
-                                    min={30}
-                                    max={100}
-                                    onChange={(e) => {
-                                        // dont allow more than 3 digits
-                                        const raw = e.target.value;
-                                        if (raw === "") {
-                                            handleChange("plantRoomDistance", "");
-                                            return;
-                                        }
-                                        // Only allow digits to be typed
-                                        if (!/^\d+$/.test(raw)) return;
-
-                                        const val = parseInt(raw, 10);
-                                        // Prevent entering a number larger than 100
-                                        if (val > 100) return;
-
-                                        handleChange("plantRoomDistance", val);
-                                    }}
-                                    onKeyDown={(e) => {
-                                        if (["-", "+", "e", "E", "."].includes(e.key)) {
-                                            e.preventDefault();
-                                        }
-                                    }}
-                                    onBlur={(e) => {
-                                        if (e.target.value === "") return;
-                                        const val = parseInt(e.target.value);
-                                        if (isNaN(val) || val < 30 || val > 100) {
-                                            setShowDistanceModal(true);
-                                            handleChange("plantRoomDistance", "");
-                                        }
-                                    }}
-                                    required={true}
-                                />
-                                <span className={s.specialBoxUnit}>meters</span>
+                            <div className="flex flex-col items-end">
+                                <div className={s.specialBoxInputGroup}>
+                                    <input
+                                        type="number"
+                                        className={s.specialBoxInput}
+                                        placeholder="eg: 55"
+                                        value={plantRoomDistance}
+                                        min={30}
+                                        max={100}
+                                        onChange={(e) => { // dont allow more than 3 digits
+                                            const raw = e.target.value;
+                                            if (raw === "") {
+                                                handleChange("plantRoomDistance", "");
+                                                return;
+                                            }
+                                            if (!/^\d*$/.test(raw)) return;
+                                            const val = parseInt(raw, 10);
+                                            if (val > 100) return;
+                                            handleChange("plantRoomDistance", val);
+                                        }}
+                                        onKeyDown={(e) => {
+                                            if (["-", "+", "e", "E", "."].includes(e.key)) {
+                                                e.preventDefault();
+                                            }
+                                        }}
+                                        required={true}
+                                    />
+                                    <span className={s.specialBoxUnit}>meters</span>
+                                </div>
+                                {plantRoomDistance !== "" && (Number(plantRoomDistance) < 30 || Number(plantRoomDistance) > 100) && (
+                                    <div className="text-red-500 text-xs mt-2 text-right w-full block">
+                                        Distance must be between 30 and 100 meters
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
 
-                    <div className={!isPlantRoomDistanceValid ? "opacity-50 pointer-events-none select-none transition-opacity duration-300" : "transition-opacity duration-300"}>
+                    <div className="transition-opacity duration-300">
                         {/* Construction Specs Grid */}
                         <div className={s.grid2}>
 
@@ -698,7 +692,7 @@ const AHUFiltration = () => {
             </div>
 
             {/* Card 4: Filtration Details */}
-            < div className={`${s.card} ${!isPlantRoomDistanceValid ? "opacity-50 pointer-events-none select-none transition-opacity duration-300" : "transition-opacity duration-300"}`} >
+            <div className={`${s.card} transition-opacity duration-300`}>
                 <div className={s.cardHeader}>
                     <div className={s.cardHeaderTitle}>Filtration Details</div>
                 </div>
@@ -755,7 +749,7 @@ const AHUFiltration = () => {
                         </div>
                     )}
 
-                    <div className={`grid grid-cols-1 md:grid-cols-2 gap-10 mt-8 ${!filterTypeSelection ? 'opacity-50 pointer-events-none select-none transition-opacity duration-300' : 'transition-opacity duration-300'}`}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-8 transition-opacity duration-300">
                         {/* Split filters into two independent vertical columns */}
                         {[0, 1].map((colIndex) => {
                             const currentFilters = filterTypeSelection === "Exhaust"

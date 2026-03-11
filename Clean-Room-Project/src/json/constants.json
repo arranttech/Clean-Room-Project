@@ -90,9 +90,42 @@
     "freshAirTooltip": "The percentage of the total supply airflow that is drawn from the outside to ensure adequate oxygen levels and indoor air quality.",
     "exhaustAirTooltip": "The volume of air intentionally removed from the space per second to maintain pressure balance or remove contaminants.",
     "acphValueTooltip": "The total number of times the entire volume of air in the room is replaced by filtered supply air every hour.",
+    "plantRoomDistanceTooltip": "Specify the distance of the plant room from the AHU in meters. This influences the ducting and pump design.",
+    "panelThicknessTooltip": "Select the thickness of the AHU panel and the profile type.",
+    "panelConstructionTooltip": "Specify the material and coating for the inner and outer skins of the AHU panels.",
+    "airHandlingTooltip": "Select the construction material and type of Volume Control Dampers (VCD).",
+    "fireControlTooltip": "Select the location and type of fire control dampers for the AHU.",
+    "vfdTooltip": "Indicate if a Variable Frequency Drive is required for fan speed control.",
+    "pressureGaugeTooltip": "Select the differential pressure gauge range and location for filter monitoring.",
+    "virusBurnerTooltip": "Choose the type of ultraviolet germicidal irradiation (UVGI) or UVC for virus control.",
+    "doorInterlockingTooltip": "Specify if door interlocking is required for the AHU sections.",
+    "bmsMonitoringTooltip": "Indicate if the AHU parameters need to be monitored by the Building Management System.",
+    "emsMonitoringTooltip": "Indicate if the AHU parameters need to be monitored by the Environmental Monitoring System.",
+    "humidistatTooltip": "Select if a humidistat is required for humidity control.",
+    "thermostatTooltip": "Select if a thermostat is required for temperature control.",
+    "flowControlValveTooltip": "Choose the type of water flow control valve (2-Way or 3-Way).",
+    "yStrainerTooltip": "Indicate if a Y-Strainer is required in the piping.",
+    "purgeWallTooltip": "Specify if a purge wall is required for the system.",
+    "pipeConfigurationTooltip": "Select the entry point for the water piping into the AHU.",
+    "treatedFreshAirTooltip": "Choose if the Fresh Air unit is combined with the main AHU or standalone.",
+    "preFilterTooltip": "Select the efficiency grade for the pre-filter (e.g., G3, G4).",
+    "fineFilterTooltip": "Select the efficiency grade for the fine filter (e.g., F7, F9).",
+    "hepaFilterTooltip": "Select the efficiency grade for the HEPA filter (e.g., H13, H14).",
+    "carbonFilterTooltip": "Specify if an activated carbon filter is required for odor control.",
+    "staticPressureTooltip": "Formula: (Plant Room Distance * 0.7) + (Final ∆p of selected filters in mmWG) + (Additional ∆p in mmWG)",
     "screenPermissionsTooltip": [
-      { "label": "FULL ACCESS","color": "Green"},
-      {"label": "READ ONLY","color": "Slate"},
-      {"label": "NO ACCESS","color": "Red"}]
+      {
+        "label": "FULL ACCESS",
+        "color": "Green"
+      },
+      {
+        "label": "READ ONLY",
+        "color": "Slate"
+      },
+      {
+        "label": "NO ACCESS",
+        "color": "Red"
+      }
+    ]
   }
 }

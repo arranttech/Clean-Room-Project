@@ -13,6 +13,7 @@ import {
   updateProjectInfo,
 } from "../../backend/controller/projectController";
 import Header from "../../components/header";
+import projectData from "../../json/projectData.json";
 
 function ProjectInfoPage() {
   const dispatch = useAppDispatch();
@@ -52,37 +53,7 @@ function ProjectInfoPage() {
   const industryRef = useRef<HTMLDivElement>(null);
   const handlingRef = useRef<HTMLDivElement>(null);
 
-  const industryOptions = [
-    "Hospitals & Healthcare Infrastructure",
-    "Pharmaceuticals & Biotechnology",
-    "Chemical & Petrochemical Plants",
-    "Semiconductor & Battery Manufacturing",
-    "Advanced Research & Defense Facilities",
-    "Tissue Culture Laboratories (Plant)",
-    "Microbiological Laboratories",
-    "Vaccine manufacturing",
-    "Hospitals",
-    "Veterinary laboratories",
-    "Research & Development Laboratories",
-    "Atomic Energy Development centers",
-    "Quality Control Laboratories",
-    "Semi-conductor manufacturing",
-    "Food & Beverage Industries",
-    "Parenterals manufacturing",
-    "Chemical Laboratories",
-    "Cement Inductries",
-    "Power Generation Industries",
-    "Warehouses",
-  ];
-
-  const handlingOptions = [
-    "Contagious",
-    "Non-Contagious",
-    "Hazardous",
-    "Non-Hazardous",
-    "Flammable Vapors",
-    "Bio-safety",
-  ];
+  const { industryOptions, handlingOptions } = projectData;
 
   const [errors, setErrors] = useState({
     branch: "",

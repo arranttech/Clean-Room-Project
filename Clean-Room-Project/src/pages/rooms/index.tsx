@@ -423,6 +423,7 @@ export default function Room() {
 
       navigate("/results", {
         state: {
+          projectId,
           minTempC,
           maxTempC,
           rhMin,

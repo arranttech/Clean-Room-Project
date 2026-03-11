@@ -91,4 +91,11 @@ export const projectRepository = {
 			]
 		);
 	},
+
+	updateProjectStatus: async (projectId: number, status: string) => {
+		await database.execute(
+			`UPDATE tProjects SET project_status = ? WHERE project_id = ?`,
+			[status, projectId]
+		);
+	},
 };

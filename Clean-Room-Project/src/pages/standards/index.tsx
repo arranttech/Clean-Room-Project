@@ -462,6 +462,7 @@ export default function Standard() {
     fineFilter,
     hepaFilter,
     carbonFilter,
+    filterTypeSelection,
   } = useAppSelector((state: any) => state.standards);
 
   const roomPayload = useMemo(() => {
@@ -619,6 +620,14 @@ export default function Standard() {
     if (e) e.preventDefault();
     if (!isFormValid) {
       alert("Please fill all required fields correctly before proceeding.");
+      return;
+    }
+    if (!plantRoomDistance || Number(plantRoomDistance) < 30 || Number(plantRoomDistance) > 100) {
+      alert("Plant room distance needs to be between 30 and 100 meters.");
+      return;
+    }
+    if (!filterTypeSelection) {
+      alert("Please select a Filter Type (Supply or Exhaust) before proceeding.");
       return;
     }
 

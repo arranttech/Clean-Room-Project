@@ -126,6 +126,9 @@ export default function Standard() {
   const reqInsideHum = useAppSelector(
     (state: any) => state.standards.reqInsideHum
   );
+  const additionalDpValue = useAppSelector(
+    (state: any) => state.standards.additionalDpValue
+  );
 
 
   const minTempC = useAppSelector((state: any) => state.projectInfo.minTemp);
@@ -567,6 +570,7 @@ export default function Standard() {
       if (!reqInsideHum || errors.humidity) return false;
       if (!reqInsideTempC || errors.temperature) return false;
     }
+    if (additionalDpValue === "") return false;
     return true;
   })();
 
@@ -617,11 +621,11 @@ export default function Standard() {
       alert("Please fill all required fields correctly before proceeding.");
       return;
     }
-  
+
     try {
       let finalZoneId = zoneIdFromRedux;
       let finalProjectStandardId = projectStandardIdFromRedux;
-  
+
       // Create zone only if none exists
       if (!finalZoneId) {
         const zoneData = await createProjectZones();
@@ -633,7 +637,7 @@ export default function Standard() {
         dispatch(updateStandardsField({ field: "zoneId", value: finalZoneId }));
         console.log("Zone created, ID:", finalZoneId);
       }
-  
+
       const freshProjectId = getFreshProjectId();
       const payload = {
         project_id: freshProjectId,
@@ -655,7 +659,7 @@ export default function Standard() {
         heatingFlowVelocity,
         coolingFlowVelocity,
       };
-  
+
       if (finalProjectStandardId) {
         // PUT — update existing row, no new row created
         await updateRoomStandards(finalProjectStandardId, payload);
@@ -676,7 +680,7 @@ export default function Standard() {
         );
         console.log("Standard created, ID:", finalProjectStandardId);
       }
-  
+
       navigate("/room", {
         state: {
           ...roomPayload,
@@ -1183,19 +1187,19 @@ export default function Standard() {
           Standard: <b>{standard || "-"}</b> | Classification:{" "}
           <b>{classification || "-"}</b> | ACPH: <b>{acph || "-"}</b>
         </div>
-      </div>
 
-      <div className={s.footer}>
-        <Link to="/project-info" className={s.backLink}>
-          <FaArrowLeft /> {t.buttons.back}
-        </Link>
-        <button
-          type="button"
-          className={`${s.nextLink} ${!isFormValid ? s.disabled : ""}`}
-          onClick={handleNext}
-        >
-          {t.buttons.next} <FaArrowRight />
-        </button>
+        <div className={s.footer}>
+          <Link to="/project-info" className={s.backLink}>
+            <FaArrowLeft /> {t.buttons.back}
+          </Link>
+          <button
+            type="button"
+            className={`${s.nextLink} ${!isFormValid ? s.disabled : ""}`}
+            onClick={handleNext}
+          >
+            {t.buttons.next} <FaArrowRight />
+          </button>
+        </div>
       </div>
     </>
   );

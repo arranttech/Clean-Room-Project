@@ -25,7 +25,7 @@ const initialState = {
 	hepaFilter: "",
 	carbonFilter: "",
 	// Construction Specs
-	plantRoomDistance: 50,
+	plantRoomDistance: "",
 	panelThicknessProfile: "",
 	panelConstruction: "",
 	airHandlingConstruction: "",
@@ -48,7 +48,7 @@ const initialState = {
 	selectedFilters: [],
 	selectedFilterDetails: {},
 	exhaustImpactPercentage: "",
-	additionalDpValue: 5,
+	additionalDpValue: "",
 };
 
 const standardsSlice = createSlice({

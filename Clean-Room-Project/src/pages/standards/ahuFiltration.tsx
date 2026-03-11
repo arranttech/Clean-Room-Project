@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { updateStandardsField, updateFilterDetail } from "../../redux/slices/standardSlice";
 import standardDesign from "./styles";
@@ -44,7 +44,7 @@ const FilterDetailCard = ({
     };
 
     const currentInitMmwg = data?.initialDp !== undefined ? data.initialDp / MM_WG_TO_PA : specs.initRange[0];
-    const currentFinalMmwg = data?.finalDp !== undefined ? data.finalDp / MM_WG_TO_PA : specs.finalRange[0];
+    const currentFinalMmwg = data?.finalDp !== undefined ? data.finalDp / MM_WG_TO_PA : specs.finalRange[1];
 
     return (
         <div className={s.filterCard + " mt-3"}>
@@ -110,6 +110,7 @@ const FilterDetailCard = ({
 const AHUFiltration = () => {
     const s = standardDesign;
     const dispatch = useAppDispatch();
+    const [showDistanceModal, setShowDistanceModal] = useState(false);
 
     // Redux state values
     const {
@@ -164,7 +165,7 @@ const AHUFiltration = () => {
         .filter(([name]) => selectedFilters.includes(name))
         .reduce((acc: number, [_, curr]: [string, any]) => acc + ((curr.finalDp || 0) / MM_WG_TO_PA), 0);
 
-    const staticPressureMmWg = (Number(plantRoomDistance) * 0.7) + filterDpSumMmWg + additionalDpValue;
+    const staticPressureMmWg = (Number(plantRoomDistance) * 0.7) + filterDpSumMmWg + (Number(additionalDpValue) || 0);
     const staticPressurePa = Math.round(staticPressureMmWg * MM_WG_TO_PA);
     const staticPressureDisplay = `${Math.round(staticPressureMmWg)} mmWG / ${staticPressurePa} Pa`;
 
@@ -187,7 +188,7 @@ const AHUFiltration = () => {
                         details: {
                             unit: "Pa",
                             initialDp: specs.initRange[0] * MM_WG_TO_PA,
-                            finalDp: specs.finalRange[0] * MM_WG_TO_PA
+                            finalDp: specs.finalRange[1] * MM_WG_TO_PA
                         }
                     }));
                 }
@@ -229,6 +230,8 @@ const AHUFiltration = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [flowMedium, heatingMethod, coolingMethod]);
 
+    const isPlantRoomDistanceValid = plantRoomDistance !== "" && Number(plantRoomDistance) >= 30 && Number(plantRoomDistance) <= 100;
+
     return (
         <>
             {/* Card 3: AHU Construction Specifications */}
@@ -242,23 +245,46 @@ const AHUFiltration = () => {
                         <div className={s.specialBoxRow}>
                             <div>
                                 <div className={s.specialBoxTitle}>
-                                    Plant Room Distance
-                                    <Tooltip id="plantRoomDistance" content={constants.Tooltip.plantRoomDistanceTooltip} />
+                                    Plant Room Distance <span className={s.required}>*</span>
                                 </div>
-                                <div className={s.specialBoxValue}>Range: 30-100 meters (Default: 50m)</div>
+                                <div className={s.specialBoxValue}>Range: 30-100 meters</div>
                             </div>
                             <div className={s.specialBoxInputGroup}>
                                 <input
                                     type="number"
                                     className={s.specialBoxInput}
-                                    placeholder="50"
+                                    placeholder="eg: 55"
                                     value={plantRoomDistance}
                                     min={30}
                                     max={100}
                                     onChange={(e) => {
+                                        // dont allow more than 3 digits
+                                        const raw = e.target.value;
+                                        if (raw === "") {
+                                            handleChange("plantRoomDistance", "");
+                                            return;
+                                        }
+                                        // Only allow digits to be typed
+                                        if (!/^\d+$/.test(raw)) return;
+
+                                        const val = parseInt(raw, 10);
+                                        // Prevent entering a number larger than 100
+                                        if (val > 100) return;
+
+                                        handleChange("plantRoomDistance", val);
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (["-", "+", "e", "E", "."].includes(e.key)) {
+                                            e.preventDefault();
+                                        }
+                                    }}
+                                    onBlur={(e) => {
+                                        if (e.target.value === "") return;
                                         const val = parseInt(e.target.value);
-                                        if (!isNaN(val)) handleChange("plantRoomDistance", val);
-                                        else handleChange("plantRoomDistance", "");
+                                        if (isNaN(val) || val < 30 || val > 100) {
+                                            setShowDistanceModal(true);
+                                            handleChange("plantRoomDistance", "");
+                                        }
                                     }}
                                     required={true}
                                 />
@@ -267,410 +293,412 @@ const AHUFiltration = () => {
                         </div>
                     </div>
 
-                    {/* Construction Specs Grid */}
-                    <div className={s.grid2}>
+                    <div className={!isPlantRoomDistanceValid ? "opacity-50 pointer-events-none select-none transition-opacity duration-300" : "transition-opacity duration-300"}>
+                        {/* Construction Specs Grid */}
+                        <div className={s.grid2}>
 
-                        <div className={s.field}>
-                            <label className={s.label}>
-                                Panel Thickness & Profile <span className={s.required}>*</span>
-                                <Tooltip id="panelThickness" content={constants.Tooltip.panelThicknessTooltip} />
-                            </label>
-                            <select
-                                className={s.select}
-                                value={panelThicknessProfile}
-                                onChange={(e) => handleChange("panelThicknessProfile", e.target.value)}
-                                required={true}
-                            >
-                                <option value="">Select Option</option>
-                                {ahuData.ahuConstruction.panelThicknessProfile.map((v: string) => (<option key={v} value={v}>{v}</option>))}
-                            </select>
+                            <div className={s.field}>
+                                <label className={s.label}>
+                                    Panel Thickness & Profile <span className={s.required}>*</span>
+                                    <Tooltip id="panelThickness" content={constants.Tooltip.panelThicknessTooltip} />
+                                </label>
+                                <select
+                                    className={s.select}
+                                    value={panelThicknessProfile}
+                                    onChange={(e) => handleChange("panelThicknessProfile", e.target.value)}
+                                    required={true}
+                                >
+                                    <option value="">Select Option</option>
+                                    {ahuData.ahuConstruction.panelThicknessProfile.map((v: string) => (<option key={v} value={v}>{v}</option>))}
+                                </select>
+                            </div>
+
+                            <div className={s.field}>
+                                <label className={s.label}>
+                                    Panel Construction <span className={s.required}>*</span>
+                                    <Tooltip id="panelConstruction" content={constants.Tooltip.panelConstructionTooltip} />
+                                </label>
+                                <select
+                                    className={s.select}
+                                    value={panelConstruction}
+                                    onChange={(e) => handleChange("panelConstruction", e.target.value)}
+                                    required={true}
+                                >
+                                    <option value="">Select Option</option>
+                                    {ahuData.ahuConstruction.panelConstruction.map((v: string) => (<option key={v} value={v}>{v}</option>))}
+                                </select>
+                            </div>
+
+                            <div className={s.field}>
+                                <label className={s.label}>
+                                    Air Handling Construction <span className={s.required}>*</span>
+                                    <Tooltip id="airHandling" content={constants.Tooltip.airHandlingTooltip} />
+                                </label>
+                                <select
+                                    className={s.select}
+                                    value={airHandlingConstruction}
+                                    onChange={(e) => handleChange("airHandlingConstruction", e.target.value)}
+                                    required={true}
+                                >
+                                    <option value="">Select Option</option>
+                                    {ahuData.ahuConstruction.airHandlingConstruction.map((v: string) => (<option key={v} value={v}>{v}</option>))}
+                                </select>
+                            </div>
+
+                            <div className={s.field}>
+                                <label className={s.label}>
+                                    Fire Control <span className={s.required}>*</span>
+                                    <Tooltip id="fireControl" content={constants.Tooltip.fireControlTooltip} />
+                                </label>
+                                <select
+                                    className={s.select}
+                                    value={fireControl}
+                                    onChange={(e) => handleChange("fireControl", e.target.value)}
+                                    required={true}
+                                >
+                                    <option value="">Select Option</option>
+                                    {ahuData.ahuConstruction.fireControl.map((v: string) => (<option key={v} value={v}>{v}</option>))}
+                                </select>
+                            </div>
+
+                            <div className={s.field}>
+                                <label className={s.label}>
+                                    Variable Frequency Drive <span className={s.required}>*</span>
+                                    <Tooltip id="vfd" content={constants.Tooltip.vfdTooltip} />
+                                </label>
+                                <select
+                                    className={s.select}
+                                    value={vfd}
+                                    onChange={(e) => handleChange("vfd", e.target.value)}
+                                    required={true}
+                                >
+                                    <option value="">Select Option</option>
+                                    {ahuData.ahuConstruction.vfd.map((v: string) => (<option key={v} value={v}>{v}</option>))}
+                                </select>
+                            </div>
+
+                            <div className={s.field}>
+                                <label className={s.label}>
+                                    Pressure Gauge <span className={s.required}>*</span>
+                                    <Tooltip id="pressureGauge" content={constants.Tooltip.pressureGaugeTooltip} />
+                                </label>
+                                <select
+                                    className={s.select}
+                                    value={pressureGauge}
+                                    onChange={(e) => handleChange("pressureGauge", e.target.value)}
+                                    required={true}
+                                >
+                                    <option value="">Select Option</option>
+                                    {ahuData.ahuConstruction.pressureGauge.map((v: string) => (<option key={v} value={v}>{v}</option>))}
+                                </select>
+                            </div>
+
+                            <div className={s.field}>
+                                <label className={s.label}>
+                                    Virus Burner <span className={s.required}>*</span>
+                                    <Tooltip id="virusBurner" content={constants.Tooltip.virusBurnerTooltip} />
+                                </label>
+                                <select
+                                    className={s.select}
+                                    value={virusBurner}
+                                    onChange={(e) => handleChange("virusBurner", e.target.value)}
+                                    required={true}
+                                >
+                                    <option value="">Select Option</option>
+                                    {ahuData.ahuConstruction.virusBurner.map((v: string) => (<option key={v} value={v}>{v}</option>))}
+                                </select>
+                            </div>
+
+                            <div className={s.field}>
+                                <label className={s.label}>
+                                    Door interlocking systems for air locks and corridor areas <span className={s.required}>*</span>
+                                    <Tooltip id="doorInterlocking" content={constants.Tooltip.doorInterlockingTooltip} />
+                                </label>
+                                <select
+                                    className={s.select}
+                                    value={doorInterlocking}
+                                    onChange={(e) => handleChange("doorInterlocking", e.target.value)}
+                                    required={true}
+                                >
+                                    <option value="">Select Option</option>
+                                    {ahuData.ahuConstruction.doorInterlocking.map((v: string) => (<option key={v} value={v}>{v}</option>))}
+                                </select>
+                            </div>
+
+                            <div className={s.field}>
+                                <label className={s.label}>
+                                    BMS Monitoring <span className={s.required}>*</span>
+                                    <Tooltip id="bmsMonitoring" content={constants.Tooltip.bmsMonitoringTooltip} />
+                                </label>
+                                <select
+                                    className={s.select}
+                                    value={bmsMonitoring}
+                                    onChange={(e) => handleChange("bmsMonitoring", e.target.value)}
+                                    required={true}
+                                >
+                                    <option value="">Select Option</option>
+                                    {ahuData.ahuConstruction.bmsMonitoring.map((v: string) => (<option key={v} value={v}>{v}</option>))}
+                                </select>
+                            </div>
+
+                            <div className={s.field}>
+                                <label className={s.label}>
+                                    EMS Monitoring <span className={s.required}>*</span>
+                                    <Tooltip id="emsMonitoring" content={constants.Tooltip.emsMonitoringTooltip} />
+                                </label>
+                                <select
+                                    className={s.select}
+                                    value={emsMonitoring}
+                                    onChange={(e) => handleChange("emsMonitoring", e.target.value)}
+                                    required={true}
+                                >
+                                    <option value="">Select Option</option>
+                                    {ahuData.ahuConstruction.emsMonitoring.map((v: string) => (<option key={v} value={v}>{v}</option>))}
+                                </select>
+                            </div>
                         </div>
 
-                        <div className={s.field}>
-                            <label className={s.label}>
-                                Panel Construction <span className={s.required}>*</span>
-                                <Tooltip id="panelConstruction" content={constants.Tooltip.panelConstructionTooltip} />
-                            </label>
-                            <select
-                                className={s.select}
-                                value={panelConstruction}
-                                onChange={(e) => handleChange("panelConstruction", e.target.value)}
-                                required={true}
-                            >
-                                <option value="">Select Option</option>
-                                {ahuData.ahuConstruction.panelConstruction.map((v: string) => (<option key={v} value={v}>{v}</option>))}
-                            </select>
-                        </div>
+                        {/* Additional Specifications Sub-section */}
+                        {system !== "Ventilation System" && (
+                            <>
+                                <div className={s.subSectionHeader}>
+                                    {system === "Air-Cooling System" || system === "Air Cooling and Ventilation System" || system === "Air Cooling and Air Heating System"
+                                        ? "Additional Specifications for Air Cooling System"
+                                        : system === "Air-Heating System" || system === "Air Heating and Ventilation System"
+                                            ? "Additional Specifications for Air Heating System"
+                                            : "Additional Specifications"}
+                                </div>
+                                <div className={s.sectionLine} />
 
-                        <div className={s.field}>
-                            <label className={s.label}>
-                                Air Handling Construction <span className={s.required}>*</span>
-                                <Tooltip id="airHandling" content={constants.Tooltip.airHandlingTooltip} />
-                            </label>
-                            <select
-                                className={s.select}
-                                value={airHandlingConstruction}
-                                onChange={(e) => handleChange("airHandlingConstruction", e.target.value)}
-                                required={true}
-                            >
-                                <option value="">Select Option</option>
-                                {ahuData.ahuConstruction.airHandlingConstruction.map((v: string) => (<option key={v} value={v}>{v}</option>))}
-                            </select>
-                        </div>
+                                <div className={s.grid2Space}>
+                                    <div className={s.field}>
+                                        <label className={s.label}>
+                                            Humidistat <span className={s.required}>*</span>
+                                            <Tooltip id="humidistat" content={constants.Tooltip.humidistatTooltip} />
+                                        </label>
+                                        <select
+                                            className={s.select}
+                                            value={humidistat}
+                                            onChange={(e) => handleChange("humidistat", e.target.value)}
+                                            required={true}
+                                        >
+                                            <option value="">Select Option</option>
+                                            {ahuData.additionalSpecifications.humidistat.map((v: string) => (<option key={v} value={v}>{v}</option>))}
+                                        </select>
+                                    </div>
 
-                        <div className={s.field}>
-                            <label className={s.label}>
-                                Fire Control <span className={s.required}>*</span>
-                                <Tooltip id="fireControl" content={constants.Tooltip.fireControlTooltip} />
-                            </label>
-                            <select
-                                className={s.select}
-                                value={fireControl}
-                                onChange={(e) => handleChange("fireControl", e.target.value)}
-                                required={true}
-                            >
-                                <option value="">Select Option</option>
-                                {ahuData.ahuConstruction.fireControl.map((v: string) => (<option key={v} value={v}>{v}</option>))}
-                            </select>
-                        </div>
+                                    <div className={s.field}>
+                                        <label className={s.label}>
+                                            Thermostat <span className={s.required}>*</span>
+                                            <Tooltip id="thermostat" content={constants.Tooltip.thermostatTooltip} />
+                                        </label>
+                                        <select
+                                            className={s.select}
+                                            value={thermostat}
+                                            onChange={(e) => handleChange("thermostat", e.target.value)}
+                                            required={true}
+                                        >
+                                            <option value="">Select Option</option>
+                                            {ahuData.additionalSpecifications.thermostat.map((v: string) => (<option key={v} value={v}>{v}</option>))}
+                                        </select>
+                                    </div>
 
-                        <div className={s.field}>
-                            <label className={s.label}>
-                                Variable Frequency Drive <span className={s.required}>*</span>
-                                <Tooltip id="vfd" content={constants.Tooltip.vfdTooltip} />
-                            </label>
-                            <select
-                                className={s.select}
-                                value={vfd}
-                                onChange={(e) => handleChange("vfd", e.target.value)}
-                                required={true}
-                            >
-                                <option value="">Select Option</option>
-                                {ahuData.ahuConstruction.vfd.map((v: string) => (<option key={v} value={v}>{v}</option>))}
-                            </select>
-                        </div>
+                                    <div className={s.field}>
+                                        <label className={s.label}>
+                                            Flow-control Valve <span className={s.required}>*</span>
+                                            <Tooltip id="flowControlValve" content={constants.Tooltip.flowControlValveTooltip} />
+                                        </label>
+                                        <select
+                                            className={s.select}
+                                            value={flowControlValve}
+                                            onChange={(e) => handleChange("flowControlValve", e.target.value)}
+                                            required={true}
+                                        >
+                                            <option value="">Select Option</option>
+                                            {ahuData.additionalSpecifications.flowControlValve.map((v: string) => (<option key={v} value={v}>{v}</option>))}
+                                        </select>
+                                    </div>
 
-                        <div className={s.field}>
-                            <label className={s.label}>
-                                Pressure Gauge <span className={s.required}>*</span>
-                                <Tooltip id="pressureGauge" content={constants.Tooltip.pressureGaugeTooltip} />
-                            </label>
-                            <select
-                                className={s.select}
-                                value={pressureGauge}
-                                onChange={(e) => handleChange("pressureGauge", e.target.value)}
-                                required={true}
-                            >
-                                <option value="">Select Option</option>
-                                {ahuData.ahuConstruction.pressureGauge.map((v: string) => (<option key={v} value={v}>{v}</option>))}
-                            </select>
-                        </div>
+                                    <div className={s.field}>
+                                        <label className={s.label}>
+                                            Y-strainer <span className={s.required}>*</span>
+                                            <Tooltip id="yStrainer" content={constants.Tooltip.yStrainerTooltip} />
+                                        </label>
+                                        <select
+                                            className={s.select}
+                                            value={yStrainer}
+                                            onChange={(e) => handleChange("yStrainer", e.target.value)}
+                                            required={true}
+                                        >
+                                            <option value="">Select Option</option>
+                                            {ahuData.additionalSpecifications.yStrainer.map((v: string) => (<option key={v} value={v}>{v}</option>))}
+                                        </select>
+                                    </div>
 
-                        <div className={s.field}>
-                            <label className={s.label}>
-                                Virus Burner <span className={s.required}>*</span>
-                                <Tooltip id="virusBurner" content={constants.Tooltip.virusBurnerTooltip} />
-                            </label>
-                            <select
-                                className={s.select}
-                                value={virusBurner}
-                                onChange={(e) => handleChange("virusBurner", e.target.value)}
-                                required={true}
-                            >
-                                <option value="">Select Option</option>
-                                {ahuData.ahuConstruction.virusBurner.map((v: string) => (<option key={v} value={v}>{v}</option>))}
-                            </select>
-                        </div>
+                                    <div className={s.field}>
+                                        <label className={s.label}>
+                                            Purge Wall <span className={s.required}>*</span>
+                                            <Tooltip id="purgeWall" content={constants.Tooltip.purgeWallTooltip} />
+                                        </label>
+                                        <select
+                                            className={s.select}
+                                            value={purgeWall}
+                                            onChange={(e) => handleChange("purgeWall", e.target.value)}
+                                            required={true}
+                                        >
+                                            <option value="">Select Option</option>
+                                            {ahuData.additionalSpecifications.purgeWall.map((v: string) => (<option key={v} value={v}>{v}</option>))}
+                                        </select>
+                                    </div>
 
-                        <div className={s.field}>
-                            <label className={s.label}>
-                                Door interlocking systems for air locks and corridor areas <span className={s.required}>*</span>
-                                <Tooltip id="doorInterlocking" content={constants.Tooltip.doorInterlockingTooltip} />
-                            </label>
-                            <select
-                                className={s.select}
-                                value={doorInterlocking}
-                                onChange={(e) => handleChange("doorInterlocking", e.target.value)}
-                                required={true}
-                            >
-                                <option value="">Select Option</option>
-                                {ahuData.ahuConstruction.doorInterlocking.map((v: string) => (<option key={v} value={v}>{v}</option>))}
-                            </select>
-                        </div>
+                                    <div className={s.field}>
+                                        <label className={s.label}>
+                                            Pipe Configuration <span className={s.required}>*</span>
+                                            <Tooltip id="pipeConfiguration" content={constants.Tooltip.pipeConfigurationTooltip} />
+                                        </label>
+                                        <select
+                                            className={s.select}
+                                            value={pipeConfiguration}
+                                            onChange={(e) => handleChange("pipeConfiguration", e.target.value)}
+                                            required={true}
+                                        >
+                                            <option value="">Select Option</option>
+                                            {(system === "Air Cooling and Air Heating System"
+                                                ? ahuData.additionalSpecifications.pipeConfiguration
+                                                : ["Single Pipe"]
+                                            ).map((v: string) => (<option key={v} value={v}>{v}</option>))}
+                                        </select>
+                                    </div>
 
-                        <div className={s.field}>
-                            <label className={s.label}>
-                                BMS Monitoring <span className={s.required}>*</span>
-                                <Tooltip id="bmsMonitoring" content={constants.Tooltip.bmsMonitoringTooltip} />
-                            </label>
-                            <select
-                                className={s.select}
-                                value={bmsMonitoring}
-                                onChange={(e) => handleChange("bmsMonitoring", e.target.value)}
-                                required={true}
-                            >
-                                <option value="">Select Option</option>
-                                {ahuData.ahuConstruction.bmsMonitoring.map((v: string) => (<option key={v} value={v}>{v}</option>))}
-                            </select>
-                        </div>
+                                    <div className={s.field}>
+                                        <label className={s.label}>
+                                            Treated fresh-air unit <span className={s.required}>*</span>
+                                            <Tooltip id="treatedFreshAir" content={constants.Tooltip.treatedFreshAirTooltip} />
+                                        </label>
+                                        <select
+                                            className={s.select}
+                                            value={treatedFreshAirUnit}
+                                            onChange={(e) => handleChange("treatedFreshAirUnit", e.target.value)}
+                                            required={true}
+                                        >
+                                            <option value="">Select Option</option>
+                                            {ahuData.additionalSpecifications.treatedFreshAirUnit.map((v: string) => (<option key={v} value={v}>{v}</option>))}
+                                        </select>
+                                    </div>
 
-                        <div className={s.field}>
-                            <label className={s.label}>
-                                EMS Monitoring <span className={s.required}>*</span>
-                                <Tooltip id="emsMonitoring" content={constants.Tooltip.emsMonitoringTooltip} />
-                            </label>
-                            <select
-                                className={s.select}
-                                value={emsMonitoring}
-                                onChange={(e) => handleChange("emsMonitoring", e.target.value)}
-                                required={true}
-                            >
-                                <option value="">Select Option</option>
-                                {ahuData.ahuConstruction.emsMonitoring.map((v: string) => (<option key={v} value={v}>{v}</option>))}
-                            </select>
-                        </div>
+                                    {/* Original Flow Velocity Logic*/}
+                                    {isHeatingCooling ? (
+                                        <>
+                                            <div className={s.flowBlock + " md:col-span-2"}>
+                                                <div className={s.dualFlowTitle}>
+                                                    Heating Flow Velocity - {formatMediumLabel(heatingMethod)} <span className={s.required}>*</span>
+                                                </div>
+                                                <div className={s.dualFlowRow}>
+                                                    <div className={s.dualFlowMin}>{heatingFlowRange.min}</div>
+                                                    <input
+                                                        type="range"
+                                                        className={s.dualFlowSlider}
+                                                        min={heatingFlowRange.min}
+                                                        max={heatingFlowRange.max}
+                                                        step={0.1}
+                                                        value={heatingFlowVelocity}
+                                                        onChange={(e) => handleChange("heatingFlowVelocity", clamp(Number(e.target.value), heatingFlowRange.min, heatingFlowRange.max))}
+                                                    />
+                                                    <div className={s.dualFlowMax}>{heatingFlowRange.max}</div>
+                                                    <input
+                                                        className={s.dualFlowValueBox}
+                                                        inputMode="decimal"
+                                                        value={heatingFlowVelocity}
+                                                        required={true}
+                                                        onChange={(e) => {
+                                                            const v = e.target.value;
+                                                            if (v === "" || isNumericLike(v)) {
+                                                                const n = Number(v);
+                                                                if (!isNaN(n)) handleChange("heatingFlowVelocity", clamp(n, heatingFlowRange.min, heatingFlowRange.max));
+                                                            }
+                                                        }}
+                                                    />
+                                                    <div className={s.dualFlowUnit}>m/s</div>
+                                                </div>
+                                            </div>
+                                            <div className={s.flowBlock + " md:col-span-2"}>
+                                                <div className={s.dualFlowTitle}>
+                                                    Cooling Flow Velocity - {formatMediumLabel(coolingMethod)} <span className={s.required}>*</span>
+                                                </div>
+                                                <div className={s.dualFlowRow}>
+                                                    <div className={s.dualFlowMin}>{coolingFlowRange.min}</div>
+                                                    <input
+                                                        type="range"
+                                                        className={s.dualFlowSlider}
+                                                        min={coolingFlowRange.min}
+                                                        max={coolingFlowRange.max}
+                                                        step={0.1}
+                                                        value={coolingFlowVelocity}
+                                                        onChange={(e) => handleChange("coolingFlowVelocity", clamp(Number(e.target.value), coolingFlowRange.min, coolingFlowRange.max))}
+                                                    />
+                                                    <div className={s.dualFlowMax}>{coolingFlowRange.max}</div>
+                                                    <input
+                                                        className={s.dualFlowValueBox}
+                                                        inputMode="decimal"
+                                                        value={coolingFlowVelocity}
+                                                        required={true}
+                                                        onChange={(e) => {
+                                                            const v = e.target.value;
+                                                            if (v === "" || isNumericLike(v)) {
+                                                                const n = Number(v);
+                                                                if (!isNaN(n)) handleChange("coolingFlowVelocity", clamp(n, coolingFlowRange.min, coolingFlowRange.max));
+                                                            }
+                                                        }}
+                                                    />
+                                                    <div className={s.dualFlowUnit}>m/s</div>
+                                                </div>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        (isHeating || isCooling) && (
+                                            <div className={s.flowBlock + " md:col-span-2"}>
+                                                <div className={s.dualFlowTitle}>
+                                                    Flow Velocity - {formatMediumLabel(flowMedium)} <span className={s.required}>*</span>
+                                                </div>
+                                                <div className={s.dualFlowRow}>
+                                                    <div className={s.dualFlowMin}>{flowRange.min}</div>
+                                                    <input
+                                                        type="range"
+                                                        className={s.dualFlowSlider}
+                                                        min={flowRange.min}
+                                                        max={flowRange.max}
+                                                        step={0.1}
+                                                        value={flowVelocity}
+                                                        onChange={(e) => handleChange("flowVelocity", clamp(Number(e.target.value), flowRange.min, flowRange.max))}
+                                                    />
+                                                    <div className={s.dualFlowMax}>{flowRange.max}</div>
+                                                    <input
+                                                        className={s.dualFlowValueBox}
+                                                        inputMode="decimal"
+                                                        value={flowVelocity}
+                                                        required={true}
+                                                        onChange={(e) => {
+                                                            const v = e.target.value;
+                                                            if (v === "" || isNumericLike(v)) {
+                                                                const n = Number(v);
+                                                                if (!isNaN(n)) handleChange("flowVelocity", clamp(n, flowRange.min, flowRange.max));
+                                                            }
+                                                        }}
+                                                    />
+                                                    <div className={s.dualFlowUnit}>m/s</div>
+                                                </div>
+                                            </div>
+                                        )
+                                    )}
+                                </div>
+                            </>
+                        )}
                     </div>
-
-                    {/* Additional Specifications Sub-section */}
-                    {system !== "Ventilation System" && (
-                        <>
-                            <div className={s.subSectionHeader}>
-                                {system === "Air-Cooling System" || system === "Air Cooling and Ventilation System" || system === "Air Cooling and Air Heating System"
-                                    ? "Additional Specifications for Air Cooling System"
-                                    : system === "Air-Heating System" || system === "Air Heating and Ventilation System"
-                                        ? "Additional Specifications for Air Heating System"
-                                        : "Additional Specifications"}
-                            </div>
-                            <div className={s.sectionLine} />
-
-                            <div className={s.grid2Space}>
-                                <div className={s.field}>
-                                    <label className={s.label}>
-                                        Humidistat <span className={s.required}>*</span>
-                                        <Tooltip id="humidistat" content={constants.Tooltip.humidistatTooltip} />
-                                    </label>
-                                    <select
-                                        className={s.select}
-                                        value={humidistat}
-                                        onChange={(e) => handleChange("humidistat", e.target.value)}
-                                        required={true}
-                                    >
-                                        <option value="">Select Option</option>
-                                        {ahuData.additionalSpecifications.humidistat.map((v: string) => (<option key={v} value={v}>{v}</option>))}
-                                    </select>
-                                </div>
-
-                                <div className={s.field}>
-                                    <label className={s.label}>
-                                        Thermostat <span className={s.required}>*</span>
-                                        <Tooltip id="thermostat" content={constants.Tooltip.thermostatTooltip} />
-                                    </label>
-                                    <select
-                                        className={s.select}
-                                        value={thermostat}
-                                        onChange={(e) => handleChange("thermostat", e.target.value)}
-                                        required={true}
-                                    >
-                                        <option value="">Select Option</option>
-                                        {ahuData.additionalSpecifications.thermostat.map((v: string) => (<option key={v} value={v}>{v}</option>))}
-                                    </select>
-                                </div>
-
-                                <div className={s.field}>
-                                    <label className={s.label}>
-                                        Flow-control Valve <span className={s.required}>*</span>
-                                        <Tooltip id="flowControlValve" content={constants.Tooltip.flowControlValveTooltip} />
-                                    </label>
-                                    <select
-                                        className={s.select}
-                                        value={flowControlValve}
-                                        onChange={(e) => handleChange("flowControlValve", e.target.value)}
-                                        required={true}
-                                    >
-                                        <option value="">Select Option</option>
-                                        {ahuData.additionalSpecifications.flowControlValve.map((v: string) => (<option key={v} value={v}>{v}</option>))}
-                                    </select>
-                                </div>
-
-                                <div className={s.field}>
-                                    <label className={s.label}>
-                                        Y-strainer <span className={s.required}>*</span>
-                                        <Tooltip id="yStrainer" content={constants.Tooltip.yStrainerTooltip} />
-                                    </label>
-                                    <select
-                                        className={s.select}
-                                        value={yStrainer}
-                                        onChange={(e) => handleChange("yStrainer", e.target.value)}
-                                        required={true}
-                                    >
-                                        <option value="">Select Option</option>
-                                        {ahuData.additionalSpecifications.yStrainer.map((v: string) => (<option key={v} value={v}>{v}</option>))}
-                                    </select>
-                                </div>
-
-                                <div className={s.field}>
-                                    <label className={s.label}>
-                                        Purge Wall <span className={s.required}>*</span>
-                                        <Tooltip id="purgeWall" content={constants.Tooltip.purgeWallTooltip} />
-                                    </label>
-                                    <select
-                                        className={s.select}
-                                        value={purgeWall}
-                                        onChange={(e) => handleChange("purgeWall", e.target.value)}
-                                        required={true}
-                                    >
-                                        <option value="">Select Option</option>
-                                        {ahuData.additionalSpecifications.purgeWall.map((v: string) => (<option key={v} value={v}>{v}</option>))}
-                                    </select>
-                                </div>
-
-                                <div className={s.field}>
-                                    <label className={s.label}>
-                                        Pipe Configuration <span className={s.required}>*</span>
-                                        <Tooltip id="pipeConfiguration" content={constants.Tooltip.pipeConfigurationTooltip} />
-                                    </label>
-                                    <select
-                                        className={s.select}
-                                        value={pipeConfiguration}
-                                        onChange={(e) => handleChange("pipeConfiguration", e.target.value)}
-                                        required={true}
-                                    >
-                                        <option value="">Select Option</option>
-                                        {(system === "Air Cooling and Air Heating System"
-                                            ? ahuData.additionalSpecifications.pipeConfiguration
-                                            : ["Single Pipe"]
-                                        ).map((v: string) => (<option key={v} value={v}>{v}</option>))}
-                                    </select>
-                                </div>
-
-                                <div className={s.field}>
-                                    <label className={s.label}>
-                                        Treated fresh-air unit <span className={s.required}>*</span>
-                                        <Tooltip id="treatedFreshAir" content={constants.Tooltip.treatedFreshAirTooltip} />
-                                    </label>
-                                    <select
-                                        className={s.select}
-                                        value={treatedFreshAirUnit}
-                                        onChange={(e) => handleChange("treatedFreshAirUnit", e.target.value)}
-                                        required={true}
-                                    >
-                                        <option value="">Select Option</option>
-                                        {ahuData.additionalSpecifications.treatedFreshAirUnit.map((v: string) => (<option key={v} value={v}>{v}</option>))}
-                                    </select>
-                                </div>
-
-                                {/* Original Flow Velocity Logic*/}
-                                {isHeatingCooling ? (
-                                    <>
-                                        <div className={s.flowBlock + " md:col-span-2"}>
-                                            <div className={s.dualFlowTitle}>
-                                                Heating Flow Velocity - {formatMediumLabel(heatingMethod)} <span className={s.required}>*</span>
-                                            </div>
-                                            <div className={s.dualFlowRow}>
-                                                <div className={s.dualFlowMin}>{heatingFlowRange.min}</div>
-                                                <input
-                                                    type="range"
-                                                    className={s.dualFlowSlider}
-                                                    min={heatingFlowRange.min}
-                                                    max={heatingFlowRange.max}
-                                                    step={0.1}
-                                                    value={heatingFlowVelocity}
-                                                    onChange={(e) => handleChange("heatingFlowVelocity", clamp(Number(e.target.value), heatingFlowRange.min, heatingFlowRange.max))}
-                                                />
-                                                <div className={s.dualFlowMax}>{heatingFlowRange.max}</div>
-                                                <input
-                                                    className={s.dualFlowValueBox}
-                                                    inputMode="decimal"
-                                                    value={heatingFlowVelocity}
-                                                    required={true}
-                                                    onChange={(e) => {
-                                                        const v = e.target.value;
-                                                        if (v === "" || isNumericLike(v)) {
-                                                            const n = Number(v);
-                                                            if (!isNaN(n)) handleChange("heatingFlowVelocity", clamp(n, heatingFlowRange.min, heatingFlowRange.max));
-                                                        }
-                                                    }}
-                                                />
-                                                <div className={s.dualFlowUnit}>m/s</div>
-                                            </div>
-                                        </div>
-                                        <div className={s.flowBlock + " md:col-span-2"}>
-                                            <div className={s.dualFlowTitle}>
-                                                Cooling Flow Velocity - {formatMediumLabel(coolingMethod)} <span className={s.required}>*</span>
-                                            </div>
-                                            <div className={s.dualFlowRow}>
-                                                <div className={s.dualFlowMin}>{coolingFlowRange.min}</div>
-                                                <input
-                                                    type="range"
-                                                    className={s.dualFlowSlider}
-                                                    min={coolingFlowRange.min}
-                                                    max={coolingFlowRange.max}
-                                                    step={0.1}
-                                                    value={coolingFlowVelocity}
-                                                    onChange={(e) => handleChange("coolingFlowVelocity", clamp(Number(e.target.value), coolingFlowRange.min, coolingFlowRange.max))}
-                                                />
-                                                <div className={s.dualFlowMax}>{coolingFlowRange.max}</div>
-                                                <input
-                                                    className={s.dualFlowValueBox}
-                                                    inputMode="decimal"
-                                                    value={coolingFlowVelocity}
-                                                    required={true}
-                                                    onChange={(e) => {
-                                                        const v = e.target.value;
-                                                        if (v === "" || isNumericLike(v)) {
-                                                            const n = Number(v);
-                                                            if (!isNaN(n)) handleChange("coolingFlowVelocity", clamp(n, coolingFlowRange.min, coolingFlowRange.max));
-                                                        }
-                                                    }}
-                                                />
-                                                <div className={s.dualFlowUnit}>m/s</div>
-                                            </div>
-                                        </div>
-                                    </>
-                                ) : (
-                                    (isHeating || isCooling) && (
-                                        <div className={s.flowBlock + " md:col-span-2"}>
-                                            <div className={s.dualFlowTitle}>
-                                                Flow Velocity - {formatMediumLabel(flowMedium)} <span className={s.required}>*</span>
-                                            </div>
-                                            <div className={s.dualFlowRow}>
-                                                <div className={s.dualFlowMin}>{flowRange.min}</div>
-                                                <input
-                                                    type="range"
-                                                    className={s.dualFlowSlider}
-                                                    min={flowRange.min}
-                                                    max={flowRange.max}
-                                                    step={0.1}
-                                                    value={flowVelocity}
-                                                    onChange={(e) => handleChange("flowVelocity", clamp(Number(e.target.value), flowRange.min, flowRange.max))}
-                                                />
-                                                <div className={s.dualFlowMax}>{flowRange.max}</div>
-                                                <input
-                                                    className={s.dualFlowValueBox}
-                                                    inputMode="decimal"
-                                                    value={flowVelocity}
-                                                    required={true}
-                                                    onChange={(e) => {
-                                                        const v = e.target.value;
-                                                        if (v === "" || isNumericLike(v)) {
-                                                            const n = Number(v);
-                                                            if (!isNaN(n)) handleChange("flowVelocity", clamp(n, flowRange.min, flowRange.max));
-                                                        }
-                                                    }}
-                                                />
-                                                <div className={s.dualFlowUnit}>m/s</div>
-                                            </div>
-                                        </div>
-                                    )
-                                )}
-                            </div>
-                        </>
-                    )}
                 </div>
             </div>
 
             {/* Card 4: Filtration Details */}
-            < div className={s.card} >
+            < div className={`${s.card} ${!isPlantRoomDistanceValid ? "opacity-50 pointer-events-none select-none transition-opacity duration-300" : "transition-opacity duration-300"}`} >
                 <div className={s.cardHeader}>
                     <div className={s.cardHeaderTitle}>Filtration Details</div>
                 </div>
@@ -690,7 +718,13 @@ const AHUFiltration = () => {
                                             name="filterTypeSelection"
                                             value={v}
                                             checked={filterTypeSelection === v}
-                                            onChange={(e) => handleChange("filterTypeSelection", e.target.value)}
+                                            onChange={(e) => {
+                                                if (filterTypeSelection !== e.target.value) {
+                                                    handleChange("filterTypeSelection", e.target.value);
+                                                    handleChange("selectedFilters", []);
+                                                    handleChange("selectedFilterDetails", {});
+                                                }
+                                            }}
                                             className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded-full"
                                         />
                                         <span className="text-gray-700 font-medium">{v}</span>
@@ -721,7 +755,7 @@ const AHUFiltration = () => {
                         </div>
                     )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-8">
+                    <div className={`grid grid-cols-1 md:grid-cols-2 gap-10 mt-8 ${!filterTypeSelection ? 'opacity-50 pointer-events-none select-none transition-opacity duration-300' : 'transition-opacity duration-300'}`}>
                         {/* Split filters into two independent vertical columns */}
                         {[0, 1].map((colIndex) => {
                             const currentFilters = filterTypeSelection === "Exhaust"
@@ -787,12 +821,15 @@ const AHUFiltration = () => {
 
                             {/* Additional Pressure Drop */}
                             <div className={s.field}>
-                                <label className={s.label}>Include any additional pressure drop allowance</label>
+                                <label className={s.label}>Include any additional pressure drop allowance <span className={s.required}>*</span></label>
                                 <select
                                     className={s.select + " py-4"}
                                     value={additionalDpValue}
-                                    onChange={(e) => handleChange("additionalDpValue", Number(e.target.value))}
+                                    onChange={(e) => handleChange("additionalDpValue", e.target.value === "" ? "" : Number(e.target.value))}
+                                    required={true}
                                 >
+                                    <option value="" disabled>Select Option</option>
+                                    <option value={0}>None</option>
                                     {additionalDpOptions.map((mmwg) => {
                                         const pa = Math.round(mmwg * MM_WG_TO_PA);
                                         return (
@@ -823,6 +860,26 @@ const AHUFiltration = () => {
                     </div>
                 </div>
             </div >
+
+            {/* Custom Distance Validation Modal */}
+            {showDistanceModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity">
+                    <div className="bg-white rounded-lg shadow-xl p-6 w-11/12 max-w-sm transform transition-all">
+                        <div className="text-slate-800 font-bold text-lg mb-2">Invalid Distance</div>
+                        <div className="text-slate-600 mb-6 text-sm">
+                            Plant room distance needs to be between 30 and 100 meters.
+                        </div>
+                        <div className="flex justify-end">
+                            <button
+                                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded transition-colors text-sm"
+                                onClick={() => setShowDistanceModal(false)}
+                            >
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };

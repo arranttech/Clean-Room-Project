@@ -169,4 +169,41 @@ export const projectRoute: ServerRoute[] = [
 			}
 		},
 	},
+
+	// =========================
+	// PATCH /v1/projectinfo/{projectId}/status
+	// =========================
+	{
+		method: "PATCH",
+		path: "/v1/projectinfo/{projectId}/status",
+		options: {
+			description: "Update project status",
+			tags: ["api", "project"],
+			validate: {
+				params: Joi.object({
+					projectId: Joi.number().integer().required(),
+				}),
+				payload: Joi.object({
+					status: Joi.string().valid("completed", "in-progress", "draft").required(),
+				}),
+			},
+			response: {
+				status: {
+					200: Joi.object({ success: Joi.boolean().required() }),
+					500: errorSchema,
+				},
+			},
+		},
+		handler: async (request, h) => {
+			try {
+				const { projectId } = request.params as any;
+				const { status } = request.payload as any;
+				await projectRepository.updateProjectStatus(parseInt(projectId), status);
+				return h.response({ success: true }).code(200);
+			} catch (err) {
+				console.error("PROJECT STATUS UPDATE ERROR:", err);
+				return h.response({ error: "Internal Server Error" }).code(500);
+			}
+		},
+	},
 ];

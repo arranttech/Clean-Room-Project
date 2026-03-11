@@ -664,9 +664,6 @@ export default function Standard() {
         minTempC,
         rhMin,
         rhMax,
-        flowVelocity,
-        heatingFlowVelocity,
-        coolingFlowVelocity,
       };
 
       if (finalProjectStandardId) {

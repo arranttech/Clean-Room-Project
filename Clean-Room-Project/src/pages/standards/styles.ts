@@ -45,11 +45,11 @@ const standardDesign = {
 	range: "mt-1 text-xs text-slate-600",
 	rangeValue: "font-semibold text-blue-600",
 	quickView: "mt-8 text-sm text-slate-700",
-	footer: "flex justify-between items-center max-w-auto mt-10 mx-auto",
+	footer: "flex items-center justify-between w-full max-w-auto mt-8 align-middle",
 	backLink:
-		"inline-flex items-center gap-3 border border-gray-300 px-4 py-2 rounded-lg hover:bg-gray-100 shadow-lg",
+		"inline-flex items-center gap-3 border border-gray-300 px-5 py-2.5 rounded-xl hover:bg-gray-50 shadow-sm text-gray-600 text-sm font-medium transition-all",
 	nextLink:
-		"inline-flex items-center gap-3 bg-blue-800 text-white px-6 py-2 rounded-lg hover:bg-blue-900 shadow-lg",
+		"inline-flex items-center gap-3 bg-blue-700 text-white px-7 py-2.5 rounded-xl hover:bg-blue-800 shadow-md text-sm font-semibold transition-all",
 
 	unitRow: "mt-6 flex flex-wrap items-center gap-4",
 	unitLabel: "text-sm font-semibold text-slate-700",
@@ -60,7 +60,7 @@ const standardDesign = {
 	unitRadio: "h-4 w-4 accent-blue-600",
 	unitHint: "text-xs text-slate-500",
 	tempHelper: "mt-3 text-xs text-slate-500",
-	disabled: "opacity-50 cursor-not-allowed pointer-events-none",
+	disabled: "opacity-40 cursor-not-allowed pointer-events-none",
 
 	flowBlock: "mt-8",
 	flowLabelRow: "flex items-center justify-between",

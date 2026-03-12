@@ -29,34 +29,11 @@ export const userRepository = {
         payload.created_by || "admin",
         payload.updated_by || "admin",
         payload.user_admin_flag === "Yes" ? "Y" : "N",
-        null,
+        payload.customer_id || null,
         payload.status || "A",
       ]
     );
-
-    const userLoginId = (result as any).insertId;
-
-    const customerIdsFromArray = Array.isArray(payload.customer_ids)
-      ? payload.customer_ids
-      : [];
-    const customerIds = [
-      ...new Set(
-        [...customerIdsFromArray, payload.customer_id]
-          .map((id) => Number(id))
-          .filter((id) => Number.isFinite(id) && id > 0)
-      ),
-    ];
-
-    if (customerIds.length > 0) {
-      const placeholders = customerIds.map(() => "(?, ?)").join(", ");
-      const values = customerIds.flatMap((customerId) => [customerId, userLoginId]);
-      await database.execute(
-        `INSERT INTO tCustomerUsers (customer_id, user_id) VALUES ${placeholders}`,
-        values
-      );
-    }
-
-    return userLoginId;
+    return (result as any).insertId;
   },
 
   updateUser: async (user_login_id: number, payload: any) => {
@@ -84,32 +61,6 @@ export const userRepository = {
         user_login_id,
       ]
     );
-
-    const customerIdsFromArray = Array.isArray(payload.customer_ids)
-      ? payload.customer_ids
-      : [];
-    const customerIds = [
-      ...new Set(
-        [...customerIdsFromArray, payload.customer_id]
-          .map((id) => Number(id))
-          .filter((id) => Number.isFinite(id) && id > 0)
-      ),
-    ];
-
-    if (Array.isArray(payload.customer_ids) || payload.customer_id !== undefined) {
-      await database.execute("DELETE FROM tCustomerUsers WHERE user_id = ?", [
-        user_login_id,
-      ]);
-
-      if (customerIds.length > 0) {
-        const placeholders = customerIds.map(() => "(?, ?)").join(", ");
-        const values = customerIds.flatMap((customerId) => [customerId, user_login_id]);
-        await database.execute(
-          `INSERT INTO tCustomerUsers (customer_id, user_id) VALUES ${placeholders}`,
-          values
-        );
-      }
-    }
   },
 
   getUserById: async (user_login_id: number) => {
@@ -141,15 +92,7 @@ export const userRepository = {
     if (!rows || rows.length === 0) {
       return { success: false, message: "User not found" };
     }
-
-    const [customerRows]: any = await database.execute(
-      `SELECT customer_id FROM tCustomerUsers WHERE user_id = ?`,
-      [user_login_id]
-    );
-
-    const customer_ids = (customerRows || []).map((row: any) => row.customer_id);
-
-    return { success: true, user: { ...rows[0], customer_ids } };
+    return { success: true, user: rows[0] };
   },
 
   getUsers: async () => {

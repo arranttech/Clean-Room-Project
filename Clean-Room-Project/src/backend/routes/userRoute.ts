@@ -60,7 +60,6 @@ export const userRoute: ServerRoute[] = [
             .optional()
             .default("No"),
           customer_id: Joi.number().integer().optional().allow(null),
-          customer_ids: Joi.array().items(Joi.number().integer().positive()).optional(),
           password: Joi.string().optional().allow("", null),
           status: Joi.string().valid("A", "I").optional().default("A"),
         }).required(),
@@ -109,7 +108,6 @@ export const userRoute: ServerRoute[] = [
           updated_by: Joi.string().optional().default("admin"),
           user_id: Joi.string().optional().allow("", null),
           customer_id: Joi.number().optional().allow(null, 0),
-          customer_ids: Joi.array().items(Joi.number().integer().positive()).optional(),
           created_by: Joi.string().optional().allow("", null),
           password: Joi.string().optional().allow("", null),
           status: Joi.string().valid("A", "I").optional().default("A"),

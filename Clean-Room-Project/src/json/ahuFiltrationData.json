@@ -131,10 +131,10 @@
             "Bio-safety"
         ],
         "specialExhaustFilters": [
+            "Pre-HEPA Super fine filter",
+            "Fine pre-filter",
             "Coarse-to-medium filter",
-            "Fresh Air filter",
-            "Exhaust Air filter",
-            "Terminal filters - Exhaust"
+            "Leagcy (H13 - 2) filter"
         ]
     },
     "filterSpecs": {

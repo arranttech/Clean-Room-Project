@@ -51,7 +51,7 @@ const standardDesign = {
 	nextLink:
 		"inline-flex items-center gap-3 bg-blue-700 text-white px-7 py-2.5 rounded-xl hover:bg-blue-800 shadow-md text-sm font-semibold transition-all",
 
-	unitRow: "mt-6 flex flex-wrap items-center gap-4",
+	unitRow: "flex flex-wrap items-center gap-4",
 	unitLabel: "text-sm font-semibold text-slate-700",
 	unitGroup: "flex items-center gap-3",
 	unitOption:

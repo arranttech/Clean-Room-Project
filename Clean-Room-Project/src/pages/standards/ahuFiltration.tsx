@@ -18,6 +18,7 @@ const FilterDetailCard = ({
     data: any;
     onUpdate: (details: any) => void;
 }) => {
+    // mmWG TO PA conversion factor
     const s = standardDesign;
     const MM_WG_TO_PA = 9.8;
 
@@ -43,8 +44,8 @@ const FilterDetailCard = ({
         return `${mmwg} mmWG / ${pa} Pa`;
     };
 
-    const currentInitMmwg = data?.initialDp !== undefined ? data.initialDp / MM_WG_TO_PA : specs.initRange[0];
-    const currentFinalMmwg = data?.finalDp !== undefined ? data.finalDp / MM_WG_TO_PA : specs.finalRange[1];
+    const currentInitMmwg = data?.initialDp !== undefined ? Math.round(data.initialDp / MM_WG_TO_PA * 10) / 10 : specs.initRange[0];
+    const currentFinalMmwg = data?.finalDp !== undefined ? Math.round(data.finalDp / MM_WG_TO_PA * 10) / 10 : specs.finalRange[1];
 
     return (
         <div className={s.filterCard + " mt-3"}>
@@ -147,7 +148,7 @@ const AHUFiltration = () => {
 
     const handling = useAppSelector((state: any) => state.projectInfo?.handling || []);
     const specialHandlingOptions = ahuData.filtrationSelection.specialHandlingOptions;
-    const hasSpecialHandling = handling.length > 0 && handling.every((h: string) => specialHandlingOptions.includes(h)); // Check if all handling options are special handling options
+    const hasSpecialHandling = handling.length > 0 && handling.some((h: string) => specialHandlingOptions.includes(h)); // true if any selected handling matches special handling criteria
 
     const systems = (standardDataJson as any).text.options.systems;
     const isHeating = [systems.heating, systems.heatingVentilation, systems.heatingCooling].includes(system);
@@ -164,12 +165,12 @@ const AHUFiltration = () => {
     const filterDpSumMmWg = Object.entries(selectedFilterDetails)
         .filter(([name]) => selectedFilters.includes(name))
         .reduce((acc: number, [_, curr]: [string, any]) => acc + ((curr.finalDp || 0) / MM_WG_TO_PA), 0);
-
+    //  formula to calculate static pressure: Static Pressure (mmWG) = (Plant Room Distance (m) * 0.7) + Sum of Filter Δp (mmWG) + Additional Δp (mmWG)
     const staticPressureMmWg = (Number(plantRoomDistance) * 0.7) + filterDpSumMmWg + (Number(additionalDpValue) || 0);
     const staticPressurePa = Math.round(staticPressureMmWg * MM_WG_TO_PA);
     const staticPressureDisplay = `${Math.round(staticPressureMmWg)} mmWG / ${staticPressurePa} Pa`;
 
-    const additionalDpOptions = Array.from({ length: 6 }, (_, i) => i + 5); // 5 to 10 mmWG
+    const additionalDpOptions = Array.from({ length: 6 }, (_, i) => i + 5); // addional dp only ranges from 5 to 10 mmWG
 
     const handleFilterToggle = (filter: string) => {
         const currentSelected = [...(selectedFilters || [])];
@@ -188,7 +189,7 @@ const AHUFiltration = () => {
                         details: {
                             unit: "Pa",
                             initialDp: specs.initRange[0] * MM_WG_TO_PA,
-                            finalDp: specs.finalRange[1] * MM_WG_TO_PA
+                            finalDp: Math.max(...specs.finalRange) * MM_WG_TO_PA
                         }
                     }));
                 }
@@ -230,6 +231,42 @@ const AHUFiltration = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [flowMedium, heatingMethod, coolingMethod]);
 
+    // Auto-select special exhaust filters when hasSpecialHandling and Exhaust mode is active
+    useEffect(() => {
+        if (filterTypeSelection === "Exhaust" && hasSpecialHandling) {
+            const specialFilters = ahuData.filtrationSelection.specialExhaustFilters;
+            const currentSelected = [...(selectedFilters || [])];
+            let changed = false;
+
+            specialFilters.forEach(filter => {
+                if (!currentSelected.includes(filter)) {
+                    currentSelected.push(filter);
+                    changed = true;
+
+                    // Initialize filter detail when auto-selecting the special filters
+                    if (!selectedFilterDetails[filter]) {
+                        const specs = (ahuData.filterSpecs as any)[filter];
+                        if (specs) {
+                            const MM_WG_TO_PA = 9.8;
+                            dispatch(updateFilterDetail({
+                                filterName: filter,
+                                details: {
+                                    unit: "Pa",
+                                    initialDp: specs.initRange[0] * MM_WG_TO_PA,
+                                    finalDp: Math.max(...specs.finalRange) * MM_WG_TO_PA
+                                }
+                            }));
+                        }
+                    }
+                }
+            });
+
+            if (changed) {
+                handleChange("selectedFilters", currentSelected);
+            }
+        }
+    }, [filterTypeSelection, hasSpecialHandling]);
+
 
 
     return (
@@ -266,11 +303,11 @@ const AHUFiltration = () => {
                                             }
                                             if (!/^\d*$/.test(raw)) return;
                                             const val = parseInt(raw, 10);
-                                            if (val > 100) return;
+                                            if (val > 100) return; // input max is 100
                                             handleChange("plantRoomDistance", val);
                                         }}
                                         onKeyDown={(e) => {
-                                            if (["-", "+", "e", "E", "."].includes(e.key)) {
+                                            if (["-", "+", "e", "E", "."].includes(e.key)) { //not allowing non-numeric characters and decimal point
                                                 e.preventDefault();
                                             }
                                         }}
@@ -752,11 +789,20 @@ const AHUFiltration = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-8 transition-opacity duration-300">
                         {/* Split filters into two independent vertical columns */}
                         {[0, 1].map((colIndex) => {
-                            const currentFilters = filterTypeSelection === "Exhaust"
-                                ? (hasSpecialHandling
-                                    ? ahuData.filtrationSelection.specialExhaustFilters
-                                    : ahuData.filtrationSelection.exhaustFilters)
+                            const baseFilters = filterTypeSelection === "Exhaust"
+                                ? ahuData.filtrationSelection.exhaustFilters
                                 : ahuData.filtrationSelection.supplyFilters;
+                            
+                            const specialExhaustFilters = filterTypeSelection === "Exhaust" && hasSpecialHandling 
+                                ? ahuData.filtrationSelection.specialExhaustFilters 
+                                : [];
+
+                            const currentFilters = (filterTypeSelection === "Exhaust" && hasSpecialHandling)
+                                ? [
+                                    ...specialExhaustFilters,
+                                    ...baseFilters.filter(f => !specialExhaustFilters.includes(f))
+                                  ]
+                                : baseFilters;
 
                             return (
                                 <div key={colIndex} className="flex flex-col gap-6">
@@ -764,19 +810,21 @@ const AHUFiltration = () => {
                                         .filter((_, i) => i % 2 === colIndex)
                                         .map((filter) => {
                                             const isSelected = (selectedFilters || []).includes(filter);
+                                            const isPreselectedAndDisabled = specialExhaustFilters.includes(filter);
                                             const specs = (ahuData.filterSpecs as any)[filter];
                                             return (
                                                 <div key={filter} className="flex flex-col">
-                                                    <label className="flex items-center gap-3 cursor-pointer group">
+                                                    <label className={`flex items-center gap-3 ${isPreselectedAndDisabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer group'}`}>
                                                         <div className="relative flex items-center">
                                                             <input
                                                                 type="checkbox"
-                                                                className="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                                                                checked={isSelected}
+                                                                className={`h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 ${isPreselectedAndDisabled ? 'cursor-not-allowed bg-gray-100' : 'cursor-pointer'}`}
+                                                                checked={isSelected || isPreselectedAndDisabled}
+                                                                disabled={isPreselectedAndDisabled}
                                                                 onChange={() => handleFilterToggle(filter)}
                                                             />
                                                         </div>
-                                                        <span className="text-sm font-medium text-slate-700 group-hover:text-blue-600 transition-colors">
+                                                        <span className={`text-sm font-medium ${isPreselectedAndDisabled ? 'text-slate-500' : 'text-slate-700 group-hover:text-blue-600 transition-colors'}`}>
                                                             {filter}
                                                         </span>
                                                     </label>

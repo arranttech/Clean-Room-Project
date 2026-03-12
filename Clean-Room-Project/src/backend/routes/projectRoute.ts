@@ -60,6 +60,7 @@ export const projectRoute: ServerRoute[] = [
         params: Joi.object({ projectId: Joi.number().integer().required() }),
         payload: Joi.object({
           customer_id: Joi.number().integer().optional(),
+          user_login_id: Joi.number().integer().optional(),
           uniqueId: Joi.string().optional().allow("", null),
           projectName: Joi.string().required(),
           unitBranch: Joi.string().optional().allow("", null),

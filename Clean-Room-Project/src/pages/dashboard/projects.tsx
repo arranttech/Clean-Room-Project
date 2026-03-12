@@ -112,13 +112,17 @@ export default function AllProjects() {
 
 									{isThreeOrMore && (
 										<div className="flex items-center gap-3">
-											<button
+											{/* <button
 												type="button"
 												className={s.primaryBtn}
 												onClick={() => onViewDetails(p)}
-											>
+											> */}
+											{/* <Link to={`/projectListInfo/${p.id}`} className={s.primaryBtn}> */}
+											<Link to="/projectListInfo" className={s.primaryBtn}>
 												<FaEye /> {text.projects.buttons.viewDetails}
-											</button>
+											</Link>
+											{/* </button> */}
+
 										</div>
 									)}
 								</div>

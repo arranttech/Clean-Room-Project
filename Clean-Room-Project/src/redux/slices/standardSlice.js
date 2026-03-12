@@ -49,6 +49,8 @@ const initialState = {
 	selectedFilterDetails: {},
 	exhaustImpactPercentage: "",
 	additionalDpValue: "",
+	totalFiltrationStages: 0,
+	staticPressure: 0,
 };
 
 const standardsSlice = createSlice({

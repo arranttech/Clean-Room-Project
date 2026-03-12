@@ -16,7 +16,8 @@ import Main from "./pages/admin/adminLayout";
 import { refreshSession } from "./backend/controller/authContoller";
 import { clearSessionTimers, scheduleSessionTimers } from "./utils/auth";
 
-const SESSION_WARNING_BEFORE_MS = 60 * 1000;
+const SESSION_WARNING_BEFORE_MS = 110 * 1000;
+const SESSION_WARNING_MINUTES = SESSION_WARNING_BEFORE_MS / (60 * 1000);
 
 // scroll
 function ScrollToTop() {

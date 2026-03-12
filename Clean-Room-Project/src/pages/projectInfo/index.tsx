@@ -66,6 +66,8 @@ function ProjectInfoPage() {
 		if (!unitBranch || errors.branch) return false;
 		if (!projectName || errors.project) return false;
 		if (!selectedLocation && !locationQuery) return false;
+		if(!handling.length) return false;
+		if(!industry.length) return false;
 		return true;
 	})();
 
@@ -309,7 +311,7 @@ function ProjectInfoPage() {
 							ref={industryRef}
 							className={styles.fieldGroup + " w-full relative"}
 						>
-							<label className={styles.label}>Industry / Sector</label>
+							<label className={styles.label}>Industry / Sector  <span className="text-red-600">*</span></label>
 
 							<div
 								onClick={() => setIndustryOpen(!industryOpen)}
@@ -379,7 +381,7 @@ function ProjectInfoPage() {
 							ref={handlingRef}
 							className={styles.fieldGroup + " w-full relative"}
 						>
-							<label className={styles.label}>Handling</label>
+							<label className={styles.label}>Handling  <span className="text-red-600">*</span></label>
 
 							<div
 								onClick={() => setHandlingOpen(!handlingOpen)}

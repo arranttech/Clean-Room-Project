@@ -135,7 +135,7 @@ export default function Results() {
 	const handleGoHome = async () => {
 		try {
 			if (payload.projectId) {
-				await updateProjectStatus(payload.projectId, "completed");
+				await updateProjectStatus(payload.projectId, "COMPLETED");
 			}
 		} catch (err) {
 			console.error("Failed to update project status:", err);

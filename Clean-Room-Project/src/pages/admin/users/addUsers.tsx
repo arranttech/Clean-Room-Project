@@ -7,10 +7,12 @@ import {
   FaEyeSlash,
 } from "react-icons/fa6";
 import s from "./styles";
+import Select, { components } from "react-select";
 import {
   createUsers,
   updateUser,
 } from "../../../backend/controller/userController";
+import { customerDetails } from "../../../backend/controller/customerController";
 import { createUserPassword } from "../../../backend/controller/authContoller";
 
 type AddUserProps = {
@@ -36,6 +38,19 @@ type FormErrors = {
 
 export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
   const isEditMode = !!user;
+
+  const CheckboxOption = (props: any) => (
+    <components.Option {...props}>
+      <input
+        type="checkbox"
+        checked={props.isSelected}
+        readOnly
+        className="mr-2"
+        style={{ accentColor: "#2563eb" }}
+      />
+      <span>{props.label}</span>
+    </components.Option>
+  );
 
   const [form, setForm] = useState({
     user_first_name: "",
@@ -73,6 +88,42 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
       });
     }
   }, [user]);
+
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [selectedCustomers, setSelectedCustomers] = useState<any[]>([]);
+
+  const customerOptions = [
+    { value: "ALL", label: "All" },
+    ...customers.map((c: any) => ({
+      value: c.customer_id,
+      label: `${c.customer_id} - ${c.customer_name || ""}`.trim(),
+    })),
+  ];
+
+  useEffect(() => {
+    const loadCustomers = async () => {
+      try {
+        const result = await customerDetails();
+        setCustomers(result?.customers || []);
+      } catch (err) {
+        console.error("Failed to load customers", err);
+      }
+    };
+
+    loadCustomers();
+  }, []);
+
+  useEffect(() => {
+    if (!form.customer_id || customers.length === 0) return;
+
+    const matched = customerOptions.find(
+      (opt) => String(opt.value) === String(form.customer_id)
+    );
+
+    if (matched) {
+      setSelectedCustomers([matched]);
+    }
+  }, [form.customer_id, customers]);
 
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -128,6 +179,33 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
   const handleChange = (field: string, value: any) =>
     setForm((prev) => ({ ...prev, [field]: value }));
 
+  const handleCustomerSelectChange = (options: any) => {
+    const picked = options || [];
+    const allOption = customerOptions.find((opt) => opt.value === "ALL");
+    const realOptions = customerOptions.filter((opt) => opt.value !== "ALL");
+
+    const hasAll = picked.some((opt: any) => opt.value === "ALL");
+    let nextSelected = picked.filter((opt: any) => opt.value !== "ALL");
+
+    if (hasAll) {
+      nextSelected = realOptions;
+    }
+
+    setSelectedCustomers(nextSelected);
+
+    const firstSelected = nextSelected[0];
+    handleChange("customer_id", firstSelected ? Number(firstSelected.value) : "");
+  };
+
+  useEffect(() => {
+    const firstSelected = selectedCustomers.find((opt: any) => opt.value !== "ALL");
+    if (!firstSelected) return;
+
+    if (String(form.customer_id) !== String(firstSelected.value)) {
+      handleChange("customer_id", Number(firstSelected.value));
+    }
+  }, [selectedCustomers]);
+
   const saveUser = async () => {
     const firstNameErr = validatefirstName(form.user_first_name);
     const lastNameErr = validatelastName(form.user_last_name);
@@ -167,11 +245,21 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
     setSaving(true);
     setSaveError("");
     try {
+      const selectedCustomerIds = selectedCustomers
+        .map((opt: any) => Number(opt.value))
+        .filter((id: number) => Number.isFinite(id) && id > 0);
+
+      const payload = {
+        ...form,
+        customer_ids: selectedCustomerIds,
+        customer_id: selectedCustomerIds[0] ?? null,
+      };
+
       if (isEditMode) {
-        await updateUser(user.user_login_id, { ...form });
+        await updateUser(user.user_login_id, payload);
         console.log("User updated successfully");
       } else {
-        const response = await createUsers({ ...form });
+        const response = await createUsers(payload);
         if (!response?.userId)
           throw new Error("User creation failed — no userId returned");
         await createUserPassword({
@@ -441,17 +529,47 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
             <label className={s.formLabel}>
               Customer ID <span className={s.formRequired}>*</span>
             </label>
-            <input
-              type="number"
-              className={s.formInput}
-              placeholder="Enter Customer ID"
-              value={form.customer_id}
-              disabled={isEditMode}
-              onChange={(e) => {
-                // Accept whatever the user types — no min constraint
-                const val = e.target.value;
-                handleChange("customer_id", val === "" ? "" : Number(val));
+            <Select
+              isMulti
+              closeMenuOnSelect={false}
+              hideSelectedOptions={false}
+              isDisabled={isEditMode}
+              options={customerOptions}
+              value={selectedCustomers}
+              onChange={handleCustomerSelectChange}
+              components={{ Option: CheckboxOption }}
+              styles={{
+                multiValue: (base) => ({
+                  ...base,
+                  backgroundColor: "#ccd2db",
+                }),
+                multiValueLabel: (base) => ({
+                  ...base,
+                  color: "#111827",
+                }),
+                multiValueRemove: (base) => ({
+                  ...base,
+                  color: "#111827",
+                  ":hover": {
+                    backgroundColor: "#ccd2db",
+                    color: "#111827",
+                  },
+                }),
               }}
+              isOptionSelected={(option) => {
+                if (option.value === "ALL") {
+                  const realOptions = customerOptions.filter((opt) => opt.value !== "ALL");
+                  return (
+                    realOptions.length > 0 &&
+                    selectedCustomers.length === realOptions.length
+                  );
+                }
+
+                return selectedCustomers.some(
+                  (selected: any) => String(selected.value) === String(option.value)
+                );
+              }}
+              placeholder="Select Customer IDs"
             />
           </div>
         </div>

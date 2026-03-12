@@ -4,6 +4,7 @@ import Home from "./pages/LandingPage";
 import CustomerInfoPage from "./pages/customerInfo";
 import ProjectInfoPage from "./pages/projectInfo";
 import Dashboard from "./pages/dashboard";
+import ProjectListInfoPage from "./pages/dashboard/projectListInfo";
 import Standard from "./pages/standards";
 import Room from "./pages/rooms";
 import Results from "./pages/results";
@@ -108,6 +109,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/admin" element={<Main />} />
+        <Route path="/projectListInfo" element={<ProjectListInfoPage />} />
 
         {/* protected routes */}
         <Route element={<ProtectedRoute />}>

@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { setCustomer } from "../../redux/slices/customerSlice";
 import { getCustomerById } from "../../backend/controller/customerController";
 import { getUserById } from "../../backend/controller/userController";
+import { getProjectCounts } from "../../backend/controller/projectController";
 import {
 	FaFolderOpen,
 	FaPlus,
@@ -21,61 +22,22 @@ import Header from "../../components/header";
 import { resetProjectInfo } from "../../redux/slices/projectInfoSlice";
 import { setUser } from "../../redux/slices/userSlice";
 
-type Project = {
-	id: string;
-	name: string;
-	createdAt: string;
-	customer: string;
-	location: string;
-	classification: string;
-	totalRooms: number;
-};
 
-const demoProjects: Project[] = [
-	{
-		id: "PRJ-1001",
-		name: "Clean Room Facility - Phase 1",
-		createdAt: "2026-01-14",
-		customer: "Acme Pharma",
-		location: "Austin, TX, US",
-		classification: "ISO Class 7",
-		totalRooms: 8,
-	},
-	{
-		id: "PRJ-1002",
-		name: "R and D Lab Retrofit",
-		createdAt: "2026-01-22",
-		customer: "Nova Biotech",
-		location: "Pune, MH, IN",
-		classification: "ISO Class 8",
-		totalRooms: 5,
-	},
-	{
-		id: "PRJ-1003",
-		name: "Sterile Suite Expansion",
-		createdAt: "2026-01-29",
-		customer: "Zenith Med",
-		location: "Dublin, IE",
-		classification: "ISO Class 7",
-		totalRooms: 11,
-	},
-];
 
 function tmpl(str: string, vars: Record<string, string | number>) {
 	return str.replace(/\{\{(\w+)\}\}/g, (_, k) => String(vars[k] ?? ""));
 }
 
 export default function Dashboard() {
-	const [projects] = useState<Project[]>(demoProjects);
 	const [showProfileAlert, setShowProfileAlert] = useState(false);
 	const [firstName, setFirstName] = useState("User");
+	const [counts, setCounts] = useState({ total: 0, inProgress: 0, completed: 0 });
 
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 
 	const loggedInUser = useAppSelector((state: any) => state.user);
 	const customerId = useAppSelector((state: any) => state.customer.customerId);
-	const counts = { total: projects.length };
 
 	useEffect(() => {
 		if (!loggedInUser?.user_login_id) return;
@@ -90,6 +52,23 @@ export default function Dashboard() {
 			}
 		};
 		fetchUser();
+	}, [loggedInUser?.user_login_id]);
+
+	useEffect(() => {
+		if (!loggedInUser?.user_login_id) return;
+		const fetchCounts = async () => {
+			try {
+				const data = await getProjectCounts(loggedInUser.user_login_id);
+				setCounts({
+					total: data.total ?? 0,
+					inProgress: data.inProgress ?? 0,
+					completed: data.completed ?? 0,
+				});
+			} catch (e) {
+				console.error("Failed to fetch project counts:", e);
+			}
+		};
+		fetchCounts();
 	}, [loggedInUser?.user_login_id]);
 
 	useEffect(() => {
@@ -156,7 +135,7 @@ export default function Dashboard() {
 								<FaLayerGroup className="text-orange-500 text-2xl" />
 							</div>
 							<div>
-								<div className={`${s.metricNumber} text-orange-500`}>4</div>
+								<div className={`${s.metricNumber} text-orange-500`}>{counts.inProgress}</div>
 								<div className={s.metricLabel}>In Progress</div>
 							</div>
 						</div>
@@ -165,7 +144,7 @@ export default function Dashboard() {
 								<FaCheck className="text-green-600 text-2xl" />
 							</div>
 							<div>
-								<div className={`${s.metricNumber} text-green-600`}>8</div>
+								<div className={`${s.metricNumber} text-green-600`}>{counts.completed}</div>
 								<div className={s.metricLabel}>Completed</div>
 							</div>
 						</div>

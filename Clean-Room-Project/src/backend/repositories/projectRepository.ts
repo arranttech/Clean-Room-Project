@@ -74,6 +74,23 @@ export const projectRepository = {
     );
   },
 
+  getProjectCountsByUserId: async (user_login_id: number) => {
+    const [rows]: any = await database.execute(
+      `SELECT
+        COUNT(*) AS total,
+        SUM(CASE WHEN project_status = 'INPROGRESS' THEN 1 ELSE 0 END) AS inProgress,
+        SUM(CASE WHEN project_status = 'COMPLETED' THEN 1 ELSE 0 END) AS completed
+      FROM tProjects
+      WHERE user_login_id = ?`,
+      [user_login_id]
+    );
+    return {
+      total: rows[0]?.total ?? 0,
+      inProgress: rows[0]?.inProgress ?? 0,
+      completed: rows[0]?.completed ?? 0,
+    };
+  },
+
   getCompletedProjectsByUserId: async (user_login_id: number) => {
     const [rows]: any = await database.execute(
       `SELECT

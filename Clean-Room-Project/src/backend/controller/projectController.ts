@@ -16,3 +16,6 @@ export const updateProjectStatus = (projectId: number, status: string) =>
 
 export const getCompletedProjects = (user_login_id: number) =>
   request(`/v1/projects/completed?user_login_id=${user_login_id}`, "GET");
+
+export const getProjectCounts = (user_login_id: number) =>
+  request(`/v1/projects/counts?user_login_id=${user_login_id}`, "GET");

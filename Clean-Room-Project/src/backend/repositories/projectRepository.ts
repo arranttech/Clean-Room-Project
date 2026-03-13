@@ -116,4 +116,57 @@ export const projectRepository = {
     );
     return rows;
   },
+
+  
+  // EXCEL REPO
+  getProjectExportData: async (projectId: number) => {
+    // Project + Customer
+    const [[project]]: any = await database.execute(
+      `SELECT 
+        p.project_id, p.project_unique_id, p.project_name, p.project_status,
+        p.project_unit_branch, p.project_Industry, p.project_Handling,
+        p.project_Location, p.project_max_temp, p.project_min_temp,
+        p.project_relative_min_humid, p.project_relative_max_humid, p.created_at,
+        c.customer_name, c.customer_phone, c.customer_address,
+        c.customer_email_id, c.customers_additional_notes
+      FROM tProjects p
+      INNER JOIN tCustomers c ON c.customer_id = p.customer_id
+      WHERE p.project_id = ?`,
+      [projectId]
+    );
+  
+    // Standards
+    const [standards]: any = await database.execute(
+      `SELECT * FROM tRoomStandards WHERE project_id = ?`,
+      [projectId]
+    );
+  
+    // Zones
+    const [zones]: any = await database.execute(
+      `SELECT zone_id, zone_name FROM tProjectZones WHERE project_id = ?`,
+      [projectId]
+    );
+  
+   // Rooms with Zone name
+const [rooms]: any = await database.execute(
+  `SELECT 
+    z.zone_name,
+    r.project_RoomName, r.room_Length, r.room_Width,
+    r.room_Height, r.room_Occupancy, r.room_Equipment_Load,
+    r.room_Lighting, r.room_Infiltrations, r.room_FreshAir,
+    r.room_ExhaustAir, r.project_ACPH
+  FROM tZoneRooms r
+  INNER JOIN tRoomStandards rs ON rs.project_standard_id = r.project_standard_id
+  INNER JOIN tProjectZones z ON z.zone_id = r.zone_id
+  WHERE rs.project_id = ?`,
+  [projectId]
+);
+    // Results
+    const [results]: any = await database.execute(
+      `SELECT * FROM tProjectResults WHERE project_id = ?`,
+      [projectId]
+    );
+  
+    return { project, standards, zones, rooms, results };
+  },
 };

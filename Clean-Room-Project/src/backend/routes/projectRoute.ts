@@ -152,4 +152,40 @@ export const projectRoute: ServerRoute[] = [
       }
     },
   },
+
+  {
+    method: "GET",
+    path: "/v1/projects/counts",
+    options: {
+      description: "Get project counts (total, in-progress, completed) for a user",
+      tags: ["api", "project"],
+      validate: {
+        query: Joi.object({
+          user_login_id: Joi.number().integer().required(),
+        }),
+      },
+      response: {
+        status: {
+          200: Joi.object({
+            total: Joi.number().required(),
+            inProgress: Joi.number().required(),
+            completed: Joi.number().required(),
+          }),
+          500: errorSchema,
+        },
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const { user_login_id } = request.query as any;
+        const counts = await projectRepository.getProjectCountsByUserId(
+          parseInt(user_login_id, 10)
+        );
+        return h.response(counts).code(200);
+      } catch (err) {
+        console.error("GET PROJECT COUNTS ERROR:", err);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
 ];

@@ -49,7 +49,6 @@ export const projectRoute: ServerRoute[] = [
     },
   },
 
-//update or put project info
   {
     method: "PUT",
     path: "/v1/projectinfo/{projectId}",
@@ -184,6 +183,29 @@ export const projectRoute: ServerRoute[] = [
         return h.response(counts).code(200);
       } catch (err) {
         console.error("GET PROJECT COUNTS ERROR:", err);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
+  // EXCEL EXPORT ROUTE
+  {
+    method: "GET",
+    path: "/v1/projects/{projectId}/export",
+    options: {
+      description: "Get full project data for XLSX export",
+      tags: ["api", "project"],
+      validate: {
+        params: Joi.object({ projectId: Joi.number().integer().required() }),
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const { projectId } = request.params as any;
+        const data = await projectRepository.getProjectExportData(parseInt(projectId));
+        return h.response(data).code(200);
+      } catch (err) {
+        console.error("PROJECT EXPORT ERROR:", err);
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },

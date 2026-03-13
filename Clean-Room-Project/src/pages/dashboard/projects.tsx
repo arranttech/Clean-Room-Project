@@ -2,14 +2,23 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Header from "../../components/header";
 import {
-  FaArrowLeft, FaEye, FaDownload,
-  FaBuilding, FaMapMarkerAlt, FaLayerGroup, FaDoorOpen,
+  FaArrowLeft,
+  FaEye,
+  FaDownload,
+  FaBuilding,
+  FaLayerGroup,
+  FaDoorOpen,
   FaFolderOpen,
 } from "react-icons/fa";
+import { FaLocationDot } from "react-icons/fa6";
 import { useAppSelector } from "../../redux/hooks";
-import { getCompletedProjects } from "../../backend/controller/projectController";
+import {
+  getCompletedProjects,
+  getProjectExportData,
+} from "../../backend/controller/projectController";
 import s from "./styles";
 import text from "../../json/dashboard.json";
+import { downloadProjectXLSX } from "../../utils/exportProject";
 
 type Project = {
   project_id: number;
@@ -30,7 +39,9 @@ type Project = {
 function formatDate(raw: string): string {
   try {
     return new Date(raw).toLocaleDateString("en-US", {
-      year: "numeric", month: "short", day: "numeric",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   } catch {
     return raw;
@@ -48,8 +59,8 @@ function parseJsonArray(raw: string): string {
 
 export default function AllProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const userId = useAppSelector((state: any) => state.user?.user_login_id);
 
@@ -75,26 +86,35 @@ export default function AllProjects() {
       <Header />
       <div className={s.contentWrap}>
         <div className={s.container1}>
-
           {/* Title row */}
           <div className={s.titleRow}>
             <h1 className={s.listTitle}>{text.projects.title}</h1>
             {!loading && projects.length > 0 && (
-              <span className={s.countBadge}>
-                {projects.length} Completed
-              </span>
+              <span className={s.countBadge}>{projects.length} Completed</span>
             )}
           </div>
 
           {/* Loading */}
           {loading && (
             <div className={s.stateWrap}>
-              <svg className="animate-spin h-9 w-9 text-blue-600"
-                fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10"
-                  stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8H4z" />
+              <svg
+                className="animate-spin h-9 w-9 text-blue-600"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                />
               </svg>
               <span className="text-sm text-slate-400">
                 Loading your projects…
@@ -103,9 +123,7 @@ export default function AllProjects() {
           )}
 
           {/* Error */}
-          {!loading && error && (
-            <p className={s.errorText}>{error}</p>
-          )}
+          {!loading && error && <p className={s.errorText}>{error}</p>}
 
           {/* Empty */}
           {!loading && !error && projects.length === 0 && (
@@ -115,8 +133,8 @@ export default function AllProjects() {
               </div>
               <p className={s.stateTitle}>No completed projects yet</p>
               <p className={s.stateDesc}>
-                Completed projects will appear here once they are
-                marked as complete.
+                Completed projects will appear here once they are marked as
+                complete.
               </p>
             </div>
           )}
@@ -126,7 +144,6 @@ export default function AllProjects() {
             <div className={s.cardsList}>
               {projects.map((p) => (
                 <div key={p.project_id} className={s.projectCard}>
-
                   {/* Header */}
                   <div className={s.projectHeaderRow}>
                     <div className={s.cardLeft}>
@@ -146,17 +163,19 @@ export default function AllProjects() {
                       <button
                         type="button"
                         className={s.secondaryBtn}
-                        onClick={() => alert(`Download: ${p.project_unique_id}`)}
+                        onClick={() =>
+                          downloadProjectXLSX(
+                            p.project_id,
+                            p.project_unique_id,
+                            getProjectExportData
+                          )
+                        }
                       >
                         <FaDownload /> Download
                       </button>
-                      <button
-                        type="button"
-                        className={s.primaryBtn}
-                        onClick={() => alert(`View: ${p.project_unique_id}`)}
-                      >
+                      <Link to="/projectListInfo" className={s.primaryBtn}>
                         <FaEye /> View Details
-                      </button>
+                      </Link>
                     </div>
                   </div>
 
@@ -176,7 +195,7 @@ export default function AllProjects() {
                     </div>
 
                     <div className={s.kvWrap}>
-                      <FaMapMarkerAlt className={s.kvIcon} />
+                      <FaLocationDot className={s.kvIcon} />
                       <div className={s.kvBody}>
                         <span className={s.kvLabel}>Location</span>
                         <span className={s.kvValue}>
@@ -205,12 +224,10 @@ export default function AllProjects() {
                       </div>
                     </div>
                   </div>
-
                 </div>
               ))}
             </div>
           )}
-
         </div>
 
         {/* Back button — centered */}
@@ -221,7 +238,6 @@ export default function AllProjects() {
             </button>
           </Link>
         </div>
-
       </div>
     </div>
   );

@@ -1,220 +1,244 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Header from "../../components/header";
 import {
-	FaArrowLeft,
-	FaEye,
-	FaChevronDown,
-	FaBuilding,
-	FaMapMarkerAlt,
-	FaLayerGroup,
-	FaDoorOpen,
+  FaArrowLeft,
+  FaEye,
+  FaDownload,
+  FaBuilding,
+  FaLayerGroup,
+  FaDoorOpen,
+  FaFolderOpen,
 } from "react-icons/fa";
-
+import { FaLocationDot } from "react-icons/fa6";
+import { useAppSelector } from "../../redux/hooks";
+import {
+  getCompletedProjects,
+  getProjectExportData,
+} from "../../backend/controller/projectController";
 import s from "./styles";
 import text from "../../json/dashboard.json";
+import { downloadProjectXLSX } from "../../utils/exportProject";
 
 type Project = {
-	id: string;
-	name: string;
-	createdAt: string;
-	customer: string;
-	location: string;
-	classification: string;
-	totalRooms: number;
-	status: "Active" | "Inactive";
+  project_id: number;
+  project_unique_id: string;
+  project_name: string;
+  project_unit_branch: string;
+  project_Industry: string;
+  project_Handling: string;
+  project_Location: string;
+  project_status: string;
+  created_at: string;
+  customer_name: string;
+  customer_address: string;
+  customer_phone: string;
+  customer_email_id: string;
 };
 
-/* sample data */
-const demoProjects: Project[] = [
-	{
-		id: "PRJ-1001",
-		name: "Clean Room Facility - Phase 1",
-		createdAt: "2026-01-14",
-		customer: "Acme Pharma",
-		location: "Austin, TX, US",
-		classification: "ISO Class 7",
-		totalRooms: 8,
-		status: "Active",
-	},
-	{
-		id: "PRJ-1002",
-		name: "R and D Lab Retrofit",
-		createdAt: "2026-01-22",
-		customer: "Nova Biotech",
-		location: "Pune, MH, IN",
-		classification: "ISO Class 8",
-		totalRooms: 5,
-		status: "Inactive",
-	},
-	{
-		id: "PRJ-1003",
-		name: "Sterile Suite Expansion",
-		createdAt: "2026-01-29",
-		customer: "Zenith Med",
-		location: "Dublin, IE",
-		classification: "ISO Class 7",
-		totalRooms: 11,
-		status: "Inactive",
-	},
-];
+function formatDate(raw: string): string {
+  try {
+    return new Date(raw).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  } catch {
+    return raw;
+  }
+}
 
-function tmpl(str: string, vars: Record<string, string | number>) {
-	return str.replace(/\{\{(\w+)\}\}/g, (_, k) => String(vars[k] ?? ""));
+function parseJsonArray(raw: string): string {
+  try {
+    const arr = JSON.parse(raw) as string[];
+    return Array.isArray(arr) ? arr.join(", ") : raw;
+  } catch {
+    return raw ?? "—";
+  }
 }
 
 export default function AllProjects() {
-	const [projects] = useState<Project[]>(demoProjects);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-	const onViewDetails = (p: Project) => alert(`View Details: ${p.id}`);
-	const onExpand = (p: Project) => alert(`Expand: ${p.id}`);
+  const userId = useAppSelector((state: any) => state.user?.user_login_id);
 
-	const isThreeOrMore = projects.length >= 3;
+  useEffect(() => {
+    if (!userId) return;
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await getCompletedProjects(userId);
+        setProjects(res?.projects ?? []);
+      } catch (err) {
+        console.error("Failed to load completed projects:", err);
+        setError("Failed to load projects. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [userId]);
 
-	return (
-		<div className={s.page}>
-			{/* header */}
-		<Header/>
+  return (
+    <div className={s.page}>
+      <Header />
+      <div className={s.contentWrap}>
+        <div className={s.container1}>
+          {/* Title row */}
+          <div className={s.titleRow}>
+            <h1 className={s.listTitle}>{text.projects.title}</h1>
+            {!loading && projects.length > 0 && (
+              <span className={s.countBadge}>{projects.length} Completed</span>
+            )}
+          </div>
 
-			<div className={s.contentWrap}>
-				<div className={s.container1}>
-					<div className={s.listTopRow}>
-						<div className={s.listTitleWrap}>
-							<div className={s.listTitle}>{text.projects.title}</div>
-						</div>
-					</div>
+          {/* Loading */}
+          {loading && (
+            <div className={s.stateWrap}>
+              <svg
+                className="animate-spin h-9 w-9 text-blue-600"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                />
+              </svg>
+              <span className="text-sm text-slate-400">
+                Loading your projects…
+              </span>
+            </div>
+          )}
 
-					<div className={s.projectsWrap}>
-						{projects.map((p) => (
-							<div key={p.id} className={s.projectCard}>
-								{/* Header Row */}
-								<div className={s.projectHeaderRow}>
-									<div className="flex flex-col gap-2">
-										{/* Title */}
-										<div className="flex items-center gap-3 flex-wrap">
-											<div className={s.projectName}>{p.name}</div>
+          {/* Error */}
+          {!loading && error && <p className={s.errorText}>{error}</p>}
 
-											{p.status === "Active" && (
-												<span className="inline-flex items-center rounded-full bg-green-100 text-green-700 px-3 py-1 text-sm font-semibold">
-													Active
-												</span>
-											)}
-										</div>
+          {/* Empty */}
+          {!loading && !error && projects.length === 0 && (
+            <div className={s.stateWrap}>
+              <div className={s.emptyIconWrap}>
+                <FaFolderOpen className="text-slate-400 text-2xl" />
+              </div>
+              <p className={s.stateTitle}>No completed projects yet</p>
+              <p className={s.stateDesc}>
+                Completed projects will appear here once they are marked as
+                complete.
+              </p>
+            </div>
+          )}
 
-										{/* Meta line */}
-										<div className={s.meta}>
-											{tmpl(text.projects.meta, {
-												id: p.id,
-												date: p.createdAt,
-											})}
-										</div>
-									</div>
+          {/* Cards */}
+          {!loading && !error && projects.length > 0 && (
+            <div className={s.cardsList}>
+              {projects.map((p) => (
+                <div key={p.project_id} className={s.projectCard}>
+                  {/* Header */}
+                  <div className={s.projectHeaderRow}>
+                    <div className={s.cardLeft}>
+                      <div className={s.nameBadgeRow}>
+                        <span className={s.projectName}>{p.project_name}</span>
+                        <span className={s.badgeCompleted}>Completed</span>
+                      </div>
+                      <span className={s.metaId}>
+                        Project ID: {p.project_unique_id}
+                      </span>
+                      <span className={s.metaDate}>
+                        Created: {formatDate(p.created_at)}
+                      </span>
+                    </div>
 
-									{isThreeOrMore && (
-										<div className="flex items-center gap-3">
-											<button
-												type="button"
-												className={s.primaryBtn}
-												onClick={() => onViewDetails(p)}
-											>
-												<FaEye /> {text.projects.buttons.viewDetails}
-											</button>
+                    <div className={s.btnGroup}>
+                      <button
+                        type="button"
+                        className={s.secondaryBtn}
+                        onClick={() =>
+                          downloadProjectXLSX(
+                            p.project_id,
+                            p.project_unique_id,
+                            getProjectExportData
+                          )
+                        }
+                      >
+                        <FaDownload /> Download
+                      </button>
+                      <Link to="/projectListInfo" className={s.primaryBtn}>
+                        <FaEye /> View Details
+                      </Link>
+                    </div>
+                  </div>
 
-											<button
-												type="button"
-												className={s.secondaryBtn}
-												onClick={() => onExpand(p)}
-											>
-												<FaChevronDown /> {text.projects.buttons.expand}
-											</button>
-										</div>
-									)}
-								</div>
+                  {/* Divider */}
+                  <div className={s.divider} />
 
-								{/* Divider line like image */}
-								{isThreeOrMore && (
-									<div className="mt-4 border-t border-slate-200" />
-								)}
+                  {/* Info grid */}
+                  <div className={s.infoGrid}>
+                    <div className={s.kvWrap}>
+                      <FaBuilding className={s.kvIcon} />
+                      <div className={s.kvBody}>
+                        <span className={s.kvLabel}>Customer</span>
+                        <span className={s.kvValue}>
+                          {p.customer_name || "—"}
+                        </span>
+                      </div>
+                    </div>
 
-								{/* Info grid */}
-								<div className={s.infoGrid}>
-									{/* Customer */}
-									<div className={s.kv}>
-										<div className={s.k}>
-											<span className="flex items-center gap-2">
-												<FaBuilding className="text-blue-600" />
-												{text.projects.labels.customer}
-											</span>
-										</div>
-										<div className={s.v}>{p.customer}</div>
-									</div>
+                    <div className={s.kvWrap}>
+                      <FaLocationDot className={s.kvIcon} />
+                      <div className={s.kvBody}>
+                        <span className={s.kvLabel}>Location</span>
+                        <span className={s.kvValue}>
+                          {p.project_Location || "—"}
+                        </span>
+                      </div>
+                    </div>
 
-									{/* Location */}
-									<div className={s.kv}>
-										<div className={s.k}>
-											<span className="flex items-center gap-2">
-												<FaMapMarkerAlt className="text-blue-600" />
-												{text.projects.labels.location}
-											</span>
-										</div>
-										<div className={s.v}>{p.location}</div>
-									</div>
+                    <div className={s.kvWrap}>
+                      <FaLayerGroup className={s.kvIcon} />
+                      <div className={s.kvBody}>
+                        <span className={s.kvLabel}>Industry</span>
+                        <span className={s.kvValue}>
+                          {parseJsonArray(p.project_Industry) || "—"}
+                        </span>
+                      </div>
+                    </div>
 
-									{/* Classification */}
-									<div className={s.kv}>
-										<div className={s.k}>
-											<span className="flex items-center gap-2">
-												<FaLayerGroup className="text-blue-600" />
-												{text.projects.labels.classification}
-											</span>
-										</div>
-										<div className={s.v}>{p.classification}</div>
-									</div>
+                    <div className={s.kvWrap}>
+                      <FaDoorOpen className={s.kvIcon} />
+                      <div className={s.kvBody}>
+                        <span className={s.kvLabel}>Handling</span>
+                        <span className={s.kvValue}>
+                          {parseJsonArray(p.project_Handling) || "—"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-									{/* Total Rooms */}
-									<div className={s.kv}>
-										<div className={s.k}>
-											<span className="flex items-center gap-2">
-												<FaDoorOpen className="text-blue-600" />
-												{text.projects.labels.totalRooms}
-											</span>
-										</div>
-										<div className={s.v}>
-											{isThreeOrMore ? `${p.totalRooms} Rooms` : p.totalRooms}
-										</div>
-									</div>
-								</div>
-
-								{!isThreeOrMore && (
-									<div className={s.cardActions}>
-										<button
-											type="button"
-											className={s.primaryBtn}
-											onClick={() => onViewDetails(p)}
-										>
-											<FaEye /> {text.projects.buttons.viewDetails}
-										</button>
-
-										<button
-											type="button"
-											className={s.secondaryBtn}
-											onClick={() => onExpand(p)}
-										>
-											<FaChevronDown /> {text.projects.buttons.expand}
-										</button>
-									</div>
-								)}
-							</div>
-						))}
-					</div>
-				</div>
-
-				<Link to="/dashboard">
-					<button type="button" className={s.backBtn1}>
-						<FaArrowLeft /> {text.projects.backToDashboard}
-					</button>
-				</Link>
-			</div>
-		</div>
-	);
+        {/* Back button — centered */}
+        <div className="flex justify-center mt-10">
+          <Link to="/dashboard">
+            <button type="button" className={s.backBtn1}>
+              <FaArrowLeft /> {text.projects.backToDashboard}
+            </button>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 }

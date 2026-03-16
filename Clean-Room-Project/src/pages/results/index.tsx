@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import Header from "../../components/header";
 import { CleanProjectDetails } from "../../utils/logout";
+import { updateProjectStatus } from "../../backend/controller/projectController";
 
 // Types
 type RoomForm = {
@@ -33,6 +34,7 @@ type RoomForm = {
 };
 
 type ResultsPayload = {
+	projectId?: number;
 	minTempC?: number | string;
 	maxTempC?: number | string;
 	rhMin?: number | string;
@@ -130,7 +132,14 @@ export default function Results() {
 	}, [rooms]);
 
 	// ─── Handle "Go Back Home" ───
-	const handleGoHome = () => {
+	const handleGoHome = async () => {
+		try {
+			if (payload.projectId) {
+				await updateProjectStatus(payload.projectId, "COMPLETED");
+			}
+		} catch (err) {
+			console.error("Failed to update project status:", err);
+		}
 		CleanProjectDetails(dispatch);
 		navigate("/dashboard");
 	};

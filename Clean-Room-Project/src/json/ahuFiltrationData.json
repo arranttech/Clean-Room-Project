@@ -1,0 +1,363 @@
+{
+    "ahuConstruction": {
+        "panelThicknessProfile": [
+            "25mm Thick Panel & Al. Profile",
+            "45mm Thick Panel & Al. Profile"
+        ],
+        "panelConstruction": [
+            "Panels with both side 24G Precoated GI Sheet",
+            "Panels with One side 24G Precoated GI & Other side Plain GI Sheet"
+        ],
+        "airHandlingConstruction": [
+            "Aluminium Profile VCD for Fresh Air- Supply Air & Return Air",
+            "Normal GI Construction VCD for Fresh Air- Supply Air & Return Air"
+        ],
+        "fireControl": [
+            "Fire Control Damper for Supply Air",
+            "Fire Control Damper for Return Air",
+            "Fire Control Damper for Supply & Return Air",
+            "None"
+        ],
+        "vfd": [
+            "Required",
+            "Not Required"
+        ],
+        "pressureGauge": [
+            "Pressure Guage (0-25mm) for 10 Micr Filter Section",
+            "Pressure Guage (0-25mm) for 5 Micr Filter Section",
+            "Pressure Guage (0-25mm) for 1 Micr Filter Section",
+            "Pressure Guage (0-100 mm) for 0.3 Micr HEPA Filter Section",
+            "Pressure Guages For All 10, 5, 1, & 0.3(HEPA) Micr Filter Sections",
+            "None"
+        ],
+        "virusBurner": [
+            "Required",
+            "Not Required"
+        ],
+        "doorInterlocking": [
+            "Required",
+            "Not Required"
+        ],
+        "bmsMonitoring": [
+            "Required",
+            "Not Required"
+        ],
+        "emsMonitoring": [
+            "Required",
+            "Not Required"
+        ]
+    },
+    "additionalSpecifications": {
+        "humidistat": [
+            "Required",
+            "Not Required"
+        ],
+        "thermostat": [
+            "Required",
+            "Not Required"
+        ],
+        "flowControlValve": [
+            "Required",
+            "Not Required"
+        ],
+        "yStrainer": [
+            "Required",
+            "Not Required"
+        ],
+        "purgeWall": [
+            "Required",
+            "Not Required"
+        ],
+        "pipeConfiguration": [
+            "Single Pipe",
+            "Dual Pipe"
+        ],
+        "treatedFreshAirUnit": [
+            "Required",
+            "Not Required"
+        ]
+    },
+    "filtrationSelection": {
+        "filterType": [
+            "Supply",
+            "Exhaust"
+        ],
+        "supplyFilters": [
+            "ULPA filter (U17 - 1)",
+            "ULPA filter (U17 - 2)",
+            "Leagcy (H13 - 1) filter",
+            "Leagcy (H13 - 2) filter",
+            "Leagcy (H14 - 1) filter",
+            "Leagcy (H14 - 2) filter",
+            "Upper HEPA (H15 - 1) filter",
+            "Upper HEPA (H15 - 2) filter",
+            "EPA (pre-HEPA) filter",
+            "Pre-HEPA Super fine filter",
+            "High Fine filter",
+            "Fine pre-filter",
+            "Coarse-to-medium filter",
+            "Fresh Air filter",
+            "Terminal filters - Supply"
+        ],
+        "exhaustFilters": [
+            "ULPA filter (U17 - 1)",
+            "ULPA filter (U17 - 2)",
+            "Leagcy (H13 - 1) filter",
+            "Leagcy (H13 - 2) filter",
+            "Leagcy (H14 - 1) filter",
+            "Leagcy (H14 - 2) filter",
+            "Upper HEPA (H15 - 1) filter",
+            "Upper HEPA (H15 - 2) filter",
+            "EPA (pre-HEPA) filter",
+            "Pre-HEPA Super fine filter",
+            "High Fine filter",
+            "Fine pre-filter",
+            "Coarse-to-medium filter",
+            "Exhaust Air filter",
+            "Terminal filters - Exhaust"
+        ],
+        "exhaustImpact": [
+            "0-10%",
+            "10-20%",
+            "20-30%",
+            "30-40%",
+            "40-50%"
+        ],
+        "exhaustImpactHint": "Flammable vapors: 0-50% | Contagious: 0-50%",
+        "specialHandlingOptions": [
+            "Contagious",
+            "Hazardous",
+            "Flammable Vapors",
+            "Bio-safety"
+        ],
+        "specialExhaustFilters": [
+            "Pre-HEPA Super fine filter",
+            "Fine pre-filter",
+            "Coarse-to-medium filter",
+            "Leagcy (H13 - 2) filter"
+        ]
+    },
+    "filterSpecs": {
+        "ULPA filter (U17 - 1)": {
+            "rating": "0.12 µm",
+            "depth": "150 mm",
+            "efficiency": "99.999995%",
+            "initRange": [
+                35,
+                50
+            ],
+            "finalRange": [
+                55,
+                70
+            ]
+        },
+        "ULPA filter (U17 - 2)": {
+            "rating": "0.12 µm",
+            "depth": "300 mm",
+            "efficiency": "99.999995%",
+            "initRange": [
+                25,
+                40
+            ],
+            "finalRange": [
+                55,
+                70
+            ]
+        },
+        "Leagcy (H13 - 1) filter": {
+            "rating": "0.3 µm",
+            "depth": "150 mm",
+            "efficiency": "99.97%",
+            "initRange": [
+                20,
+                30
+            ],
+            "finalRange": [
+                40,
+                50
+            ]
+        },
+        "Leagcy (H13 - 2) filter": {
+            "rating": "0.3 µm",
+            "depth": "300 mm",
+            "efficiency": "99.97%",
+            "initRange": [
+                15,
+                25
+            ],
+            "finalRange": [
+                35,
+                45
+            ]
+        },
+        "Leagcy (H14 - 1) filter": {
+            "rating": "0.3 µm",
+            "depth": "150 mm",
+            "efficiency": "99.997%",
+            "initRange": [
+                25,
+                35
+            ],
+            "finalRange": [
+                45,
+                55
+            ]
+        },
+        "Leagcy (H14 - 2) filter": {
+            "rating": "0.3 µm",
+            "depth": "300 mm",
+            "efficiency": "99.997%",
+            "initRange": [
+                18,
+                28
+            ],
+            "finalRange": [
+                40,
+                50
+            ]
+        },
+        "Upper HEPA (H15 - 1) filter": {
+            "rating": "0.3 µm",
+            "depth": "150 mm",
+            "efficiency": "99.9997%",
+            "initRange": [
+                30,
+                40
+            ],
+            "finalRange": [
+                50,
+                60
+            ]
+        },
+        "Upper HEPA (H15 - 2) filter": {
+            "rating": "0.3 µm",
+            "depth": "300 mm",
+            "efficiency": "99.9997%",
+            "initRange": [
+                22,
+                32
+            ],
+            "finalRange": [
+                45,
+                55
+            ]
+        },
+        "EPA (pre-HEPA) filter": {
+            "rating": "0.3 µm",
+            "depth": "300 mm",
+            "efficiency": "95%",
+            "initRange": [
+                10,
+                18
+            ],
+            "finalRange": [
+                25,
+                35
+            ]
+        },
+        "Pre-HEPA Super fine filter": {
+            "rating": "1 µm",
+            "depth": "300 mm",
+            "efficiency": "99.9%",
+            "initRange": [
+                11,
+                14
+            ],
+            "finalRange": [
+                25,
+                30
+            ]
+        },
+        "High Fine filter": {
+            "rating": "3 µm",
+            "depth": "300 mm",
+            "efficiency": "99.5%",
+            "initRange": [
+                9,
+                13
+            ],
+            "finalRange": [
+                25,
+                35
+            ]
+        },
+        "Fine pre-filter": {
+            "rating": "5 µm",
+            "depth": "300 mm",
+            "efficiency": "99%",
+            "initRange": [
+                6,
+                9
+            ],
+            "finalRange": [
+                22,
+                30
+            ]
+        },
+        "Coarse-to-medium filter": {
+            "rating": "10 µm",
+            "depth": "150 mm",
+            "efficiency": "95%",
+            "initRange": [
+                4,
+                7
+            ],
+            "finalRange": [
+                18,
+                25
+            ]
+        },
+        "Fresh Air filter": {
+            "rating": "20 µm (Supply)",
+            "depth": "100 mm",
+            "efficiency": "90%",
+            "initRange": [
+                2.5,
+                4
+            ],
+            "finalRange": [
+                12,
+                18
+            ]
+        },
+        "Exhaust Air filter": {
+            "rating": "20 µm (Exhaust)",
+            "depth": "150 mm",
+            "efficiency": "90%",
+            "initRange": [
+                3,
+                5
+            ],
+            "finalRange": [
+                12,
+                15
+            ]
+        },
+        "Terminal filters - Supply": {
+            "rating": "5 µm (Terminal)",
+            "depth": "50 mm",
+            "efficiency": "99%",
+            "initRange": [
+                6,
+                8
+            ],
+            "finalRange": [
+                18,
+                22
+            ]
+        },
+        "Terminal filters - Exhaust": {
+            "rating": "10 µm (Terminal)",
+            "depth": "50 mm",
+            "efficiency": "99%",
+            "initRange": [
+                4,
+                6
+            ],
+            "finalRange": [
+                13,
+                16
+            ]
+        }
+    }
+}

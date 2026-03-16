@@ -1,10 +1,10 @@
-import { Routes, Route, Navigate, Outlet, useLocation } from "react-router-dom";
-import { useEffect } from "react";
-
+import { Routes, Route, Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
 import Home from "./pages/LandingPage";
 import CustomerInfoPage from "./pages/customerInfo";
 import ProjectInfoPage from "./pages/projectInfo";
 import Dashboard from "./pages/dashboard";
+import ProjectListInfoPage from "./pages/dashboard/projectListInfo";
 import Standard from "./pages/standards";
 import Room from "./pages/rooms";
 import Login from "./pages/login";
@@ -37,6 +37,67 @@ function ProtectedRoute() {
 }
 
 function App() {
+  const navigate = useNavigate();
+  const [showSessionPopup, setShowSessionPopup] = useState(false);
+  const [continuing, setContinuing] = useState(false);
+
+  const onExpire = useCallback(() => {
+    localStorage.removeItem("token");
+    clearSessionTimers();
+    setShowSessionPopup(false);
+    navigate("/login", { replace: true });
+  }, [navigate]);
+
+  const armSessionTimers = useCallback(
+    (token: string) => {
+      scheduleSessionTimers(token, {
+        warnBeforeMs: SESSION_WARNING_BEFORE_MS,
+        onWarn: () => setShowSessionPopup(true),
+        onExpire,
+      });
+    },
+    [onExpire]
+  );
+
+  useEffect(() => {
+    const syncSession = () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        clearSessionTimers();
+        setShowSessionPopup(false);
+        return;
+      }
+      armSessionTimers(token);
+    };
+
+    syncSession();
+    window.addEventListener("auth-token-updated", syncSession);
+
+    return () => {
+      clearSessionTimers();
+      window.removeEventListener("auth-token-updated", syncSession);
+    };
+  }, [armSessionTimers]);
+
+  const handleContinueSession = async () => {
+    try {
+      setContinuing(true);
+      const result = await refreshSession();
+      if (!result?.success || !result?.token) {
+        onExpire();
+        return;
+      }
+
+      localStorage.setItem("token", result.token);
+      window.dispatchEvent(new Event("auth-token-updated"));
+      setShowSessionPopup(false);
+    } catch {
+      onExpire();
+    } finally {
+      setContinuing(false);
+    }
+  };
+
   return (
     <>
       <ScrollToTop />
@@ -49,6 +110,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/admin" element={<Main />} />
+        <Route path="/projectListInfo" element={<ProjectListInfoPage />} />
 
         {/* protected routes */}
         <Route element={<ProtectedRoute />}>
@@ -60,6 +122,29 @@ function App() {
           <Route path="/dynamic-results" element={<DynamicResults />} />
         </Route>
       </Routes>
+
+      {showSessionPopup && (
+        <div className="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white rounded-xl shadow-2xl p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              Session Expiring Soon
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Your session is getting expired. Would you like to continue?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                disabled={continuing}
+                onClick={handleContinueSession}
+                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+              >
+                {continuing ? "Continuing..." : "Continue Session"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

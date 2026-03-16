@@ -19,6 +19,38 @@ const initialState = {
 	coolingFlowVelocity: 1.5,
 	zoneId: null,
 	projectStandardId: null,
+	// Filtration
+	preFilter: "",
+	fineFilter: "",
+	hepaFilter: "",
+	carbonFilter: "",
+	// Construction Specs
+	plantRoomDistance: "",
+	panelThicknessProfile: "",
+	panelConstruction: "",
+	airHandlingConstruction: "",
+	fireControl: "",
+	vfd: "",
+	pressureGauge: "",
+	virusBurner: "",
+	doorInterlocking: "",
+	bmsMonitoring: "",
+	emsMonitoring: "",
+	// Additional Specs (Air-Heating)
+	humidistat: "",
+	thermostat: "",
+	flowControlValve: "",
+	yStrainer: "",
+	purgeWall: "",
+	pipeConfiguration: "",
+	treatedFreshAirUnit: "",
+	filterTypeSelection: "",
+	selectedFilters: [],
+	selectedFilterDetails: {},
+	exhaustImpactPercentage: "",
+	additionalDpValue: "",
+	totalFiltrationStages: 0,
+	staticPressure: 0,
 };
 
 const standardsSlice = createSlice({
@@ -34,6 +66,16 @@ const standardsSlice = createSlice({
 				state[key] = value;
 			});
 		},
+		updateFilterDetail: (state, action) => {
+			const { filterName, details } = action.payload;
+			if (!state.selectedFilterDetails) {
+				state.selectedFilterDetails = {};
+			}
+			state.selectedFilterDetails[filterName] = {
+				...state.selectedFilterDetails[filterName],
+				...details,
+			};
+		},
 		resetStandards: () => initialState,
 	},
 });
@@ -41,6 +83,7 @@ const standardsSlice = createSlice({
 export const {
 	updateStandardsField,
 	updateMultipleStandardsFields,
+	updateFilterDetail,
 	resetStandards,
 } = standardsSlice.actions;
 

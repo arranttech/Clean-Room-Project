@@ -35,6 +35,7 @@ function Login() {
 
 			// Store token only
 			localStorage.setItem("token", response.token);
+			window.dispatchEvent(new Event("auth-token-updated"));
 
 			// Fetch full user details from DB
 			const userRes = await getUserById(response.user.user_login_id);

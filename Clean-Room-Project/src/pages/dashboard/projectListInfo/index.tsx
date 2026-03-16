@@ -1,245 +1,438 @@
-import React from 'react'
-import { Link } from 'react-router-dom';
-import s from './style';
-import { FaArrowLeft} from "react-icons/fa";
-import Header from '../../../components/Header';
+import { useState, useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
+import s from "./style";
+import { FaArrowLeft, FaEye, FaDownload,
+  FaBuilding, FaMapMarkerAlt, FaLayerGroup, FaDoorOpen,
+  FaFolderOpen, } from "react-icons/fa";
+import Header from "../../../components/header";
+import { useAppSelector } from "../../../redux/hooks";
+import { getCompletedProjects } from "../../../backend/controller/projectController";
 
-type InfoItemProps = {
-  label: string;
-  value: string;
-  variant?: "standard" | "room";
+type Room = {
+  project_RoomName: string;
+  room_Length: number;
+  room_Width: number;
+  room_Height: number;
+  room_Occupancy: number;
+  room_Equipment_Load: number;
+  room_Lighting: number;
+  room_FreshAir: number;
+  room_ExhaustAir: number;
 };
 
-const InfoItem: React.FC<InfoItemProps> = ({ label, value, variant="standard" }) => (
-  <div className={variant === "room" ? s.roomCardInfo :s.standardsInfo}>
-    <p className={variant === "room" ? s.roomCardTitle :s.cardInfoTitle}>{label}</p>
-    <p className={variant === "room" ? s.roomCardValue :s.cardInfoValue}>{value}</p>
+type Standard = {
+  project_standard_id: number;
+  project_standard: string;
+  project_classification_name: string;
+  project_ACPH: number;
+  rooms: Room[];
+};
+
+type Project = {
+  project_id: number;
+  project_unique_id: string;
+  project_name: string;
+  project_unit_branch: string;
+  created_at: string;
+  customer_name: string;
+  customer_address: string;
+  customer_phone: string;
+  customer_email_id: string;
+  project_Location: string;
+  project_Industry: string;
+  project_Handling: string;
+  standards: Standard[];
+};
+
+const InfoItem = ({ label, value }: any) => (
+  <div className={s.roomCardInfo}>
+    <p className={s.cardInfoTitle}>{label}</p>
+    <p className={s.cardInfoValue}>{value ?? "—"}</p>
   </div>
 );
 
-type RoomProps = {
-  title: string;
-  roomNo: string;
-  values: { label: string; value: string }[];
-};
+const RoomSection = ({ room, index }: { room: Room; index: number }) => (
 
-const RoomSection: React.FC<RoomProps> = ({ title, roomNo, values }) => (
+
   <div className="bg-gray-100 border rounded-xl p-6 mb-6 shadow-sm">
     <div className="flex justify-between mb-4">
-      <h3 className="text-lg font-semibold">{title}</h3>
-      <span className="text-sm text-gray-500">{roomNo}</span>
+      <h3 className="text-lg font-semibold">{room.project_RoomName}</h3>
+      <span className="text-sm text-gray-500">Room #{index + 1}</span>
     </div>
-    <hr className="my-4 border-gray-300" />
 
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-     
-      {values.map((item, i) => (
-        <InfoItem key={i} label={item.label} value={item.value} variant="room" />
-      ))}
+    <div className=" grid grid-cols-2 md:grid-cols-4 gap-4">
+      <InfoItem label="Length" value={room.room_Length} />
+      <InfoItem label="Width" value={room.room_Width} />
+      <InfoItem label="Height" value={room.room_Height} />
+      <InfoItem label="Occupancy" value={room.room_Occupancy} />
+      <InfoItem label="Equipment Load" value={room.room_Equipment_Load} />
+      <InfoItem label="Lighting" value={room.room_Lighting} />
+      <InfoItem label="Fresh Air" value={room.room_FreshAir} />
+      <InfoItem label="Exhaust Air" value={room.room_ExhaustAir} />
     </div>
   </div>
 );
 
+export default function ProjectListInfo() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [activeTabs, setActiveTabs] = useState<Record<number, number>>({});
+  const userId = useAppSelector((state: any) => state.user?.user_login_id);
 
-function projectListInfo() {
+  function formatDate(raw: string): string {
+    try {
+      return new Date(raw).toLocaleDateString("en-US", {
+        year: "numeric", month: "short", day: "numeric",
+      });
+    } catch {
+      return raw;
+    }
+  }
+
+  function parseJsonArray(raw: string): string {
+    try {
+      const arr = JSON.parse(raw) as string[];
+      return Array.isArray(arr) ? arr.join(", ") : raw;
+    } catch {
+      return raw ?? "—";
+    }
+  }
+
+  const { projectId } = useParams<{ projectId: string }>();
+  if (!projectId) {
+    return <p>No project selected.</p>;
+  }
+
+
+  // Convert to number
+  const projectIdNumber = parseInt(projectId!, 10);
+  if (isNaN(projectIdNumber)) {
+    return <p>Invalid project ID.</p>;
+  }
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const loadProjects = async () => {
+      try {
+        const res = await getCompletedProjects(userId);
+        // const rows = res.projects || [];
+        const rows = res.projects.filter((p: any) => p.project_id === projectIdNumber);
+
+        console.log("========= RAW DATABASE ROWS =========");
+        console.table(rows);
+
+        const projectMap: Record<number, any> = {};
+
+        rows.forEach((row: any, index: number) => {
+
+          console.log(`\n========= PROCESSING ROW ${index} =========`);
+          console.log("Project:", row.project_id);
+          console.log("Standard:", row.project_standard);
+          console.log("Room:", row.project_RoomName);
+
+          // PROJECT
+          if (!projectMap[row.project_id]) {
+
+            console.log("Creating PROJECT:", row.project_id);
+
+            projectMap[row.project_id] = {
+              project_id: row.project_id,
+              project_unique_id: row.project_unique_id,
+              project_name: row.project_name,
+              created_at: row.created_at,
+              customer_name: row.customer_name,
+              project_unit_branch: row.project_unit_branch,
+              customer_address: row.customer_address,
+              customer_phone: row.customer_phone,
+              customer_email_id: row.customer_email_id,
+              project_Location: row.project_Location,
+              project_Industry: row.project_Industry,
+              project_Handling: row.project_Handling,
+              standards: {}
+            };
+          }
+
+          // STANDARD
+          if (!projectMap[row.project_id].standards[row.project_standard_id]) {
+
+            console.log(
+              "Creating STANDARD:",
+              row.project_standard,
+              "(ID:", row.project_standard_id, ")"
+            );
+
+            projectMap[row.project_id].standards[row.project_standard_id] = {
+              project_standard_id: row.project_standard_id,
+              project_standard: row.project_standard,
+              project_classification_name: row.project_classification_name,
+              project_ACPH: row.project_ACPH,
+              rooms: []
+            };
+          }
+
+          const standard =
+            projectMap[row.project_id].standards[row.project_standard_id];
+
+          console.log(
+            "Rooms BEFORE insert:",
+            standard.rooms.map((r: Room) => r.project_RoomName)
+          );
+
+          const exists = standard.rooms.some(
+            (r: Room) => r.project_RoomName === row.project_RoomName
+          );
+
+          if (!exists) {
+
+            console.log(
+              `Adding ROOM '${row.project_RoomName}' to STANDARD '${row.project_standard}'`
+            );
+
+            standard.rooms.push({
+              project_RoomName: row.project_RoomName,
+              room_Length: row.room_Length,
+              room_Width: row.room_Width,
+              room_Height: row.room_Height,
+              room_Occupancy: row.room_Occupancy,
+              room_Equipment_Load: row.room_Equipment_Load,
+              room_Lighting: row.room_Lighting,
+              room_FreshAir: row.room_FreshAir,
+              room_ExhaustAir: row.room_ExhaustAir
+            });
+
+          } else {
+
+            console.log("Room already exists, skipping:", row.project_RoomName);
+
+          }
+
+          console.log(
+            "Rooms AFTER insert:",
+            standard.rooms.map((r: Room) => r.project_RoomName)
+          );
+        });
+
+        const finalProjects: Project[] = Object.values(projectMap).map(
+          (p: any) => ({
+            ...p,
+            standards: Object.values(p.standards)
+          })
+        );
+
+        console.log("\n========= FINAL GROUPED STRUCTURE =========");
+        console.log(JSON.stringify(finalProjects, null, 2));
+
+        setProjects(finalProjects);
+
+        const tabs: Record<number, number> = {};
+        finalProjects.forEach((p) => {
+          tabs[p.project_id] = p.standards[0]?.project_standard_id;
+        });
+
+        setActiveTabs(tabs);
+
+      } catch (err) {
+        console.error("Project load error:", err);
+      }
+    };
+
+    loadProjects();
+  }, [userId]);
+
+  const handleTabClick = (projectId: number, standardId: number) => {
+
+    console.log(
+      "Switching TAB → Project:",
+      projectId,
+      "Standard:",
+      standardId
+    );
+
+    setActiveTabs((prev) => ({
+      ...prev,
+      [projectId]: standardId
+    }));
+  };
+
   return (
     <>
-     <Header />
-      <div className="bg-gray-100 min-h-screen p-10">
+      <Header />
 
-      {/* Back Button */}
-      <Link to="/projects" className={s.backButton}>
-        
-          <FaArrowLeft /> Back to Projects List
-        
-      </Link>
-      
+      {projects.map((p) => {
 
-      {/* Header Card */}
-      <div className={s.projectInfoCard}>
-        <div className={s.sectionHeader}>
-          <h1 className={s.projectTitle}>
-            Tissue Culture Laboratory Setup
-          </h1>
-          <span className={s.projectProgress}>
-            Completed
-          </span>
-        </div>
+        console.log("\nRendering PROJECT:", p.project_name);
+        console.log("Standards:", p.standards);
 
-        <p className={s.projectID}>
-           <span className={s.projectLabel}>Project ID:</span> BIOLAB_RESEARCH_CENTER_009012
-        </p>
-        <p className={s.createdDate}>
-           <span className={s.projectLabel}>Created:</span> Jan 25, 2026
-        </p>
-        <hr />
+        const activeStandard =
+          p.standards.find(
+            (s) => s.project_standard_id === activeTabs[p.project_id]
+          ) || p.standards[0];
 
-        {/* Stats */}
-        <div className={s.projectDetails}>
-           <InfoItem label="Total Rooms" value="3" />
-        
-          
-          <InfoItem label="Classification" value="Grade C" />
-          <InfoItem label="ACPH" value="55" />
-          <InfoItem label="Total Volume" value="417.90 m³" />
-        </div>
-      </div>
+        console.log(
+          "Active STANDARD:",
+          activeStandard?.project_standard,
+          "Rooms:",
+          activeStandard?.rooms.map(r => r.project_RoomName)
+        );
 
-      {/* Customer Information */}
-      <div className={s.customerInfoCard}>
-        <h2 className={s.cardTitle}>
-          Customer Information
-        </h2>
+        return (
+          <div key={p.project_id} className="bg-gray-100 min-h-screen p-10">
 
-        <div className={s.infoGrid}>
+            <Link to="/projects" className={s.backButton}>
+              <FaArrowLeft /> Back to Projects
+            </Link>
 
-          <div>
-            <p className={s.projectLabel}>Customer Name</p>
-            <p className={s.projectValues}>BioLab Research Institute</p>
-          </div>
+            <div className={s.projectInfoCard}>
+              <div className={s.sectionHeader}>
+                <h1 className={s.projectTitle}>{p.project_name}</h1>
+                <span className={s.projectProgress}>
+                  Completed
+                </span>
+              </div>
 
-          <div>
-            <p className={s.projectLabel}>Unit/Branch Name</p>
-            <p className={s.projectValues}>Central Research Wing</p>
-          </div>
 
-          <div>
-            <p className={s.projectLabel}>Address</p>
-            <p className={s.projectValues}>789 Science Drive, Austin, TX 78701</p>
-          </div>
+              <p className={s.projectID}><span className={s.projectLabel}>Project ID:</span> {p.project_unique_id}</p>
+              <p className={s.createdDate}>
+                <span className={s.projectLabel}>Created:</span> {formatDate(p.created_at)}
+              </p>
 
-          <div>
-            <p className={s.projectLabel}>Location</p>
-            <p className={s.projectValues}>Austin, Texas, United States</p>
-          </div>
 
-          <div>
-            <p className={s.projectLabel}>Phone</p>
-            <p className={s.projectValues}>+1 512-555-0300</p>
-          </div>
-
-          <div>
-            <p className={s.projectLabel}>Email</p>
-            <p className={s.projectValues + " text-blue-600"}>admin@biolabresearch.org</p>
-          </div>
-
-          <div>
-            <p className={s.projectLabel}>Industry Sectors</p>
-            <div className="flex gap-2 mt-1">
-              <span className= {s.projectValues + " bg-blue-100 text-blue-700 px-3 py-1 rounded-md text-xs"}>
-                Tissue Culture Laboratory
-              </span>
-              <span className={s.projectValues + " bg-blue-100 text-blue-700 px-3 py-1 rounded-md text-xs"}>
-                Research & Laboratories
-              </span>
             </div>
-          </div>
 
-          <div>
-            <p className={s.projectLabel}>Handling Types</p>
-            <div className="flex gap-2 mt-1">
-              <span className={s.projectValues + " bg-gray-200 px-3 py-1 rounded-md text-xs"}>
-                Contagious
-              </span>
-              <span className={s.projectValues + " bg-gray-200 px-3 py-1 rounded-md text-xs"}>
-                Bio-safety
-              </span>
+            <div className={s.customerInfoCard}>
+              <h2 className={s.cardTitle}>
+                Customer Information
+              </h2>
+
+              <div className={s.infoGrid}>
+
+                <div>
+                  <p className={s.projectLabel}>Customer Name</p>
+                  <p className={s.projectValues}>{p.customer_name || "—"}</p>
+                </div>
+
+                <div>
+                  <p className={s.projectLabel}>Unit/Branch Name</p>
+                  <p className={s.projectValues}>{parseJsonArray(p.project_unit_branch) || "—"}</p>
+                </div>
+
+                <div>
+                  <p className={s.projectLabel}>Address</p>
+                  <p className={s.projectValues}>{p.customer_address || "—"}</p>
+                </div>
+
+                <div>
+                  <p className={s.projectLabel}>Location</p>
+                  <p className={s.projectValues}>{p.project_Location || "—"}</p>
+                </div>
+
+                <div>
+                  <p className={s.projectLabel}>Phone</p>
+                  <p className={s.projectValues}>{p.customer_phone || "—"}</p>
+                </div>
+
+                <div>
+                  <p className={s.projectLabel}>Email</p>
+                  <p className={s.projectValues + " text-blue-600"}>{p.customer_email_id || "—"}</p>
+                </div>
+
+                <div>
+                  <p className={s.projectLabel}>Industry Sectors</p>
+                  <div className="flex gap-2 mt-1">
+                    <span className={s.projectValues + " bg-blue-100 text-blue-700 px-3 py-1 rounded-md text-xs"}>
+                      {parseJsonArray(p.project_Industry) || "—"}
+                    </span>
+
+                  </div>
+                </div>
+
+                <div>
+                  <p className={s.projectLabel}>Handling Types</p>
+                  <div className="flex gap-2 mt-1">
+                    <span className={s.projectValues + " bg-gray-200 px-3 py-1 rounded-md text-xs"}>
+                      {parseJsonArray(p.project_Handling) || "—"}
+                    </span>
+
+                  </div>
+                </div>
+
+              </div>
             </div>
+
+            {/* STANDARD TABS */}
+
+            <div className="flex gap-3 mb-6">
+              {p.standards.map((std, index) => (
+                <button
+                  key={std.project_standard_id}
+                  onClick={() =>
+                    handleTabClick(p.project_id, std.project_standard_id)
+                  }
+                  className={`px-4 py-2 rounded ${activeTabs[p.project_id] === std.project_standard_id
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200"
+                    }`}
+                >
+
+                  {/* {std.project_standard} */}
+                  Zone {index + 1}
+
+                </button>
+
+              ))}
+
+            </div>
+
+            {activeStandard && (<div className={s.customerInfoCard}>
+              <h2 className={s.cardTitle}>
+                Classification Details
+              </h2>
+
+              <div className={s.projectDetails}>
+                <div>
+                  <p className={s.projectLabel}>Standard</p>
+                  <p className={s.projectValues}>{activeStandard.project_standard || "—"}</p>
+                </div>
+
+                <div>
+                  <p className={s.projectLabel}>Class</p>
+                  <p className={s.projectValues}>{activeStandard.project_classification_name || "—"}</p>
+                </div>
+
+                {/* <div>
+              <p className={s.projectLabel}>ACPH Range</p>
+              <p className={s.projectValues}>30 - 60</p>
+            </div> */}
+
+                <div>
+                  <p className={s.projectLabel}>Selected ACPH</p>
+                  <p className={s.projectValues}>{activeStandard.project_ACPH ? activeStandard.project_ACPH.toString() : "__"}</p>
+                </div>
+              </div>
+            </div>)}
+
+            {/* ROOMS */}
+
+            {activeStandard && (
+              <div className={s.customerInfoCard}>
+                <h2 className={s.cardTitle}>
+                  Rooms ({activeStandard.rooms.length})
+                </h2>
+                <div className={s.roomCardInfo}>
+                  <div className={s.roomCardValue}>
+                    {activeStandard.rooms.map((room, i) => (
+                  <RoomSection key={i} room={room} index={i} />
+                ))}
+                  </div>
+                  
+
+                </div>
+                
+              </div>
+            )}
           </div>
-
-        </div>
-      </div>
-
-      {/* Classification */}
-      <div className={s.customerInfoCard}>
-        <h2 className={s.cardTitle}>
-          Classification Details
-        </h2>
-
-        <div className={s.projectDetails}>
-          <div>
-            <p className={s.projectLabel}>Standard</p>
-            <p className={s.projectValues}>EU GMP Annex 1:2022</p>
-          </div>
-
-          <div>
-            <p className={s.projectLabel}>Class</p>
-            <p className={s.projectValues}>Grade C</p>
-          </div>
-
-          <div>
-            <p className={s.projectLabel}>ACPH Range</p>
-            <p className={s.projectValues}>30 - 60</p>
-          </div>
-
-          <div>
-            <p className={s.projectLabel}>Selected ACPH</p>
-            <p className={s.projectValues}>55</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Room Details */}
-      <div className={s.customerInfoCard}>
-        <h2 className={s.cardTitle}>
-          Room Details (3 Rooms)
-        </h2>
-
-        <RoomSection
-          title="Culture Room 1"
-          roomNo="Room #1"
-        
-          values={[
-            { label: "Length", value: "9.0 m" },
-            { label: "Width", value: "7.5 m" },
-            { label: "Height", value: "3.2 m" },
-            { label: "Volume", value: "216.00 m³" },
-            { label: "Occupancy", value: "3" },
-            { label: "Equipment Load", value: "6.5 kW" },
-            { label: "Lighting Load", value: "11.0 W/m²" },
-            { label: "ACPH", value: "55" },
-            { label: "Fresh Air", value: "18%" },
-            { label: "Exhaust Air", value: "300 m³/s" },
-          ]}
-        />
-
-        <RoomSection
-          title="Incubation Zone"
-          roomNo="Room #2"
-          values={[
-            { label: "Length", value: "7.0 m" },
-            { label: "Width", value: "6.0 m" },
-            { label: "Height", value: "3.2 m" },
-            { label: "Volume", value: "134.40 m³" },
-            { label: "Occupancy", value: "2" },
-            { label: "Equipment Load", value: "5.0 kW" },
-            { label: "Lighting Load", value: "10.0 W/m²" },
-            { label: "ACPH", value: "50" },
-            { label: "Fresh Air", value: "15%" },
-            { label: "Exhaust Air", value: "250 m³/s" },
-          ]}
-        />
-
-        <RoomSection
-          title="Sterilization Room"
-          roomNo="Room #3"
-          values={[
-            { label: "Length", value: "5.0 m" },
-            { label: "Width", value: "4.5 m" },
-            { label: "Height", value: "3.0 m" },
-            { label: "Volume", value: "67.50 m³" },
-            { label: "Occupancy", value: "1" },
-            { label: "Equipment Load", value: "3.5 kW" },
-            { label: "Lighting Load", value: "9.0 W/m²" },
-            { label: "ACPH", value: "45" },
-            { label: "Fresh Air", value: "12%" },
-            { label: "Exhaust Air", value: "180 m³/s" },
-          ]}
-        />
-      </div>
-    </div>
+        );
+      })}
     </>
-  )
+  );
 }
-
-export default projectListInfo

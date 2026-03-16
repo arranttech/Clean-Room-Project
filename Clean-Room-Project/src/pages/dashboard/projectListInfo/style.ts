@@ -13,7 +13,7 @@ const projectListIfoStyle = {
     projectDetails:"grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 ",
     standardsInfo: "bg-[rgba(59,130,230,0.1)] px-3 py-3 rounded-md text-[25px] text-center",
     cardInfoTitle: "text-blue-700 text-sm font-medium",
-    cardInfoValue: "font-medium text-[25px] text-blue-700",
+    cardInfoValue: "font-medium text-[25px] text-black-700",
     customerInfoCard: "bg-white border rounded-xl p-6 mb-6 shadow-sm",
     cardTitle: "text-lg font-bold mb-4",
     infoGrid: "grid grid-cols-1 md:grid-cols-2 gap-6 text-sm",

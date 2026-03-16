@@ -31,8 +31,8 @@ export const projectRepository = {
         JSON.stringify(payload.industry || []),
         JSON.stringify(payload.handling || []),
         payload.selectedLocation?.display_name ||
-          payload.selectedLocation ||
-          "",
+        payload.selectedLocation ||
+        "",
         toFloat(payload.maxTemp),
         toFloat(payload.minTemp),
         toFloat(payload.relativeHumidityMin),
@@ -56,8 +56,8 @@ export const projectRepository = {
         JSON.stringify(payload.industry || []),
         JSON.stringify(payload.handling || []),
         payload.selectedLocation?.display_name ||
-          payload.selectedLocation ||
-          "",
+        payload.selectedLocation ||
+        "",
         toFloat(payload.maxTemp),
         toFloat(payload.minTemp),
         toFloat(payload.relativeHumidityMin),
@@ -75,8 +75,9 @@ export const projectRepository = {
   },
 
   getCompletedProjectsByUserId: async (user_login_id: number) => {
-    const [rows]: any = await database.execute(
-      `SELECT
+    try {
+      const [rows]: any = await database.execute(
+        `SELECT
         p.project_id,
         p.project_unique_id,
         p.project_name,
@@ -89,14 +90,36 @@ export const projectRepository = {
         c.customer_name,
         c.customer_address,
         c.customer_phone,
-        c.customer_email_id
+        c.customer_email_id,
+        s.project_standard_id, 
+        s.project_standard,
+s.project_classification_name,
+s.project_ACPH,
+r.project_RoomName,
+r.room_Length,
+r.room_Width,
+r.room_Height,
+r.room_Occupancy,
+r.room_Equipment_Load,
+r.room_Lighting,
+r.room_FreshAir,
+r.room_ExhaustAir
       FROM tProjects p
-      INNER JOIN tCustomers c ON c.customer_id = p.customer_id
+       JOIN tCustomers c ON c.customer_id = p.customer_id
+      JOIN tRoomStandards s ON s.project_id = p.project_id
+ JOIN  tZoneRooms r ON r.project_standard_id = s.project_standard_id
       WHERE p.user_login_id = ?
         AND p.project_status = 'COMPLETED'
+        
       ORDER BY p.created_at DESC`,
-      [user_login_id]
-    );
-    return rows;
+        [user_login_id]
+      );
+      console.log("Repository SQL Result:", JSON.stringify(rows, null, 2));
+      return rows;
+    } catch (err) {
+      console.error("Repository ERROR:", err);
+      throw err;
+    }
+
   },
 };

@@ -109,7 +109,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/admin" element={<Main />} />
-        <Route path="/projectListInfo" element={<ProjectListInfoPage />} />
+        <Route path="/projectListInfo/:projectId" element={<ProjectListInfoPage />} />
 
         {/* protected routes */}
         <Route element={<ProtectedRoute />}>

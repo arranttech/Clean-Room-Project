@@ -64,14 +64,59 @@ export default function AllProjects() {
 
   const userId = useAppSelector((state: any) => state.user?.user_login_id);
 
+  // useEffect(() => {
+  //   if (!userId) return;
+  //   (async () => {
+  //     setLoading(true);
+  //     setError(null);
+  //     try {
+  //       const res = await getCompletedProjects(userId);
+  //       setProjects(res?.projects ?? []);
+  //     } catch (err) {
+  //       console.error("Failed to load completed projects:", err);
+  //       setError("Failed to load projects. Please try again.");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   })();
+  // }, [userId]);
+
   useEffect(() => {
     if (!userId) return;
+
     (async () => {
       setLoading(true);
       setError(null);
       try {
+        // FETCH RAW ROWS FROM BACKEND
         const res = await getCompletedProjects(userId);
-        setProjects(res?.projects ?? []);
+         const projectsRaw = res.projects || [];
+
+        // GROUP BY PROJECT_ID TO REMOVE DUPLICATES
+        const projectMap: Record<number, Project> = {};
+        projectsRaw.forEach((row: any) => {
+          if (!projectMap[row.project_id]) {
+            projectMap[row.project_id] = {
+              project_id: row.project_id,
+              project_unique_id: row.project_unique_id,
+              project_name: row.project_name,
+              project_unit_branch: row.project_unit_branch,
+              project_Industry: row.project_Industry,
+              project_Handling: row.project_Handling,
+              project_Location: row.project_Location,
+              project_status: row.project_status,
+              created_at: row.created_at,
+              customer_name: row.customer_name,
+              customer_address: row.customer_address,
+              customer_phone: row.customer_phone,
+              customer_email_id: row.customer_email_id,
+            };
+          }
+        });
+
+        const uniqueProjects = Object.values(projectMap);
+        setProjects(uniqueProjects);
+
       } catch (err) {
         console.error("Failed to load completed projects:", err);
         setError("Failed to load projects. Please try again.");

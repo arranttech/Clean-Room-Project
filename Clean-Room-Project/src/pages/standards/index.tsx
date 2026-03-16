@@ -95,40 +95,51 @@ export default function Standard() {
   );
   const projectId = location.state?.projectId ?? projectIdFromRedux;
 
-  // These are only used to know if we need to create new records or not
-  const zoneIdFromRedux = useAppSelector(
-    (state: any) => state.standards.zoneId
-  );
-  const projectStandardIdFromRedux = useAppSelector(
-    (state: any) => state.standards.projectStandardId
-  );
-
-  const standard = useAppSelector((state: any) => state.standards.standard);
-  const classification = useAppSelector(
-    (state: any) => state.standards.classification
-  );
-  const acph = useAppSelector((state: any) => state.standards.acph);
-  const system = useAppSelector((state: any) => state.standards.system);
-  const systemType = useAppSelector((state: any) => state.standards.systemType);
-  const heatingMethod = useAppSelector(
-    (state: any) => state.standards.heatingMethod
-  );
-  const coolingMethod = useAppSelector(
-    (state: any) => state.standards.coolingMethod
-  );
-  const tempUnit = useAppSelector((state: any) => state.standards.tempUnit);
-  const reqInsideTempC = useAppSelector(
-    (state: any) => state.standards.reqInsideTempC
-  );
-  const reqInsideTempDisplay = useAppSelector(
-    (state: any) => state.standards.reqInsideTempDisplay
-  );
-  const reqInsideHum = useAppSelector(
-    (state: any) => state.standards.reqInsideHum
-  );
-  const additionalDpValue = useAppSelector(
-    (state: any) => state.standards.additionalDpValue
-  );
+  // Destructure all needed fields from standards slice
+  const {
+    zoneId: zoneIdFromRedux,
+    projectStandardId: projectStandardIdFromRedux,
+    standard,
+    classification,
+    acph,
+    system,
+    systemType,
+    heatingMethod,
+    coolingMethod,
+    tempUnit,
+    reqInsideTempC,
+    reqInsideTempDisplay,
+    reqInsideHum,
+    flowVelocity,
+    heatingFlowVelocity,
+    coolingFlowVelocity,
+    additionalDpValue,
+    plantRoomDistance,
+    panelThicknessProfile,
+    panelConstruction,
+    airHandlingConstruction,
+    fireControl,
+    vfd,
+    pressureGauge,
+    virusBurner,
+    doorInterlocking,
+    bmsMonitoring,
+    emsMonitoring,
+    humidistat,
+    thermostat,
+    flowControlValve,
+    yStrainer,
+    purgeWall,
+    pipeConfiguration,
+    treatedFreshAirUnit,
+    preFilter,
+    fineFilter,
+    hepaFilter,
+    carbonFilter,
+    filterTypeSelection,
+    selectedFilters,
+    selectedFilterDetails,
+  } = useAppSelector((state: any) => state.standards);
 
 
   const minTempC = useAppSelector((state: any) => state.projectInfo.minTemp);
@@ -181,6 +192,11 @@ export default function Standard() {
                 ? String(std.project_required_inside_humid)
                 : "",
               flowVelocity: std.flow_velocity || 1.5,
+              pipeConfiguration: std.pipe_configuration || "",
+              totalFiltrationStages: std.total_filtration_stages || 0,
+              staticPressure: std.static_pressure || 0,
+              heatingFlowVelocity: std.heating_flow_velocity || 1.5,
+              coolingFlowVelocity: std.cooling_flow_velocity || 1.5,
             })
           );
         }
@@ -438,32 +454,6 @@ export default function Standard() {
 
 
 
-  // Expanded AHU Construction & Filtration fields from Redux
-  const {
-    plantRoomDistance,
-    panelThicknessProfile,
-    panelConstruction,
-    airHandlingConstruction,
-    fireControl,
-    vfd,
-    pressureGauge,
-    virusBurner,
-    doorInterlocking,
-    bmsMonitoring,
-    emsMonitoring,
-    humidistat,
-    thermostat,
-    flowControlValve,
-    yStrainer,
-    purgeWall,
-    pipeConfiguration,
-    treatedFreshAirUnit,
-    preFilter,
-    fineFilter,
-    hepaFilter,
-    carbonFilter,
-    filterTypeSelection,
-  } = useAppSelector((state: any) => state.standards);
 
   const roomPayload = useMemo(() => {
     const isVentilationOnly = system === t.options.systems.ventilation;
@@ -591,29 +581,7 @@ export default function Standard() {
     return data;
   };
 
-  const saveroomStandards = async () => {
-    const freshProjectId = getFreshProjectId();
-    const payload = {
-      project_id: freshProjectId,
-      system,
-      systemType,
-      heatingMethod,
-      coolingMethod,
-      standard,
-      classification,
-      acph,
-      tempUnit,
-      reqInsideTempC,
-      reqInsideHum,
-      maxTempC,
-      minTempC,
-      rhMin,
-      rhMax,
-    };
-    const data = await roomStandards(payload);
-    console.log("Room standards saved:", data);
-    return data;
-  };
+
 
   // ── handleNext ──
   const handleNext = async (e?: React.MouseEvent) => {
@@ -630,6 +598,13 @@ export default function Standard() {
       alert("Please select a Filter Type (Supply or Exhaust) before proceeding.");
       return;
     }
+
+    const MM_WG_TO_PA = 9.8;
+    const numStages = (selectedFilters || []).filter((f: string) => f && f.trim() !== "").length;
+    const filterDpSumMmWg = Object.entries(selectedFilterDetails || {})
+      .filter(([name]) => (selectedFilters || []).includes(name))
+      .reduce((acc: number, [_, curr]: [string, any]) => acc + ((curr.finalDp || 0) / MM_WG_TO_PA), 0);
+    const staticPressureMmWg = (Number(plantRoomDistance) * 0.7) + filterDpSumMmWg + (Number(additionalDpValue) || 0);
 
     try {
       let finalZoneId = zoneIdFromRedux;
@@ -664,6 +639,12 @@ export default function Standard() {
         minTempC,
         rhMin,
         rhMax,
+        pipeConfiguration,
+        totalFiltrationStages: numStages,
+        staticPressure: staticPressureMmWg,
+        flowVelocity,
+        heatingFlowVelocity,
+        coolingFlowVelocity,
       };
 
       if (finalProjectStandardId) {
@@ -672,7 +653,7 @@ export default function Standard() {
         console.log("Room standards updated:", finalProjectStandardId);
       } else {
         // POST — create new row
-        const standardData = await roomStandards(payload);
+        const standardData = await roomStandards(payload); //console.log(standardData)
         finalProjectStandardId = standardData?.roomStandardsId;
         if (!finalProjectStandardId) {
           alert("Failed to save project standard. Please try again.");
@@ -692,6 +673,8 @@ export default function Standard() {
           ...roomPayload,
           zoneId: finalZoneId,
           projectStandardId: finalProjectStandardId,
+          totalFiltrationStages: numStages,
+          staticPressure: staticPressureMmWg,
         },
       });
     } catch (error) {

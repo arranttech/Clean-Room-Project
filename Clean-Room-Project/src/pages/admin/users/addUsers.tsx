@@ -53,7 +53,6 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
     status: "A",
   });
 
-  // Preload all fields from DB when in edit mode
   useEffect(() => {
     if (user) {
       setForm({
@@ -107,6 +106,11 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
       : "Enter User ID (3–10 chars, letters/numbers/_)";
   const validatePhone = (v: string) =>
     !v || /^\+?[0-9\s\-()]{7,20}$/.test(v) ? "" : "Enter valid phone number";
+  const validateCustomerId = (v: number | "") => {
+    if (v === "" || v === null) return "Customer ID is required";
+    if (Number(v) < 1) return "Customer ID must be greater than or equal to 1";
+    return "";
+  };
 
   const validatePassword = (v: string) => {
     if (!v) return "Password is required";
@@ -135,6 +139,9 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
     const userIdErr = validateUserId(form.user_id);
     const homePhoneErr = validatePhone(form.user_phone_home);
     const workPhoneErr = validatePhone(form.user_phone_work);
+    const customerIdErr = isEditMode
+      ? ""
+      : validateCustomerId(form.customer_id);
     const passwordErr = isEditMode ? "" : validatePassword(form.password);
     const confirmPasswordErr = isEditMode
       ? ""
@@ -147,6 +154,7 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
       userIdErr ||
       homePhoneErr ||
       workPhoneErr ||
+      customerIdErr ||
       passwordErr ||
       confirmPasswordErr
     ) {
@@ -158,6 +166,7 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
         user_id: userIdErr,
         user_phone_home: homePhoneErr,
         user_phone_work: workPhoneErr,
+        customer_id: customerIdErr,
         password: passwordErr,
         confirmPassword: confirmPasswordErr,
       }));
@@ -447,16 +456,23 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
               placeholder="Enter Customer ID"
               value={form.customer_id}
               disabled={isEditMode}
+              min={1}
               onChange={(e) => {
-                // Accept whatever the user types — no min constraint
                 const val = e.target.value;
-                handleChange("customer_id", val === "" ? "" : Number(val));
+                const num = val === "" ? "" : Number(val);
+                handleChange("customer_id", num);
+                setErrors((p) => ({
+                  ...p,
+                  customer_id: validateCustomerId(num),
+                }));
               }}
             />
+            {errors.customer_id && (
+              <p className={s.formError}>{errors.customer_id}</p>
+            )}
           </div>
         </div>
 
-        {/* Status — in add mode defaults to Active, in edit mode shows exact DB value */}
         <div className={s.formRow}>
           <div className={s.formGroup}>
             <label className={s.formLabel}>Status</label>

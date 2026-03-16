@@ -49,7 +49,6 @@ export const projectRoute: ServerRoute[] = [
     },
   },
 
-//update or put project info
   {
     method: "PUT",
     path: "/v1/projectinfo/{projectId}",
@@ -148,6 +147,65 @@ export const projectRoute: ServerRoute[] = [
         return h.response({ projects }).code(200);
       } catch (err) {
         console.error("GET COMPLETED PROJECTS ERROR:", err);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
+  {
+    method: "GET",
+    path: "/v1/projects/counts",
+    options: {
+      description: "Get project counts (total, in-progress, completed) for a user",
+      tags: ["api", "project"],
+      validate: {
+        query: Joi.object({
+          user_login_id: Joi.number().integer().required(),
+        }),
+      },
+      response: {
+        status: {
+          200: Joi.object({
+            total: Joi.number().required(),
+            inProgress: Joi.number().required(),
+            completed: Joi.number().required(),
+          }),
+          500: errorSchema,
+        },
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const { user_login_id } = request.query as any;
+        const counts = await projectRepository.getProjectCountsByUserId(
+          parseInt(user_login_id, 10)
+        );
+        return h.response(counts).code(200);
+      } catch (err) {
+        console.error("GET PROJECT COUNTS ERROR:", err);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
+  // EXCEL EXPORT ROUTE
+  {
+    method: "GET",
+    path: "/v1/projects/{projectId}/export",
+    options: {
+      description: "Get full project data for XLSX export",
+      tags: ["api", "project"],
+      validate: {
+        params: Joi.object({ projectId: Joi.number().integer().required() }),
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const { projectId } = request.params as any;
+        const data = await projectRepository.getProjectExportData(parseInt(projectId));
+        return h.response(data).code(200);
+      } catch (err) {
+        console.error("PROJECT EXPORT ERROR:", err);
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },

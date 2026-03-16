@@ -11,8 +11,27 @@ const toStr = (v: any): string | null => {
   return String(v);
 };
 
+// this function is used to handle the velocity data based on the system and pipe configuration
+const s = (payload: any) => {
+  const system = payload.system || "";
+  const pipeConfig = payload.pipeConfiguration || "";
+
+  const isDualPipeHeatingCooling =
+    system === "Air Cooling and Air Heating System" && pipeConfig === "Dual Pipe";
+  const isVentilation = system === "Ventilation System";
+
+  return {
+    ...payload,
+    flowVelocity: (isVentilation || isDualPipeHeatingCooling) ? null : payload.flowVelocity,
+    heatingFlowVelocity: isDualPipeHeatingCooling ? payload.heatingFlowVelocity : null,
+    coolingFlowVelocity: isDualPipeHeatingCooling ? payload.coolingFlowVelocity : null,
+    pipeConfiguration: isVentilation ? null : payload.pipeConfiguration,
+  };
+};
+
 export const roomRepository = {
-  createRoomStandards: async (payload: any) => {
+  createRoomStandards: async (rawPayload: any) => {
+    const payload = s(rawPayload);
     const [result] = await database.execute(
       `INSERT INTO tRoomStandards (
         project_id,
@@ -30,8 +49,13 @@ export const roomRepository = {
         project_min_temp,
         project_relative_min_humid,
         project_relative_max_humid,
-        flow_velocity
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        flow_velocity,
+        pipe_configuration,
+        total_filtration_stages,
+        static_pressure,
+        heating_flow_velocity,
+        cooling_flow_velocity
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         payload.project_id,
         payload.system ?? null,
@@ -49,6 +73,11 @@ export const roomRepository = {
         toNum(payload.rhMin),
         toNum(payload.rhMax),
         toNum(payload.flowVelocity),
+        payload.pipeConfiguration ?? null,
+        toNum(payload.totalFiltrationStages),
+        toNum(payload.staticPressure),
+        toNum(payload.heatingFlowVelocity),
+        toNum(payload.coolingFlowVelocity),
       ]
     );
     return (result as any).insertId;
@@ -64,7 +93,8 @@ export const roomRepository = {
     const [result] = await database.execute(query, params);
     return result;
   },
-  updateRoomStandards: async (standardId: number, payload: any) => {
+  updateRoomStandards: async (standardId: number, rawPayload: any) => {
+    const payload = s(rawPayload);
     await database.execute(
       `UPDATE tRoomStandards SET
         project_system = ?,
@@ -82,6 +112,9 @@ export const roomRepository = {
         project_relative_min_humid = ?,
         project_relative_max_humid = ?,
         flow_velocity = ?,
+        pipe_configuration = ?,
+        total_filtration_stages = ?,
+        static_pressure = ?,
         heating_flow_velocity = ?,
         cooling_flow_velocity = ?
       WHERE project_standard_id = ?`,
@@ -101,6 +134,9 @@ export const roomRepository = {
         toNum(payload.rhMin),
         toNum(payload.rhMax),
         toNum(payload.flowVelocity),
+        payload.pipeConfiguration ?? null,
+        toNum(payload.totalFiltrationStages),
+        toNum(payload.staticPressure),
         toNum(payload.heatingFlowVelocity),
         toNum(payload.coolingFlowVelocity),
         standardId,
@@ -161,7 +197,7 @@ export const roomRepository = {
       `DELETE FROM tZoneRooms WHERE project_RoomId = ?`,
       [roomId]
     );
-  
+
     // count remaining rooms in that zone
     const [rows] = await database.execute(
       `SELECT COUNT(*) as count FROM tZoneRooms WHERE zone_id = ?`,
@@ -169,7 +205,7 @@ export const roomRepository = {
     );
     const remaining = (rows as any)[0].count;
     console.log(`Zone ${zoneId} has ${remaining} rooms remaining`);
-  
+
     // no rooms left, delete the zone
     if (remaining === 0) {
       console.log(`Deleting zone ${zoneId}`);
@@ -179,5 +215,5 @@ export const roomRepository = {
       );
     }
   },
- 
+
 };

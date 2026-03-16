@@ -12,13 +12,13 @@ const errorSchema = Joi.object({
 });
 
 export const resultRoute: ServerRoute[] = [
+  // --- EXISTING POST ROUTE ---
   {
     method: "POST",
     path: "/v1/storeresults",
     options: {
       description: "Store calculated results for a room",
       tags: ["api", "results"],
-
       validate: {
         payload: Joi.object({
           project_RoomId: Joi.number().integer().allow(null).optional(),
@@ -49,7 +49,6 @@ export const resultRoute: ServerRoute[] = [
           throw err;
         },
       },
-
       response: {
         status: {
           201: Joi.object({ resultId: Joi.number().required() }),
@@ -58,14 +57,42 @@ export const resultRoute: ServerRoute[] = [
         },
       },
     },
-
     handler: async (request, h) => {
       try {
-        const resultId = await resultRepository.storeResults(request.payload);
-
+        const resultId = await resultRepository.storeResults(request.payload as any);
         return h.response({ resultId }).code(201);
       } catch (error) {
         console.error("storeResults DB error:", error);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
+  // --- GET ROUTE FOR STORED PROCEDURE ---
+  {
+    method: "GET",
+    path: "/v1/results/zone/{projectId}",
+    options: {
+      description: "Get all room results for a project via project zones",
+      tags: ["api", "results"],
+      validate: {
+        params: Joi.object({
+          projectId: Joi.number().integer().required(),
+          
+        }),
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const { projectId } = request.params as { projectId?: number };
+
+        const data = await resultRepository.getResultsByZone({
+          projectId: Number(projectId)
+        });
+
+        return h.response(data).code(200);
+      } catch (error) {
+        console.error("getResultsByZone Error:", error);
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },

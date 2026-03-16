@@ -128,6 +128,7 @@ export default function Room() {
   const zoneIdFromNav = location.state?.zoneId ?? null;
   const projectStandardIdFromNav = location.state?.projectStandardId ?? null;
 
+
   const currentZoneIdRef = useRef<number | string | null>(zoneIdFromNav);
   const currentProjectStandardIdRef = useRef<number | string | null>(
     projectStandardIdFromNav
@@ -421,13 +422,16 @@ export default function Room() {
       dispatch(resetStandards());
       dispatch(resetProjectInfo());
 
-      navigate("/results", {
+      navigate("/dynamic-results", {
         state: {
           projectId,
           minTempC,
           maxTempC,
           rhMin,
           rhMax,
+          projectStandardIdFromNav,
+          projectId,
+          zoneIdFromNav,
           rooms: roomsSnapshot,
           airflowResults: allAirflowResults,
         },

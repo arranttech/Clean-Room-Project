@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiSearch, FiPlus, FiEdit2 } from "react-icons/fi";
+import { FiSearch, FiPlus, FiEdit2, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import s from "./profileDesign";
 import AddProfile from "./addProfile";
 import { getProfiles } from "../../../backend/controller/profileController";
@@ -19,6 +19,8 @@ export default function CreateEditProfile() {
 	const [statusFilter, setStatusFilter] = useState<"ALL" | "Active" | "Inactive">("ALL");
 	const [showAdd, setShowAdd] = useState(false);
 	const [editData, setEditData] = useState<ProfileToken | null>(null);
+	const [currentPage, setCurrentPage] = useState(1);
+	const ITEMS_PER_PAGE = 10;
 
 	const fetchProfiles = async () => {
 		try {
@@ -35,6 +37,10 @@ export default function CreateEditProfile() {
 		fetchProfiles();
 	}, []);
 
+	useEffect(() => {
+		setCurrentPage(1);
+	}, [searchTerm, statusFilter]);
+
 	const filteredData = profiles.filter((item) => {
 		const matchesSearch =
 			item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -42,7 +48,11 @@ export default function CreateEditProfile() {
 		const matchesStatus =
 			statusFilter === "ALL" ? true : item.status === statusFilter;
 		return matchesSearch && matchesStatus;
-	});
+	}).sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+
+	const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
+	const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+	const paginatedData = filteredData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
 	if (showAdd || editData) {
 		return (
@@ -125,8 +135,8 @@ export default function CreateEditProfile() {
 						</tr>
 					</thead>
 					<tbody className={s.tbody}>
-						{filteredData.length > 0 ? (
-							filteredData.map((row) => (
+						{paginatedData.length > 0 ? (
+							paginatedData.map((row) => (
 								<tr key={row.id} className={s.tr}>
 									<td className={s.tdProfileName}>{row.name}</td>
 									<td className={s.td}>{row.description}</td>
@@ -158,6 +168,50 @@ export default function CreateEditProfile() {
 					</tbody>
 				</table>
 			</div>
+
+			{/* Pagination */}
+			{totalPages > 1 && (
+				<div className={s.paginationWrap}>
+					<div className={s.paginationInfo}>
+						Showing <span className="text-slate-900">{startIndex + 1}</span> to{" "}
+						<span className="text-slate-900">
+							{Math.min(startIndex + ITEMS_PER_PAGE, filteredData.length)}
+						</span>{" "}
+						of <span className="text-slate-900">{filteredData.length}</span> entries
+					</div>
+
+					<div className={s.paginationControls}>
+						<button
+							type="button"
+							disabled={currentPage === 1}
+							onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+							className={s.paginationNavBtn(currentPage === 1)}
+						>
+							<FiChevronLeft className="text-lg" /> Previous
+						</button>
+
+						{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+							<button
+								key={page}
+								type="button"
+								onClick={() => setCurrentPage(page)}
+								className={s.paginationBtn(currentPage === page, false)}
+							>
+								{page}
+							</button>
+						))}
+
+						<button
+							type="button"
+							disabled={currentPage === totalPages}
+							onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+							className={s.paginationNavBtn(currentPage === totalPages)}
+						>
+							Next <FiChevronRight className="text-lg" />
+						</button>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }

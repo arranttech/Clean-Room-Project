@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import s from "./style";
-import { FaArrowLeft, FaEye, FaDownload,
-  FaBuilding, FaMapMarkerAlt, FaLayerGroup, FaDoorOpen,
-  FaFolderOpen, } from "react-icons/fa";
+import { FaArrowLeft,  FaLayerGroup,  FaCalculator } from "react-icons/fa";
+  import { MdApartment } from "react-icons/md";
 import Header from "../../../components/header";
 import { useAppSelector } from "../../../redux/hooks";
 import { getCompletedProjects } from "../../../backend/controller/projectController";
@@ -60,7 +59,7 @@ const RoomSection = ({ room, index }: { room: Room; index: number }) => (
       <span className="text-sm text-gray-500">Room #{index + 1}</span>
     </div>
 
-    <div className=" grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className={s.roomCardValue + " grid grid-cols-2 md:grid-cols-4 gap-4"}>
       <InfoItem label="Length" value={room.room_Length} />
       <InfoItem label="Width" value={room.room_Width} />
       <InfoItem label="Height" value={room.room_Height} />
@@ -301,7 +300,7 @@ export default function ProjectListInfo() {
 
             <div className={s.customerInfoCard}>
               <h2 className={s.cardTitle}>
-                Customer Information
+                <MdApartment className="text-blue-700 text-3xl" /> Customer Information
               </h2>
 
               <div className={s.infoGrid}>
@@ -385,7 +384,7 @@ export default function ProjectListInfo() {
 
             {activeStandard && (<div className={s.customerInfoCard}>
               <h2 className={s.cardTitle}>
-                Classification Details
+               <FaLayerGroup className="text-blue-700 text-2xl" /> Classification Details
               </h2>
 
               <div className={s.projectDetails}>
@@ -416,10 +415,10 @@ export default function ProjectListInfo() {
             {activeStandard && (
               <div className={s.customerInfoCard}>
                 <h2 className={s.cardTitle}>
-                  Rooms ({activeStandard.rooms.length})
+                 <FaCalculator className="text-blue-700 text-2xl" /> Rooms ({activeStandard.rooms.length})
                 </h2>
                 <div className={s.roomCardInfo}>
-                  <div className={s.roomCardValue}>
+                  <div className={s.roomCardValue }>
                     {activeStandard.rooms.map((room, i) => (
                   <RoomSection key={i} room={room} index={i} />
                 ))}

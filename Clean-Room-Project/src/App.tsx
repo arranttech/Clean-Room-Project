@@ -45,17 +45,6 @@ function ProtectedRoute() {
 	return <Outlet />;
 }
 
-// redirect logged-in users away from login/register
-function GuestRoute() {
-	const token = localStorage.getItem("token");
-
-	if (token) {
-		return <Navigate to="/dashboard" replace />;
-	}
-
-	return <Outlet />;
-}
-
 function App() {
 	const navigate = useNavigate();
 	const [showSessionPopup, setShowSessionPopup] = useState(false);
@@ -123,12 +112,12 @@ function App() {
 			<ScrollToTop />
 
 			<Routes>
-				{/* guest-only routes (redirect to dashboard if logged in) */}
-				<Route element={<GuestRoute />}>
-					<Route path="/" element={<Home />} />
-					<Route path="/login" element={<Login />} />
-					<Route path="/register" element={<Register />} />
-				</Route>
+				{/* public landing page — always accessible */}
+				<Route path="/" element={<Home />} />
+
+				{/* guest routes */}
+				<Route path="/login" element={<Login />} />
+				<Route path="/register" element={<Register />} />
 
 				{/* public routes */}
 				<Route path="/customer-info" element={<CustomerInfoPage />} />

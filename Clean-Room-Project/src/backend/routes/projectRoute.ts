@@ -122,6 +122,38 @@ export const projectRoute: ServerRoute[] = [
 
   {
     method: "GET",
+    path: "/v1/projects/inprogress",
+    options: {
+      description: "Get in-progress projects for a user",
+      tags: ["api", "project"],
+      validate: {
+        query: Joi.object({
+          user_login_id: Joi.number().integer().required(),
+        }),
+      },
+      response: {
+        status: {
+          200: Joi.object({ projects: Joi.array().required() }),
+          500: errorSchema,
+        },
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const { user_login_id } = request.query as any;
+        const projects = await projectRepository.getInProgressProjectsByUserId(
+          parseInt(user_login_id, 10)
+        );
+        return h.response({ projects }).code(200);
+      } catch (err) {
+        console.error("GET INPROGRESS PROJECTS ERROR:", err);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
+  {
+    method: "GET",
     path: "/v1/projects/completed",
     options: {
       description: "Get completed projects for a user",
@@ -183,6 +215,29 @@ export const projectRoute: ServerRoute[] = [
         return h.response(counts).code(200);
       } catch (err) {
         console.error("GET PROJECT COUNTS ERROR:", err);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
+  // DETAILS ROUTE (load project data into form)
+  {
+    method: "GET",
+    path: "/v1/projects/{projectId}/details",
+    options: {
+      description: "Get full project data for editing",
+      tags: ["api", "project"],
+      validate: {
+        params: Joi.object({ projectId: Joi.number().integer().required() }),
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const { projectId } = request.params as any;
+        const data = await projectRepository.getProjectDetailsForEdit(parseInt(projectId));
+        return h.response(data).code(200);
+      } catch (err) {
+        console.error("GET PROJECT DETAILS ERROR:", err);
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },

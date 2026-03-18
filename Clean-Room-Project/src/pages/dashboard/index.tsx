@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { setCustomer } from "../../redux/slices/customerSlice";
 import { getCustomerById } from "../../backend/controller/customerController";
 import { getUserById } from "../../backend/controller/userController";
-import { getProjectCounts } from "../../backend/controller/projectController";
+import { getProjectCounts, getInProgressProjects, getProjectDetails } from "../../backend/controller/projectController";
 import {
 	FaFolderOpen,
 	FaPlus,
@@ -19,9 +19,11 @@ import { MdApartment } from "react-icons/md";
 import s from "./styles";
 import text from "../../json/dashboard.json";
 import Header from "../../components/header";
-import { resetProjectInfo } from "../../redux/slices/projectInfoSlice";
+import { resetProjectInfo, updateMultipleFields } from "../../redux/slices/projectInfoSlice";
 import { setUser } from "../../redux/slices/userSlice";
-import { setProjectCounts } from "../../redux/slices/dashboardSlice";
+import { setProjectCounts, setInProgressProjects } from "../../redux/slices/dashboardSlice";
+import { updateMultipleStandardsFields, resetStandards } from "../../redux/slices/standardSlice";
+import { setSavedRooms, resetRoom } from "../../redux/slices/roomSlice";
 
 
 
@@ -33,6 +35,7 @@ export default function Dashboard() {
 	const [showProfileAlert, setShowProfileAlert] = useState(false);
 	const [firstName, setFirstName] = useState("User");
 	const counts = useAppSelector((state: any) => state.dashboard);
+	const inProgressProjects = useAppSelector((state: any) => state.dashboard.inProgressProjects ?? []);
 
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
@@ -73,6 +76,19 @@ export default function Dashboard() {
 	}, [loggedInUser?.user_login_id]);
 
 	useEffect(() => {
+		if (!loggedInUser?.user_login_id) return;
+		const fetchInProgress = async () => {
+			try {
+				const res = await getInProgressProjects(loggedInUser.user_login_id);
+				dispatch(setInProgressProjects(res.projects ?? []));
+			} catch (e) {
+				console.error("Failed to fetch in-progress projects:", e);
+			}
+		};
+		fetchInProgress();
+	}, [loggedInUser?.user_login_id]);
+
+	useEffect(() => {
 		if (customerId || !loggedInUser?.user_login_id) return;
 		const loadCustomer = async () => {
 			try {
@@ -103,6 +119,98 @@ export default function Dashboard() {
 		};
 		loadCustomer();
 	}, [loggedInUser?.user_login_id]);
+
+	const [continuingId, setContinuingId] = useState<number | null>(null);
+
+	const currentProjectId = useAppSelector((state: any) => state.projectInfo.projectId);
+
+	const handleContinue = async (proj: any, continueRoute: string) => {		// If this is already the active project in Redux, navigate directly
+		if (currentProjectId === proj.project_id) {
+			navigate(continueRoute);
+			return;
+		}
+		setContinuingId(proj.project_id);
+		try {
+			const data = await getProjectDetails(proj.project_id);
+			const p = data.project;
+			// Reset then re-populate all 3 slices
+			dispatch(resetStandards());
+			dispatch(resetRoom());
+			dispatch(updateMultipleFields({
+				projectId: p.project_id,
+				projectName: p.project_name ?? "",
+				unitBranch: p.project_unit_branch ?? "",
+				industry: (() => { try { return JSON.parse(p.project_Industry || "[]"); } catch { return []; } })(),
+				handling: (() => { try { return JSON.parse(p.project_Handling || "[]"); } catch { return []; } })(),
+				uniqueId: p.project_unique_id ?? "",
+				selectedLocation: p.project_Location ?? null,
+				locationQuery: p.project_Location ?? "",
+				minTemp: p.project_min_temp ?? "",
+				maxTemp: p.project_max_temp ?? "",
+				relativeHumidityMin: p.project_relative_min_humid ?? "",
+				relativeHumidityMax: p.project_relative_max_humid ?? "",
+				isNewProject: false,
+			}));
+			if (data.standards?.length > 0) {
+				const std = data.standards[0];
+				const zone = data.zones?.[0];
+				dispatch(updateMultipleStandardsFields({
+					projectStandardId: std.project_standard_id,
+					zoneId: zone?.zone_id ?? null,
+					standard: std.project_standard ?? null,
+					classification: std.project_classification_name ?? null,
+					acph: std.project_ACPH ?? null,
+					system: std.project_system ?? null,
+					systemType: std.project_system_type ?? null,
+					heatingMethod: std.project_heating_method ?? "",
+					coolingMethod: std.project_cooling_method ?? "",
+					tempUnit: std.project_temp_unit ?? "C",
+					reqInsideTempC: std.project_required_inside_temp ?? null,
+					reqInsideHum: std.project_required_inside_humid ?? "",
+					flowVelocity: std.flow_velocity ?? 1.5,
+					heatingFlowVelocity: std.heating_flow_velocity ?? 1.5,
+					coolingFlowVelocity: std.cooling_flow_velocity ?? 1.5,
+					staticPressure: std.static_pressure ?? 0,
+					totalFiltrationStages: std.total_filtration_stages ?? 0,
+					pipeConfiguration: std.pipe_configuration ?? "",
+				}));
+			}
+			if (data.rooms?.length > 0) {
+				const std = data.standards?.[0];
+				const savedRooms = data.rooms.map((r: any) => ({
+					id: `${r.project_RoomId}`,
+					backendRoomId: r.project_RoomId,
+					zoneId: r.zone_id,
+					projectStandardId: r.project_standard_id,
+					roomName: r.project_RoomName ?? "",
+					length: r.room_Length ?? "",
+					width: r.room_Width ?? "",
+					height: r.room_Height ?? "",
+					occupancy: r.room_Occupancy ?? "",
+					equipmentLoad: r.room_Equipment_Load ?? "",
+					lightingLoad: r.room_Lighting ?? "",
+					infiltrationsPerHour: r.room_Infiltrations ?? "",
+					freshAirPercent: r.room_FreshAir ?? "",
+					exhaustAir: r.room_ExhaustAir ?? "",
+					acph: r.project_ACPH ?? "",
+					zoneStandard: std?.project_standard ?? "",
+					zoneClassification: std?.project_classification_name ?? "",
+					zoneSystem: std?.project_system ?? "",
+					zoneSystemType: std?.project_system_type ?? "",
+					zoneCoolingMethod: std?.project_cooling_method ?? "",
+					zoneHeatingMethod: std?.project_heating_method ?? "",
+					zoneReqInsideTempC: std?.project_required_inside_temp ?? null,
+					zoneReqInsideHum: std?.project_required_inside_humid ?? "",
+				}));
+				dispatch(setSavedRooms(savedRooms));
+			}
+			navigate(continueRoute);
+		} catch (e) {
+			console.error("Failed to load project details:", e);
+		} finally {
+			setContinuingId(null);
+		}
+	};
 
 	const features = text.dashboard.features;
 
@@ -171,37 +279,68 @@ export default function Dashboard() {
 								{text.dashboard.projectsTitle}
 							</div>
 							<div className={s.pendingProjects}>
-								{text.dashboard.pendingProjects}
+								{inProgressProjects.length} Incomplete Project{inProgressProjects.length !== 1 ? "s" : ""}
 							</div>
 						</div>
-						<div className={s.cardWrap}>
-							<div>
-								<div className={s.projectTitle}>
-									{text.dashboard.progress.projectTitle}
-								</div>
-								<div className={s.projectCustomer}>
-									<span>Customer: </span>
-									{text.dashboard.progress.Customer}
-								</div>
-								<div className={s.cardStyle}>
-									<div className={s.projectPendingStage}>
-										{text.dashboard.progress.pendingStage}
-									</div>
-									<div className={s.projectPendingPage}>
-										<span>On:</span> {text.dashboard.progress.pendingPage}
-									</div>
-									<div className={s.projectModifiedDate}>
-										<span>Last Modified:</span>{" "}
-										{text.dashboard.progress.modifiedDate}
-									</div>
-								</div>
+						{inProgressProjects.length === 0 ? (
+							<div className="text-slate-400 text-sm py-4 text-center">
+								No projects in progress.
 							</div>
-							<div className={s.buttonStyle}>
-								<Link to="/projects" className={s.viewAllButton}>
-									{text.dashboard.progress.buttonText} <FaArrowRight />
-								</Link>
-							</div>
-						</div>
+						) : (
+							inProgressProjects.map((proj: any) => {
+								const step = proj.has_rooms ? 3 : proj.has_standard ? 2 : 1;
+								const stepName = !proj.has_standard
+									? "Classification"
+									: !proj.has_rooms
+									? "Rooms"
+									: "Rooms";
+								const continueRoute = !proj.has_standard
+									? "/standards"
+									: !proj.has_rooms
+									? "/room"
+									: "/room";
+								const formattedDate = proj.last_modified
+									? new Date(proj.last_modified).toLocaleDateString("en-US", {
+											month: "short",
+											day: "numeric",
+											year: "numeric",
+									  })
+									: "—";
+								return (
+									<div key={proj.project_id} className={s.cardWrap}>
+										<div>
+											<div className={s.projectTitle}>{proj.project_name}</div>
+											<div className={s.projectCustomer}>
+												<span>Customer: </span>{proj.customer_name}
+											</div>
+											<div className={s.cardStyle}>
+												<div className={s.projectPendingStage}>
+													Step {step} of 3
+												</div>
+												<div className={s.projectPendingPage}>
+													<span>On:</span> {stepName}
+												</div>
+												<div className={s.projectModifiedDate}>
+													<span>Last Modified:</span> {formattedDate}
+												</div>
+											</div>
+										</div>
+										<div className={s.buttonStyle}>
+											<button
+												type="button"
+												disabled={continuingId === proj.project_id}
+												className={s.viewAllButton}
+												onClick={() => handleContinue(proj, continueRoute)}
+											>
+												{continuingId === proj.project_id
+													? "Loading..."
+													: <>{text.dashboard.progress.buttonText} <FaArrowRight /></>}
+											</button>
+										</div>
+									</div>
+								);
+							})
+						)}
 					</div>
 
 					<div className={s.sectionCard}>

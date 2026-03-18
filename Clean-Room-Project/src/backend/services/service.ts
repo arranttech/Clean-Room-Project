@@ -144,7 +144,7 @@ export function airflowService(room: RoomPayload): AirflowResults {
   const volumeFt3 = Math.ceil(areaFt2 * H * 3.28 * 100) / 100;
   const roomCfm = (volumeFt3 * ACPH) / 60;
 
-  const faPercent = isVentilationSystem ? 100 : Number(room.freshAirPercent || 0);
+  const faPercent = isVentilationSystem ? 110 : Number(room.freshAirPercent || 0);
   const faFactor = faPercent / 100;
 
   const eaRaw = Number(room.exhaustAir || 0);

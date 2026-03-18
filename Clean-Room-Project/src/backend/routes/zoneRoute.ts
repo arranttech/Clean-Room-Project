@@ -14,7 +14,7 @@ export const zoneRoute: ServerRoute[] = [
 			validate: {
 				payload: Joi.object({
 					project_id: Joi.number().required(),
-				}),
+				}).options({ allowUnknown: true }),
 			},
 
 			response: {

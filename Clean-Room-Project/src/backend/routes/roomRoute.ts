@@ -179,7 +179,7 @@ export const roomRoute: ServerRoute[] = [
 					pipeConfiguration: strOrNull,
 					totalFiltrationStages: numOrNull,
 					staticPressure: numOrNull,
-				}),
+				}).options({ allowUnknown: true }),
 			},
 		},
 		handler: async (request, h) => {

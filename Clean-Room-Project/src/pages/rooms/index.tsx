@@ -178,10 +178,22 @@ export default function Room() {
     if (key === "roomName") {
       if (value && !/^[a-zA-Z\s]+$/.test(value)) return;
     } else {
-      if (value && !isDecimalLike(value)) return;
+     if (value !== "" && !/^\d*\.?\d*$/.test(value)) return;
     }
     dispatch(updateRoomFormField({ field: key, value }));
   };
+
+  const handleFreshAirBlur = () => {
+  const value = form.freshAirPercent;
+
+  if (value === "") return;
+
+  const num = Number(value);
+
+  if (!isNaN(num) && num < 10) {
+    dispatch(updateRoomFormField({ field: "freshAirPercent", value: "10" }));
+  }
+};
 
   const selectedStandardObj = useMemo(
     () => standardsDb.find((s) => s.title === standard) || null,
@@ -430,7 +442,6 @@ export default function Room() {
           rhMin,
           rhMax,
           projectStandardIdFromNav,
-          projectId,
           zoneIdFromNav,
           rooms: roomsSnapshot,
           airflowResults: allAirflowResults,
@@ -501,7 +512,13 @@ export default function Room() {
               : (T.fields as any)[key].placeholder
           }
           onChange={(e) => updateFieldValue(key, e.target.value)}
+          onBlur={key === "freshAirPercent" ? handleFreshAirBlur : undefined}
         />
+      {key === "freshAirPercent" && (
+        <div className={s.rangeText}>
+          Please enter a value of 10 or higher.
+        </div>
+      )}
       </div>
     );
   };

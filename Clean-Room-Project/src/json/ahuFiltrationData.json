@@ -124,35 +124,6 @@
             "40-50%"
         ],
         "exhaustImpactHint": "Flammable vapors: 0-50% | Contagious: 0-50%",
-        "bioSafetyLevels": [
-            "Level 1 - 30%",
-            "Level 2 - 50%",
-            "Level 3 - 75%",
-            "Level 4 - 100%"
-        ],
-        "exhaustImpactBioSafety": [
-            "0%",
-            "5%",
-            "10%",
-            "15%",
-            "20%",
-            "25%",
-            "30%",
-            "35%",
-            "40%",
-            "45%",
-            "50%",
-            "55%",
-            "60%",
-            "65%",
-            "70%",
-            "75%",
-            "80%",
-            "85%",
-            "90%",
-            "95%",
-            "100%"
-        ],
         "specialHandlingOptions": [
             "Contagious",
             "Hazardous",
@@ -160,6 +131,8 @@
             "Bio-safety"
         ],
         "specialExhaustFilters": [
+            "Pre-HEPA Super fine filter",
+            "Fine pre-filter",
             "Coarse-to-medium filter",
             "Leagcy (H13 - 2) filter"
         ]

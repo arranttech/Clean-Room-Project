@@ -81,7 +81,7 @@ function Login() {
 				// Customer fetch failed silently
 			}
 
-			navigate("/dashboard", { replace: true });
+			navigate("/dashboard");
 		} catch (err) {
 			setError(err instanceof Error ? err.message : "Login failed");
 		} finally {

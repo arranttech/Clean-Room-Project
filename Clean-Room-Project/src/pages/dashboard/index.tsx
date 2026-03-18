@@ -21,7 +21,6 @@ import text from "../../json/dashboard.json";
 import Header from "../../components/header";
 import { resetProjectInfo } from "../../redux/slices/projectInfoSlice";
 import { setUser } from "../../redux/slices/userSlice";
-import { setProjectCounts } from "../../redux/slices/dashboardSlice";
 
 
 
@@ -32,7 +31,7 @@ function tmpl(str: string, vars: Record<string, string | number>) {
 export default function Dashboard() {
 	const [showProfileAlert, setShowProfileAlert] = useState(false);
 	const [firstName, setFirstName] = useState("User");
-	const counts = useAppSelector((state: any) => state.dashboard);
+	const [counts, setCounts] = useState({ total: 0, inProgress: 0, completed: 0 });
 
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
@@ -60,11 +59,11 @@ export default function Dashboard() {
 		const fetchCounts = async () => {
 			try {
 				const data = await getProjectCounts(loggedInUser.user_login_id);
-				dispatch(setProjectCounts({
+				setCounts({
 					total: data.total ?? 0,
 					inProgress: data.inProgress ?? 0,
 					completed: data.completed ?? 0,
-				}));
+				});
 			} catch (e) {
 				console.error("Failed to fetch project counts:", e);
 			}

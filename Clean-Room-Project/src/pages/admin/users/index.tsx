@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiSearch, FiEdit2, FiTrash2, FiPlus, FiX } from "react-icons/fi";
+import { FiSearch, FiEdit2, FiTrash2, FiPlus, FiX, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import s from "./styles";
 import AddUser from "./addUsers";
 import {
@@ -38,6 +38,8 @@ export default function Users({ onCountChange }: UsersProps) {
   const [editUser, setEditUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const USERS_PER_PAGE = 10;
 
   const loadUsers = async () => {
     try {
@@ -56,6 +58,10 @@ export default function Users({ onCountChange }: UsersProps) {
     loadUsers();
   }, []);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter]);
+
   const filtered = users.filter((u) => {
     const matchesSearch =
       u.user_first_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -63,7 +69,15 @@ export default function Users({ onCountChange }: UsersProps) {
     const matchesStatus =
       statusFilter === "ALL" ? true : u.status === statusFilter;
     return matchesSearch && matchesStatus;
+  }).sort((a, b) => {
+    const nameA = `${a.user_first_name} ${a.user_last_name}`.toLowerCase();
+    const nameB = `${b.user_first_name} ${b.user_last_name}`.toLowerCase();
+    return nameA.localeCompare(nameB);
   });
+
+  const totalPages = Math.ceil(filtered.length / USERS_PER_PAGE);
+  const startIndex = (currentPage - 1) * USERS_PER_PAGE;
+  const paginatedUsers = filtered.slice(startIndex, startIndex + USERS_PER_PAGE);
 
   const handleEdit = async (user: User) => {
     try {
@@ -181,14 +195,14 @@ export default function Users({ onCountChange }: UsersProps) {
                   Loading users...
                 </td>
               </tr>
-            ) : filtered.length === 0 ? (
+            ) : paginatedUsers.length === 0 ? (
               <tr>
                 <td colSpan={9} className={s.emptyRow}>
                   No users found.
                 </td>
               </tr>
             ) : (
-              filtered.map((user) => (
+              paginatedUsers.map((user) => (
                 <tr key={user.user_login_id} className={s.tr}>
                   <td className={s.tdName}>
                     {user.user_first_name} {user.user_last_name}
@@ -241,6 +255,50 @@ export default function Users({ onCountChange }: UsersProps) {
           </tbody>
         </table>
       </div>
+
+      {/* adding Pages if more than 10 users in a page */}
+      {totalPages > 1 && (
+        <div className={s.paginationWrap}>
+          <div className={s.paginationInfo}>
+            Showing <span className="text-slate-900">{startIndex + 1}</span> to{" "}
+            <span className="text-slate-900">
+              {Math.min(startIndex + USERS_PER_PAGE, filtered.length)}
+            </span>{" "}
+            of <span className="text-slate-900">{filtered.length}</span> entries
+          </div>
+
+          <div className={s.paginationControls}>
+            <button
+              type="button"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              className={s.paginationNavBtn(currentPage === 1)}
+            >
+              <FiChevronLeft className="text-lg" /> Previous
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                type="button"
+                onClick={() => setCurrentPage(page)}
+                className={s.paginationBtn(currentPage === page, false)}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              type="button"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              className={s.paginationNavBtn(currentPage === totalPages)}
+            >
+              Next <FiChevronRight className="text-lg" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       {deleteTarget && (

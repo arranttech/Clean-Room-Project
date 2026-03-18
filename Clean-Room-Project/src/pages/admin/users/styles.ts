@@ -6,7 +6,7 @@ const usersDesign = {
   
     // --- Filter Tabs ---
     filterWrap: "flex items-center gap-2 mb-4",
-    filterBtn: (active, type) => {
+    filterBtn: (active: boolean, type: string) => {
       const base = "px-4 py-1.5 rounded-full text-xs font-semibold border transition-all";
       if (!active) return `${base} bg-white text-slate-500 border-slate-200 hover:border-slate-400`;
       if (type === "I") return `${base} bg-red-500 text-white border-red-500`;
@@ -78,6 +78,22 @@ const usersDesign = {
     deleteBtnRow: "flex items-center gap-3 w-full mt-1",
     deleteCancelBtn: "flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all",
     deleteConfirmBtn: "flex-1 flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm",
+  
+    // --- Pagination ---
+    paginationWrap: "flex items-center justify-between mt-6 px-2",
+    paginationInfo: "text-sm text-slate-500 font-medium",
+    paginationControls: "flex items-center gap-2",
+    paginationBtn: (active: boolean, disabled: boolean) => {
+      const base = "w-9 h-9 flex items-center justify-center rounded-xl text-sm font-semibold transition-all border";
+      if (disabled) return `${base} bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed`;
+      if (active) return `${base} bg-blue-600 text-white border-blue-600 shadow-sm`;
+      return `${base} bg-white text-slate-600 border-slate-200 hover:border-slate-400 hover:bg-slate-50`;
+    },
+    paginationNavBtn: (disabled: boolean) => {
+      const base = "px-4 h-9 flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all border";
+      if (disabled) return `${base} bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed`;
+      return `${base} bg-white text-slate-600 border-slate-200 hover:border-slate-400 hover:bg-slate-50`;
+    }
   };
   
   export default usersDesign;

@@ -14,30 +14,27 @@ import Dashboard from "./pages/dashboard";
 import ProjectListInfoPage from "./pages/dashboard/projectListInfo";
 import Standard from "./pages/standards";
 import Room from "./pages/rooms";
+import Results from "./pages/results";
 import Login from "./pages/login";
 import Register from "./pages/register";
 import AllProjects from "./pages/dashboard/projects";
 import ApiDocs from "./pages/ApiDocs";
 import Main from "./pages/admin/adminLayout";
-import DynamicResults from "./pages/results/dynamicresults";
 import { refreshSession } from "./backend/controller/authContoller";
 import { clearSessionTimers, scheduleSessionTimers } from "./utils/auth";
 
 const SESSION_WARNING_BEFORE_MS = 110 * 1000;
 const SESSION_WARNING_MINUTES = SESSION_WARNING_BEFORE_MS / (60 * 1000);
 
-// scroll to top
+// scroll
 function ScrollToTop() {
 	const { pathname } = useLocation();
-
 	useEffect(() => {
 		window.scrollTo(0, 0);
 	}, [pathname]);
-
 	return null;
 }
 
-// protect dashboard routes
 function ProtectedRoute() {
 	const token = localStorage.getItem("token");
 
@@ -149,7 +146,7 @@ function App() {
 					<Route path="/room" element={<Room />} />
 					<Route path="/projects" element={<AllProjects />} />
 					<Route path="/docs" element={<ApiDocs />} />
-					<Route path="/dynamic-results" element={<DynamicResults />} />
+					<Route path="/results" element={<Results />} />
 				</Route>
 			</Routes>
 

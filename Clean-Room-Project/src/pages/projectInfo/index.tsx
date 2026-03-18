@@ -424,47 +424,27 @@ function ProjectInfoPage() {
 									<div className="px-4 py-3 font-semibold border-b">
 										Select Handling
 									</div>
-									{handlingOptions.map((item) => {
-										const groupA = ["Contagious", "Hazardous", "Flammable Vapors", "Bio-safety"];
-										const groupB = ["Non-Contagious", "Non-Hazardous"];
-										const isItemInA = groupA.includes(item);
-										const isItemInB = groupB.includes(item);
-										
-										const isGroupASelected = handling.some((h: string) => groupA.includes(h));
-										const isGroupBSelected = handling.some((h: string) => groupB.includes(h));
-										
-										const isDisabled = (isItemInA && isGroupBSelected) || (isItemInB && isGroupASelected);
-
-										return (
-											<label
-												key={item}
-												className={`flex items-center gap-3 px-4 py-3 ${
-													isDisabled ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:bg-gray-50"
-												}`}
-											>
-												<input
-													type="checkbox"
-													checked={handling.includes(item)}
-													disabled={isDisabled}
-													onChange={() => {
-														if (isDisabled) return;
-														const updated = handling.includes(item)
-															? handling.filter((i: string) => i !== item)
-															: [...handling, item];
-														dispatch(
-															updateField({ field: "handling", value: updated })
-														);
-													}}
-													className={`h-5 w-5 shrink-0 rounded-md border-gray-300 ${
-														isDisabled ? "text-gray-400" : "text-blue-600"
-													}`}
-												/>
-												<span className={`text-sm break-words ${isDisabled ? "text-gray-400" : ""}`}>
-													{item}
-												</span>
-											</label>
-										);
-									})}
+									{handlingOptions.map((item) => (
+										<label
+											key={item}
+											className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50"
+										>
+											<input
+												type="checkbox"
+												checked={handling.includes(item)}
+												onChange={() => {
+													const updated = handling.includes(item)
+														? handling.filter((i: string) => i !== item)
+														: [...handling, item];
+													dispatch(
+														updateField({ field: "handling", value: updated })
+													);
+												}}
+												className="h-5 w-5 shrink-0 rounded-md border-gray-300 text-blue-600"
+											/>
+											<span className="text-sm break-words">{item}</span>
+										</label>
+									))}
 								</div>
 							)}
 						</div>

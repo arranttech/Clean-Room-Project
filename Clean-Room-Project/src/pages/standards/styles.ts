@@ -187,6 +187,15 @@ const standardDesign = {
 	optionBase: "flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition-all",
 	optionSelected: "bg-blue-50 text-blue-700 ring-1 ring-blue-700/10",
 	optionUnselected: "hover:bg-slate-50 text-slate-700",
+	// toggle style 
+	toggleWrapper: "flex items-center gap-3 cursor-pointer select-none",
+	toggleTrack: "relative w-10 h-5 rounded-full transition-colors duration-200 ease-in-out",
+	toggleTrackOff: "bg-slate-200",
+	toggleTrackOn: "bg-blue-600",
+	toggleThumb: "absolute top-1 left-1 w-3 h-3 bg-white rounded-full transition-transform duration-200 ease-in-out shadow-sm",
+	toggleThumbOn: "translate-x-5",
+	toggleThumbOff: "translate-x-0",
+	toggleLabel: "text-xs font-bold text-blue-800 uppercase tracking-wider",
 };
 
 export default standardDesign;

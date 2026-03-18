@@ -145,6 +145,8 @@ export default function Standard() {
     temperature: "",
   });
 
+  const [modalMessage, setModalMessage] = useState("");
+
   useEffect(() => {
     if (!projectId) return;
     if (zoneIdFromRedux === null) return;
@@ -526,23 +528,23 @@ export default function Standard() {
   const handleNext = async (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
     if (!isFormValid) {
-      alert("Please fill all required fields correctly before proceeding.");
+      setModalMessage("Please fill all required fields correctly before proceeding.");
       return;
     }
     const ahuError = validateAhuConstruction(standards);
     if (ahuError) {
-      alert(ahuError);
+      setModalMessage(ahuError);
       return;
     }
     // Validation for filtration: at least one filter type and one specific filter must be selected
     const types = Array.isArray(filterTypeSelection) ? filterTypeSelection : [filterTypeSelection].filter(Boolean);
     if (types.length === 0) {
-      alert("Please select a Filter Type (Supply or Exhaust) before proceeding.");
+      setModalMessage("Please select a Filter Type (Supply or Exhaust) before proceeding.");
       return;
     }
 
     if (!selectedFilters || totalFiltrationStages === 0) {
-      alert("Please select at least one filter before proceeding.");
+      setModalMessage("Please select at least one filter before proceeding.");
       return;
     }
 
@@ -555,7 +557,7 @@ export default function Standard() {
         const zoneData = await createProjectZones();
         finalZoneId = zoneData?.zoneId;
         if (!finalZoneId) {
-          alert("Failed to create zone. Please try again.");
+          setModalMessage("Failed to create zone. Please try again.");
           return;
         }
         dispatch(updateStandardsField({ field: "zoneId", value: finalZoneId }));
@@ -601,7 +603,7 @@ export default function Standard() {
         const standardData = await roomStandards(payload); //console.log(standardData)
         finalProjectStandardId = standardData?.roomStandardsId;
         if (!finalProjectStandardId) {
-          alert("Failed to save project standard. Please try again.");
+          setModalMessage("Failed to save project standard. Please try again.");
           return;
         }
         dispatch(
@@ -629,7 +631,7 @@ export default function Standard() {
       });
     } catch (error) {
       console.error("Error in handleNext:", error);
-      alert("An error occurred. Please try again.");
+      setModalMessage("An error occurred. Please try again.");
     }
   };
 
@@ -1140,6 +1142,21 @@ export default function Standard() {
           </button>
         </div>
       </div>
+      {modalMessage && (
+        <div className={s.modalOverlay}>
+          <div className={s.modalContent}>
+            <div className={s.modalBody}>{modalMessage}</div>
+            <div className={s.flexEnd}>
+              <button
+                className={s.modalButton}
+                onClick={() => setModalMessage("")}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

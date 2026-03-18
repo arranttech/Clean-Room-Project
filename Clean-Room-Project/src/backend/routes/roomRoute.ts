@@ -127,7 +127,7 @@ export const roomRoute: ServerRoute[] = [
 					exhaustAir: strOrNull,
 					selectedAcph: numOrNull,
 				}),
-				failAction: (request, h, err) => {
+				failAction: (_request, _h, err) => {
 					console.log("zonerooms Validation Error:", err);
 					throw err;
 				},

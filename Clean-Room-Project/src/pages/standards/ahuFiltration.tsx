@@ -1,11 +1,34 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { HiChevronDown, HiX, HiCheck } from "react-icons/hi";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { updateStandardsField, updateFilterDetail } from "../../redux/slices/standardSlice";
+import { updateStandardsField, updateFilterDetail, updateMultipleStandardsFields } from "../../redux/slices/standardSlice";
 import standardDesign from "./styles";
 import ahuData from "../../json/ahuFiltrationData.json";
 import standardDataJson from "../../json/standardData.json";
 import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
+
+const config = (ahuData as any).ahuConstructionConfig;
+
+export const AHU_CONSTRUCTION_FIELDS = Object.keys(config.fields);
+
+export const ahupayload = (standards: any) => {
+    const payload: any = {};
+    AHU_CONSTRUCTION_FIELDS.forEach(field => {
+        payload[field] = standards[field];
+    });
+    return payload;
+};
+
+export const validateAhuConstruction = (standards: any) => {
+    const { plantRoomDistance } = standards;
+    const { min, max } = config.plantRoomDistanceLimits;
+    if (!plantRoomDistance || Number(plantRoomDistance) < min || Number(plantRoomDistance) > max) {
+        return `Plant room distance needs to be between ${min} and ${max} meters.`;
+    }
+    return null;
+};
+
 
 const FilterDetailCard = ({
     filterName,
@@ -20,7 +43,7 @@ const FilterDetailCard = ({
 }) => {
     // mmWG TO PA conversion factor
     const s = standardDesign;
-    const MM_WG_TO_PA = 9.8;
+    const MM_WG_TO_PA = config.calculationConstants.MM_WG_TO_PA;
 
     const generateMmwgSteps = (minMmwg: number, maxMmwg: number) => {
         const steps = [];
@@ -49,11 +72,11 @@ const FilterDetailCard = ({
 
     return (
         <div className={s.filterCard + " mt-3"}>
-            <div className="flex justify-between items-start mb-4">
-                <div className="text-sm font-bold text-slate-800">{filterName}</div>
+            <div className={s.filterHeader}>
+                <div className={s.filterTitle}>{filterName}</div>
             </div>
 
-            <div className="space-y-1 mb-4">
+            <div className={s.filterStats}>
                 <div className={s.filterStatRow}>
                     <span className={s.filterStatLabel}>Filter Rating:</span>
                     <span className={s.filterStatValue}>{specs.rating}</span>
@@ -112,6 +135,8 @@ const AHUFiltration = () => {
     const s = standardDesign;
     const dispatch = useAppDispatch();
     const [showDistanceModal, setShowDistanceModal] = useState(false);
+    const [filterTypeOpen, setFilterTypeOpen] = useState(false);
+    const filterTypeRef = useRef<HTMLDivElement>(null);
 
     // Redux state values
     const {
@@ -144,10 +169,14 @@ const AHUFiltration = () => {
         heatingMethod,
         coolingMethod,
         coolingFlowVelocity,
+        bioSafetyLevel,
     } = useAppSelector((state: any) => state.standards);
 
+    const filterTypes = Array.isArray(filterTypeSelection) ? filterTypeSelection : [filterTypeSelection].filter(Boolean);
+
     const handling = useAppSelector((state: any) => state.projectInfo?.handling || []);
-    const specialHandlingOptions = ahuData.filtrationSelection.specialHandlingOptions;
+    const isRestrictedHandling = handling.some((h: string) => config.handling.restrictedHandlingValues.includes(h));
+    const specialHandlingOptions = config.handling.specialHandlingOptions;
     const hasSpecialHandling = handling.length > 0 && handling.some((h: string) => specialHandlingOptions.includes(h)); // true if any selected handling matches special handling criteria
 
     const systems = (standardDataJson as any).text.options.systems;
@@ -158,34 +187,76 @@ const AHUFiltration = () => {
         dispatch(updateStandardsField({ field, value }));
     };
 
-    const MM_WG_TO_PA = 9.8;
-    const numStages = (selectedFilters || []).filter((f: string) => f && f.trim() !== "").length;
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (filterTypeRef.current && !filterTypeRef.current.contains(e.target as Node)) {
+                setFilterTypeOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        if (isRestrictedHandling && filterTypes.includes("Exhaust")) {
+            const updated = filterTypes.filter((t: string) => t !== "Exhaust");
+            handleChange("filterTypeSelection", updated);
+
+            // Clear exhaust filters
+            const prefix = "Exhaust:";
+            const newSelected = (selectedFilters || []).filter((f: string) => !f.startsWith(prefix));
+            handleChange("selectedFilters", newSelected);
+
+            const newDetails = { ...selectedFilterDetails };
+            Object.keys(newDetails).forEach(k => {
+                if (k.startsWith(prefix)) delete newDetails[k];
+            });
+            handleChange("selectedFilterDetails", newDetails);
+        }
+    }, [isRestrictedHandling]);
+
+    const MM_WG_TO_PA = config.calculationConstants.MM_WG_TO_PA;
+    const activeFilters = (selectedFilters || []).filter((f: string) => {
+        if (!f || f.trim() === "") return false;
+        return filterTypes.some(type => f.startsWith(`${type}:`));
+    });
+    const numStages = activeFilters.length;
 
     // finalDp is stored in Pa in selectedFilterDetails, convert to mmWG for sum
-    const filterDpSumMmWg = Object.entries(selectedFilterDetails)
-        .filter(([name]) => selectedFilters.includes(name))
+    const filterDpSumMmWg = Object.entries(selectedFilterDetails || {})
+        .filter(([key]) => activeFilters.includes(key))
         .reduce((acc: number, [_, curr]: [string, any]) => acc + ((curr.finalDp || 0) / MM_WG_TO_PA), 0);
-    //  formula to calculate static pressure: Static Pressure (mmWG) = (Plant Room Distance (m) * 0.7) + Sum of Filter Δp (mmWG) + Additional Δp (mmWG)
-    const staticPressureMmWg = (Number(plantRoomDistance) * 0.7) + filterDpSumMmWg + (Number(additionalDpValue) || 0);
+
+    // Static Pressure (mmWG) = (Plant Room Distance (m) * 0.7) + Sum of Filter Δp (mmWG) + Additional Δp (mmWG)
+    const staticPressureMmWg = (Number(plantRoomDistance) * config.calculationConstants.PLANT_ROOM_DISTANCE_FACTOR) + filterDpSumMmWg + (Number(additionalDpValue) || 0);
     const staticPressurePa = Math.round(staticPressureMmWg * MM_WG_TO_PA);
     const staticPressureDisplay = `${Math.round(staticPressureMmWg)} mmWG / ${staticPressurePa} Pa`;
 
-    const additionalDpOptions = Array.from({ length: 6 }, (_, i) => i + 5); // addional dp only ranges from 5 to 10 mmWG
+    // Sync calculated values to Redux
+    useEffect(() => {
+        dispatch(updateMultipleStandardsFields({
+            totalFiltrationStages: numStages,
+            staticPressure: staticPressureMmWg
+        }));
+    }, [numStages, staticPressureMmWg, dispatch]);
 
-    const handleFilterToggle = (filter: string) => {
+    const additionalDpOptions = config.additionalDpOptions;
+
+    const handleFilterToggle = (type: string, filter: string) => {
+        const compositeKey = `${type}:${filter}`;
         const currentSelected = [...(selectedFilters || [])];
-        const index = currentSelected.indexOf(filter);
+        const index = currentSelected.indexOf(compositeKey);
         if (index > -1) {
             currentSelected.splice(index, 1);
         } else {
-            currentSelected.push(filter);
+            currentSelected.push(compositeKey);
             // Initialize filter detail if not present
-            if (!selectedFilterDetails[filter]) {
+            if (!selectedFilterDetails[compositeKey]) {
                 const specs = (ahuData.filterSpecs as any)[filter];
                 if (specs) {
-                    const MM_WG_TO_PA = 9.8;
+                    const MM_WG_TO_PA = config.calculationConstants.MM_WG_TO_PA;
                     dispatch(updateFilterDetail({
-                        filterName: filter,
+                        filterName: compositeKey,
                         details: {
                             unit: "Pa",
                             initialDp: specs.initRange[0] * MM_WG_TO_PA,
@@ -205,7 +276,7 @@ const AHUFiltration = () => {
         return String(m || "").toLowerCase().includes("steam");
     }
     function getFlowVelocityRange(medium: string) {
-        return isSteamMedium(medium) ? { min: 3, max: 25 } : { min: 0.5, max: 2.5 };
+        return isSteamMedium(medium) ? config.flowVelocityRange.steam : config.flowVelocityRange.water;
     }
     function formatMediumLabel(medium: string) {
         return medium ? medium : "Select Method";
@@ -247,7 +318,7 @@ const AHUFiltration = () => {
                     if (!selectedFilterDetails[filter]) {
                         const specs = (ahuData.filterSpecs as any)[filter];
                         if (specs) {
-                            const MM_WG_TO_PA = 9.8;
+                            const MM_WG_TO_PA = config.calculationConstants.MM_WG_TO_PA;
                             dispatch(updateFilterDetail({
                                 filterName: filter,
                                 details: {
@@ -282,19 +353,19 @@ const AHUFiltration = () => {
                         <div className={s.specialBoxRow}>
                             <div>
                                 <div className={s.specialBoxTitle}>
-                                    Plant Room Distance <span className={s.required}>*</span>
+                                    {config.fields.plantRoomDistance.label} <span className={s.required}>*</span>
                                 </div>
-                                <div className={s.specialBoxValue}>Range: 30-100 meters</div>
+                                <div className={s.specialBoxValue}>Range: {config.plantRoomDistanceLimits.min}-{config.plantRoomDistanceLimits.max} {config.fields.plantRoomDistance.unit}</div>
                             </div>
-                            <div className="flex flex-col items-end">
+                            <div className={s.colEnd}>
                                 <div className={s.specialBoxInputGroup}>
                                     <input
                                         type="number"
                                         className={s.specialBoxInput}
                                         placeholder="eg: 55"
                                         value={plantRoomDistance}
-                                        min={30}
-                                        max={100}
+                                        min={config.plantRoomDistanceLimits.min}
+                                        max={config.plantRoomDistanceLimits.max}
                                         onChange={(e) => { // dont allow more than 3 digits
                                             const raw = e.target.value;
                                             if (raw === "") {
@@ -315,23 +386,23 @@ const AHUFiltration = () => {
                                     />
                                     <span className={s.specialBoxUnit}>meters</span>
                                 </div>
-                                {plantRoomDistance !== "" && (Number(plantRoomDistance) < 30 || Number(plantRoomDistance) > 100) && (
-                                    <div className="text-red-500 text-xs mt-2 text-right w-full block">
-                                        Distance must be between 30 and 100 meters
+                                {plantRoomDistance !== "" && (Number(plantRoomDistance) < config.plantRoomDistanceLimits.min || Number(plantRoomDistance) > config.plantRoomDistanceLimits.max) && (
+                                    <div className={s.errorText}>
+                                        Distance must be between {config.plantRoomDistanceLimits.min} and {config.plantRoomDistanceLimits.max} meters
                                     </div>
                                 )}
                             </div>
                         </div>
                     </div>
 
-                    <div className="transition-opacity duration-300">
+                    <div className={s.transitionOpacity}>
                         {/* Construction Specs Grid */}
                         <div className={s.grid2}>
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    Panel Thickness & Profile <span className={s.required}>*</span>
-                                    <Tooltip id="panelThickness" content={constants.Tooltip.panelThicknessTooltip} />
+                                    {config.fields.panelThicknessProfile.label} <span className={s.required}>*</span>
+                                    <Tooltip id="panelThickness" content={constants.Tooltip[config.fields.panelThicknessProfile.tooltip as keyof typeof constants.Tooltip] as string} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -346,8 +417,8 @@ const AHUFiltration = () => {
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    Panel Construction <span className={s.required}>*</span>
-                                    <Tooltip id="panelConstruction" content={constants.Tooltip.panelConstructionTooltip} />
+                                    {config.fields.panelConstruction.label} <span className={s.required}>*</span>
+                                    <Tooltip id="panelConstruction" content={constants.Tooltip[config.fields.panelConstruction.tooltip as keyof typeof constants.Tooltip] as string} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -362,8 +433,8 @@ const AHUFiltration = () => {
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    Air Handling Construction <span className={s.required}>*</span>
-                                    <Tooltip id="airHandling" content={constants.Tooltip.airHandlingTooltip} />
+                                    {config.fields.airHandlingConstruction.label} <span className={s.required}>*</span>
+                                    <Tooltip id="airHandling" content={constants.Tooltip[config.fields.airHandlingConstruction.tooltip as keyof typeof constants.Tooltip] as string} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -378,8 +449,8 @@ const AHUFiltration = () => {
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    Fire Control <span className={s.required}>*</span>
-                                    <Tooltip id="fireControl" content={constants.Tooltip.fireControlTooltip} />
+                                    {config.fields.fireControl.label} <span className={s.required}>*</span>
+                                    <Tooltip id="fireControl" content={constants.Tooltip[config.fields.fireControl.tooltip as keyof typeof constants.Tooltip] as string} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -394,8 +465,8 @@ const AHUFiltration = () => {
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    Variable Frequency Drive <span className={s.required}>*</span>
-                                    <Tooltip id="vfd" content={constants.Tooltip.vfdTooltip} />
+                                    {config.fields.vfd.label} <span className={s.required}>*</span>
+                                    <Tooltip id="vfd" content={constants.Tooltip[config.fields.vfd.tooltip as keyof typeof constants.Tooltip] as string} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -410,8 +481,8 @@ const AHUFiltration = () => {
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    Pressure Gauge <span className={s.required}>*</span>
-                                    <Tooltip id="pressureGauge" content={constants.Tooltip.pressureGaugeTooltip} />
+                                    {config.fields.pressureGauge.label} <span className={s.required}>*</span>
+                                    <Tooltip id="pressureGauge" content={constants.Tooltip[config.fields.pressureGauge.tooltip as keyof typeof constants.Tooltip] as string} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -426,8 +497,8 @@ const AHUFiltration = () => {
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    Virus Burner <span className={s.required}>*</span>
-                                    <Tooltip id="virusBurner" content={constants.Tooltip.virusBurnerTooltip} />
+                                    {config.fields.virusBurner.label} <span className={s.required}>*</span>
+                                    <Tooltip id="virusBurner" content={constants.Tooltip[config.fields.virusBurner.tooltip as keyof typeof constants.Tooltip] as string} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -442,8 +513,8 @@ const AHUFiltration = () => {
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    Door interlocking systems for air locks and corridor areas <span className={s.required}>*</span>
-                                    <Tooltip id="doorInterlocking" content={constants.Tooltip.doorInterlockingTooltip} />
+                                    {config.fields.doorInterlocking.label} <span className={s.required}>*</span>
+                                    <Tooltip id="doorInterlocking" content={constants.Tooltip[config.fields.doorInterlocking.tooltip as keyof typeof constants.Tooltip] as string} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -458,8 +529,8 @@ const AHUFiltration = () => {
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    BMS Monitoring <span className={s.required}>*</span>
-                                    <Tooltip id="bmsMonitoring" content={constants.Tooltip.bmsMonitoringTooltip} />
+                                    {config.fields.bmsMonitoring.label} <span className={s.required}>*</span>
+                                    <Tooltip id="bmsMonitoring" content={constants.Tooltip[config.fields.bmsMonitoring.tooltip as keyof typeof constants.Tooltip] as string} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -474,8 +545,8 @@ const AHUFiltration = () => {
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    EMS Monitoring <span className={s.required}>*</span>
-                                    <Tooltip id="emsMonitoring" content={constants.Tooltip.emsMonitoringTooltip} />
+                                    {config.fields.emsMonitoring.label} <span className={s.required}>*</span>
+                                    <Tooltip id="emsMonitoring" content={constants.Tooltip[config.fields.emsMonitoring.tooltip as keyof typeof constants.Tooltip] as string} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -504,8 +575,8 @@ const AHUFiltration = () => {
                                 <div className={s.grid2Space}>
                                     <div className={s.field}>
                                         <label className={s.label}>
-                                            Humidistat <span className={s.required}>*</span>
-                                            <Tooltip id="humidistat" content={constants.Tooltip.humidistatTooltip} />
+                                            {config.fields.humidistat.label} <span className={s.required}>*</span>
+                                            <Tooltip id="humidistat" content={constants.Tooltip[config.fields.humidistat.tooltip as keyof typeof constants.Tooltip] as string} />
                                         </label>
                                         <select
                                             className={s.select}
@@ -520,8 +591,8 @@ const AHUFiltration = () => {
 
                                     <div className={s.field}>
                                         <label className={s.label}>
-                                            Thermostat <span className={s.required}>*</span>
-                                            <Tooltip id="thermostat" content={constants.Tooltip.thermostatTooltip} />
+                                            {config.fields.thermostat.label} <span className={s.required}>*</span>
+                                            <Tooltip id="thermostat" content={constants.Tooltip[config.fields.thermostat.tooltip as keyof typeof constants.Tooltip] as string} />
                                         </label>
                                         <select
                                             className={s.select}
@@ -536,8 +607,8 @@ const AHUFiltration = () => {
 
                                     <div className={s.field}>
                                         <label className={s.label}>
-                                            Flow-control Valve <span className={s.required}>*</span>
-                                            <Tooltip id="flowControlValve" content={constants.Tooltip.flowControlValveTooltip} />
+                                            {config.fields.flowControlValve.label} <span className={s.required}>*</span>
+                                            <Tooltip id="flowControlValve" content={constants.Tooltip[config.fields.flowControlValve.tooltip as keyof typeof constants.Tooltip] as string} />
                                         </label>
                                         <select
                                             className={s.select}
@@ -552,8 +623,8 @@ const AHUFiltration = () => {
 
                                     <div className={s.field}>
                                         <label className={s.label}>
-                                            Y-strainer <span className={s.required}>*</span>
-                                            <Tooltip id="yStrainer" content={constants.Tooltip.yStrainerTooltip} />
+                                            {config.fields.yStrainer.label} <span className={s.required}>*</span>
+                                            <Tooltip id="yStrainer" content={constants.Tooltip[config.fields.yStrainer.tooltip as keyof typeof constants.Tooltip] as string} />
                                         </label>
                                         <select
                                             className={s.select}
@@ -568,8 +639,8 @@ const AHUFiltration = () => {
 
                                     <div className={s.field}>
                                         <label className={s.label}>
-                                            Purge Wall <span className={s.required}>*</span>
-                                            <Tooltip id="purgeWall" content={constants.Tooltip.purgeWallTooltip} />
+                                            {config.fields.purgeWall.label} <span className={s.required}>*</span>
+                                            <Tooltip id="purgeWall" content={constants.Tooltip[config.fields.purgeWall.tooltip as keyof typeof constants.Tooltip] as string} />
                                         </label>
                                         <select
                                             className={s.select}
@@ -584,8 +655,8 @@ const AHUFiltration = () => {
 
                                     <div className={s.field}>
                                         <label className={s.label}>
-                                            Pipe Configuration <span className={s.required}>*</span>
-                                            <Tooltip id="pipeConfiguration" content={constants.Tooltip.pipeConfigurationTooltip} />
+                                            {config.fields.pipeConfiguration.label} <span className={s.required}>*</span>
+                                            <Tooltip id="pipeConfiguration" content={constants.Tooltip[config.fields.pipeConfiguration.tooltip as keyof typeof constants.Tooltip] as string} />
                                         </label>
                                         <select
                                             className={s.select}
@@ -603,8 +674,8 @@ const AHUFiltration = () => {
 
                                     <div className={s.field}>
                                         <label className={s.label}>
-                                            Treated fresh-air unit <span className={s.required}>*</span>
-                                            <Tooltip id="treatedFreshAir" content={constants.Tooltip.treatedFreshAirTooltip} />
+                                            {config.fields.treatedFreshAirUnit.label} <span className={s.required}>*</span>
+                                            <Tooltip id="treatedFreshAir" content={constants.Tooltip[config.fields.treatedFreshAirUnit.tooltip as keyof typeof constants.Tooltip] as string} />
                                         </label>
                                         <select
                                             className={s.select}
@@ -618,7 +689,7 @@ const AHUFiltration = () => {
                                     </div>
 
                                     {/* Original Flow Velocity Logic*/}
-                                    {isHeatingCooling ? (
+                                    {isHeatingCooling && pipeConfiguration === "Dual Pipe" ? (
                                         <>
                                             <div className={s.flowBlock + " md:col-span-2"}>
                                                 <div className={s.dualFlowTitle}>
@@ -737,121 +808,221 @@ const AHUFiltration = () => {
                 <div className={s.body}>
                     <div className={s.specialBox}>
                         <div className={s.specialBoxRow}>
-                            <div>
-                                <div className={s.specialBoxTitle}>Filter Type Selection</div>
-                                <div className={s.specialBoxValue}>Select whether filters are for supply or exhaust air</div>
+                            <div className={s.flex1}>
+                                <div className={s.specialBoxTitle}>Filter Type Selection <span className={s.requiredText}>*</span></div>
+                                <div className={s.specialBoxValue}><span className={s.specialBoxSubtitle}>Select whether filters are for supply or exhaust air</span></div>
                             </div>
-                            <div className="flex gap-6 items-center">
-                                {ahuData.filtrationSelection.filterType.map((v: string) => (
-                                    <label key={v} className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                            type="radio"
-                                            name="filterTypeSelection"
-                                            value={v}
-                                            checked={filterTypeSelection === v}
-                                            onChange={(e) => {
-                                                if (filterTypeSelection !== e.target.value) {
-                                                    handleChange("filterTypeSelection", e.target.value);
-                                                    handleChange("selectedFilters", []);
-                                                    handleChange("selectedFilterDetails", {});
-                                                }
-                                            }}
-                                            className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded-full"
-                                        />
-                                        <span className="text-gray-700 font-medium">{v}</span>
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                    {filterTypeSelection === "Exhaust" && (
-                        <div className={s.specialBox + " bg-blue-50 border-blue-100"}>
-                            <div className="text-blue-800 font-bold text-xs mb-3 uppercase tracking-wider">Impact of Exhaust</div>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-sm font-semibold text-blue-950">Exhaust Impact Percentage (0-50%)</label>
-                                <select
-                                    className={s.select + " py-4"}
-                                    value={exhaustImpactPercentage}
-                                    onChange={(e) => handleChange("exhaustImpactPercentage", e.target.value)}
+
+                            <div ref={filterTypeRef} className={s.dropdownWrapper}>
+                                <div
+                                    onClick={() => setFilterTypeOpen(!filterTypeOpen)}
+                                    className={`${s.input} cursor-pointer flex items-center justify-between min-h-[48px] px-4 py-2 bg-white border-2 ${filterTypeOpen
+                                        ? 'border-blue-500 ring-4 ring-blue-50'
+                                        : filterTypes.length === 0
+                                            ? 'border-red-300 bg-red-50/10'
+                                            : 'border-slate-200'
+                                        }`}
                                 >
-                                    <option value="">Select exhaust impact percentage...</option>
-                                    {ahuData.filtrationSelection.exhaustImpact.map((val: string) => (
-                                        <option key={val} value={val}>{val}</option>
-                                    ))}
-                                </select>
-                                <div className="text-[10px] text-blue-600 font-medium">
-                                    {ahuData.filtrationSelection.exhaustImpactHint}
+                                    <div className={s.selectedTags}>
+                                        {filterTypes.length > 0 ? (
+                                            filterTypes.map((type: string) => (
+                                                <span
+                                                    key={type}
+                                                    className={s.tag}
+                                                >
+                                                    {type.toUpperCase()}
+                                                    <HiX
+                                                        className={s.tagRemove}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            const updated = filterTypes.filter((t: string) => t !== type);
+                                                            handleChange("filterTypeSelection", updated);
+
+                                                            const prefix = `${type}:`;
+                                                            const newSelected = (selectedFilters || []).filter((f: string) => !f.startsWith(prefix));
+                                                            handleChange("selectedFilters", newSelected);
+
+                                                            const newDetails = { ...selectedFilterDetails };
+                                                            Object.keys(newDetails).forEach(k => {
+                                                                if (k.startsWith(prefix)) delete newDetails[k];
+                                                            });
+                                                            handleChange("selectedFilterDetails", newDetails);
+                                                        }}
+                                                    />
+                                                </span>
+                                            ))
+                                        ) : (
+                                            <span className={s.placeholder}>{filterTypes.length === 0 ? 'Select at least one...' : 'Select filter types...'}</span>
+                                        )}
+                                    </div>
+                                    <HiChevronDown className={`${s.chevronBase} ${filterTypeOpen ? s.chevronOpen : ""}`} />
                                 </div>
+
+                                {filterTypeOpen && (
+                                    <div className={s.dropdownMenu}>
+                                        <div className={s.dropdownContent}>
+                                            {ahuData.filtrationSelection.filterType
+                                                .filter((v: string) => isRestrictedHandling ? v === "Supply" : true)
+                                                .map((v: string) => {
+                                                    const isSelected = filterTypes.includes(v);
+                                                    return (
+                                                        <div
+                                                            key={v}
+                                                            onClick={() => {
+                                                                const updated = isSelected
+                                                                    ? filterTypes.filter((t: string) => t !== v)
+                                                                    : [...filterTypes, v];
+
+                                                                handleChange("filterTypeSelection", updated);
+
+                                                                if (isSelected && !updated.includes(v)) {
+                                                                    const prefix = `${v}:`;
+                                                                    const newSelected = (selectedFilters || []).filter((f: string) => !f.startsWith(prefix));
+                                                                    handleChange("selectedFilters", newSelected);
+
+                                                                    const newDetails = { ...selectedFilterDetails };
+                                                                    Object.keys(newDetails).forEach(k => {
+                                                                        if (k.startsWith(prefix)) delete newDetails[k];
+                                                                    });
+                                                                    handleChange("selectedFilterDetails", newDetails);
+                                                                }
+                                                            }}
+                                                            className={`${s.optionBase} ${isSelected
+                                                                ? s.optionSelected
+                                                                : s.optionUnselected
+                                                                }`}
+                                                        >
+                                                            <span className={s.optionLabel}>{v}</span>
+                                                            {isSelected && <HiCheck className={s.checkIcon} />}
+                                                        </div>
+                                                    );
+                                                })}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
-                    )}
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-8 transition-opacity duration-300">
-                        {/* Split filters into two independent vertical columns */}
-                        {[0, 1].map((colIndex) => {
-                            const baseFilters = filterTypeSelection === "Exhaust"
-                                ? ahuData.filtrationSelection.exhaustFilters
-                                : ahuData.filtrationSelection.supplyFilters;
-                            
-                            const specialExhaustFilters = filterTypeSelection === "Exhaust" && hasSpecialHandling 
-                                ? ahuData.filtrationSelection.specialExhaustFilters 
-                                : [];
-
-                            const currentFilters = (filterTypeSelection === "Exhaust" && hasSpecialHandling)
-                                ? [
-                                    ...specialExhaustFilters,
-                                    ...baseFilters.filter(f => !specialExhaustFilters.includes(f))
-                                  ]
-                                : baseFilters;
-
-                            return (
-                                <div key={colIndex} className="flex flex-col gap-6">
-                                    {currentFilters
-                                        .filter((_, i) => i % 2 === colIndex)
-                                        .map((filter) => {
-                                            const isSelected = (selectedFilters || []).includes(filter);
-                                            const isPreselectedAndDisabled = specialExhaustFilters.includes(filter);
-                                            const specs = (ahuData.filterSpecs as any)[filter];
-                                            return (
-                                                <div key={filter} className="flex flex-col">
-                                                    <label className={`flex items-center gap-3 ${isPreselectedAndDisabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer group'}`}>
-                                                        <div className="relative flex items-center">
-                                                            <input
-                                                                type="checkbox"
-                                                                className={`h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 ${isPreselectedAndDisabled ? 'cursor-not-allowed bg-gray-100' : 'cursor-pointer'}`}
-                                                                checked={isSelected || isPreselectedAndDisabled}
-                                                                disabled={isPreselectedAndDisabled}
-                                                                onChange={() => handleFilterToggle(filter)}
-                                                            />
-                                                        </div>
-                                                        <span className={`text-sm font-medium ${isPreselectedAndDisabled ? 'text-slate-500' : 'text-slate-700 group-hover:text-blue-600 transition-colors'}`}>
-                                                            {filter}
-                                                        </span>
-                                                    </label>
-                                                    {isSelected && specs && (
-                                                        <FilterDetailCard
-                                                            filterName={filter}
-                                                            specs={specs}
-                                                            data={selectedFilterDetails[filter]}
-                                                            onUpdate={(details) =>
-                                                                dispatch(updateFilterDetail({ filterName: filter, details }))
-                                                            }
-                                                        />
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
-                                </div>
-                            );
-                        })}
                     </div>
 
-                    <div className="mt-12 pt-8 border-t border-slate-200">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+                    <div className={`${s.filterGridMain} ${filterTypes.length > 1 ? s.filterGridLg2 : ""}`}>
+                        {filterTypes.map((type) => (
+                            <div key={type} className={s.typeGroup}>
+                                <div className={s.typeTitle}>
+                                    {type} Filters
+                                </div>
+
+                                {type === "Exhaust" && (
+                                    <div className={s.impactBox}>
+                                        <div className={s.impactTitle}>Impact of Exhaust</div>
+                                        <div className={s.impactContent}>
+                                            {handling.includes("Bio-safety") && (
+                                                <div className={s.inputGroup}>
+                                                    <label className={s.inputLabel}>Bio-safety Level <span className={s.requiredText}>*</span></label>
+                                                    <select
+                                                        className={s.select + " py-2 text-xs"}
+                                                        value={bioSafetyLevel}
+                                                        onChange={(e) => handleChange("bioSafetyLevel", e.target.value)}
+                                                        required={true}
+                                                    >
+                                                        <option value="">Select level...</option>
+                                                        {ahuData.filtrationSelection.bioSafetyLevels.map((val: string) => (
+                                                            <option key={val} value={val}>{val}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            )}
+
+                                            <div className={s.inputGroup}>
+                                                <label className={s.inputLabel}>
+                                                    Exhaust Impact {handling.includes("Bio-safety") ? "(0-100%)" : "(0-50%)"}
+                                                </label>
+                                                <select
+                                                    className={s.select + " py-2 text-xs"}
+                                                    value={exhaustImpactPercentage}
+                                                    onChange={(e) => handleChange("exhaustImpactPercentage", e.target.value)}
+                                                >
+                                                    <option value="">Select percentage...</option>
+                                                    {(handling.includes("Bio-safety")
+                                                        ? ahuData.filtrationSelection.exhaustImpactBioSafety
+                                                        : ahuData.filtrationSelection.exhaustImpact
+                                                    ).map((val: string) => (
+                                                        <option key={val} value={val}>{val}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className={`grid grid-cols-1 ${filterTypes.length > 1 ? s.subGridGap : s.subGridMd2}`}>
+                                    {/* Sub-grid for filters - use two columns only if single type is selected */}
+                                    {(filterTypes.length > 1 ? [0] : [0, 1]).map((colIndex) => {
+                                        const baseFilters = type === "Exhaust"
+                                            ? ahuData.filtrationSelection.exhaustFilters
+                                            : ahuData.filtrationSelection.supplyFilters;
+
+                                        const specialExhaustFilters = type === "Exhaust" && hasSpecialHandling
+                                            ? ahuData.filtrationSelection.specialExhaustFilters
+                                            : [];
+
+                                        const currentFilters = (type === "Exhaust" && hasSpecialHandling)
+                                            ? [
+                                                ...specialExhaustFilters,
+                                                ...baseFilters.filter(f => !specialExhaustFilters.includes(f))
+                                            ]
+                                            : baseFilters;
+
+                                        return (
+                                            <div key={colIndex} className={s.typeGroup}>
+                                                {currentFilters
+                                                    .filter((_, i) => filterTypes.length > 1 ? true : i % 2 === colIndex)
+                                                    .map((filter) => {
+                                                        const compositeKey = `${type}:${filter}`;
+                                                        const isSelected = (selectedFilters || []).includes(compositeKey);
+                                                        const isPreselectedAndDisabled = specialExhaustFilters.includes(filter);
+                                                        const specs = (ahuData.filterSpecs as any)[filter];
+                                                        return (
+                                                            <div key={compositeKey} className={s.inputGroup}>
+                                                                <label className={`${s.filterLabelBase} ${isPreselectedAndDisabled ? s.filterLabelDisabled : s.filterLabelEnabled}`}>
+                                                                    <div className={s.relativeFlex}>
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            className={`${s.checkboxBase} ${isPreselectedAndDisabled ? s.checkboxDisabled : s.checkboxEnabled}`}
+                                                                            checked={isSelected || isPreselectedAndDisabled}
+                                                                            disabled={isPreselectedAndDisabled}
+                                                                            onChange={() => handleFilterToggle(type, filter)}
+                                                                        />
+                                                                    </div>
+                                                                    <span className={`${s.filterTextBase} ${isPreselectedAndDisabled ? s.filterTextDisabled : s.filterTextEnabled}`}>
+                                                                        {filter}
+                                                                    </span>
+                                                                </label>
+                                                                {(isSelected || isPreselectedAndDisabled) && specs && (
+                                                                    <FilterDetailCard
+                                                                        filterName={filter}
+                                                                        specs={specs}
+                                                                        data={selectedFilterDetails[compositeKey]}
+                                                                        onUpdate={(details) =>
+                                                                            dispatch(updateFilterDetail({ filterName: compositeKey, details }))
+                                                                        }
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className={s.finalSection}>
+                        <div className={s.finalGrid}>
                             {/* No. of Filtration Stages */}
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    No. of Filtration Stages in AHU <span className="text-slate-400 font-normal ml-1">(Auto-calculated)</span>
+                                    No. of Filtration Stages in AHU <span className={s.autoCalcNote}>(Auto-calculated)</span>
                                 </label>
                                 <input
                                     type="text"
@@ -872,7 +1043,7 @@ const AHUFiltration = () => {
                                 >
                                     <option value="" disabled>Select Option</option>
                                     <option value={0}>None</option>
-                                    {additionalDpOptions.map((mmwg) => {
+                                    {additionalDpOptions.map((mmwg: number) => {
                                         const pa = Math.round(mmwg * MM_WG_TO_PA);
                                         return (
                                             <option key={mmwg} value={mmwg}>
@@ -889,7 +1060,7 @@ const AHUFiltration = () => {
                                     Static Pressure Requirement for Blower
                                     <Tooltip id="staticPressure" content={constants.Tooltip.staticPressureTooltip} />
                                 </label>
-                                <div className="relative">
+                                <div className={s.relativeBox}>
                                     <input
                                         type="text"
                                         className={s.inputDisabled + " bg-slate-50 font-bold text-blue-900"}
@@ -905,15 +1076,15 @@ const AHUFiltration = () => {
 
             {/* Custom Distance Validation Modal */}
             {showDistanceModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity">
-                    <div className="bg-white rounded-lg shadow-xl p-6 w-11/12 max-w-sm transform transition-all">
-                        <div className="text-slate-800 font-bold text-lg mb-2">Invalid Distance</div>
-                        <div className="text-slate-600 mb-6 text-sm">
-                            Plant room distance needs to be between 30 and 100 meters.
+                <div className={s.modalOverlay}>
+                    <div className={s.modalContent}>
+                        <div className={s.modalTitle}>Invalid Distance</div>
+                        <div className={s.modalBody}>
+                            Plant room distance needs to be between {config.plantRoomDistanceLimits.min} and {config.plantRoomDistanceLimits.max} meters.
                         </div>
-                        <div className="flex justify-end">
+                        <div className={s.flexEnd}>
                             <button
-                                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded transition-colors text-sm"
+                                className={s.modalButton}
                                 onClick={() => setShowDistanceModal(false)}
                             >
                                 OK

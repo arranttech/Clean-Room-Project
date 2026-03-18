@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiSearch, FiPlus, FiEdit2, FiTrash2, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiSearch, FiPlus, FiEdit2, FiTrash2 } from "react-icons/fi";
 import s from "./profileDesign";
 import AssignProfile from "./assignProfile";
 import { getAssignedProfiles, deleteAssignedProfile } from "../../../backend/controller/profileController";
@@ -28,8 +28,6 @@ export default function AssignProfileDetails() {
 	const [editData, setEditData] = useState<GroupedProfile | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [userToDelete, setUserToDelete] = useState<GroupedProfile | null>(null);
-	const [currentPage, setCurrentPage] = useState(1);
-	const ITEMS_PER_PAGE = 10;
 
 	const fetchAssignments = async () => {
 		setIsLoading(true);
@@ -48,10 +46,6 @@ export default function AssignProfileDetails() {
 	useEffect(() => {
 		fetchAssignments();
 	}, []);
-
-	useEffect(() => {
-		setCurrentPage(1);
-	}, [searchTerm]);
 
 	// Group profiles by user
 	const groupedProfiles = assignedProfiles.reduce((acc, current) => {
@@ -78,12 +72,7 @@ export default function AssignProfileDetails() {
 		(item) =>
 			item.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
 			item.profiles.some(p => p.toLowerCase().includes(searchTerm.toLowerCase()))
-	)
-		.sort((a, b) => a.userName.toLowerCase().localeCompare(b.userName.toLowerCase()));  // added sort() to sort the assigned profiles in alphabetical order
-
-	const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
-	const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-	const paginatedData = filteredData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+	);
 
 	if (showAssignForm) {
 		return (
@@ -175,8 +164,8 @@ export default function AssignProfileDetails() {
 									Loading assignments...
 								</td>
 							</tr>
-						) : paginatedData.length > 0 ? (
-							paginatedData.map((row) => (
+						) : filteredData.length > 0 ? (
+							filteredData.map((row) => (
 								<tr key={row.userId} className={s.tr}>
 									<td className={s.tdProfileName}>{row.userName}</td>
 									<td className={s.td}>{row.profiles.join(", ")}</td>
@@ -212,50 +201,6 @@ export default function AssignProfileDetails() {
 					</tbody>
 				</table>
 			</div>
-
-			{/* Pagination */}
-			{totalPages > 1 && (
-				<div className={s.paginationWrap}>
-					<div className={s.paginationInfo}>
-						Showing <span className="text-slate-900">{startIndex + 1}</span> to{" "}
-						<span className="text-slate-900">
-							{Math.min(startIndex + ITEMS_PER_PAGE, filteredData.length)}
-						</span>{" "}
-						of <span className="text-slate-900">{filteredData.length}</span> entries
-					</div>
-
-					<div className={s.paginationControls}>
-						<button
-							type="button"
-							disabled={currentPage === 1}
-							onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-							className={s.paginationNavBtn(currentPage === 1)}
-						>
-							<FiChevronLeft className="text-lg" /> Previous
-						</button>
-
-						{Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-							<button
-								key={page}
-								type="button"
-								onClick={() => setCurrentPage(page)}
-								className={s.paginationBtn(currentPage === page, false)}
-							>
-								{page}
-							</button>
-						))}
-
-						<button
-							type="button"
-							disabled={currentPage === totalPages}
-							onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-							className={s.paginationNavBtn(currentPage === totalPages)}
-						>
-							Next <FiChevronRight className="text-lg" />
-						</button>
-					</div>
-				</div>
-			)}
 
 			{/* Custom Delete Confirmation Modal */}
 			{userToDelete && (

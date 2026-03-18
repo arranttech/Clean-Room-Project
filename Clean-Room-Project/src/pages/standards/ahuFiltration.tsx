@@ -8,9 +8,26 @@ import standardDataJson from "../../json/standardData.json";
 import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
 
-const config = (ahuData as any).ahuConstructionConfig;
-
-export const AHU_CONSTRUCTION_FIELDS = Object.keys(config.fields);
+export const AHU_CONSTRUCTION_FIELDS = [
+    "plantRoomDistance",
+    "panelThicknessProfile",
+    "panelConstruction",
+    "airHandlingConstruction",
+    "fireControl",
+    "vfd",
+    "pressureGauge",
+    "virusBurner",
+    "doorInterlocking",
+    "bmsMonitoring",
+    "emsMonitoring",
+    "humidistat",
+    "thermostat",
+    "flowControlValve",
+    "yStrainer",
+    "purgeWall",
+    "pipeConfiguration",
+    "treatedFreshAirUnit",
+];
 
 export const ahupayload = (standards: any) => {
     const payload: any = {};
@@ -22,9 +39,8 @@ export const ahupayload = (standards: any) => {
 
 export const validateAhuConstruction = (standards: any) => {
     const { plantRoomDistance } = standards;
-    const { min, max } = config.plantRoomDistanceLimits;
-    if (!plantRoomDistance || Number(plantRoomDistance) < min || Number(plantRoomDistance) > max) {
-        return `Plant room distance needs to be between ${min} and ${max} meters.`;
+    if (!plantRoomDistance || Number(plantRoomDistance) < 30 || Number(plantRoomDistance) > 100) {
+        return "Plant room distance needs to be between 30 and 100 meters.";
     }
     return null;
 };
@@ -43,7 +59,7 @@ const FilterDetailCard = ({
 }) => {
     // mmWG TO PA conversion factor
     const s = standardDesign;
-    const MM_WG_TO_PA = config.calculationConstants.MM_WG_TO_PA;
+    const MM_WG_TO_PA = 9.8;
 
     const generateMmwgSteps = (minMmwg: number, maxMmwg: number) => {
         const steps = [];
@@ -72,11 +88,11 @@ const FilterDetailCard = ({
 
     return (
         <div className={s.filterCard + " mt-3"}>
-            <div className={s.filterHeader}>
-                <div className={s.filterTitle}>{filterName}</div>
+            <div className="flex justify-between items-start mb-4">
+                <div className="text-sm font-bold text-slate-800">{filterName}</div>
             </div>
 
-            <div className={s.filterStats}>
+            <div className="space-y-1 mb-4">
                 <div className={s.filterStatRow}>
                     <span className={s.filterStatLabel}>Filter Rating:</span>
                     <span className={s.filterStatValue}>{specs.rating}</span>
@@ -175,8 +191,8 @@ const AHUFiltration = () => {
     const filterTypes = Array.isArray(filterTypeSelection) ? filterTypeSelection : [filterTypeSelection].filter(Boolean);
 
     const handling = useAppSelector((state: any) => state.projectInfo?.handling || []);
-    const isRestrictedHandling = handling.some((h: string) => config.handling.restrictedHandlingValues.includes(h));
-    const specialHandlingOptions = config.handling.specialHandlingOptions;
+    const isRestrictedHandling = handling.some((h: string) => ["Non-Contagious", "Non-Hazardous"].includes(h));
+    const specialHandlingOptions = ahuData.filtrationSelection.specialHandlingOptions;
     const hasSpecialHandling = handling.length > 0 && handling.some((h: string) => specialHandlingOptions.includes(h)); // true if any selected handling matches special handling criteria
 
     const systems = (standardDataJson as any).text.options.systems;
@@ -215,7 +231,7 @@ const AHUFiltration = () => {
         }
     }, [isRestrictedHandling]);
 
-    const MM_WG_TO_PA = config.calculationConstants.MM_WG_TO_PA;
+    const MM_WG_TO_PA = 9.8;
     const activeFilters = (selectedFilters || []).filter((f: string) => {
         if (!f || f.trim() === "") return false;
         return filterTypes.some(type => f.startsWith(`${type}:`));
@@ -228,7 +244,7 @@ const AHUFiltration = () => {
         .reduce((acc: number, [_, curr]: [string, any]) => acc + ((curr.finalDp || 0) / MM_WG_TO_PA), 0);
 
     // Static Pressure (mmWG) = (Plant Room Distance (m) * 0.7) + Sum of Filter Δp (mmWG) + Additional Δp (mmWG)
-    const staticPressureMmWg = (Number(plantRoomDistance) * config.calculationConstants.PLANT_ROOM_DISTANCE_FACTOR) + filterDpSumMmWg + (Number(additionalDpValue) || 0);
+    const staticPressureMmWg = (Number(plantRoomDistance) * 0.7) + filterDpSumMmWg + (Number(additionalDpValue) || 0);
     const staticPressurePa = Math.round(staticPressureMmWg * MM_WG_TO_PA);
     const staticPressureDisplay = `${Math.round(staticPressureMmWg)} mmWG / ${staticPressurePa} Pa`;
 
@@ -240,7 +256,7 @@ const AHUFiltration = () => {
         }));
     }, [numStages, staticPressureMmWg, dispatch]);
 
-    const additionalDpOptions = config.additionalDpOptions;
+    const additionalDpOptions = Array.from({ length: 6 }, (_, i) => i + 5); // addional dp only ranges from 5 to 10 mmWG
 
     const handleFilterToggle = (type: string, filter: string) => {
         const compositeKey = `${type}:${filter}`;
@@ -254,7 +270,7 @@ const AHUFiltration = () => {
             if (!selectedFilterDetails[compositeKey]) {
                 const specs = (ahuData.filterSpecs as any)[filter];
                 if (specs) {
-                    const MM_WG_TO_PA = config.calculationConstants.MM_WG_TO_PA;
+                    const MM_WG_TO_PA = 9.8;
                     dispatch(updateFilterDetail({
                         filterName: compositeKey,
                         details: {
@@ -276,7 +292,7 @@ const AHUFiltration = () => {
         return String(m || "").toLowerCase().includes("steam");
     }
     function getFlowVelocityRange(medium: string) {
-        return isSteamMedium(medium) ? config.flowVelocityRange.steam : config.flowVelocityRange.water;
+        return isSteamMedium(medium) ? { min: 3, max: 25 } : { min: 0.5, max: 2.5 };
     }
     function formatMediumLabel(medium: string) {
         return medium ? medium : "Select Method";
@@ -318,7 +334,7 @@ const AHUFiltration = () => {
                     if (!selectedFilterDetails[filter]) {
                         const specs = (ahuData.filterSpecs as any)[filter];
                         if (specs) {
-                            const MM_WG_TO_PA = config.calculationConstants.MM_WG_TO_PA;
+                            const MM_WG_TO_PA = 9.8;
                             dispatch(updateFilterDetail({
                                 filterName: filter,
                                 details: {
@@ -353,19 +369,19 @@ const AHUFiltration = () => {
                         <div className={s.specialBoxRow}>
                             <div>
                                 <div className={s.specialBoxTitle}>
-                                    {config.fields.plantRoomDistance.label} <span className={s.required}>*</span>
+                                    Plant Room Distance <span className={s.required}>*</span>
                                 </div>
-                                <div className={s.specialBoxValue}>Range: {config.plantRoomDistanceLimits.min}-{config.plantRoomDistanceLimits.max} {config.fields.plantRoomDistance.unit}</div>
+                                <div className={s.specialBoxValue}>Range: 30-100 meters</div>
                             </div>
-                            <div className={s.colEnd}>
+                            <div className="flex flex-col items-end">
                                 <div className={s.specialBoxInputGroup}>
                                     <input
                                         type="number"
                                         className={s.specialBoxInput}
                                         placeholder="eg: 55"
                                         value={plantRoomDistance}
-                                        min={config.plantRoomDistanceLimits.min}
-                                        max={config.plantRoomDistanceLimits.max}
+                                        min={30}
+                                        max={100}
                                         onChange={(e) => { // dont allow more than 3 digits
                                             const raw = e.target.value;
                                             if (raw === "") {
@@ -386,23 +402,23 @@ const AHUFiltration = () => {
                                     />
                                     <span className={s.specialBoxUnit}>meters</span>
                                 </div>
-                                {plantRoomDistance !== "" && (Number(plantRoomDistance) < config.plantRoomDistanceLimits.min || Number(plantRoomDistance) > config.plantRoomDistanceLimits.max) && (
-                                    <div className={s.errorText}>
-                                        Distance must be between {config.plantRoomDistanceLimits.min} and {config.plantRoomDistanceLimits.max} meters
+                                {plantRoomDistance !== "" && (Number(plantRoomDistance) < 30 || Number(plantRoomDistance) > 100) && (
+                                    <div className="text-red-500 text-xs mt-2 text-right w-full block">
+                                        Distance must be between 30 and 100 meters
                                     </div>
                                 )}
                             </div>
                         </div>
                     </div>
 
-                    <div className={s.transitionOpacity}>
+                    <div className="transition-opacity duration-300">
                         {/* Construction Specs Grid */}
                         <div className={s.grid2}>
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    {config.fields.panelThicknessProfile.label} <span className={s.required}>*</span>
-                                    <Tooltip id="panelThickness" content={constants.Tooltip[config.fields.panelThicknessProfile.tooltip as keyof typeof constants.Tooltip] as string} />
+                                    Panel Thickness & Profile <span className={s.required}>*</span>
+                                    <Tooltip id="panelThickness" content={constants.Tooltip.panelThicknessTooltip} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -417,8 +433,8 @@ const AHUFiltration = () => {
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    {config.fields.panelConstruction.label} <span className={s.required}>*</span>
-                                    <Tooltip id="panelConstruction" content={constants.Tooltip[config.fields.panelConstruction.tooltip as keyof typeof constants.Tooltip] as string} />
+                                    Panel Construction <span className={s.required}>*</span>
+                                    <Tooltip id="panelConstruction" content={constants.Tooltip.panelConstructionTooltip} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -433,8 +449,8 @@ const AHUFiltration = () => {
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    {config.fields.airHandlingConstruction.label} <span className={s.required}>*</span>
-                                    <Tooltip id="airHandling" content={constants.Tooltip[config.fields.airHandlingConstruction.tooltip as keyof typeof constants.Tooltip] as string} />
+                                    Air Handling Construction <span className={s.required}>*</span>
+                                    <Tooltip id="airHandling" content={constants.Tooltip.airHandlingTooltip} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -449,8 +465,8 @@ const AHUFiltration = () => {
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    {config.fields.fireControl.label} <span className={s.required}>*</span>
-                                    <Tooltip id="fireControl" content={constants.Tooltip[config.fields.fireControl.tooltip as keyof typeof constants.Tooltip] as string} />
+                                    Fire Control <span className={s.required}>*</span>
+                                    <Tooltip id="fireControl" content={constants.Tooltip.fireControlTooltip} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -465,8 +481,8 @@ const AHUFiltration = () => {
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    {config.fields.vfd.label} <span className={s.required}>*</span>
-                                    <Tooltip id="vfd" content={constants.Tooltip[config.fields.vfd.tooltip as keyof typeof constants.Tooltip] as string} />
+                                    Variable Frequency Drive <span className={s.required}>*</span>
+                                    <Tooltip id="vfd" content={constants.Tooltip.vfdTooltip} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -481,8 +497,8 @@ const AHUFiltration = () => {
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    {config.fields.pressureGauge.label} <span className={s.required}>*</span>
-                                    <Tooltip id="pressureGauge" content={constants.Tooltip[config.fields.pressureGauge.tooltip as keyof typeof constants.Tooltip] as string} />
+                                    Pressure Gauge <span className={s.required}>*</span>
+                                    <Tooltip id="pressureGauge" content={constants.Tooltip.pressureGaugeTooltip} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -497,8 +513,8 @@ const AHUFiltration = () => {
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    {config.fields.virusBurner.label} <span className={s.required}>*</span>
-                                    <Tooltip id="virusBurner" content={constants.Tooltip[config.fields.virusBurner.tooltip as keyof typeof constants.Tooltip] as string} />
+                                    Virus Burner <span className={s.required}>*</span>
+                                    <Tooltip id="virusBurner" content={constants.Tooltip.virusBurnerTooltip} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -513,8 +529,8 @@ const AHUFiltration = () => {
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    {config.fields.doorInterlocking.label} <span className={s.required}>*</span>
-                                    <Tooltip id="doorInterlocking" content={constants.Tooltip[config.fields.doorInterlocking.tooltip as keyof typeof constants.Tooltip] as string} />
+                                    Door interlocking systems for air locks and corridor areas <span className={s.required}>*</span>
+                                    <Tooltip id="doorInterlocking" content={constants.Tooltip.doorInterlockingTooltip} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -529,8 +545,8 @@ const AHUFiltration = () => {
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    {config.fields.bmsMonitoring.label} <span className={s.required}>*</span>
-                                    <Tooltip id="bmsMonitoring" content={constants.Tooltip[config.fields.bmsMonitoring.tooltip as keyof typeof constants.Tooltip] as string} />
+                                    BMS Monitoring <span className={s.required}>*</span>
+                                    <Tooltip id="bmsMonitoring" content={constants.Tooltip.bmsMonitoringTooltip} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -545,8 +561,8 @@ const AHUFiltration = () => {
 
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    {config.fields.emsMonitoring.label} <span className={s.required}>*</span>
-                                    <Tooltip id="emsMonitoring" content={constants.Tooltip[config.fields.emsMonitoring.tooltip as keyof typeof constants.Tooltip] as string} />
+                                    EMS Monitoring <span className={s.required}>*</span>
+                                    <Tooltip id="emsMonitoring" content={constants.Tooltip.emsMonitoringTooltip} />
                                 </label>
                                 <select
                                     className={s.select}
@@ -575,8 +591,8 @@ const AHUFiltration = () => {
                                 <div className={s.grid2Space}>
                                     <div className={s.field}>
                                         <label className={s.label}>
-                                            {config.fields.humidistat.label} <span className={s.required}>*</span>
-                                            <Tooltip id="humidistat" content={constants.Tooltip[config.fields.humidistat.tooltip as keyof typeof constants.Tooltip] as string} />
+                                            Humidistat <span className={s.required}>*</span>
+                                            <Tooltip id="humidistat" content={constants.Tooltip.humidistatTooltip} />
                                         </label>
                                         <select
                                             className={s.select}
@@ -591,8 +607,8 @@ const AHUFiltration = () => {
 
                                     <div className={s.field}>
                                         <label className={s.label}>
-                                            {config.fields.thermostat.label} <span className={s.required}>*</span>
-                                            <Tooltip id="thermostat" content={constants.Tooltip[config.fields.thermostat.tooltip as keyof typeof constants.Tooltip] as string} />
+                                            Thermostat <span className={s.required}>*</span>
+                                            <Tooltip id="thermostat" content={constants.Tooltip.thermostatTooltip} />
                                         </label>
                                         <select
                                             className={s.select}
@@ -607,8 +623,8 @@ const AHUFiltration = () => {
 
                                     <div className={s.field}>
                                         <label className={s.label}>
-                                            {config.fields.flowControlValve.label} <span className={s.required}>*</span>
-                                            <Tooltip id="flowControlValve" content={constants.Tooltip[config.fields.flowControlValve.tooltip as keyof typeof constants.Tooltip] as string} />
+                                            Flow-control Valve <span className={s.required}>*</span>
+                                            <Tooltip id="flowControlValve" content={constants.Tooltip.flowControlValveTooltip} />
                                         </label>
                                         <select
                                             className={s.select}
@@ -623,8 +639,8 @@ const AHUFiltration = () => {
 
                                     <div className={s.field}>
                                         <label className={s.label}>
-                                            {config.fields.yStrainer.label} <span className={s.required}>*</span>
-                                            <Tooltip id="yStrainer" content={constants.Tooltip[config.fields.yStrainer.tooltip as keyof typeof constants.Tooltip] as string} />
+                                            Y-strainer <span className={s.required}>*</span>
+                                            <Tooltip id="yStrainer" content={constants.Tooltip.yStrainerTooltip} />
                                         </label>
                                         <select
                                             className={s.select}
@@ -639,8 +655,8 @@ const AHUFiltration = () => {
 
                                     <div className={s.field}>
                                         <label className={s.label}>
-                                            {config.fields.purgeWall.label} <span className={s.required}>*</span>
-                                            <Tooltip id="purgeWall" content={constants.Tooltip[config.fields.purgeWall.tooltip as keyof typeof constants.Tooltip] as string} />
+                                            Purge Wall <span className={s.required}>*</span>
+                                            <Tooltip id="purgeWall" content={constants.Tooltip.purgeWallTooltip} />
                                         </label>
                                         <select
                                             className={s.select}
@@ -655,8 +671,8 @@ const AHUFiltration = () => {
 
                                     <div className={s.field}>
                                         <label className={s.label}>
-                                            {config.fields.pipeConfiguration.label} <span className={s.required}>*</span>
-                                            <Tooltip id="pipeConfiguration" content={constants.Tooltip[config.fields.pipeConfiguration.tooltip as keyof typeof constants.Tooltip] as string} />
+                                            Pipe Configuration <span className={s.required}>*</span>
+                                            <Tooltip id="pipeConfiguration" content={constants.Tooltip.pipeConfigurationTooltip} />
                                         </label>
                                         <select
                                             className={s.select}
@@ -674,8 +690,8 @@ const AHUFiltration = () => {
 
                                     <div className={s.field}>
                                         <label className={s.label}>
-                                            {config.fields.treatedFreshAirUnit.label} <span className={s.required}>*</span>
-                                            <Tooltip id="treatedFreshAir" content={constants.Tooltip[config.fields.treatedFreshAirUnit.tooltip as keyof typeof constants.Tooltip] as string} />
+                                            Treated fresh-air unit <span className={s.required}>*</span>
+                                            <Tooltip id="treatedFreshAir" content={constants.Tooltip.treatedFreshAirTooltip} />
                                         </label>
                                         <select
                                             className={s.select}
@@ -808,12 +824,12 @@ const AHUFiltration = () => {
                 <div className={s.body}>
                     <div className={s.specialBox}>
                         <div className={s.specialBoxRow}>
-                            <div className={s.flex1}>
-                                <div className={s.specialBoxTitle}>Filter Type Selection <span className={s.requiredText}>*</span></div>
-                                <div className={s.specialBoxValue}><span className={s.specialBoxSubtitle}>Select whether filters are for supply or exhaust air</span></div>
+                            <div className="flex-1">
+                                <div className={s.specialBoxTitle}>Filter Type Selection <span className="text-red-600">*</span></div>
+                                <div className={s.specialBoxValue}><span className="text-[10px] text-blue-600 font-medium tracking-tight">Select whether filters are for supply or exhaust air</span></div>
                             </div>
 
-                            <div ref={filterTypeRef} className={s.dropdownWrapper}>
+                            <div ref={filterTypeRef} className="relative w-72">
                                 <div
                                     onClick={() => setFilterTypeOpen(!filterTypeOpen)}
                                     className={`${s.input} cursor-pointer flex items-center justify-between min-h-[48px] px-4 py-2 bg-white border-2 ${filterTypeOpen
@@ -823,16 +839,16 @@ const AHUFiltration = () => {
                                             : 'border-slate-200'
                                         }`}
                                 >
-                                    <div className={s.selectedTags}>
+                                    <div className="flex flex-wrap gap-1.5 flex-1 mr-2">
                                         {filterTypes.length > 0 ? (
                                             filterTypes.map((type: string) => (
                                                 <span
                                                     key={type}
-                                                    className={s.tag}
+                                                    className="bg-blue-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 shadow-sm"
                                                 >
                                                     {type.toUpperCase()}
                                                     <HiX
-                                                        className={s.tagRemove}
+                                                        className="cursor-pointer hover:text-blue-200 transition-colors"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             const updated = filterTypes.filter((t: string) => t !== type);
@@ -852,15 +868,15 @@ const AHUFiltration = () => {
                                                 </span>
                                             ))
                                         ) : (
-                                            <span className={s.placeholder}>{filterTypes.length === 0 ? 'Select at least one...' : 'Select filter types...'}</span>
+                                            <span className="text-slate-400 text-sm">{filterTypes.length === 0 ? 'Select at least one...' : 'Select filter types...'}</span>
                                         )}
                                     </div>
-                                    <HiChevronDown className={`${s.chevronBase} ${filterTypeOpen ? s.chevronOpen : ""}`} />
+                                    <HiChevronDown className={`text-slate-400 transition-transform duration-300 ${filterTypeOpen ? 'rotate-180 text-blue-500' : ''}`} />
                                 </div>
 
                                 {filterTypeOpen && (
-                                    <div className={s.dropdownMenu}>
-                                        <div className={s.dropdownContent}>
+                                    <div className="absolute z-50 mt-2 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                                        <div className="p-2 flex flex-col gap-1">
                                             {ahuData.filtrationSelection.filterType
                                                 .filter((v: string) => isRestrictedHandling ? v === "Supply" : true)
                                                 .map((v: string) => {
@@ -887,13 +903,13 @@ const AHUFiltration = () => {
                                                                     handleChange("selectedFilterDetails", newDetails);
                                                                 }
                                                             }}
-                                                            className={`${s.optionBase} ${isSelected
-                                                                ? s.optionSelected
-                                                                : s.optionUnselected
+                                                            className={`flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition-all ${isSelected
+                                                                ? 'bg-blue-50 text-blue-700'
+                                                                : 'hover:bg-slate-50 text-slate-700'
                                                                 }`}
                                                         >
-                                                            <span className={s.optionLabel}>{v}</span>
-                                                            {isSelected && <HiCheck className={s.checkIcon} />}
+                                                            <span className="text-sm font-bold tracking-wide">{v}</span>
+                                                            {isSelected && <HiCheck className="text-blue-600 text-lg" />}
                                                         </div>
                                                     );
                                                 })}
@@ -904,20 +920,20 @@ const AHUFiltration = () => {
                         </div>
                     </div>
 
-                    <div className={`${s.filterGridMain} ${filterTypes.length > 1 ? s.filterGridLg2 : ""}`}>
+                    <div className={`grid grid-cols-1 ${filterTypes.length > 1 ? 'lg:grid-cols-2' : ''} gap-12 mt-8 transition-all duration-300`}>
                         {filterTypes.map((type) => (
-                            <div key={type} className={s.typeGroup}>
-                                <div className={s.typeTitle}>
+                            <div key={type} className="flex flex-col gap-6">
+                                <div className="text-blue-800 font-bold text-sm uppercase tracking-widest border-b border-blue-100 pb-2">
                                     {type} Filters
                                 </div>
 
                                 {type === "Exhaust" && (
-                                    <div className={s.impactBox}>
-                                        <div className={s.impactTitle}>Impact of Exhaust</div>
-                                        <div className={s.impactContent}>
+                                    <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4 flex flex-col gap-4 shadow-sm">
+                                        <div className="text-blue-800 font-bold text-[10px] uppercase tracking-wider opacity-80">Impact of Exhaust</div>
+                                        <div className="flex flex-col gap-4">
                                             {handling.includes("Bio-safety") && (
-                                                <div className={s.inputGroup}>
-                                                    <label className={s.inputLabel}>Bio-safety Level <span className={s.requiredText}>*</span></label>
+                                                <div className="flex flex-col gap-1.5">
+                                                    <label className="text-xs font-semibold text-blue-950">Bio-safety Level <span className="text-red-600">*</span></label>
                                                     <select
                                                         className={s.select + " py-2 text-xs"}
                                                         value={bioSafetyLevel}
@@ -932,8 +948,8 @@ const AHUFiltration = () => {
                                                 </div>
                                             )}
 
-                                            <div className={s.inputGroup}>
-                                                <label className={s.inputLabel}>
+                                            <div className="flex flex-col gap-1.5">
+                                                <label className="text-xs font-semibold text-blue-950">
                                                     Exhaust Impact {handling.includes("Bio-safety") ? "(0-100%)" : "(0-50%)"}
                                                 </label>
                                                 <select
@@ -953,7 +969,7 @@ const AHUFiltration = () => {
                                         </div>
                                     </div>
                                 )}
-                                <div className={`grid grid-cols-1 ${filterTypes.length > 1 ? s.subGridGap : s.subGridMd2}`}>
+                                <div className={`grid grid-cols-1 ${filterTypes.length > 1 ? 'gap-6' : 'md:grid-cols-2 gap-x-10 gap-y-6'}`}>
                                     {/* Sub-grid for filters - use two columns only if single type is selected */}
                                     {(filterTypes.length > 1 ? [0] : [0, 1]).map((colIndex) => {
                                         const baseFilters = type === "Exhaust"
@@ -972,7 +988,7 @@ const AHUFiltration = () => {
                                             : baseFilters;
 
                                         return (
-                                            <div key={colIndex} className={s.typeGroup}>
+                                            <div key={colIndex} className="flex flex-col gap-6">
                                                 {currentFilters
                                                     .filter((_, i) => filterTypes.length > 1 ? true : i % 2 === colIndex)
                                                     .map((filter) => {
@@ -981,18 +997,18 @@ const AHUFiltration = () => {
                                                         const isPreselectedAndDisabled = specialExhaustFilters.includes(filter);
                                                         const specs = (ahuData.filterSpecs as any)[filter];
                                                         return (
-                                                            <div key={compositeKey} className={s.inputGroup}>
-                                                                <label className={`${s.filterLabelBase} ${isPreselectedAndDisabled ? s.filterLabelDisabled : s.filterLabelEnabled}`}>
-                                                                    <div className={s.relativeFlex}>
+                                                            <div key={compositeKey} className="flex flex-col">
+                                                                <label className={`flex items-center gap-3 ${isPreselectedAndDisabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer group'}`}>
+                                                                    <div className="relative flex items-center">
                                                                         <input
                                                                             type="checkbox"
-                                                                            className={`${s.checkboxBase} ${isPreselectedAndDisabled ? s.checkboxDisabled : s.checkboxEnabled}`}
+                                                                            className={`h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 ${isPreselectedAndDisabled ? 'cursor-not-allowed bg-gray-100' : 'cursor-pointer'}`}
                                                                             checked={isSelected || isPreselectedAndDisabled}
                                                                             disabled={isPreselectedAndDisabled}
                                                                             onChange={() => handleFilterToggle(type, filter)}
                                                                         />
                                                                     </div>
-                                                                    <span className={`${s.filterTextBase} ${isPreselectedAndDisabled ? s.filterTextDisabled : s.filterTextEnabled}`}>
+                                                                    <span className={`text-sm font-medium ${isPreselectedAndDisabled ? 'text-slate-500' : 'text-slate-700 group-hover:text-blue-600 transition-colors'}`}>
                                                                         {filter}
                                                                     </span>
                                                                 </label>
@@ -1017,12 +1033,12 @@ const AHUFiltration = () => {
                         ))}
                     </div>
 
-                    <div className={s.finalSection}>
-                        <div className={s.finalGrid}>
+                    <div className="mt-12 pt-8 border-t border-slate-200">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
                             {/* No. of Filtration Stages */}
                             <div className={s.field}>
                                 <label className={s.label}>
-                                    No. of Filtration Stages in AHU <span className={s.autoCalcNote}>(Auto-calculated)</span>
+                                    No. of Filtration Stages in AHU <span className="text-slate-400 font-normal ml-1">(Auto-calculated)</span>
                                 </label>
                                 <input
                                     type="text"
@@ -1043,7 +1059,7 @@ const AHUFiltration = () => {
                                 >
                                     <option value="" disabled>Select Option</option>
                                     <option value={0}>None</option>
-                                    {additionalDpOptions.map((mmwg: number) => {
+                                    {additionalDpOptions.map((mmwg) => {
                                         const pa = Math.round(mmwg * MM_WG_TO_PA);
                                         return (
                                             <option key={mmwg} value={mmwg}>
@@ -1060,7 +1076,7 @@ const AHUFiltration = () => {
                                     Static Pressure Requirement for Blower
                                     <Tooltip id="staticPressure" content={constants.Tooltip.staticPressureTooltip} />
                                 </label>
-                                <div className={s.relativeBox}>
+                                <div className="relative">
                                     <input
                                         type="text"
                                         className={s.inputDisabled + " bg-slate-50 font-bold text-blue-900"}
@@ -1076,15 +1092,15 @@ const AHUFiltration = () => {
 
             {/* Custom Distance Validation Modal */}
             {showDistanceModal && (
-                <div className={s.modalOverlay}>
-                    <div className={s.modalContent}>
-                        <div className={s.modalTitle}>Invalid Distance</div>
-                        <div className={s.modalBody}>
-                            Plant room distance needs to be between {config.plantRoomDistanceLimits.min} and {config.plantRoomDistanceLimits.max} meters.
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity">
+                    <div className="bg-white rounded-lg shadow-xl p-6 w-11/12 max-w-sm transform transition-all">
+                        <div className="text-slate-800 font-bold text-lg mb-2">Invalid Distance</div>
+                        <div className="text-slate-600 mb-6 text-sm">
+                            Plant room distance needs to be between 30 and 100 meters.
                         </div>
-                        <div className={s.flexEnd}>
+                        <div className="flex justify-end">
                             <button
-                                className={s.modalButton}
+                                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded transition-colors text-sm"
                                 onClick={() => setShowDistanceModal(false)}
                             >
                                 OK

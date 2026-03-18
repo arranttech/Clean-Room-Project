@@ -19,7 +19,7 @@ import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
 import Header from "../../components/header";
 import store from "../../redux/store";
-import AHUFiltration from "./ahuFiltration";
+import AHUFiltration, { ahupayload, validateAhuConstruction } from "./ahuFiltration";
 
 type StandardItem = {
   id: number;
@@ -95,7 +95,7 @@ export default function Standard() {
   );
   const projectId = location.state?.projectId ?? projectIdFromRedux;
 
-  // Destructure all needed fields from standards slice
+  const standards = useAppSelector((state: any) => state.standards);
   const {
     zoneId: zoneIdFromRedux,
     projectStandardId: projectStandardIdFromRedux,
@@ -114,32 +114,13 @@ export default function Standard() {
     heatingFlowVelocity,
     coolingFlowVelocity,
     additionalDpValue,
-    plantRoomDistance,
-    panelThicknessProfile,
-    panelConstruction,
-    airHandlingConstruction,
-    fireControl,
-    vfd,
-    pressureGauge,
-    virusBurner,
-    doorInterlocking,
-    bmsMonitoring,
-    emsMonitoring,
-    humidistat,
-    thermostat,
-    flowControlValve,
-    yStrainer,
-    purgeWall,
-    pipeConfiguration,
-    treatedFreshAirUnit,
-    preFilter,
-    fineFilter,
-    hepaFilter,
-    carbonFilter,
     filterTypeSelection,
     selectedFilters,
-    selectedFilterDetails,
-  } = useAppSelector((state: any) => state.standards);
+    totalFiltrationStages,
+    staticPressure,
+  } = standards;
+
+  const ahuPayload = ahupayload(standards);
 
 
   const minTempC = useAppSelector((state: any) => state.projectInfo.minTemp);
@@ -453,8 +434,6 @@ export default function Standard() {
 
 
 
-
-
   const roomPayload = useMemo(() => {
     const isVentilationOnly = system === t.options.systems.ventilation;
     return {
@@ -485,85 +464,44 @@ export default function Standard() {
       rhMax,
       ventilationOnly: isVentilationOnly,
       // AHU Specs & Filtration
-      plantRoomDistance,
-      panelThicknessProfile,
-      panelConstruction,
-      airHandlingConstruction,
-      fireControl,
-      vfd,
-      pressureGauge,
-      virusBurner,
-      doorInterlocking,
-      bmsMonitoring,
-      emsMonitoring,
-      humidistat,
-      thermostat,
-      flowControlValve,
-      yStrainer,
-      purgeWall,
-      pipeConfiguration,
-      treatedFreshAirUnit,
-      preFilter,
-      fineFilter,
-      hepaFilter,
-      carbonFilter,
+      ...ahuPayload
     };
   }, [
+    system,
+    minTempC,
+    maxTempC,
+    rhMin,
+    rhMax,
     standard,
     classification,
     acph,
     selectedClass,
-    system,
     systemType,
     heatingMethod,
     coolingMethod,
     tempUnit,
     reqInsideTempDisplay,
-    reqInsideTempC,
     reqInsideHum,
-    minTempC,
-    maxTempC,
-    rhMin,
-    rhMax,
-    plantRoomDistance,
-    panelThicknessProfile,
-    panelConstruction,
-    airHandlingConstruction,
-    fireControl,
-    vfd,
-    pressureGauge,
-    virusBurner,
-    doorInterlocking,
-    bmsMonitoring,
-    emsMonitoring,
-    humidistat,
-    thermostat,
-    flowControlValve,
-    yStrainer,
-    purgeWall,
-    pipeConfiguration,
-    treatedFreshAirUnit,
-    preFilter,
-    fineFilter,
-    hepaFilter,
-    carbonFilter,
+    reqInsideTempC,
+    ahuPayload,
   ]);
 
   const isFormValid = (() => {
-    if (!standard || errors.standard) return false;
-    if (!classification || errors.classification) return false;
-    if (!acph || errors.acph) return false;
-    if (!system || errors.system) return false;
-    if (!systemType || errors.systemType) return false;
+    if (!standard || (errors as any).standard) return false;
+    if (!classification || (errors as any).classification) return false;
+    if (!acph || (errors as any).acph) return false;
+    if (!system || (errors as any).system) return false;
+    if (!systemType || (errors as any).systemType) return false;
     if (!ventilationOnly) {
       if (!heatingMethod && showHeatingMethod) return false;
       if (!coolingMethod && showCoolingMethod) return false;
-      if (!reqInsideHum || errors.humidity) return false;
-      if (!reqInsideTempC || errors.temperature) return false;
+      if (!reqInsideHum || (errors as any).humidity) return false;
+      if (!reqInsideTempC || (errors as any).temperature) return false;
     }
     if (additionalDpValue === "") return false;
     return true;
   })();
+  ;
 
   const getFreshProjectId = () =>
     location.state?.projectId ??
@@ -590,21 +528,22 @@ export default function Standard() {
       alert("Please fill all required fields correctly before proceeding.");
       return;
     }
-    if (!plantRoomDistance || Number(plantRoomDistance) < 30 || Number(plantRoomDistance) > 100) {
-      alert("Plant room distance needs to be between 30 and 100 meters.");
+    const ahuError = validateAhuConstruction(standards);
+    if (ahuError) {
+      alert(ahuError);
       return;
     }
-    if (!filterTypeSelection) {
+    // Validation for filtration: at least one filter type and one specific filter must be selected
+    const types = Array.isArray(filterTypeSelection) ? filterTypeSelection : [filterTypeSelection].filter(Boolean);
+    if (types.length === 0) {
       alert("Please select a Filter Type (Supply or Exhaust) before proceeding.");
       return;
     }
 
-    const MM_WG_TO_PA = 9.8;
-    const numStages = (selectedFilters || []).filter((f: string) => f && f.trim() !== "").length;
-    const filterDpSumMmWg = Object.entries(selectedFilterDetails || {})
-      .filter(([name]) => (selectedFilters || []).includes(name))
-      .reduce((acc: number, [_, curr]: [string, any]) => acc + ((curr.finalDp || 0) / MM_WG_TO_PA), 0);
-    const staticPressureMmWg = (Number(plantRoomDistance) * 0.7) + filterDpSumMmWg + (Number(additionalDpValue) || 0);
+    if (!selectedFilters || totalFiltrationStages === 0) {
+      alert("Please select at least one filter before proceeding.");
+      return;
+    }
 
     try {
       let finalZoneId = zoneIdFromRedux;
@@ -639,9 +578,9 @@ export default function Standard() {
         minTempC,
         rhMin,
         rhMax,
-        pipeConfiguration,
-        totalFiltrationStages: numStages,
-        staticPressure: staticPressureMmWg,
+        ...ahuPayload,
+        totalFiltrationStages: totalFiltrationStages,
+        staticPressure: staticPressure,
         flowVelocity,
         heatingFlowVelocity,
         coolingFlowVelocity,
@@ -673,8 +612,8 @@ export default function Standard() {
           ...roomPayload,
           zoneId: finalZoneId,
           projectStandardId: finalProjectStandardId,
-          totalFiltrationStages: numStages,
-          staticPressure: staticPressureMmWg,
+          totalFiltrationStages: totalFiltrationStages,
+          staticPressure: staticPressure,
         },
       });
     } catch (error) {

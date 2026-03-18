@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiSearch, FiPlus, FiEdit2, FiTrash2, FiX } from "react-icons/fi";
+import { FiSearch, FiPlus, FiEdit2, FiTrash2, FiX, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import s from "./styles";
 import AddCustomer from ".";
 import {
@@ -32,6 +32,8 @@ export default function Customers({ onCountChange }: CustomersProps) {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10; // number of customers per page
 
   const loadCustomers = async () => {
     try {
@@ -49,6 +51,10 @@ export default function Customers({ onCountChange }: CustomersProps) {
   useEffect(() => {
     loadCustomers();
   }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter]);
 
   const handleEdit = async (customerId: number) => {
     try {
@@ -84,7 +90,11 @@ export default function Customers({ onCountChange }: CustomersProps) {
     const matchesStatus =
       statusFilter === "ALL" ? true : c.status === statusFilter;
     return matchesSearch && matchesStatus;
-  });
+  }).sort((a, b) => a.customer_name.toLowerCase().localeCompare(b.customer_name.toLowerCase()));
+
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedData = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   if (showAdd) {
     return (
@@ -126,15 +136,14 @@ export default function Customers({ onCountChange }: CustomersProps) {
             key={f}
             type="button"
             onClick={() => setStatusFilter(f)}
-            className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-              statusFilter === f
+            className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all ${statusFilter === f
                 ? f === "I"
                   ? "bg-red-500 text-white border-red-500"
                   : f === "A"
-                  ? "bg-green-500 text-white border-green-500"
-                  : "bg-slate-800 text-white border-slate-800"
+                    ? "bg-green-500 text-white border-green-500"
+                    : "bg-slate-800 text-white border-slate-800"
                 : "bg-white text-slate-500 border-slate-200 hover:border-slate-400"
-            }`}
+              }`}
           >
             {f === "ALL" ? "All" : f === "A" ? "Active" : "Inactive"}
           </button>
@@ -171,20 +180,14 @@ export default function Customers({ onCountChange }: CustomersProps) {
                   Loading customers...
                 </td>
               </tr>
-            ) : fetchError ? (
-              <tr>
-                <td colSpan={6} className={s.emptyRow}>
-                  {fetchError}
-                </td>
-              </tr>
-            ) : filtered.length === 0 ? (
+            ) : paginatedData.length === 0 ? (
               <tr>
                 <td colSpan={6} className={s.emptyRow}>
                   No customers found.
                 </td>
               </tr>
             ) : (
-              filtered.map((customer) => (
+              paginatedData.map((customer) => (
                 <tr key={customer.customer_id} className={s.tr}>
                   <td className={s.td}>
                     <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold bg-slate-200 text-black-900">
@@ -234,6 +237,50 @@ export default function Customers({ onCountChange }: CustomersProps) {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className={s.paginationWrap}>
+          <div className={s.paginationInfo}>
+            Showing <span className="text-slate-900">{startIndex + 1}</span> to{" "}
+            <span className="text-slate-900">
+              {Math.min(startIndex + ITEMS_PER_PAGE, filtered.length)}
+            </span>{" "}
+            of <span className="text-slate-900">{filtered.length}</span> entries
+          </div>
+
+          <div className={s.paginationControls}>
+            <button
+              type="button"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              className={s.paginationNavBtn(currentPage === 1)}
+            >
+              <FiChevronLeft className="text-lg" /> Previous
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                type="button"
+                onClick={() => setCurrentPage(page)}
+                className={s.paginationBtn(currentPage === page, false)}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              type="button"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              className={s.paginationNavBtn(currentPage === totalPages)}
+            >
+              Next <FiChevronRight className="text-lg" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {deleteTarget && (
         <div className={s.deleteOverlay}>

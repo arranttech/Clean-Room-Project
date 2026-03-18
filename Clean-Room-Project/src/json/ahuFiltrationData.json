@@ -124,6 +124,35 @@
             "40-50%"
         ],
         "exhaustImpactHint": "Flammable vapors: 0-50% | Contagious: 0-50%",
+        "bioSafetyLevels": [
+            "Level 1 - 30%",
+            "Level 2 - 50%",
+            "Level 3 - 75%",
+            "Level 4 - 100%"
+        ],
+        "exhaustImpactBioSafety": [
+            "0%",
+            "5%",
+            "10%",
+            "15%",
+            "20%",
+            "25%",
+            "30%",
+            "35%",
+            "40%",
+            "45%",
+            "50%",
+            "55%",
+            "60%",
+            "65%",
+            "70%",
+            "75%",
+            "80%",
+            "85%",
+            "90%",
+            "95%",
+            "100%"
+        ],
         "specialHandlingOptions": [
             "Contagious",
             "Hazardous",
@@ -131,8 +160,6 @@
             "Bio-safety"
         ],
         "specialExhaustFilters": [
-            "Pre-HEPA Super fine filter",
-            "Fine pre-filter",
             "Coarse-to-medium filter",
             "Leagcy (H13 - 2) filter"
         ]
@@ -358,6 +385,121 @@
                 13,
                 16
             ]
+        }
+    },
+    "ahuConstructionConfig": {
+        "plantRoomDistanceLimits": {
+            "min": 30,
+            "max": 100
+        },
+        "additionalDpOptions": [
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+        ],
+        "calculationConstants": {
+            "MM_WG_TO_PA": 9.8,
+            "PLANT_ROOM_DISTANCE_FACTOR": 0.7
+        },
+        "handling": {
+            "restrictedHandlingValues": [
+                "Non-Contagious",
+                "Non-Hazardous"
+            ],
+            "specialHandlingOptions": [
+                "Contagious",
+                "Hazardous",
+                "Flammable Vapors",
+                "Bio-safety"
+            ]
+        },
+        "flowVelocityRange": {
+            "steam": {
+                "min": 3,
+                "max": 25
+            },
+            "water": {
+                "min": 0.5,
+                "max": 2.5
+            }
+        },
+        "fields": {
+            "plantRoomDistance": {
+                "label": "Plant Room Distance",
+                "tooltip": "plantRoomDistanceTooltip",
+                "unit": "meters"
+            },
+            "panelThicknessProfile": {
+                "label": "Panel Thickness & Profile",
+                "tooltip": "panelThicknessTooltip"
+            },
+            "panelConstruction": {
+                "label": "Panel Construction",
+                "tooltip": "panelConstructionTooltip"
+            },
+            "airHandlingConstruction": {
+                "label": "Air Handling Construction (VCD)",
+                "tooltip": "airHandlingTooltip"
+            },
+            "fireControl": {
+                "label": "Fire Control Dampers",
+                "tooltip": "fireControlTooltip"
+            },
+            "vfd": {
+                "label": "Variable Frequency Drive (VFD)",
+                "tooltip": "vfdTooltip"
+            },
+            "pressureGauge": {
+                "label": "Pressure Gauge Range",
+                "tooltip": "pressureGaugeTooltip"
+            },
+            "virusBurner": {
+                "label": "Virus Burner (UVGI/UVC)",
+                "tooltip": "virusBurnerTooltip"
+            },
+            "doorInterlocking": {
+                "label": "Door Interlocking",
+                "tooltip": "doorInterlockingTooltip"
+            },
+            "bmsMonitoring": {
+                "label": "BMS Monitoring",
+                "tooltip": "bmsMonitoringTooltip"
+            },
+            "emsMonitoring": {
+                "label": "EMS Monitoring",
+                "tooltip": "emsMonitoringTooltip"
+            },
+            "humidistat": {
+                "label": "Humidistat",
+                "tooltip": "humidistatTooltip"
+            },
+            "thermostat": {
+                "label": "Thermostat",
+                "tooltip": "thermostatTooltip"
+            },
+            "flowControlValve": {
+                "label": "Flow Control Valve",
+                "tooltip": "flowControlValveTooltip"
+            },
+            "yStrainer": {
+                "label": "Y-Strainer",
+                "tooltip": "yStrainerTooltip"
+            },
+            "purgeWall": {
+                "label": "Purge Wall",
+                "tooltip": "purgeWallTooltip"
+            },
+            "pipeConfiguration": {
+                "label": "Pipe Configuration",
+                "tooltip": "pipeConfigurationTooltip"
+            },
+            "treatedFreshAirUnit": {
+                "label": "Treated Fresh Air Unit",
+                "tooltip": "treatedFreshAirTooltip"
+            }
         }
     }
 }

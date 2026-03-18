@@ -101,11 +101,12 @@ export const boqRoute: ServerRoute[] = [
 		path: "/v1/boqresults",
 		options: {
 			description: "Calculate BOQ values for a zone",
-			tags: ["api", "calculations", "boq"],
+			tags: ["api", "calculations"],
 			validate: {
 				payload: Joi.object({
 					zoneName: Joi.string().required(),
 					zoneSystem: Joi.string().required(),
+					zoneExhaustAir: Joi.number().required(),
 					zoneResultantCfm: Joi.number().required(),
 					zoneResultantHeatCfm: Joi.number().required(),
 					zoneReqInsideTempC: Joi.alternatives()

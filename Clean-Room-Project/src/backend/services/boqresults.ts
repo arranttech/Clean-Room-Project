@@ -35,12 +35,22 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
 
 
     function calculatedAHUCfm(): number {
-        const coolingCfm = Math.ceil((zone.zoneResultantCfm || 0) / 250) * 250;
-        const heatingCfm = Math.ceil((zone.zoneResultantHeatCfm || 0) / 250) * 250;
+        const exhaustAir = Number(zone.zoneExhaustAir || 0);
+        const coolingBase = Number(zone.zoneResultantCfm || 0);
+        const heatingBase = Number(zone.zoneResultantHeatCfm || 0);
+
+        const coolingCfm = Math.ceil(coolingBase / 250) * 250;
+        const heatingCfm = Math.ceil(heatingBase / 250) * 250;
+        const exhaustCfm = Math.ceil(exhaustAir / 250) * 250;
+
+        if (exhaustAir > 0) {
+            return exhaustCfm;
+        }
 
         if (isHeatingandCooling) return Math.max(coolingCfm, heatingCfm);
         if (showCooling) return coolingCfm;
         if (showHeating) return heatingCfm;
+
         return 0;
     }
 
@@ -126,6 +136,7 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
     }
 
     function calculateCoolingCoil(width: number, height: number, ahucoolload: number): number | any {
+        if (zone.zoneExhaustAir > 0) return 0;
         const requiredload = Math.max(zone.zoneRoomACValue, zone.zoneCfmACLoadTR);
         const baseCapacity = ((width - c[0]) * (height - c[1]) * c[2]) / c[3];
 
@@ -194,6 +205,7 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
     }
 
     function calculateGPM(): number {
+        if (zone.zoneExhaustAir > 0) return 0;
         ChilledWaterGPM = Math.max(zone.zoneRoomACValue, zone.zoneCfmACLoadTR) * 4;
         HotWaterGPM = Math.max(zone.zoneRoomHeatLoadTR, zone.zoneCfmHeatLoadTRValue) * 4;
 
@@ -204,6 +216,7 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
     }
 
     function calculateWaterLS(GPM: number): number {
+        if (zone.zoneExhaustAir > 0) return 0;
         const ChilledWaterLS = GPM * w;
         return Math.round(ChilledWaterLS * 10) / 10;
     }

@@ -6,6 +6,7 @@ import {
   updateMultipleStandardsFields,
 
 } from "../../redux/slices/standardSlice";
+import { updateInProgressProject } from "../../redux/slices/dashboardSlice";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import standardDesign from "./styles";
 import standardDataJson from "../../json/standardData.json";
@@ -590,6 +591,11 @@ export default function Standard() {
         // PUT — update existing row, no new row created
         await updateRoomStandards(finalProjectStandardId, payload);
         console.log("Room standards updated:", finalProjectStandardId);
+        dispatch(updateInProgressProject({
+          project_id: freshProjectId,
+          has_standard: true,
+          last_modified: new Date().toISOString(),
+        }));
       } else {
         // POST — create new row
         const standardData = await roomStandards(payload); //console.log(standardData)
@@ -604,6 +610,11 @@ export default function Standard() {
             value: finalProjectStandardId,
           })
         );
+        dispatch(updateInProgressProject({
+          project_id: freshProjectId,
+          has_standard: true,
+          last_modified: new Date().toISOString(),
+        }));
         console.log("Standard created, ID:", finalProjectStandardId);
       }
 

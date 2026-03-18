@@ -12,6 +12,7 @@ import {
 	projectInfo,
 	updateProjectInfo,
 } from "../../backend/controller/projectController";
+import { updateInProgressProject } from "../../redux/slices/dashboardSlice";
 import Header from "../../components/header";
 import projectData from "../../json/projectData.json";
 
@@ -214,6 +215,12 @@ function ProjectInfoPage() {
 				// PUT — update existing row, no new row created
 				await updateProjectInfo(projectIdFromRedux, payload);
 				console.log("Project updated:", projectIdFromRedux);
+				dispatch(updateInProgressProject({
+					project_id: projectIdFromRedux,
+					project_name: projectName,
+					customer_name: customerName,
+					last_modified: new Date().toISOString(),
+				}));
 			} else {
 				// POST — create new row
 				console.log("payload before sending:", payload);
@@ -221,6 +228,14 @@ function ProjectInfoPage() {
 				console.log("Project created:", data);
 				finalProjectId = data.projectId;
 				dispatch(updateField({ field: "projectId", value: data.projectId }));
+				dispatch(updateInProgressProject({
+					project_id: data.projectId,
+					project_name: projectName,
+					customer_name: customerName,
+					last_modified: new Date().toISOString(),
+					has_standard: false,
+					has_rooms: false,
+				}));
 			}
 
 			navigate("/standards", {

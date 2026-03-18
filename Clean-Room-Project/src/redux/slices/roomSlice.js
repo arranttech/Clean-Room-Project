@@ -53,6 +53,11 @@ const roomSlice = createSlice({
     },
     // Clears everything including savedRooms (used after final submit)
     resetRoom: () => initialState,
+
+    // Load existing rooms from backend (used when continuing a project)
+    setSavedRooms: (state, action) => {
+      state.savedRooms = action.payload;
+    },
   },
 });
 
@@ -65,6 +70,7 @@ export const {
   removeRoom,
   openNewRoomForm,
   resetRoom,
+  setSavedRooms,
 } = roomSlice.actions;
 
 export default roomSlice.reducer;

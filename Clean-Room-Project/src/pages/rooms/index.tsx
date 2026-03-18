@@ -19,6 +19,7 @@ import {
 	resetRoom,
 } from "../../redux/slices/roomSlice";
 import { resetProjectInfo } from "../../redux/slices/projectInfoSlice";
+import { updateInProgressProject, removeInProgressProject } from "../../redux/slices/dashboardSlice";
 import s from "./styles";
 import T from "../../json/room.json";
 import standardDataJson from "../../json/standardData.json";
@@ -301,6 +302,11 @@ export default function Room() {
 			};
 
 			dispatch(saveRoom(savedRoom));
+			dispatch(updateInProgressProject({
+				project_id: projectId,
+				has_rooms: true,
+				last_modified: new Date().toISOString(),
+			}));
 			setSelectedAcph(standardsAcph ?? "");
 		} catch (error) {
 			console.error("Failed to save room:", error);
@@ -423,6 +429,7 @@ export default function Room() {
 			dispatch(resetRoom());
 			dispatch(resetStandards());
 			dispatch(resetProjectInfo());
+			dispatch(removeInProgressProject(projectId));
 
 			navigate("/results", {
 				state: {

@@ -430,7 +430,7 @@ export default function Room() {
           rhMin,
           rhMax,
           projectStandardIdFromNav,
-          // projectId,
+          projectId,
           zoneIdFromNav,
           rooms: roomsSnapshot,
           airflowResults: allAirflowResults,

@@ -28,7 +28,7 @@ export const resultRepository = {
 					project_Result_Heating_Load_TR
 				) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        payload?.project_RoomId,
+		payload?.project_RoomId,
         payload.project_id,
         payload.roomName ?? null,
         payload.project_Area ?? null,
@@ -54,13 +54,5 @@ export const resultRepository = {
     );
 
     return (result as any).insertId;
-  },
-
-  getResultsByZone: async (payload?: { projectId: number }) => {
-    const projectId = payload?.projectId;
-
-    const [rows]: any = await database.execute('CALL GetResultsByProjectId(?)', [projectId]);
-
-    return rows[0] || [];
   },
 };

@@ -1,4 +1,4 @@
-import resultsText from "../../json/resultsText.json";
+import resultsText from "../../json/resultsText";
 
 export type RoomPayload = {
   roomName: string;

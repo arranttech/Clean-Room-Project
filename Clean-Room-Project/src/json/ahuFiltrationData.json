@@ -386,5 +386,120 @@
                 16
             ]
         }
+    },
+    "ahuConstructionConfig": {
+        "plantRoomDistanceLimits": {
+            "min": 30,
+            "max": 100
+        },
+        "additionalDpOptions": [
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+        ],
+        "calculationConstants": {
+            "MM_WG_TO_PA": 9.8,
+            "PLANT_ROOM_DISTANCE_FACTOR": 0.7
+        },
+        "handling": {
+            "restrictedHandlingValues": [
+                "Non-Contagious",
+                "Non-Hazardous"
+            ],
+            "specialHandlingOptions": [
+                "Contagious",
+                "Hazardous",
+                "Flammable Vapors",
+                "Bio-safety"
+            ]
+        },
+        "flowVelocityRange": {
+            "steam": {
+                "min": 3,
+                "max": 25
+            },
+            "water": {
+                "min": 0.5,
+                "max": 2.5
+            }
+        },
+        "fields": {
+            "plantRoomDistance": {
+                "label": "Plant Room Distance",
+                "tooltip": "plantRoomDistanceTooltip",
+                "unit": "meters"
+            },
+            "panelThicknessProfile": {
+                "label": "Panel Thickness & Profile",
+                "tooltip": "panelThicknessTooltip"
+            },
+            "panelConstruction": {
+                "label": "Panel Construction",
+                "tooltip": "panelConstructionTooltip"
+            },
+            "airHandlingConstruction": {
+                "label": "Air Handling Construction (VCD)",
+                "tooltip": "airHandlingTooltip"
+            },
+            "fireControl": {
+                "label": "Fire Control Dampers",
+                "tooltip": "fireControlTooltip"
+            },
+            "vfd": {
+                "label": "Variable Frequency Drive (VFD)",
+                "tooltip": "vfdTooltip"
+            },
+            "pressureGauge": {
+                "label": "Pressure Gauge Range",
+                "tooltip": "pressureGaugeTooltip"
+            },
+            "virusBurner": {
+                "label": "Virus Burner (UVGI/UVC)",
+                "tooltip": "virusBurnerTooltip"
+            },
+            "doorInterlocking": {
+                "label": "Door Interlocking",
+                "tooltip": "doorInterlockingTooltip"
+            },
+            "bmsMonitoring": {
+                "label": "BMS Monitoring",
+                "tooltip": "bmsMonitoringTooltip"
+            },
+            "emsMonitoring": {
+                "label": "EMS Monitoring",
+                "tooltip": "emsMonitoringTooltip"
+            },
+            "humidistat": {
+                "label": "Humidistat",
+                "tooltip": "humidistatTooltip"
+            },
+            "thermostat": {
+                "label": "Thermostat",
+                "tooltip": "thermostatTooltip"
+            },
+            "flowControlValve": {
+                "label": "Flow Control Valve",
+                "tooltip": "flowControlValveTooltip"
+            },
+            "yStrainer": {
+                "label": "Y-Strainer",
+                "tooltip": "yStrainerTooltip"
+            },
+            "purgeWall": {
+                "label": "Purge Wall",
+                "tooltip": "purgeWallTooltip"
+            },
+            "pipeConfiguration": {
+                "label": "Pipe Configuration",
+                "tooltip": "pipeConfigurationTooltip"
+            },
+            "treatedFreshAirUnit": {
+                "label": "Treated Fresh Air Unit",
+                "tooltip": "treatedFreshAirTooltip"
+            }
+        }
     }
 }

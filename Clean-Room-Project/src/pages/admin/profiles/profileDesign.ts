@@ -99,6 +99,22 @@ const profileDesign = {
 	assignColTitle: "text-sm font-bold text-slate-900 mb-1",
 	assignFooterWrap:
 		"border-t border-slate-100 pt-6 flex justify-end gap-3 mt-4",
+
+	// --- Pagination ---
+	paginationWrap: "flex items-center justify-between mt-6 px-2",
+	paginationInfo: "text-sm text-slate-500 font-medium",
+	paginationControls: "flex items-center gap-2",
+	paginationBtn: (active: boolean, disabled: boolean) => {
+		const base = "w-9 h-9 flex items-center justify-center rounded-xl text-sm font-semibold transition-all border";
+		if (disabled) return `${base} bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed`;
+		if (active) return `${base} bg-blue-600 text-white border-blue-600 shadow-sm`;
+		return `${base} bg-white text-slate-600 border-slate-200 hover:border-slate-400 hover:bg-slate-50`;
+	},
+	paginationNavBtn: (disabled: boolean) => {
+		const base = "px-4 h-9 flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all border";
+		if (disabled) return `${base} bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed`;
+		return `${base} bg-white text-slate-600 border-slate-200 hover:border-slate-400 hover:bg-slate-50`;
+	}
 };
 
 export default profileDesign;

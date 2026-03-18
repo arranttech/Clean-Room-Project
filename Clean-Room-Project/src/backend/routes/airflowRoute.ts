@@ -8,7 +8,7 @@ export const airflowRoute: ServerRoute[] = [
 		path: "/v1/airflow",
 		options: {
 			description: "Calculate airflow for a room",
-			tags: ["api", "airflow"],
+			tags: ["api", "calculations"],
 			validate: {
 				payload: Joi.object({
 					roomName: Joi.string().required(),

@@ -12,7 +12,6 @@ import standardsReducer from "./slices/standardSlice";
 import roomReducer from "./slices/roomSlice";
 import customerReducer from "./slices/customerSlice";
 import userReducer from "./slices/userSlice";
-import dashboardReducer from "./slices/dashboardSlice";
 
 const rootReducer = combineReducers({
   user: userReducer,
@@ -20,7 +19,6 @@ const rootReducer = combineReducers({
   projectInfo: projectInfoReducer,
   standards: standardsReducer,
   room: roomReducer,
-  dashboard: dashboardReducer,
 });
 
 const persistConfig = {

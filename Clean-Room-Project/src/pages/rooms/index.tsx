@@ -23,6 +23,7 @@ import {
   updateInProgressProject,
   removeInProgressProject,
 } from "../../redux/slices/dashboardSlice";
+import { toast } from "react-toastify";
 import s from "./styles";
 import T from "../../json/room.json";
 import standardDataJson from "../../json/standardData.json";
@@ -178,7 +179,6 @@ export default function Room() {
 
   const handleFreshAirBlur = () => {
     const value = form.freshAirPercent;
-
     if (value === "") return;
     if (!isNaN(Number(value)) && Number(value) < 10)
       dispatch(updateRoomFormField({ field: "freshAirPercent", value: "10" }));
@@ -307,9 +307,12 @@ export default function Room() {
         })
       );
       setSelectedAcph(standardsAcph ?? "");
+
+      // ✅ Toast on room save
+      toast.success("Room saved successfully!");
     } catch (error) {
+      toast.error("Failed to save room. Please try again.");
       console.error("Failed to save room:", error);
-      alert("Failed to save room. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -323,9 +326,10 @@ export default function Room() {
       if (deleteTarget.backendRoomId)
         await deleteZoneRoom(deleteTarget.backendRoomId, deleteTarget.zoneId);
       dispatch(removeRoom(deleteTarget.id));
+      toast.success("Room deleted successfully!");
     } catch (error) {
+      toast.error("Failed to delete room. Please try again.");
       console.error("Failed to delete room:", error);
-      alert("Failed to delete room. Please try again.");
     } finally {
       setIsDeleting(false);
       setDeleteTarget(null);
@@ -421,16 +425,20 @@ export default function Room() {
       }
 
       // Step 3: Navigate → results page GETs from DB
-      navigate(`/results/${projectId}`);
-
-      // Step 4: Reset Redux AFTER navigate
-      dispatch(resetRoom());
-      dispatch(resetStandards());
-      dispatch(resetProjectInfo());
-      dispatch(removeInProgressProject(projectId));
+      toast.success("Results generated successfully!", {
+        onClose: () => {
+          navigate(`/results/${projectId}`);
+          // Step 4: Reset Redux AFTER navigate
+          dispatch(resetRoom());
+          dispatch(resetStandards());
+          dispatch(resetProjectInfo());
+          dispatch(removeInProgressProject(projectId));
+        },
+        autoClose: 1500,
+      });
     } catch (error) {
+      toast.error("Failed to generate results. Please try again.");
       console.error("Failed to generate results:", error);
-      alert("Failed to generate results. Please try again.");
     } finally {
       setIsGenerating(false);
     }

@@ -70,4 +70,30 @@ export const resultRoute: ServerRoute[] = [
       }
     },
   },
+  // ── GET /v1/results/zone/{projectId}
+  {
+    method: "GET",
+    path: "/v1/results/zone/{projectId}",
+    options: {
+      description: "Get all room results for a project via project zones",
+      tags: ["api", "results"],
+      validate: {
+        params: Joi.object({
+          projectId: Joi.number().integer().required(),
+        }),
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const { projectId } = request.params as unknown as { projectId: number };
+        const data = await resultRepository.getResultsByZone({
+          projectId: Number(projectId),
+        });
+        return h.response(data).code(200);
+      } catch (error) {
+        console.error("getResultsByZone Error:", error);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
 ];

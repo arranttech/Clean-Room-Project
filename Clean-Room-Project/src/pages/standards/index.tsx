@@ -4,23 +4,26 @@ import { useAppSelector, useAppDispatch } from "../../redux/hooks";
 import {
   updateStandardsField,
   updateMultipleStandardsFields,
-
 } from "../../redux/slices/standardSlice";
 import { updateInProgressProject } from "../../redux/slices/dashboardSlice";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { toast } from "react-toastify";
 import standardDesign from "./styles";
 import standardDataJson from "../../json/standardData.json";
 import {
   roomStandards,
   getRoomStandards,
-  updateRoomStandards
+  updateRoomStandards,
 } from "../../backend/controller/roomController";
 import { createProjectZone } from "../../backend/controller/zoneController";
 import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
 import Header from "../../components/header";
 import store from "../../redux/store";
-import AHUFiltration, { ahupayload, validateAhuConstruction } from "./ahuFiltration";
+import AHUFiltration, {
+  ahupayload,
+  validateAhuConstruction,
+} from "./ahuFiltration";
 
 type StandardItem = {
   id: number;
@@ -83,8 +86,6 @@ function validateHumidity(value: string): string {
   return "";
 }
 
-
-
 export default function Standard() {
   const s = standardDesign;
   const dispatch = useAppDispatch();
@@ -122,7 +123,6 @@ export default function Standard() {
   } = standards;
 
   const ahuPayload = ahupayload(standards);
-
 
   const minTempC = useAppSelector((state: any) => state.projectInfo.minTemp);
   const maxTempC = useAppSelector((state: any) => state.projectInfo.maxTemp);
@@ -279,26 +279,26 @@ export default function Standard() {
   const systemTypeLabel = isHeatingCooling
     ? t.labels.systemTypeGeneric
     : isHeatingVent
-      ? t.labels.systemTypeHeating
-      : isCoolingVent
-        ? t.labels.systemTypeCooling
-        : isHeating
-          ? t.labels.systemTypeHeating
-          : isCooling
-            ? t.labels.systemTypeCooling
-            : t.labels.systemTypeVentilation;
+    ? t.labels.systemTypeHeating
+    : isCoolingVent
+    ? t.labels.systemTypeCooling
+    : isHeating
+    ? t.labels.systemTypeHeating
+    : isCooling
+    ? t.labels.systemTypeCooling
+    : t.labels.systemTypeVentilation;
 
   const systemTypePlaceholder = isHeatingCooling
     ? t.placeholders.systemTypeGeneric
     : isHeatingVent
-      ? t.placeholders.systemTypeHeating
-      : isCoolingVent
-        ? t.placeholders.systemTypeCooling
-        : isHeating
-          ? t.placeholders.systemTypeHeating
-          : isCooling
-            ? t.placeholders.systemTypeCooling
-            : t.placeholders.systemTypeVentilation;
+    ? t.placeholders.systemTypeHeating
+    : isCoolingVent
+    ? t.placeholders.systemTypeCooling
+    : isHeating
+    ? t.placeholders.systemTypeHeating
+    : isCooling
+    ? t.placeholders.systemTypeCooling
+    : t.placeholders.systemTypeVentilation;
 
   const systemTypes = useMemo(() => {
     if (!system) return [];
@@ -434,9 +434,6 @@ export default function Standard() {
   const tempPlaceholder =
     tempUnit === "C" ? t.placeholders.reqTempC : t.placeholders.reqTempF;
 
-
-
-
   const roomPayload = useMemo(() => {
     const isVentilationOnly = system === t.options.systems.ventilation;
     return {
@@ -466,8 +463,7 @@ export default function Standard() {
       rhMin,
       rhMax,
       ventilationOnly: isVentilationOnly,
-      // AHU Specs & Filtration
-      ...ahuPayload
+      ...ahuPayload,
     };
   }, [
     system,
@@ -504,7 +500,6 @@ export default function Standard() {
     if (additionalDpValue === "") return false;
     return true;
   })();
-  ;
 
   const getFreshProjectId = () =>
     location.state?.projectId ??
@@ -514,7 +509,9 @@ export default function Standard() {
   const createProjectZones = async () => {
     const freshProjectId = getFreshProjectId();
     if (!freshProjectId) {
-      alert("Project ID is missing. Please go back to Project Info and try again.");
+      alert(
+        "Project ID is missing. Please go back to Project Info and try again."
+      );
       throw new Error("Missing project_id for zone creation");
     }
     const data = await createProjectZone({ project_id: freshProjectId });
@@ -522,13 +519,13 @@ export default function Standard() {
     return data;
   };
 
-
-
   // ── handleNext ──
   const handleNext = async (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
     if (!isFormValid) {
-      setModalMessage("Please fill all required fields correctly before proceeding.");
+      setModalMessage(
+        "Please fill all required fields correctly before proceeding."
+      );
       return;
     }
     const ahuError = validateAhuConstruction(standards);
@@ -536,13 +533,15 @@ export default function Standard() {
       setModalMessage(ahuError);
       return;
     }
-    // Validation for filtration: at least one filter type and one specific filter must be selected
-    const types = Array.isArray(filterTypeSelection) ? filterTypeSelection : [filterTypeSelection].filter(Boolean);
+    const types = Array.isArray(filterTypeSelection)
+      ? filterTypeSelection
+      : [filterTypeSelection].filter(Boolean);
     if (types.length === 0) {
-      setModalMessage("Please select a Filter Type (Supply or Exhaust) before proceeding.");
+      setModalMessage(
+        "Please select a Filter Type (Supply or Exhaust) before proceeding."
+      );
       return;
     }
-
     if (!selectedFilters || totalFiltrationStages === 0) {
       setModalMessage("Please select at least one filter before proceeding.");
       return;
@@ -552,7 +551,6 @@ export default function Standard() {
       let finalZoneId = zoneIdFromRedux;
       let finalProjectStandardId = projectStandardIdFromRedux;
 
-      // Create zone only if none exists
       if (!finalZoneId) {
         const zoneData = await createProjectZones();
         finalZoneId = zoneData?.zoneId;
@@ -590,17 +588,33 @@ export default function Standard() {
       };
 
       if (finalProjectStandardId) {
-        // PUT — update existing row, no new row created
+        // PUT — update existing row
         await updateRoomStandards(finalProjectStandardId, payload);
         console.log("Room standards updated:", finalProjectStandardId);
-        dispatch(updateInProgressProject({
-          project_id: freshProjectId,
-          has_standard: true,
-          last_modified: new Date().toISOString(),
-        }));
+        dispatch(
+          updateInProgressProject({
+            project_id: freshProjectId,
+            has_standard: true,
+            last_modified: new Date().toISOString(),
+          })
+        );
+
+        toast.success("Details updated successfully!", {
+          onClose: () =>
+            navigate("/room", {
+              state: {
+                ...roomPayload,
+                zoneId: finalZoneId,
+                projectStandardId: finalProjectStandardId,
+                totalFiltrationStages: totalFiltrationStages,
+                staticPressure: staticPressure,
+              },
+            }),
+          autoClose: 1500,
+        });
       } else {
         // POST — create new row
-        const standardData = await roomStandards(payload); //console.log(standardData)
+        const standardData = await roomStandards(payload);
         finalProjectStandardId = standardData?.roomStandardsId;
         if (!finalProjectStandardId) {
           setModalMessage("Failed to save project standard. Please try again.");
@@ -612,26 +626,32 @@ export default function Standard() {
             value: finalProjectStandardId,
           })
         );
-        dispatch(updateInProgressProject({
-          project_id: freshProjectId,
-          has_standard: true,
-          last_modified: new Date().toISOString(),
-        }));
+        dispatch(
+          updateInProgressProject({
+            project_id: freshProjectId,
+            has_standard: true,
+            last_modified: new Date().toISOString(),
+          })
+        );
         console.log("Standard created, ID:", finalProjectStandardId);
-      }
 
-      navigate("/room", {
-        state: {
-          ...roomPayload,
-          zoneId: finalZoneId,
-          projectStandardId: finalProjectStandardId,
-          totalFiltrationStages: totalFiltrationStages,
-          staticPressure: staticPressure,
-        },
-      });
+        toast.success("Details saved successfully!", {
+          onClose: () =>
+            navigate("/room", {
+              state: {
+                ...roomPayload,
+                zoneId: finalZoneId,
+                projectStandardId: finalProjectStandardId,
+                totalFiltrationStages: totalFiltrationStages,
+                staticPressure: staticPressure,
+              },
+            }),
+          autoClose: 1500,
+        });
+      }
     } catch (error) {
+      toast.error("An error occurred. Please try again.");
       console.error("Error in handleNext:", error);
-      setModalMessage("An error occurred. Please try again.");
     }
   };
 
@@ -708,10 +728,10 @@ export default function Standard() {
                           systemTypeLabel === t.labels.systemTypeGeneric
                             ? constants.Tooltip.heatingSystemTypeTooltip
                             : systemTypeLabel === t.labels.systemTypeHeating
-                              ? constants.Tooltip.heatingSystemTypeTooltip
-                              : systemTypeLabel === t.labels.systemTypeCooling
-                                ? constants.Tooltip.coolingSystemTypeTooltip
-                                : constants.Tooltip.ventilationSystemTypeTooltip
+                            ? constants.Tooltip.heatingSystemTypeTooltip
+                            : systemTypeLabel === t.labels.systemTypeCooling
+                            ? constants.Tooltip.coolingSystemTypeTooltip
+                            : constants.Tooltip.ventilationSystemTypeTooltip
                         }
                       />
                     </label>
@@ -867,9 +887,7 @@ export default function Standard() {
                       />
                     </label>
                     <select
-                      className={
-                        selectedStandard ? s.select : s.selectDisabled
-                      }
+                      className={selectedStandard ? s.select : s.selectDisabled}
                       disabled={!selectedStandard}
                       value={classification}
                       onChange={(e) =>
@@ -991,19 +1009,19 @@ export default function Standard() {
                   </label>
                 </div>
                 {ventilationOnly && (
-                  <div className={s.unitHint}>
-                    {t.misc.ventilationUnitHint}
-                  </div>
+                  <div className={s.unitHint}>{t.misc.ventilationUnitHint}</div>
                 )}
               </div>
 
               <div className={"mt-6 " + s.grid2}>
                 <div className={s.field}>
                   <label className={s.label}>
-                    {t.labels.reqInsideTemp} (
-                    {tempUnit === "C" ? "°C" : "°F"}){" "}
+                    {t.labels.reqInsideTemp} ({tempUnit === "C" ? "°C" : "°F"}){" "}
                     <span className={s.required}>*</span>
-                    <Tooltip id="requiredTemperature" content={constants.Tooltip.requiredTemperatureTooltip} />
+                    <Tooltip
+                      id="requiredTemperature"
+                      content={constants.Tooltip.requiredTemperatureTooltip}
+                    />
                   </label>
                   <input
                     className={ventilationOnly ? s.inputDisabled : s.input}
@@ -1030,8 +1048,7 @@ export default function Standard() {
                     reqInsideTempC &&
                     reqInsideTempC !== t.misc.ambient && (
                       <div className={s.tempHelper}>
-                        {t.misc.storedInternally}{" "}
-                        <b>{reqInsideTempC} °C</b>
+                        {t.misc.storedInternally} <b>{reqInsideTempC} °C</b>
                       </div>
                     )}
                 </div>
@@ -1115,9 +1132,6 @@ export default function Standard() {
                   />
                 </div>
               </div>
-
-
-
             </div>
           </div>
 

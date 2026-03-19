@@ -64,23 +64,6 @@ export default function AllProjects() {
 
   const userId = useAppSelector((state: any) => state.user?.user_login_id);
 
-  // useEffect(() => {
-  //   if (!userId) return;
-  //   (async () => {
-  //     setLoading(true);
-  //     setError(null);
-  //     try {
-  //       const res = await getCompletedProjects(userId);
-  //       setProjects(res?.projects ?? []);
-  //     } catch (err) {
-  //       console.error("Failed to load completed projects:", err);
-  //       setError("Failed to load projects. Please try again.");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   })();
-  // }, [userId]);
-
   useEffect(() => {
     if (!userId) return;
 
@@ -88,11 +71,10 @@ export default function AllProjects() {
       setLoading(true);
       setError(null);
       try {
-        // FETCH RAW ROWS FROM BACKEND
         const res = await getCompletedProjects(userId);
-         const projectsRaw = res.projects || [];
+        const projectsRaw = res.projects || [];
 
-        // GROUP BY PROJECT_ID TO REMOVE DUPLICATES
+        // Group by project_id to remove duplicates
         const projectMap: Record<number, Project> = {};
         projectsRaw.forEach((row: any) => {
           if (!projectMap[row.project_id]) {
@@ -115,8 +97,14 @@ export default function AllProjects() {
         });
 
         const uniqueProjects = Object.values(projectMap);
-        setProjects(uniqueProjects);
 
+        // ── Sort by created_at descending (latest first) ──
+        uniqueProjects.sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+
+        setProjects(uniqueProjects);
       } catch (err) {
         console.error("Failed to load completed projects:", err);
         setError("Failed to load projects. Please try again.");
@@ -218,8 +206,10 @@ export default function AllProjects() {
                       >
                         <FaDownload /> Download
                       </button>
-                      <Link to={`/projectListInfo/${p.project_id}`}
-                       className={s.primaryBtn}>
+                      <Link
+                        to={`/projectListInfo/${p.project_id}`}
+                        className={s.primaryBtn}
+                      >
                         <FaEye /> View Details
                       </Link>
                     </div>
@@ -276,7 +266,7 @@ export default function AllProjects() {
           )}
         </div>
 
-        {/* Back button — centered */}
+        {/* Back button */}
         <div className="flex justify-center mt-10">
           <Link to="/dashboard">
             <button type="button" className={s.backBtn1}>

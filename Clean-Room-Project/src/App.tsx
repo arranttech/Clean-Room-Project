@@ -7,6 +7,8 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Home from "./pages/LandingPage";
 import CustomerInfoPage from "./pages/customerInfo";
 import ProjectInfoPage from "./pages/projectInfo";
@@ -110,6 +112,22 @@ function App() {
   return (
     <>
       <ScrollToTop />
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        toastStyle={{ backgroundColor: "#16a34a", color: "#fff" }}
+        style={
+          {
+            "--toastify-icon-color-success": "#fff",
+            "--toastify-icon-color-error": "#fff",
+          } as React.CSSProperties
+        }
+      />
+      <style>{`
+		  .Toastify__progress-bar { background: #fff !important; height: 4px !important; }
+		  .Toastify__progress-bar--success { background: #fff !important; }
+		  .Toastify__progress-bar--error { background: #fff !important; }
+		`}</style>
 
       <Routes>
         {/* public landing page — always accessible */}

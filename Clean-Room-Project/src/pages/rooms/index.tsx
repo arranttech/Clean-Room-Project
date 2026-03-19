@@ -7,6 +7,7 @@ import {
   FaSave,
   FaPlus,
   FaTrash,
+  FaBrush,
 } from "react-icons/fa";
 import { resetStandards } from "../../redux/slices/standardSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
@@ -557,15 +558,6 @@ export default function Room() {
           {isFormVisible && (
             <div className={s.card}>
               <div className={s.cardInner}>
-                <div className={s.topActions}>
-                  <button
-                    type="button"
-                    onClick={() => dispatch(resetRoomForm())}
-                    className={s.clrBtn}
-                  >
-                    Clear
-                  </button>
-                </div>
                 <div className={s.sectionTitle}>{T.sections.roomDetails}</div>
                 <div className={s.grid2}>{renderInput("roomName")}</div>
                 <div className={s.sectionDivider} />
@@ -661,6 +653,35 @@ export default function Room() {
                     <div className={s.rangeText}>Range: -20% to +20%</div>
                   </div>
                 </div>
+
+                {/* BOTTOM ACTIONS: Clear , Save Room */}
+                <div className={s.bottomActionsRow}>
+                  <button
+                    type="button"
+                    onClick={() => dispatch(resetRoomForm())}
+                    className={s.clearBtn}
+                  >
+                    <FaBrush className={s.clearBtnIcon} />
+                    Clear
+                  </button>
+                  <button
+                    type="button"
+                    onClick={saveCurrentRoom}
+                    disabled={isSaving}
+                    className={`${s.saveBtn} ${
+                      isSaving ? s.saveBtnDisabled : ""
+                    }`}
+                  >
+                    {isSaving ? (
+                      "Saving..."
+                    ) : (
+                      <>
+                        {T.buttons.saveRoom}
+                        <FaSave className={s.saveBtnIcon} />
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
               <div className={s.acphBanner}>
                 <div className={s.acphBannerStyle}>
@@ -749,19 +770,11 @@ export default function Room() {
             <div className="flex gap-4">
               <button
                 type="button"
-                onClick={saveCurrentRoom}
-                disabled={isSaving}
-                className={s.backBtn}
-              >
-                {isSaving ? "Saving..." : T.buttons.saveRoom}
-              </button>
-              <button
-                type="button"
                 onClick={goToResultsPage}
                 disabled={isGenerating}
                 className={s.saveBtn}
               >
-                {isGenerating ? "Generating..." : T.buttons.generate} <FaSave />
+                {isGenerating ? "Generating..." : T.buttons.generate}
               </button>
             </div>
           </div>

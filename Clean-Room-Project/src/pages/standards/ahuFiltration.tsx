@@ -1,11 +1,50 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { HiChevronDown, HiX, HiCheck } from "react-icons/hi";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
-import { updateStandardsField, updateFilterDetail } from "../../redux/slices/standardSlice";
+import { updateStandardsField, updateFilterDetail, updateMultipleStandardsFields } from "../../redux/slices/standardSlice";
 import standardDesign from "./styles";
 import ahuData from "../../json/ahuFiltrationData.json";
 import standardDataJson from "../../json/standardData.json";
 import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
+
+export const AHU_CONSTRUCTION_FIELDS = [
+    "plantRoomDistance",
+    "panelThicknessProfile",
+    "panelConstruction",
+    "airHandlingConstruction",
+    "fireControl",
+    "vfd",
+    "pressureGauge",
+    "virusBurner",
+    "doorInterlocking",
+    "bmsMonitoring",
+    "emsMonitoring",
+    "humidistat",
+    "thermostat",
+    "flowControlValve",
+    "yStrainer",
+    "purgeWall",
+    "pipeConfiguration",
+    "treatedFreshAirUnit",
+];
+
+export const ahupayload = (standards: any) => {
+    const payload: any = {};
+    AHU_CONSTRUCTION_FIELDS.forEach(field => {
+        payload[field] = standards[field];
+    });
+    return payload;
+};
+
+export const validateAhuConstruction = (standards: any) => {
+    const { plantRoomDistance } = standards;
+    if (!plantRoomDistance || Number(plantRoomDistance) < 30 || Number(plantRoomDistance) > 100) {
+        return "Plant room distance needs to be between 30 and 100 meters.";
+    }
+    return null;
+};
+
 
 const FilterDetailCard = ({
     filterName,
@@ -112,6 +151,8 @@ const AHUFiltration = () => {
     const s = standardDesign;
     const dispatch = useAppDispatch();
     const [showDistanceModal, setShowDistanceModal] = useState(false);
+    const [filterTypeOpen, setFilterTypeOpen] = useState(false);
+    const filterTypeRef = useRef<HTMLDivElement>(null);
 
     // Redux state values
     const {
@@ -144,9 +185,13 @@ const AHUFiltration = () => {
         heatingMethod,
         coolingMethod,
         coolingFlowVelocity,
+        bioSafetyLevel,
     } = useAppSelector((state: any) => state.standards);
 
+    const filterTypes = Array.isArray(filterTypeSelection) ? filterTypeSelection : [filterTypeSelection].filter(Boolean);
+
     const handling = useAppSelector((state: any) => state.projectInfo?.handling || []);
+    const isRestrictedHandling = handling.some((h: string) => ["Non-Contagious", "Non-Hazardous"].includes(h));
     const specialHandlingOptions = ahuData.filtrationSelection.specialHandlingOptions;
     const hasSpecialHandling = handling.length > 0 && handling.some((h: string) => specialHandlingOptions.includes(h)); // true if any selected handling matches special handling criteria
 
@@ -158,34 +203,76 @@ const AHUFiltration = () => {
         dispatch(updateStandardsField({ field, value }));
     };
 
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (filterTypeRef.current && !filterTypeRef.current.contains(e.target as Node)) {
+                setFilterTypeOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        if (isRestrictedHandling && filterTypes.includes("Exhaust")) {
+            const updated = filterTypes.filter((t: string) => t !== "Exhaust");
+            handleChange("filterTypeSelection", updated);
+
+            // Clear exhaust filters
+            const prefix = "Exhaust:";
+            const newSelected = (selectedFilters || []).filter((f: string) => !f.startsWith(prefix));
+            handleChange("selectedFilters", newSelected);
+
+            const newDetails = { ...selectedFilterDetails };
+            Object.keys(newDetails).forEach(k => {
+                if (k.startsWith(prefix)) delete newDetails[k];
+            });
+            handleChange("selectedFilterDetails", newDetails);
+        }
+    }, [isRestrictedHandling]);
+
     const MM_WG_TO_PA = 9.8;
-    const numStages = (selectedFilters || []).filter((f: string) => f && f.trim() !== "").length;
+    const activeFilters = (selectedFilters || []).filter((f: string) => {
+        if (!f || f.trim() === "") return false;
+        return filterTypes.some(type => f.startsWith(`${type}:`));
+    });
+    const numStages = activeFilters.length;
 
     // finalDp is stored in Pa in selectedFilterDetails, convert to mmWG for sum
-    const filterDpSumMmWg = Object.entries(selectedFilterDetails)
-        .filter(([name]) => selectedFilters.includes(name))
+    const filterDpSumMmWg = Object.entries(selectedFilterDetails || {})
+        .filter(([key]) => activeFilters.includes(key))
         .reduce((acc: number, [_, curr]: [string, any]) => acc + ((curr.finalDp || 0) / MM_WG_TO_PA), 0);
-    //  formula to calculate static pressure: Static Pressure (mmWG) = (Plant Room Distance (m) * 0.7) + Sum of Filter Δp (mmWG) + Additional Δp (mmWG)
+
+    // Static Pressure (mmWG) = (Plant Room Distance (m) * 0.7) + Sum of Filter Δp (mmWG) + Additional Δp (mmWG)
     const staticPressureMmWg = (Number(plantRoomDistance) * 0.7) + filterDpSumMmWg + (Number(additionalDpValue) || 0);
     const staticPressurePa = Math.round(staticPressureMmWg * MM_WG_TO_PA);
     const staticPressureDisplay = `${Math.round(staticPressureMmWg)} mmWG / ${staticPressurePa} Pa`;
 
+    // Sync calculated values to Redux
+    useEffect(() => {
+        dispatch(updateMultipleStandardsFields({
+            totalFiltrationStages: numStages,
+            staticPressure: staticPressureMmWg
+        }));
+    }, [numStages, staticPressureMmWg, dispatch]);
+
     const additionalDpOptions = Array.from({ length: 6 }, (_, i) => i + 5); // addional dp only ranges from 5 to 10 mmWG
 
-    const handleFilterToggle = (filter: string) => {
+    const handleFilterToggle = (type: string, filter: string) => {
+        const compositeKey = `${type}:${filter}`;
         const currentSelected = [...(selectedFilters || [])];
-        const index = currentSelected.indexOf(filter);
+        const index = currentSelected.indexOf(compositeKey);
         if (index > -1) {
             currentSelected.splice(index, 1);
         } else {
-            currentSelected.push(filter);
+            currentSelected.push(compositeKey);
             // Initialize filter detail if not present
-            if (!selectedFilterDetails[filter]) {
+            if (!selectedFilterDetails[compositeKey]) {
                 const specs = (ahuData.filterSpecs as any)[filter];
                 if (specs) {
                     const MM_WG_TO_PA = 9.8;
                     dispatch(updateFilterDetail({
-                        filterName: filter,
+                        filterName: compositeKey,
                         details: {
                             unit: "Pa",
                             initialDp: specs.initRange[0] * MM_WG_TO_PA,
@@ -618,7 +705,7 @@ const AHUFiltration = () => {
                                     </div>
 
                                     {/* Original Flow Velocity Logic*/}
-                                    {isHeatingCooling ? (
+                                    {isHeatingCooling && pipeConfiguration === "Dual Pipe" ? (
                                         <>
                                             <div className={s.flowBlock + " md:col-span-2"}>
                                                 <div className={s.dualFlowTitle}>
@@ -737,113 +824,213 @@ const AHUFiltration = () => {
                 <div className={s.body}>
                     <div className={s.specialBox}>
                         <div className={s.specialBoxRow}>
-                            <div>
-                                <div className={s.specialBoxTitle}>Filter Type Selection</div>
-                                <div className={s.specialBoxValue}>Select whether filters are for supply or exhaust air</div>
+                            <div className="flex-1">
+                                <div className={s.specialBoxTitle}>Filter Type Selection <span className="text-red-600">*</span></div>
+                                <div className={s.specialBoxValue}><span className="text-[10px] text-blue-600 font-medium tracking-tight">Select whether filters are for supply or exhaust air</span></div>
                             </div>
-                            <div className="flex gap-6 items-center">
-                                {ahuData.filtrationSelection.filterType.map((v: string) => (
-                                    <label key={v} className="flex items-center gap-2 cursor-pointer">
-                                        <input
-                                            type="radio"
-                                            name="filterTypeSelection"
-                                            value={v}
-                                            checked={filterTypeSelection === v}
-                                            onChange={(e) => {
-                                                if (filterTypeSelection !== e.target.value) {
-                                                    handleChange("filterTypeSelection", e.target.value);
-                                                    handleChange("selectedFilters", []);
-                                                    handleChange("selectedFilterDetails", {});
-                                                }
-                                            }}
-                                            className="w-5 h-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded-full"
-                                        />
-                                        <span className="text-gray-700 font-medium">{v}</span>
-                                    </label>
-                                ))}
+
+                            <div ref={filterTypeRef} className="relative w-72">
+                                <div
+                                    onClick={() => setFilterTypeOpen(!filterTypeOpen)}
+                                    className={`${s.input} cursor-pointer flex items-center justify-between min-h-[48px] px-4 py-2 bg-white border-2 ${filterTypeOpen
+                                        ? 'border-blue-500 ring-4 ring-blue-50'
+                                        : filterTypes.length === 0
+                                            ? 'border-red-300 bg-red-50/10'
+                                            : 'border-slate-200'
+                                        }`}
+                                >
+                                    <div className="flex flex-wrap gap-1.5 flex-1 mr-2">
+                                        {filterTypes.length > 0 ? (
+                                            filterTypes.map((type: string) => (
+                                                <span
+                                                    key={type}
+                                                    className="bg-blue-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 shadow-sm"
+                                                >
+                                                    {type.toUpperCase()}
+                                                    <HiX
+                                                        className="cursor-pointer hover:text-blue-200 transition-colors"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            const updated = filterTypes.filter((t: string) => t !== type);
+                                                            handleChange("filterTypeSelection", updated);
+
+                                                            const prefix = `${type}:`;
+                                                            const newSelected = (selectedFilters || []).filter((f: string) => !f.startsWith(prefix));
+                                                            handleChange("selectedFilters", newSelected);
+
+                                                            const newDetails = { ...selectedFilterDetails };
+                                                            Object.keys(newDetails).forEach(k => {
+                                                                if (k.startsWith(prefix)) delete newDetails[k];
+                                                            });
+                                                            handleChange("selectedFilterDetails", newDetails);
+                                                        }}
+                                                    />
+                                                </span>
+                                            ))
+                                        ) : (
+                                            <span className="text-slate-400 text-sm">{filterTypes.length === 0 ? 'Select at least one...' : 'Select filter types...'}</span>
+                                        )}
+                                    </div>
+                                    <HiChevronDown className={`text-slate-400 transition-transform duration-300 ${filterTypeOpen ? 'rotate-180 text-blue-500' : ''}`} />
+                                </div>
+
+                                {filterTypeOpen && (
+                                    <div className="absolute z-50 mt-2 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                                        <div className="p-2 flex flex-col gap-1">
+                                            {ahuData.filtrationSelection.filterType
+                                                .filter((v: string) => isRestrictedHandling ? v === "Supply" : true)
+                                                .map((v: string) => {
+                                                    const isSelected = filterTypes.includes(v);
+                                                    return (
+                                                        <div
+                                                            key={v}
+                                                            onClick={() => {
+                                                                const updated = isSelected
+                                                                    ? filterTypes.filter((t: string) => t !== v)
+                                                                    : [...filterTypes, v];
+
+                                                                handleChange("filterTypeSelection", updated);
+
+                                                                if (isSelected && !updated.includes(v)) {
+                                                                    const prefix = `${v}:`;
+                                                                    const newSelected = (selectedFilters || []).filter((f: string) => !f.startsWith(prefix));
+                                                                    handleChange("selectedFilters", newSelected);
+
+                                                                    const newDetails = { ...selectedFilterDetails };
+                                                                    Object.keys(newDetails).forEach(k => {
+                                                                        if (k.startsWith(prefix)) delete newDetails[k];
+                                                                    });
+                                                                    handleChange("selectedFilterDetails", newDetails);
+                                                                }
+                                                            }}
+                                                            className={`flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition-all ${isSelected
+                                                                ? 'bg-blue-50 text-blue-700'
+                                                                : 'hover:bg-slate-50 text-slate-700'
+                                                                }`}
+                                                        >
+                                                            <span className="text-sm font-bold tracking-wide">{v}</span>
+                                                            {isSelected && <HiCheck className="text-blue-600 text-lg" />}
+                                                        </div>
+                                                    );
+                                                })}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
-                    {filterTypeSelection === "Exhaust" && (
-                        <div className={s.specialBox + " bg-blue-50 border-blue-100"}>
-                            <div className="text-blue-800 font-bold text-xs mb-3 uppercase tracking-wider">Impact of Exhaust</div>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-sm font-semibold text-blue-950">Exhaust Impact Percentage (0-50%)</label>
-                                <select
-                                    className={s.select + " py-4"}
-                                    value={exhaustImpactPercentage}
-                                    onChange={(e) => handleChange("exhaustImpactPercentage", e.target.value)}
-                                >
-                                    <option value="">Select exhaust impact percentage...</option>
-                                    {ahuData.filtrationSelection.exhaustImpact.map((val: string) => (
-                                        <option key={val} value={val}>{val}</option>
-                                    ))}
-                                </select>
-                                <div className="text-[10px] text-blue-600 font-medium">
-                                    {ahuData.filtrationSelection.exhaustImpactHint}
+
+                    <div className={`grid grid-cols-1 ${filterTypes.length > 1 ? 'lg:grid-cols-2' : ''} gap-12 mt-8 transition-all duration-300`}>
+                        {filterTypes.map((type) => (
+                            <div key={type} className="flex flex-col gap-6">
+                                <div className="text-blue-800 font-bold text-sm uppercase tracking-widest border-b border-blue-100 pb-2">
+                                    {type} Filters
+                                </div>
+
+                                {type === "Exhaust" && (
+                                    <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4 flex flex-col gap-4 shadow-sm">
+                                        <div className="text-blue-800 font-bold text-[10px] uppercase tracking-wider opacity-80">Impact of Exhaust</div>
+                                        <div className="flex flex-col gap-4">
+                                            {handling.includes("Bio-safety") && (
+                                                <div className="flex flex-col gap-1.5">
+                                                    <label className="text-xs font-semibold text-blue-950">Bio-safety Level <span className="text-red-600">*</span></label>
+                                                    <select
+                                                        className={s.select + " py-2 text-xs"}
+                                                        value={bioSafetyLevel}
+                                                        onChange={(e) => handleChange("bioSafetyLevel", e.target.value)}
+                                                        required={true}
+                                                    >
+                                                        <option value="">Select level...</option>
+                                                        {ahuData.filtrationSelection.bioSafetyLevels.map((val: string) => (
+                                                            <option key={val} value={val}>{val}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            )}
+
+                                            <div className="flex flex-col gap-1.5">
+                                                <label className="text-xs font-semibold text-blue-950">
+                                                    Exhaust Impact {handling.includes("Bio-safety") ? "(0-100%)" : "(0-50%)"}
+                                                </label>
+                                                <select
+                                                    className={s.select + " py-2 text-xs"}
+                                                    value={exhaustImpactPercentage}
+                                                    onChange={(e) => handleChange("exhaustImpactPercentage", e.target.value)}
+                                                >
+                                                    <option value="">Select percentage...</option>
+                                                    {(handling.includes("Bio-safety")
+                                                        ? ahuData.filtrationSelection.exhaustImpactBioSafety
+                                                        : ahuData.filtrationSelection.exhaustImpact
+                                                    ).map((val: string) => (
+                                                        <option key={val} value={val}>{val}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className={`grid grid-cols-1 ${filterTypes.length > 1 ? 'gap-6' : 'md:grid-cols-2 gap-x-10 gap-y-6'}`}>
+                                    {/* Sub-grid for filters - use two columns only if single type is selected */}
+                                    {(filterTypes.length > 1 ? [0] : [0, 1]).map((colIndex) => {
+                                        const baseFilters = type === "Exhaust"
+                                            ? ahuData.filtrationSelection.exhaustFilters
+                                            : ahuData.filtrationSelection.supplyFilters;
+
+                                        const specialExhaustFilters = type === "Exhaust" && hasSpecialHandling
+                                            ? ahuData.filtrationSelection.specialExhaustFilters
+                                            : [];
+
+                                        const currentFilters = (type === "Exhaust" && hasSpecialHandling)
+                                            ? [
+                                                ...specialExhaustFilters,
+                                                ...baseFilters.filter(f => !specialExhaustFilters.includes(f))
+                                            ]
+                                            : baseFilters;
+
+                                        return (
+                                            <div key={colIndex} className="flex flex-col gap-6">
+                                                {currentFilters
+                                                    .filter((_, i) => filterTypes.length > 1 ? true : i % 2 === colIndex)
+                                                    .map((filter) => {
+                                                        const compositeKey = `${type}:${filter}`;
+                                                        const isSelected = (selectedFilters || []).includes(compositeKey);
+                                                        const isPreselectedAndDisabled = specialExhaustFilters.includes(filter);
+                                                        const specs = (ahuData.filterSpecs as any)[filter];
+                                                        return (
+                                                            <div key={compositeKey} className="flex flex-col">
+                                                                <label className={`flex items-center gap-3 ${isPreselectedAndDisabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer group'}`}>
+                                                                    <div className="relative flex items-center">
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            className={`h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 ${isPreselectedAndDisabled ? 'cursor-not-allowed bg-gray-100' : 'cursor-pointer'}`}
+                                                                            checked={isSelected || isPreselectedAndDisabled}
+                                                                            disabled={isPreselectedAndDisabled}
+                                                                            onChange={() => handleFilterToggle(type, filter)}
+                                                                        />
+                                                                    </div>
+                                                                    <span className={`text-sm font-medium ${isPreselectedAndDisabled ? 'text-slate-500' : 'text-slate-700 group-hover:text-blue-600 transition-colors'}`}>
+                                                                        {filter}
+                                                                    </span>
+                                                                </label>
+                                                                {(isSelected || isPreselectedAndDisabled) && specs && (
+                                                                    <FilterDetailCard
+                                                                        filterName={filter}
+                                                                        specs={specs}
+                                                                        data={selectedFilterDetails[compositeKey]}
+                                                                        onUpdate={(details) =>
+                                                                            dispatch(updateFilterDetail({ filterName: compositeKey, details }))
+                                                                        }
+                                                                    />
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
-                        </div>
-                    )}
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-8 transition-opacity duration-300">
-                        {/* Split filters into two independent vertical columns */}
-                        {[0, 1].map((colIndex) => {
-                            const baseFilters = filterTypeSelection === "Exhaust"
-                                ? ahuData.filtrationSelection.exhaustFilters
-                                : ahuData.filtrationSelection.supplyFilters;
-                            
-                            const specialExhaustFilters = filterTypeSelection === "Exhaust" && hasSpecialHandling 
-                                ? ahuData.filtrationSelection.specialExhaustFilters 
-                                : [];
-
-                            const currentFilters = (filterTypeSelection === "Exhaust" && hasSpecialHandling)
-                                ? [
-                                    ...specialExhaustFilters,
-                                    ...baseFilters.filter(f => !specialExhaustFilters.includes(f))
-                                  ]
-                                : baseFilters;
-
-                            return (
-                                <div key={colIndex} className="flex flex-col gap-6">
-                                    {currentFilters
-                                        .filter((_, i) => i % 2 === colIndex)
-                                        .map((filter) => {
-                                            const isSelected = (selectedFilters || []).includes(filter);
-                                            const isPreselectedAndDisabled = specialExhaustFilters.includes(filter);
-                                            const specs = (ahuData.filterSpecs as any)[filter];
-                                            return (
-                                                <div key={filter} className="flex flex-col">
-                                                    <label className={`flex items-center gap-3 ${isPreselectedAndDisabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer group'}`}>
-                                                        <div className="relative flex items-center">
-                                                            <input
-                                                                type="checkbox"
-                                                                className={`h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 ${isPreselectedAndDisabled ? 'cursor-not-allowed bg-gray-100' : 'cursor-pointer'}`}
-                                                                checked={isSelected || isPreselectedAndDisabled}
-                                                                disabled={isPreselectedAndDisabled}
-                                                                onChange={() => handleFilterToggle(filter)}
-                                                            />
-                                                        </div>
-                                                        <span className={`text-sm font-medium ${isPreselectedAndDisabled ? 'text-slate-500' : 'text-slate-700 group-hover:text-blue-600 transition-colors'}`}>
-                                                            {filter}
-                                                        </span>
-                                                    </label>
-                                                    {isSelected && specs && (
-                                                        <FilterDetailCard
-                                                            filterName={filter}
-                                                            specs={specs}
-                                                            data={selectedFilterDetails[filter]}
-                                                            onUpdate={(details) =>
-                                                                dispatch(updateFilterDetail({ filterName: filter, details }))
-                                                            }
-                                                        />
-                                                    )}
-                                                </div>
-                                            );
-                                        })}
-                                </div>
-                            );
-                        })}
+                        ))}
                     </div>
 
                     <div className="mt-12 pt-8 border-t border-slate-200">

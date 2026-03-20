@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import s from "./style";
-import { FaArrowLeft,  FaLayerGroup,  FaCalculator } from "react-icons/fa";
-  import { MdApartment } from "react-icons/md";
+import { FaArrowLeft, FaLayerGroup, FaCalculator } from "react-icons/fa";
+import { MdApartment } from "react-icons/md";
 import Header from "../../../components/header";
 import { useAppSelector } from "../../../redux/hooks";
 import { getCompletedProjects } from "../../../backend/controller/projectController";
@@ -93,6 +93,14 @@ export default function ProjectListInfo() {
       return Array.isArray(arr) ? arr.join(", ") : raw;
     } catch {
       return raw ?? "—";
+    }
+  }
+  function parseJson(raw: string): string[] {
+    try {
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : [];
+    } catch {
+      return [];
     }
   }
 
@@ -337,21 +345,50 @@ export default function ProjectListInfo() {
 
                 <div>
                   <p className={s.projectLabel}>Industry Sectors</p>
-                  <div className="flex gap-2 mt-1">
+                  {/* <div className="flex gap-2 mt-1">
                     <span className={s.projectValues + " bg-blue-100 text-blue-700 px-3 py-1 rounded-md text-xs"}>
                       {parseJsonArray(p.project_Industry) || "—"}
                     </span>
 
+                  </div> */}
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {parseJson(p.project_Industry).length > 0 ? (
+                      parseJson(p.project_Industry).map((item, i) => (
+                        <span
+                          key={i}
+                          className="bg-blue-100 text-blue-700 px-3 py-1 rounded-md text-xs"
+                        >
+                          {item}
+                        </span>
+                      ))
+                    ) : (
+                      <span className={s.projectValues}>—</span>
+                    )}
                   </div>
                 </div>
 
                 <div>
                   <p className={s.projectLabel}>Handling Types</p>
-                  <div className="flex gap-2 mt-1">
+                  {/* <div className="flex gap-2 mt-1">
                     <span className={s.projectValues + " bg-gray-200 px-3 py-1 rounded-md text-xs"}>
                       {parseJsonArray(p.project_Handling) || "—"}
                     </span>
 
+                  </div> */}
+
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {parseJson(p.project_Handling).length > 0 ? (
+                      parseJson(p.project_Handling).map((item, i) => (
+                        <span
+                          key={i}
+                          className="bg-gray-200 px-3 py-1 rounded-md text-xs"
+                        >
+                          {item}
+                        </span>
+                      ))
+                    ) : (
+                      <span className={s.projectValues}>—</span>
+                    )}
                   </div>
                 </div>
 
@@ -384,7 +421,7 @@ export default function ProjectListInfo() {
 
             {activeStandard && (<div className={s.customerInfoCard}>
               <h2 className={s.cardTitle}>
-               <FaLayerGroup className="text-blue-700 text-2xl" /> Classification Details
+                <FaLayerGroup className="text-blue-700 text-2xl" /> Classification Details
               </h2>
 
               <div className={s.projectDetails}>
@@ -415,18 +452,18 @@ export default function ProjectListInfo() {
             {activeStandard && (
               <div className={s.customerInfoCard}>
                 <h2 className={s.cardTitle}>
-                 <FaCalculator className="text-blue-700 text-2xl" /> Rooms ({activeStandard.rooms.length})
+                  <FaCalculator className="text-blue-700 text-2xl" /> Rooms ({activeStandard.rooms.length})
                 </h2>
                 <div className={s.roomCardInfo}>
-                  <div className={s.roomCardValue }>
+                  <div className={s.roomCardValue}>
                     {activeStandard.rooms.map((room, i) => (
-                  <RoomSection key={i} room={room} index={i} />
-                ))}
+                      <RoomSection key={i} room={room} index={i} />
+                    ))}
                   </div>
-                  
+
 
                 </div>
-                
+
               </div>
             )}
           </div>

@@ -206,10 +206,8 @@ export default function AllProjects() {
                       >
                         <FaDownload /> Download
                       </button>
-                      <Link
-                        to={`/projectListInfo/${p.project_id}`}
-                        className={s.primaryBtn}
-                      >
+                      <Link to={`/projectListInfo/${p.project_id}`}
+                        className={s.primaryBtn}>
                         <FaEye /> View Details
                       </Link>
                     </div>

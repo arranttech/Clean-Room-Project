@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { getUserById } from "../../backend/controller/userController";
 import { handleLogout } from "../../utils/logout";
+import { setUser } from "../../redux/slices/userSlice";
 import { FiLogOut } from "react-icons/fi";
 import s from "./styles";
 
@@ -25,6 +26,14 @@ export default function Header() {
           if (u) {
             setUserFullName(`${u.user_first_name || ""} ${u.user_last_name || ""}`.trim());
             setUserEmail(u.user_email_id || "");
+            dispatch(
+              setUser({
+                user_login_id: loggedInUser.user_login_id,
+                user_id: u.user_id || loggedInUser.user_id,
+                customer_id: u.customer_id || loggedInUser.customer_id,
+                name: `${u.user_first_name || ""} ${u.user_last_name || ""}`.trim() || loggedInUser.name,
+              })
+            );
           }
         } catch (e) {
           console.error("Failed to fetch user details:", e);

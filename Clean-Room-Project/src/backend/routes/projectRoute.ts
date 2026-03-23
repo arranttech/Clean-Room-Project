@@ -14,6 +14,7 @@ export const projectRoute: ServerRoute[] = [
       validate: {
         payload: Joi.object({
           customer_id: Joi.number().integer().required(),
+          user_id: Joi.string().required(),
           user_login_id: Joi.number().integer().required(),
           projectName: Joi.string().required(),
           unitBranch: Joi.string().optional().allow("", null),
@@ -59,7 +60,7 @@ export const projectRoute: ServerRoute[] = [
         params: Joi.object({ projectId: Joi.number().integer().required() }),
         payload: Joi.object({
           customer_id: Joi.number().integer().optional(),
-          user_login_id: Joi.number().integer().optional(),
+          user_id: Joi.string().optional(),
           uniqueId: Joi.string().optional().allow("", null),
           projectName: Joi.string().required(),
           unitBranch: Joi.string().optional().allow("", null),
@@ -128,7 +129,7 @@ export const projectRoute: ServerRoute[] = [
       tags: ["api", "project"],
       validate: {
         query: Joi.object({
-          user_login_id: Joi.number().integer().required(),
+          user_id: Joi.string().required(),
         }),
       },
       response: {
@@ -140,10 +141,8 @@ export const projectRoute: ServerRoute[] = [
     },
     handler: async (request, h) => {
       try {
-        const { user_login_id } = request.query as any;
-        const projects = await projectRepository.getInProgressProjectsByUserId(
-          parseInt(user_login_id, 10)
-        );
+        const { user_id } = request.query as any;
+        const projects = await projectRepository.getInProgressProjectsByUserId(user_id);
         return h.response({ projects }).code(200);
       } catch (err) {
         console.error("GET INPROGRESS PROJECTS ERROR:", err);
@@ -160,7 +159,7 @@ export const projectRoute: ServerRoute[] = [
       tags: ["api", "project"],
       validate: {
         query: Joi.object({
-          user_login_id: Joi.number().integer().required(),
+          user_id: Joi.string().required(),
         }),
       },
       response: {
@@ -172,10 +171,8 @@ export const projectRoute: ServerRoute[] = [
     },
     handler: async (request, h) => {
       try {
-        const { user_login_id } = request.query as any;
-        const projects = await projectRepository.getCompletedProjectsByUserId(
-          parseInt(user_login_id, 10)
-        );
+        const { user_id } = request.query as any;
+        const projects = await projectRepository.getCompletedProjectsByUserId(user_id);
         return h.response({ projects }).code(200);
       } catch (err) {
         console.error("GET COMPLETED PROJECTS ERROR:", err);
@@ -192,7 +189,7 @@ export const projectRoute: ServerRoute[] = [
       tags: ["api", "project"],
       validate: {
         query: Joi.object({
-          user_login_id: Joi.number().integer().required(),
+          user_id: Joi.string().required(),
         }),
       },
       response: {
@@ -208,10 +205,8 @@ export const projectRoute: ServerRoute[] = [
     },
     handler: async (request, h) => {
       try {
-        const { user_login_id } = request.query as any;
-        const counts = await projectRepository.getProjectCountsByUserId(
-          parseInt(user_login_id, 10)
-        );
+        const { user_id } = request.query as any;
+        const counts = await projectRepository.getProjectCountsByUserId(user_id);
         return h.response(counts).code(200);
       } catch (err) {
         console.error("GET PROJECT COUNTS ERROR:", err);

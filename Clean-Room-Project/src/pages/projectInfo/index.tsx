@@ -25,28 +25,29 @@ function ProjectInfoPage() {
   const customerId = useAppSelector((s: any) => s.customer.customerId);
   const customerName = useAppSelector((s: any) => s.customer.customerName);
 
-  // projectId from Redux
-  const projectIdFromRedux = useAppSelector(
-    (s: any) => s.projectInfo.projectId
-  );
-  const user_login_id = useAppSelector((s: any) => s.user.user_login_id);
-  const projectName = useAppSelector((s: any) => s.projectInfo.projectName);
-  const unitBranch = useAppSelector((s: any) => s.projectInfo.unitBranch);
-  const handling = useAppSelector((s: any) => s.projectInfo.handling);
-  const industry = useAppSelector((s: any) => s.projectInfo.industry);
-  const uniqueId = useAppSelector((s: any) => s.projectInfo.uniqueId);
-  const locationQuery = useAppSelector((s: any) => s.projectInfo.locationQuery);
-  const selectedLocation = useAppSelector(
-    (s: any) => s.projectInfo.selectedLocation
-  );
-  const minTemp = useAppSelector((s: any) => s.projectInfo.minTemp);
-  const maxTemp = useAppSelector((s: any) => s.projectInfo.maxTemp);
-  const relativeHumidityMin = useAppSelector(
-    (s: any) => s.projectInfo.relativeHumidityMin
-  );
-  const relativeHumidityMax = useAppSelector(
-    (s: any) => s.projectInfo.relativeHumidityMax
-  );
+	// projectId from Redux
+	const projectIdFromRedux = useAppSelector(
+		(s: any) => s.projectInfo.projectId
+	);
+	const user_id = useAppSelector((s: any) => String(s.user.user_id || s.user.user_login_id));
+	const user_login_id = useAppSelector((s: any) => s.user.user_login_id);
+	const projectName = useAppSelector((s: any) => s.projectInfo.projectName);
+	const unitBranch = useAppSelector((s: any) => s.projectInfo.unitBranch);
+	const handling = useAppSelector((s: any) => s.projectInfo.handling);
+	const industry = useAppSelector((s: any) => s.projectInfo.industry);
+	const uniqueId = useAppSelector((s: any) => s.projectInfo.uniqueId);
+	const locationQuery = useAppSelector((s: any) => s.projectInfo.locationQuery);
+	const selectedLocation = useAppSelector(
+		(s: any) => s.projectInfo.selectedLocation
+	);
+	const minTemp = useAppSelector((s: any) => s.projectInfo.minTemp);
+	const maxTemp = useAppSelector((s: any) => s.projectInfo.maxTemp);
+	const relativeHumidityMin = useAppSelector(
+		(s: any) => s.projectInfo.relativeHumidityMin
+	);
+	const relativeHumidityMax = useAppSelector(
+		(s: any) => s.projectInfo.relativeHumidityMax
+	);
 
   const [locationResults, setLocationResults] = useState<any[]>([]);
   const [showResults, setShowResults] = useState(false);
@@ -193,21 +194,22 @@ function ProjectInfoPage() {
     }
   };
 
-  const saveProjectInfo = async () => {
-    const payload = {
-      user_login_id: user_login_id,
-      customer_id: customerId,
-      projectName,
-      unitBranch,
-      handling,
-      industry,
-      uniqueId,
-      selectedLocation,
-      minTemp,
-      maxTemp,
-      relativeHumidityMin,
-      relativeHumidityMax,
-    };
+	const saveProjectInfo = async () => {
+		const payload = {
+			user_id: user_id,
+			user_login_id: user_login_id,
+			customer_id: customerId,
+			projectName,
+			unitBranch,
+			handling,
+			industry,
+			uniqueId,
+			selectedLocation,
+			minTemp,
+			maxTemp,
+			relativeHumidityMin,
+			relativeHumidityMax,
+		};
 
     const navigationState = {
       minimumTemp: minTemp,

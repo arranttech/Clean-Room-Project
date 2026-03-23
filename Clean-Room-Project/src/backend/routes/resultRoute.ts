@@ -23,6 +23,7 @@ export const resultRoute: ServerRoute[] = [
         payload: Joi.object({
           project_RoomId: Joi.number().integer().allow(null).optional(),
           project_id: Joi.number().integer().required(),
+          user_id: Joi.string().optional(),
           roomName: Joi.string().allow(null, "").optional(),
           project_Area: numOrNull,
           project_Volume: numOrNull,

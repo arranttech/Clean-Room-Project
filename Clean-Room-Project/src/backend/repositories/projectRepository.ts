@@ -20,8 +20,9 @@ export const projectRepository = {
       (customer_id, user_login_id, project_unique_id, project_name,
        project_unit_branch, project_Industry, project_Handling,
        project_Location, project_max_temp, project_min_temp,
-       project_relative_min_humid, project_relative_max_humid)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       project_relative_min_humid, project_relative_max_humid,
+       created_by, updated_by)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         payload.customer_id,
         payload.user_login_id,
@@ -37,6 +38,8 @@ export const projectRepository = {
         toFloat(payload.minTemp),
         toFloat(payload.relativeHumidityMin),
         toFloat(payload.relativeHumidityMax),
+        payload.user_id ?? null,
+        payload.user_id ?? null,
       ]
     );
     return (result as any).insertId;
@@ -48,7 +51,7 @@ export const projectRepository = {
         project_name = ?, project_unit_branch = ?, project_Industry = ?,
         project_Handling = ?, project_Location = ?, project_max_temp = ?,
         project_min_temp = ?, project_relative_min_humid = ?,
-        project_relative_max_humid = ?
+        project_relative_max_humid = ?, updated_by = ?
       WHERE project_id = ?`,
       [
         payload.projectName,
@@ -62,6 +65,7 @@ export const projectRepository = {
         toFloat(payload.minTemp),
         toFloat(payload.relativeHumidityMin),
         toFloat(payload.relativeHumidityMax),
+        payload.user_id || null,
         projectId,
       ]
     );
@@ -74,7 +78,7 @@ export const projectRepository = {
     );
   },
 
-  getProjectCountsByUserId: async (user_login_id: number) => {
+  getProjectCountsByUserId: async (user_id: string) => {
     const [rows]: any = await database.execute(
       `SELECT
         COUNT(*) AS total,
@@ -82,7 +86,7 @@ export const projectRepository = {
         SUM(CASE WHEN project_status = 'COMPLETED' THEN 1 ELSE 0 END) AS completed
       FROM tProjects
       WHERE user_login_id = ?`,
-      [user_login_id]
+      [user_id]
     );
     return {
       total: rows[0]?.total ?? 0,
@@ -91,7 +95,7 @@ export const projectRepository = {
     };
   },
 
-  getCompletedProjectsByUserId: async (user_login_id: number) => {
+  getCompletedProjectsByUserId: async (user_id: string) => {
     try {
       const [rows]: any = await database.execute(
         `SELECT
@@ -104,6 +108,8 @@ export const projectRepository = {
         p.project_Location,
         p.project_status,
         p.created_at,
+        p.created_by,
+        p.updated_by,
         c.customer_name,
         c.customer_address,
         c.customer_phone,
@@ -129,7 +135,7 @@ r.room_ExhaustAir
         AND p.project_status = 'COMPLETED'
         
       ORDER BY p.created_at DESC`,
-        [user_login_id]
+        [user_id]
       );
       console.log("Repository SQL Result:", JSON.stringify(rows, null, 2));
       return rows;
@@ -193,7 +199,7 @@ r.room_ExhaustAir
     return { project, standards, zones, rooms };
   },
 
-  getInProgressProjectsByUserId: async (user_login_id: number) => {
+  getInProgressProjectsByUserId: async (user_id: string) => {
     const [rows]: any = await database.execute(
       `SELECT
         p.project_id,
@@ -209,12 +215,14 @@ r.room_ExhaustAir
       WHERE p.user_login_id = ? AND p.project_status = 'INPROGRESS'
       GROUP BY p.project_id, p.project_name, p.created_at, c.customer_name
       ORDER BY p.created_at DESC`,
-      [user_login_id]
+      [user_id]
     );
     return rows.map((row: any) => ({
       project_id: row.project_id,
       project_name: row.project_name,
       customer_name: row.customer_name,
+      created_by: row.created_by,
+      updated_by: row.updated_by,
       last_modified: row.last_modified,
       has_standard: !!row.has_standard,
       has_rooms: !!row.has_rooms,

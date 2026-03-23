@@ -49,8 +49,17 @@ export default function Dashboard() {
 			try {
 				const res = await getUserById(loggedInUser.user_login_id);
 				const u = res?.user ?? res;
-				dispatch(setUser({ user_login_id: loggedInUser.user_login_id }));
-				if (u) setFirstName(u.user_first_name?.trim() || "User");
+				if (u) {
+					dispatch(
+						setUser({
+							user_login_id: loggedInUser.user_login_id,
+							user_id: u.user_id || loggedInUser.user_id,
+							customer_id: u.customer_id || loggedInUser.customer_id,
+							name: `${u.user_first_name || ""} ${u.user_last_name || ""}`.trim() || loggedInUser.name,
+						})
+					);
+					setFirstName(u.user_first_name?.trim() || "User");
+				}
 			} catch (e) {
 				console.error(e);
 			}

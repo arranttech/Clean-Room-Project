@@ -37,9 +37,11 @@ type Project = {
   customer_address: string;
   customer_phone: string;
   customer_email_id: string;
-  project_Location: string;
   project_Industry: string;
+  project_Location: string;
   project_Handling: string;
+  created_by?: string;
+  updated_by?: string;
   standards: Standard[];
 };
 
@@ -147,6 +149,8 @@ export default function ProjectListInfo() {
               project_unique_id: row.project_unique_id,
               project_name: row.project_name,
               created_at: row.created_at,
+              created_by: row.created_by,
+              updated_by: row.updated_by,
               customer_name: row.customer_name,
               project_unit_branch: row.project_unit_branch,
               customer_address: row.customer_address,
@@ -302,7 +306,9 @@ export default function ProjectListInfo() {
               <p className={s.createdDate}>
                 <span className={s.projectLabel}>Created:</span> {formatDate(p.created_at)}
               </p>
-
+              <p className={s.createdDate}>
+                <span className={s.projectLabel}>Created By:</span> {p.created_by || "—"}
+              </p>
 
             </div>
 

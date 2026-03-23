@@ -6,20 +6,24 @@ const C = {
   cyan: "00B0F0",
   brown: "7F4F00",
   orange: "FF8C00",
-  dark: "404040",
-  green: "92D050",
-  darkGreen: "375623",
   red: "FF0000",
   white: "FFFFFF",
   black: "000000",
   lightGray: "D9D9D9",
 };
 
-// Border
-const B = () => {
-  const s = { style: "thin", color: { rgb: C.black } };
-  return { top: s, bottom: s, left: s, right: s };
-};
+// ── Border helpers ───────────────────────────────────────────────────────────
+const thin = { style: "thin", color: { rgb: C.black } };
+const medium = { style: "medium", color: { rgb: C.black } };
+
+const B = () => ({ top: thin, bottom: thin, left: thin, right: thin });
+const BDivRight = () => ({
+  top: thin,
+  bottom: thin,
+  left: thin,
+  right: medium,
+}); // last col of a section
+const BDivLeft = () => ({ top: thin, bottom: thin, left: medium, right: thin }); // first col of a section
 
 type CO = XLSXStyle.CellObject;
 
@@ -30,7 +34,8 @@ function mc(
   fc: string,
   bold: boolean,
   rotate: boolean,
-  ha: "left" | "center" | "right"
+  ha: "left" | "center" | "right",
+  border: ReturnType<typeof B> = B()
 ): CO {
   const isN = typeof v === "number";
   return {
@@ -45,86 +50,62 @@ function mc(
         wrapText: true,
         textRotation: rotate ? 90 : 0,
       },
-      border: B(),
+      border,
     },
   };
 }
 
-// Shorthand builders
-const yTitle = (v: any) => mc(v, C.yellow, C.black, true, false, "center");
-const yHdr = (v: any) => mc(v, C.yellow, C.black, true, true, "center");
-const cyD = (v: any) =>
+const yTitle = (v: any, bl = B()) =>
+  mc(v, C.yellow, C.black, true, false, "center", bl);
+const yHdr = (v: any, bl = B()) =>
+  mc(v, C.yellow, C.black, true, true, "center", bl);
+const cyD = (v: any, bl = B()) =>
   mc(
     v,
     C.cyan,
     C.black,
     false,
     false,
-    typeof v === "number" ? "right" : "left"
+    typeof v === "number" ? "right" : "left",
+    bl
   );
-const brD = (v: any) =>
+const brD = (v: any, bl = B()) =>
   mc(
     v,
     C.brown,
     C.white,
     false,
     false,
-    typeof v === "number" ? "right" : "left"
+    typeof v === "number" ? "right" : "left",
+    bl
   );
-const orD = (v: any) =>
+const orD = (v: any, bl = B()) =>
   mc(
     v,
     C.orange,
     C.black,
     false,
     false,
-    typeof v === "number" ? "right" : "left"
+    typeof v === "number" ? "right" : "left",
+    bl
   );
-const dkD = (v: any) =>
-  mc(
-    v,
-    C.dark,
-    C.white,
-    false,
-    false,
-    typeof v === "number" ? "right" : "center"
-  );
-const gnD = (v: any) =>
-  mc(
-    v,
-    C.green,
-    C.black,
-    false,
-    false,
-    typeof v === "number" ? "right" : "left"
-  );
-const dgD = (v: any) =>
-  mc(
-    v,
-    C.darkGreen,
-    C.white,
-    false,
-    false,
-    typeof v === "number" ? "right" : "left"
-  );
-const rdD = (v: any) =>
+const rdD = (v: any, bl = B()) =>
   mc(
     v,
     C.red,
     C.white,
     true,
     false,
-    typeof v === "number" ? "right" : "center"
+    typeof v === "number" ? "right" : "center",
+    bl
   );
 const fldD = (v: any) => mc(v, C.lightGray, C.black, true, false, "left");
 const valD = (v: any) => mc(v, C.white, C.black, false, false, "left");
-const eY = (): CO => ({
+
+const eY = (bl = B()): CO => ({
   v: "",
   t: "s",
-  s: {
-    fill: { fgColor: { rgb: C.yellow }, patternType: "solid" },
-    border: B(),
-  },
+  s: { fill: { fgColor: { rgb: C.yellow }, patternType: "solid" }, border: bl },
 });
 const eW = (): CO => ({
   v: "",
@@ -132,7 +113,6 @@ const eW = (): CO => ({
   s: { fill: { fgColor: { rgb: C.white }, patternType: "solid" } },
 });
 
-// Helpers
 function parseJson(val: string): string {
   try {
     const a = JSON.parse(val);
@@ -173,8 +153,8 @@ function buildWS(rows: CO[][]): XLSXStyle.WorkSheet {
   return ws;
 }
 
-//Column definitions
-type Sec = "cyan" | "brown" | "orange" | "dark" | "green" | "darkGreen";
+// ── Column definitions ───────────────────────────────────────────────────────
+type Sec = "cyan" | "brown" | "cooling" | "heating";
 type Col = {
   label: string;
   key: string;
@@ -183,7 +163,7 @@ type Col = {
 };
 
 const COLS: Col[] = [
-  // CYAN - Room inputs (no Zone column)
+  // CYAN — Room inputs
   { label: "Room Name", key: "project_RoomName", sec: "cyan", src: "room" },
   { label: "Length (m)", key: "room_Length", sec: "cyan", src: "room" },
   { label: "Width (m)", key: "room_Width", sec: "cyan", src: "room" },
@@ -210,7 +190,7 @@ const COLS: Col[] = [
     src: "room",
   },
   { label: "ACPH", key: "project_ACPH", sec: "cyan", src: "room" },
-  // BROWN - Standards
+  // BROWN — Standards
   {
     label: "Standard ID",
     key: "project_standard_id",
@@ -301,135 +281,122 @@ const COLS: Col[] = [
     key: "total_Filtration_Stages",
     sec: "brown",
     src: "std",
+  }, // ← last brown → right divider (AK)
+  // COOLING DETAILS — AL to AR
+  { label: "Area (m²)", key: "project_Area", sec: "cooling", src: "result" },
+  {
+    label: "Volume (m³)",
+    key: "project_Volume",
+    sec: "cooling",
+    src: "result",
   },
-  // ORANGE - Results
-  { label: "Area (m²)", key: "project_Area", sec: "orange", src: "result" },
-  { label: "Volume (m³)", key: "project_Volume", sec: "orange", src: "result" },
-  { label: "Room CFM", key: "project_RoomCfm", sec: "orange", src: "result" },
+  { label: "Room CFM", key: "project_RoomCfm", sec: "cooling", src: "result" },
   {
     label: "Fresh Air (CFM)",
     key: "project_FreshAir",
-    sec: "orange",
+    sec: "cooling",
     src: "result",
   },
   {
     label: "Exhaust Air (CFM)",
     key: "project_ExhaustAir",
-    sec: "orange",
+    sec: "cooling",
     src: "result",
   },
   {
     label: "Dehumid CFM",
     key: "project_DehumidCfm",
-    sec: "orange",
+    sec: "cooling",
     src: "result",
   },
   {
     label: "Rem. Water Vapour",
     key: "project_Rem_Water_Vapour",
-    sec: "orange",
+    sec: "cooling",
     src: "result",
   },
   {
     label: "Result CFM (Cooling)",
     key: "project_ResultCfm",
-    sec: "orange",
+    sec: "cooling",
     src: "result",
   },
   {
     label: "Terminal Mod (Cool)",
     key: "project_Room_Termi_Supply_Mod",
-    sec: "orange",
+    sec: "cooling",
     src: "result",
   },
   {
     label: "Room AC Load (TR)",
     key: "project_Room_AC_Load_TR",
-    sec: "orange",
+    sec: "cooling",
     src: "result",
   },
   {
     label: "CFM AC Load (TR)",
     key: "project_Cfm_AC_Load_TR",
-    sec: "orange",
+    sec: "cooling",
     src: "result",
   },
   {
-    label: "Res. Cooling Load(TR)",
+    label: "Res. Cooling Load (TR)",
     key: "project_Res_Cooling_Load_TR",
-    sec: "orange",
+    sec: "cooling",
     src: "result",
-  },
-  // DARK - 2 separator cols
+  }, 
+
   {
     label: "Add. Water Vapour",
     key: "project_add_Water_Vapour",
-    sec: "dark",
+    sec: "heating",
     src: "result",
   },
-  { label: "Humid CFM", key: "project_HumidCfm", sec: "dark", src: "result" },
-  // GREEN - Chilled Water
+  {
+    label: "Humid CFM",
+    key: "project_HumidCfm",
+    sec: "heating",
+    src: "result",
+  },
   {
     label: "Result CFM (Heating)",
     key: "project_ResultCfm_Hot",
-    sec: "green",
+    sec: "heating",
     src: "result",
   },
   {
     label: "Terminal Mod (Heat)",
     key: "project_Room_Term_Supply_Mod",
-    sec: "green",
+    sec: "heating",
     src: "result",
   },
   {
     label: "Room Heat Load (TR)",
     key: "project_Room_Heating_Load_TR",
-    sec: "green",
+    sec: "heating",
     src: "result",
   },
   {
     label: "CFM Heat Load (TR)",
     key: "project_Cfm_Heating_Load_TR",
-    sec: "green",
+    sec: "heating",
     src: "result",
   },
   {
     label: "Res. Heat Load (TR)",
     key: "project_Result_Heating_Load_TR",
-    sec: "green",
-    src: "result",
-  },
-  // DARK GREEN - Hot Water/Steam
-  {
-    label: "Chilled Water Flow",
-    key: "chilled_water_flow",
-    sec: "darkGreen",
-    src: "result",
-  },
-  {
-    label: "Chilled Water Temp",
-    key: "chilled_water_temp",
-    sec: "darkGreen",
-    src: "result",
-  },
-  {
-    label: "Hot Water Flow",
-    key: "hot_water_flow",
-    sec: "darkGreen",
-    src: "result",
-  },
-  {
-    label: "Hot Water Temp",
-    key: "hot_water_temp",
-    sec: "darkGreen",
+    sec: "heating",
     src: "result",
   },
 ];
 
 const NCOLS = COLS.length;
-const GREEN_START = COLS.findIndex((c) => c.sec === "green");
-const DKGREEN_START = COLS.findIndex((c) => c.sec === "darkGreen");
-const MAIN_END = GREEN_START - 1;
+const COOLING_START = COLS.findIndex((c) => c.sec === "cooling");
+const HEATING_START = COLS.findIndex((c) => c.sec === "heating");
+const BROWN_END = COOLING_START - 1;
+const COOLING_END = HEATING_START - 1;
+const EXHAUST_AIR_IDX = COLS.findIndex((c) => c.key === "room_ExhaustAir"); // right divider (AK col)
+const DEHUMID_IDX = COLS.findIndex((c) => c.key === "project_DehumidCfm"); // left divider (AL col)
 
 const TEXT_KEYS = new Set([
   "project_RoomName",
@@ -444,34 +411,34 @@ const TEXT_KEYS = new Set([
 ]);
 const NO_SUM = new Set([...TEXT_KEYS, "project_standard_id"]);
 
-function dataCell(v: any, sec: Sec): CO {
-  switch (sec) {
-    case "brown":
-      return brD(v);
-    case "orange":
-      return orD(v);
-    case "dark":
-      return dkD(v);
-    case "green":
-      return gnD(v);
-    case "darkGreen":
-      return dgD(v);
-    default:
-      return cyD(v);
-  }
+// Dividers: right of AK (BROWN_END), left of AL (COOLING_START), right of AR (COOLING_END), left of AS (HEATING_START)
+// + right of Exhaust Air (AK inside cooling) and left of Dehumid CFM (AL inside cooling)
+function borderFor(colIdx: number): ReturnType<typeof B> {
+  if (colIdx === BROWN_END) return BDivRight(); // Standards | Cooling
+  if (colIdx === COOLING_START) return BDivLeft(); // same line, left side
+  if (colIdx === EXHAUST_AIR_IDX) return BDivRight(); // Exhaust Air | Dehumid CFM
+  if (colIdx === DEHUMID_IDX) return BDivLeft(); // same line, left side
+  if (colIdx === COOLING_END) return BDivRight(); // Cooling | Heating
+  if (colIdx === HEATING_START) return BDivLeft(); // same line, left side
+  return B();
 }
 
-// Sheet 1: Project Info 
+function dataCell(v: any, sec: Sec, colIdx: number): CO {
+  const bl = borderFor(colIdx);
+  if (sec === "brown") return brD(v, bl);
+  if (sec === "cyan") return cyD(v, bl);
+  return orD(v, bl);
+}
+
+// ── Sheet 1: Project Info ────────────────────────────────────────────────────
 function buildProjectInfoSheet(project: any): XLSXStyle.WorkSheet {
   const bl = () => eW();
-
   const section = (title: string, fields: [string, any][]): CO[][] => [
     [bl(), yTitle(title), eY(), bl()],
     [bl(), yHdr("Field"), yHdr("Value"), bl()],
     ...fields.map(([f, v]) => [bl(), fldD(f), valD(v), bl()]),
     [bl(), bl(), bl(), bl()],
   ];
-
   const allRows: CO[][] = [
     ...Array.from({ length: 3 }, () => [bl(), bl(), bl(), bl()]),
     ...section("PROJECT INFORMATION", [
@@ -496,18 +463,15 @@ function buildProjectInfoSheet(project: any): XLSXStyle.WorkSheet {
       ["Additional Notes", label(project.customers_additional_notes)],
     ]),
   ];
-
   const merges: ReturnType<typeof mg>[] = [];
   allRows.forEach((row, i) => {
     const cell = row[1] as any;
     if (
       cell?.s?.fill?.fgColor?.rgb === C.yellow &&
       cell?.s?.alignment?.textRotation !== 90
-    ) {
+    )
       merges.push(mg(i, i, 1, 2));
-    }
   });
-
   const ws = buildWS(allRows);
   ws["!merges"] = merges;
   ws["!cols"] = [{ wch: 8 }, { wch: 34 }, { wch: 55 }, { wch: 8 }];
@@ -521,7 +485,7 @@ function buildProjectInfoSheet(project: any): XLSXStyle.WorkSheet {
   return ws;
 }
 
-// Sheet 2: Zone 
+// ── Sheet 2: Zone ────────────────────────────────────────────────────────────
 function buildZoneSheet(
   standards: any[],
   rooms: any[],
@@ -538,6 +502,7 @@ function buildZoneSheet(
     ws["!cols"] = [{ wch: 40 }];
     return ws;
   }
+
   const zoneMap = new Map<string, { name: string; rooms: any[] }>();
   for (const room of rooms) {
     const zname =
@@ -547,7 +512,7 @@ function buildZoneSheet(
     if (!zoneMap.has(zname)) zoneMap.set(zname, { name: zname, rooms: [] });
     zoneMap.get(zname)!.rooms.push(room);
   }
-  const sortedZones = [...zoneMap.entries()];
+
   const resByName = new Map<string, any>();
   for (const r of results ?? [])
     resByName.set(String(r.project_RoomName ?? "").trim(), r);
@@ -558,52 +523,80 @@ function buildZoneSheet(
 
   let ri = 0;
 
-  for (const [, { name: zoneName, rooms: zoneRooms }] of sortedZones) {
+  for (const [, { name: zoneName, rooms: zoneRooms }] of zoneMap.entries()) {
+    // ── Title row ──
     const titleRow: CO[] = [];
-    titleRow.push(yTitle(zoneName));
-    for (let c = 1; c <= MAIN_END; c++) titleRow.push(eY());
-    titleRow.push(yTitle("Chilled Water Details"));
-    for (let c = GREEN_START + 1; c < DKGREEN_START; c++) titleRow.push(eY());
-    titleRow.push(yTitle("Hot Water/Steam Details"));
-    for (let c = DKGREEN_START + 1; c < NCOLS; c++) titleRow.push(eY());
 
-    merges.push(mg(ri, ri, 0, MAIN_END));
-    merges.push(mg(ri, ri, GREEN_START, DKGREEN_START - 1));
-    merges.push(mg(ri, ri, DKGREEN_START, NCOLS - 1));
+    // Zone name banner — right divider on LAST filler cell (not first, since merge ignores middle cells' right border in some renderers)
+    // We push the zone name with normal border, then filler cells, last filler gets right medium border
+    titleRow.push(yTitle(zoneName));
+    for (let c = 1; c < BROWN_END; c++) titleRow.push(eY());
+    titleRow.push(eY({ top: thin, bottom: thin, left: thin, right: medium }));
+
+    // "Cooling Details" banner — left+right dividers, fillers also get right divider on last
+    titleRow.push(
+      yTitle("Cooling Details", {
+        top: thin,
+        bottom: thin,
+        left: medium,
+        right: medium,
+      })
+    );
+    for (let c = COOLING_START + 1; c <= COOLING_END; c++) titleRow.push(eY());
+
+    // "Heating Details" banner — left divider on first cell
+    titleRow.push(
+      yTitle("Heating Details", {
+        top: thin,
+        bottom: thin,
+        left: medium,
+        right: thin,
+      })
+    );
+    for (let c = HEATING_START + 1; c < NCOLS; c++) titleRow.push(eY());
+
+    merges.push(mg(ri, ri, 0, BROWN_END));
+    merges.push(mg(ri, ri, COOLING_START, COOLING_END));
+    merges.push(mg(ri, ri, HEATING_START, NCOLS - 1));
     allRows.push(titleRow);
-    rowHeights.push({ hpt: 24 });
+    rowHeights.push({ hpt: 30 });
     ri++;
-    allRows.push(COLS.map((col) => yHdr(col.label)));
+
+    // ── Header row ──
+    allRows.push(COLS.map((col, i) => yHdr(col.label, borderFor(i))));
     rowHeights.push({ hpt: 80 });
     ri++;
+
+    // ── Data rows ──
     for (const room of zoneRooms) {
       const rName = String(room.project_RoomName ?? "").trim();
       const res = resByName.get(rName) ?? {};
       const std =
         stdById.get(String(room.project_standard_id ?? "")) ?? firstStd;
 
-      const dataRow: CO[] = COLS.map((col) => {
+      const dataRow: CO[] = COLS.map((col, i) => {
         let raw: any;
         if (col.src === "room") raw = room[col.key];
         else if (col.src === "std") raw = std[col.key];
         else raw = res[col.key];
-
         const v = TEXT_KEYS.has(col.key)
           ? label(raw)
           : num(raw) !== ""
           ? num(raw)
           : label(raw);
-
-        return dataCell(v, col.sec);
+        return dataCell(v, col.sec, i);
       });
 
       allRows.push(dataRow);
       rowHeights.push({ hpt: 18 });
       ri++;
     }
+
+    // ── TOTAL row ──
     const totalsRow: CO[] = COLS.map((col, i) => {
-      if (i === 0) return rdD("TOTAL");
-      if (NO_SUM.has(col.key)) return rdD("");
+      const bl = borderFor(i);
+      if (i === 0) return rdD("TOTAL", bl);
+      if (NO_SUM.has(col.key)) return rdD("", bl);
       const src =
         col.src === "room"
           ? zoneRooms
@@ -611,14 +604,14 @@ function buildZoneSheet(
               (r) =>
                 resByName.get(String(r.project_RoomName ?? "").trim()) ?? {}
             );
-      return rdD(r2(sumF(src, col.key)));
+      return rdD(r2(sumF(src, col.key)), bl);
     });
 
     allRows.push(totalsRow);
     rowHeights.push({ hpt: 20 });
     ri++;
 
-    // ── White spacer between zones ────────────────────────────────────
+    // ── White spacer ──
     allRows.push(Array.from({ length: NCOLS }, () => eW()));
     rowHeights.push({ hpt: 12 });
     ri++;
@@ -631,7 +624,7 @@ function buildZoneSheet(
   return ws;
 }
 
-//Main export 
+// ── Main export ──────────────────────────────────────────────────────────────
 export async function downloadProjectXLSX(
   projectId: number,
   projectUniqueId: string,
@@ -639,22 +632,16 @@ export async function downloadProjectXLSX(
 ) {
   const data = await fetchFn(projectId);
   const { project, standards, rooms, results } = data;
-
   const wb = XLSXStyle.utils.book_new();
-
-  // Sheet 1 – Project Info
   XLSXStyle.utils.book_append_sheet(
     wb,
     buildProjectInfoSheet(project),
     "Project Info"
   );
-
-  // Sheet 2 – Zone 
   XLSXStyle.utils.book_append_sheet(
     wb,
     buildZoneSheet(standards ?? [], rooms ?? [], results ?? []),
     "Zone"
   );
-
   XLSXStyle.writeFile(wb, `${projectUniqueId}_export.xlsx`);
 }

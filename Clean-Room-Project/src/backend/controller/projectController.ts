@@ -14,14 +14,14 @@ export const updateProjectStatus = (projectId: number, status: string) =>
 export const getProjectDetails = (projectId: number) =>
   request(`/v1/projects/${projectId}/details`, "GET");
 
-export const getInProgressProjects = (user_login_id: number) =>
-  request(`/v1/projects/inprogress?user_login_id=${user_login_id}`, "GET");
+export const getInProgressProjects = (user_id: string) =>
+  request(`/v1/projects/inprogress?user_id=${user_id}`, "GET");
 
-export const getCompletedProjects = (user_login_id: number) =>
-  request(`/v1/projects/completed?user_login_id=${user_login_id}`, "GET");
+export const getCompletedProjects = (user_id: string) =>
+  request(`/v1/projects/completed?user_id=${user_id}`, "GET");
 
-export const getProjectCounts = (user_login_id: number) =>
-  request(`/v1/projects/counts?user_login_id=${user_login_id}`, "GET");
+export const getProjectCounts = (user_id: string) =>
+  request(`/v1/projects/counts?user_id=${user_id}`, "GET");
   
 //EXCEL export
 export const getProjectExportData = (projectId: number) =>

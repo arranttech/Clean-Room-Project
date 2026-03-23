@@ -25,8 +25,10 @@ export const resultRepository = {
 					project_Room_Term_Supply_Mod,
 					project_Room_Heating_Load_TR,
 					project_Cfm_Heating_Load_TR,
-					project_Result_Heating_Load_TR
-				) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+					project_Result_Heating_Load_TR,
+					created_by,
+					updated_by
+				) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         payload?.project_RoomId,
         payload.project_id,
@@ -50,6 +52,8 @@ export const resultRepository = {
         payload.project_Room_Heating_Load_TR ?? null,
         payload.project_Cfm_Heating_Load_TR ?? null,
         payload.project_Result_Heating_Load_TR ?? null,
+        payload.user_id ?? null,
+        payload.user_id ?? null,
       ]
     );
 

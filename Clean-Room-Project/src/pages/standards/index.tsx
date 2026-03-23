@@ -96,6 +96,7 @@ export default function Standard() {
     (state: any) => state.projectInfo.projectId
   );
   const projectId = location.state?.projectId ?? projectIdFromRedux;
+  const user_id = useAppSelector((state: any) => String(state.user?.user_id || state.user?.user_login_id));
 
   const standards = useAppSelector((state: any) => state.standards);
   const {
@@ -514,7 +515,7 @@ export default function Standard() {
       );
       throw new Error("Missing project_id for zone creation");
     }
-    const data = await createProjectZone({ project_id: freshProjectId });
+    const data = await createProjectZone({ project_id: freshProjectId, user_id });
     console.log("Zone created:", data);
     return data;
   };
@@ -565,6 +566,7 @@ export default function Standard() {
       const freshProjectId = getFreshProjectId();
       const payload = {
         project_id: freshProjectId,
+        user_id,
         system,
         systemType,
         heatingMethod,
@@ -1027,7 +1029,7 @@ export default function Standard() {
                     className={ventilationOnly ? s.inputDisabled : s.input}
                     inputMode="decimal"
                     placeholder={tempPlaceholder}
-                    value={reqInsideTempDisplay}
+                    value={reqInsideTempDisplay || ""}
                     maxLength={3}
                     required={true}
                     onChange={(e) => {
@@ -1066,7 +1068,7 @@ export default function Standard() {
                     inputMode="decimal"
                     placeholder={t.placeholders.reqHumidity}
                     maxLength={3}
-                    value={reqInsideHum}
+                    value={reqInsideHum || ""}
                     required={true}
                     onChange={(e) => {
                       allowNumericInput(

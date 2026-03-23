@@ -45,7 +45,7 @@ function Login() {
 			dispatch(
 				setUser({
 					user_login_id: response.user.user_login_id,
-					user_id: response.user.user_id,
+					user_id: u?.user_id || response.user.user_id,
 					customer_id: response.user.customer_id,
 					name: u
 						? `${u.user_first_name || ""} ${u.user_last_name || ""}`.trim()

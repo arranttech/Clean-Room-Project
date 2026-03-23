@@ -54,8 +54,10 @@ export const roomRepository = {
         total_filtration_stages,
         static_pressure,
         heating_flow_velocity,
-        cooling_flow_velocity
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        cooling_flow_velocity,
+        created_by,
+        updated_by
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         payload.project_id,
         payload.system ?? null,
@@ -78,6 +80,8 @@ export const roomRepository = {
         toNum(payload.staticPressure),
         toNum(payload.heatingFlowVelocity),
         toNum(payload.coolingFlowVelocity),
+        payload.user_id ?? null,
+        payload.user_id ?? null,
       ]
     );
     return (result as any).insertId;
@@ -95,6 +99,37 @@ export const roomRepository = {
   },
   updateRoomStandards: async (standardId: number, rawPayload: any) => {
     const payload = s(rawPayload);
+    const params = [
+      payload.system ?? null,
+      payload.systemType ?? null,
+      payload.heatingMethod ?? null,
+      payload.coolingMethod ?? null,
+      payload.standard ?? null,
+      payload.classification ?? null,
+      toNum(payload.acph),
+      payload.tempUnit ?? null,
+      toNum(payload.reqInsideTempC),
+      toNum(payload.reqInsideHum),
+      toNum(payload.maxTempC),
+      toNum(payload.minTempC),
+      toNum(payload.rhMin),
+      toNum(payload.rhMax),
+      toNum(payload.flowVelocity),
+      payload.pipeConfiguration ?? null,
+      toNum(payload.totalFiltrationStages),
+      toNum(payload.staticPressure),
+      toNum(payload.heatingFlowVelocity),
+      toNum(payload.coolingFlowVelocity),
+      payload.user_id ?? null,
+      Number.isNaN(standardId) ? null : standardId,
+    ];
+
+    const undefIndex = params.indexOf(undefined);
+    if (undefIndex !== -1) {
+      console.error("FATAL: undefined param found at index:", undefIndex, params);
+      throw new Error(`Bind parameter at index ${undefIndex} must not contain undefined.`);
+    }
+
     await database.execute(
       `UPDATE tRoomStandards SET
         project_system = ?,
@@ -116,31 +151,10 @@ export const roomRepository = {
         total_filtration_stages = ?,
         static_pressure = ?,
         heating_flow_velocity = ?,
-        cooling_flow_velocity = ?
+        cooling_flow_velocity = ?,
+        updated_by = ?
       WHERE project_standard_id = ?`,
-      [
-        payload.system ?? null,
-        payload.systemType ?? null,
-        payload.heatingMethod ?? null,
-        payload.coolingMethod ?? null,
-        payload.standard ?? null,
-        payload.classification ?? null,
-        toNum(payload.acph),
-        payload.tempUnit ?? null,
-        toNum(payload.reqInsideTempC),
-        toNum(payload.reqInsideHum),
-        toNum(payload.maxTempC),
-        toNum(payload.minTempC),
-        toNum(payload.rhMin),
-        toNum(payload.rhMax),
-        toNum(payload.flowVelocity),
-        payload.pipeConfiguration ?? null,
-        toNum(payload.totalFiltrationStages),
-        toNum(payload.staticPressure),
-        toNum(payload.heatingFlowVelocity),
-        toNum(payload.coolingFlowVelocity),
-        standardId,
-      ]
+      params
     );
   },
 
@@ -159,8 +173,10 @@ export const roomRepository = {
         room_Infiltrations,
         room_FreshAir,
         room_ExhaustAir,
-        project_ACPH
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        project_ACPH,
+        created_by,
+        updated_by
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         toNum(payload.zone_id),
         toNum(payload.projectStandardId),
@@ -175,6 +191,8 @@ export const roomRepository = {
         toStr(payload.freshAirPercent),
         toStr(payload.exhaustAir),
         toStr(payload.selectedAcph),
+        payload.user_id ?? null,
+        payload.user_id ?? null,
       ]
     );
     return (result as any).insertId;

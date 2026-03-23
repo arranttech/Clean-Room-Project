@@ -44,6 +44,7 @@ export const roomRoute: ServerRoute[] = [
 			validate: {
 				payload: Joi.object({
 					project_id: Joi.number().integer().required(),
+					user_id: Joi.string().required(),
 					system: strOrNull,
 					systemType: strOrNull,
 					heatingMethod: strOrNull,
@@ -114,6 +115,7 @@ export const roomRoute: ServerRoute[] = [
 			validate: {
 				payload: Joi.object({
 					zone_id: Joi.number().integer().required(),
+					user_id: Joi.string().required(),
 					projectStandardId: Joi.number().integer().optional().allow(null),
 					roomName: Joi.string().required(),
 					length: strOrNull,
@@ -159,6 +161,7 @@ export const roomRoute: ServerRoute[] = [
 				}),
 				payload: Joi.object({
 					project_id: Joi.number().integer().optional(),
+					user_id: Joi.string().optional(),
 					system: strOrNull,
 					systemType: strOrNull,
 					heatingMethod: strOrNull,

@@ -5,7 +5,7 @@ const profileDesign = {
 	panelTitle: "text-2xl font-bold text-slate-900 ml-4",
 	panelSubtitle: "text-sm text-slate-500 ml-4",
 	addBtn:
-		"flex items-center gap-2 bg-blue-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-colors shadow-sm",
+		"flex items-center gap-2 bg-blue-800 text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-colors shadow-sm",
 
 	// --- Search Bar Styling ---
 	searchWrap: "relative mb-5",
@@ -35,7 +35,7 @@ const profileDesign = {
 
 	// --- Action Buttons Styling ---
 	editBtn:
-		"text-blue-500 hover:text-blue-700 transition-colors p-1.5 rounded-lg hover:bg-blue-50",
+		"text-blue-800 hover:text-blue-700 transition-colors p-1.5 rounded-lg hover:bg-blue-50",
 	deleteBtn:
 		"text-red-500 hover:text-red-700 transition-colors p-1.5 rounded-lg hover:bg-red-50",
 

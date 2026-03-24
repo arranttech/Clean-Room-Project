@@ -1,6 +1,6 @@
 const powerfulDesign = {
     section: "px-6 py--160 scroll-mt-28",
-    container: "mx-auto max-w-[1200px]",
+    container: "pt-10 mx-auto max-w-[1200px]",
   
     headerWrapper: "text-center mb-16",
     title:
@@ -12,7 +12,7 @@ const powerfulDesign = {
   
     card: "rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-all hover:shadow-md",
     iconWrapper:
-      "mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-[#2563EB] text-white",
+      "mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-[#fc8314] text-white",
     cardTitle: "text-[20px] font-bold text-[#111827]",
     cardDesc: "mt-3 text-[16px] leading-relaxed text-[#4B5563]",
   };

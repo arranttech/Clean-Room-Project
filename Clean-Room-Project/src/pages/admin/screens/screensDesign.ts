@@ -34,7 +34,7 @@ const ScreensDesign = {
 
 	// --- Action Buttons ---
 	editBtn:
-		"inline-flex items-center justify-center p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer",
+		"inline-flex items-center justify-center p-2 text-blue-800 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer",
 	deleteBtn:
 		"inline-flex items-center justify-center p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer",
 

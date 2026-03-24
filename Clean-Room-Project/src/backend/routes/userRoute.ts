@@ -44,26 +44,64 @@ export const userRoute: ServerRoute[] = [
     options: {
       description: "Create a new user",
       tags: ["api", "users"],
+
       validate: {
         payload: Joi.object({
           user_first_name: Joi.string().required(),
           user_last_name: Joi.string().required(),
           user_id: Joi.string().required(),
           user_email_id: Joi.string().email().required(),
-          user_address: Joi.string().optional().allow("", null),
-          user_phone_home: Joi.string().optional().allow("", null),
-          user_phone_work: Joi.string().optional().allow("", null),
-          created_by: Joi.string().optional().default("admin"),
-          updated_by: Joi.string().optional().default("admin"),
-          user_admin_flag: Joi.string()
-            .valid("Yes", "No")
-            .optional()
-            .default("No"),
-          customer_id: Joi.number().integer().optional().allow(null),
-          password: Joi.string().optional().allow("", null),
-          status: Joi.string().valid("A", "I").optional().default("A"),
-        }).required(),
+
+          user_address: Joi.string().allow("", null),
+          user_phone_home: Joi.string().allow("", null),
+          user_phone_work: Joi.string().allow("", null),
+
+          created_by: Joi.string().default("admin"),
+          updated_by: Joi.string().default("admin"),
+
+          user_admin_flag: Joi.string().valid("Yes", "No").default("No"),
+
+          customer_ids: Joi.array()
+            .items(Joi.number().integer())
+            .min(1)
+            .required(),
+
+          password: Joi.string().allow("", null),
+
+          status: Joi.string().valid("A", "I").default("A"),
+        })
+          .unknown(true) 
+          .required(),
+
+       
       },
+      // validate: {
+      //   payload: Joi.object({
+      //     user_first_name: Joi.string().required(),
+      //     user_last_name: Joi.string().required(),
+      //     user_id: Joi.string().required(),
+      //     user_email_id: Joi.string().email().required(),
+      //     user_address: Joi.string().optional().allow("", null),
+      //     user_phone_home: Joi.string().optional().allow("", null),
+      //     user_phone_work: Joi.string().optional().allow("", null),
+      //     created_by: Joi.string().optional().default("admin"),
+      //     updated_by: Joi.string().optional().default("admin"),
+      //     user_admin_flag: Joi.string()
+      //       .valid("Yes", "No")
+      //       .optional()
+      //       .default("No"),
+
+      //     //customer_ids: Joi.array().items(Joi.number().integer()).optional(),
+      //     //customer_id: Joi.string().optional().allow("", null),
+      //     customer_ids: Joi.array()
+      //       .items(Joi.number().integer())
+      //       .min(1)
+      //       .required(),
+      //     password: Joi.string().optional().allow("", null),
+      //     status: Joi.string().valid("A", "I").optional().default("A"),
+      //   }).unknown(true).required(),
+
+      // },
       response: {
         status: {
           201: Joi.object({
@@ -76,14 +114,29 @@ export const userRoute: ServerRoute[] = [
     },
     handler: async (request, h) => {
       try {
+
+
+        console.log("BACKEND RAW PAYLOAD:");
+        console.log(request.payload);
+
+          console.log(" BACKEND RECEIVED PAYLOAD:");
+    console.log(JSON.stringify(request.payload, null, 2));
+
         const userLoginId = await userRepository.createUser(request.payload);
+
+         console.log(" USER CREATED ID:", userLoginId);
+
         return h
           .response({
             message: "User created successfully",
             userId: userLoginId,
           })
           .code(201);
-      } catch {
+
+      } catch (error) {
+        console.error(" BACKEND ERROR:", error);
+        console.error(error);
+
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },

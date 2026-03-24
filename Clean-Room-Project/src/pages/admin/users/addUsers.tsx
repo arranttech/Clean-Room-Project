@@ -12,6 +12,10 @@ import {
   updateUser,
 } from "../../../backend/controller/userController";
 import { createUserPassword } from "../../../backend/controller/authContoller";
+import {
+  customerDetails,
+} from "../../../backend/controller/customerController";
+import Select from "react-select";
 
 type AddUserProps = {
   user?: any;
@@ -29,7 +33,7 @@ type FormErrors = {
   created_by: string;
   updated_by: string;
   user_admin_flag: string;
-  customer_id: string;
+  customer_ids: string;
   password: string;
   confirmPassword: string;
 };
@@ -48,7 +52,8 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
     created_by: "admin",
     updated_by: "admin",
     user_admin_flag: "No",
-    customer_id: "" as number | "",
+    // customer_id: "" as number | "",
+    customer_ids: [] as number[],
     password: "",
     status: "A",
   });
@@ -66,7 +71,12 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
         created_by: user.created_by || "admin",
         updated_by: "admin",
         user_admin_flag: user.user_admin_flag === "Y" ? "Yes" : "No",
-        customer_id: user.customer_id ?? "",
+        // customer_id: user.customer_ids || [],
+        customer_ids: user.customer_id
+          ? user.customer_id.split(",").map(Number)
+          : [],
+
+
         password: "",
         status: user.status && user.status.trim() !== "" ? user.status : "A",
       });
@@ -86,13 +96,28 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
     created_by: "",
     updated_by: "",
     user_admin_flag: "",
-    customer_id: "",
+    customer_ids: "",
     password: "",
     confirmPassword: "",
   });
   const [saving, setSaving] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [customers, setCustomers] = useState<any[]>([]);
+  useEffect(() => {
+    const loadCustomers = async () => {
+      try {
+        const data = await customerDetails();
+        const list = data.customers ?? data;
+        setCustomers(list);
+      } catch (err) {
+        console.error("Failed to load customers", err);
+      }
+    };
+
+    loadCustomers();
+  }, []);
+
 
   const validatefirstName = (v: string) =>
     /^[A-Za-z\s]{3,30}$/.test(v) ? "" : "Enter First Name (3–30 letters only)";
@@ -106,11 +131,17 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
       : "Enter User ID (3–10 chars, letters/numbers/_)";
   const validatePhone = (v: string) =>
     !v || /^\+?[0-9\s\-()]{7,20}$/.test(v) ? "" : "Enter valid phone number";
-  const validateCustomerId = (v: number | "") => {
-    if (v === "" || v === null) return "Customer ID is required";
-    if (Number(v) < 1) return "Customer ID must be greater than or equal to 1";
+  // const validateCustomerId = (v: number | "") => {
+  //   if (v === "" || v === null) return "Customer ID is required";
+  //   if (Number(v) < 1) return "Customer ID must be greater than or equal to 1";
+  //   return "";
+  // };
+  const validateCustomerIds = (v: number[]) => {
+    if (!v || v.length === 0) return "Customer is required";
     return "";
   };
+
+
 
   const validatePassword = (v: string) => {
     if (!v) return "Password is required";
@@ -141,7 +172,7 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
     const workPhoneErr = validatePhone(form.user_phone_work);
     const customerIdErr = isEditMode
       ? ""
-      : validateCustomerId(form.customer_id);
+      : validateCustomerIds(form.customer_ids);
     const passwordErr = isEditMode ? "" : validatePassword(form.password);
     const confirmPasswordErr = isEditMode
       ? ""
@@ -166,7 +197,7 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
         user_id: userIdErr,
         user_phone_home: homePhoneErr,
         user_phone_work: workPhoneErr,
-        customer_id: customerIdErr,
+        customer_ids: customerIdErr,
         password: passwordErr,
         confirmPassword: confirmPasswordErr,
       }));
@@ -180,7 +211,33 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
         await updateUser(user.user_login_id, { ...form });
         console.log("User updated successfully");
       } else {
-        const response = await createUsers({ ...form });
+        const { customer_ids, ...rest } = form;
+
+        // const payload = {
+        //   ...rest,
+        //   customer_ids,
+        // };
+
+        const payload = {
+          user_first_name: form.user_first_name,
+          user_last_name: form.user_last_name,
+          user_id: form.user_id,
+          user_email_id: form.user_email_id,
+          user_address: form.user_address || "",
+          user_phone_home: form.user_phone_home || "",
+          user_phone_work: form.user_phone_work || "",
+          created_by: "admin",
+          updated_by: "admin",
+          user_admin_flag: form.user_admin_flag,
+          customer_ids: form.customer_ids,
+          password: form.password,
+          status: form.status,
+        };
+
+        console.log("🟢 FRONTEND PAYLOAD:", payload);
+
+        const response = await createUsers(payload);
+        // const response = await createUsers({ ...form });
         if (!response?.userId)
           throw new Error("User creation failed — no userId returned");
         await createUserPassword({
@@ -202,6 +259,13 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
       setSaving(false);
     }
   };
+
+
+
+  const customerOptions = customers.map((c) => ({
+    value: c.customer_id,
+    label: `${c.customer_name} (${c.customer_unique_id})`,
+  }));
 
   return (
     <div>
@@ -320,9 +384,9 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
                       confirmPassword:
                         confirmPassword.length > 0
                           ? validateConfirmPassword(
-                              confirmPassword,
-                              e.target.value
-                            )
+                            confirmPassword,
+                            e.target.value
+                          )
                           : p.confirmPassword,
                     }));
                   }}
@@ -446,97 +510,124 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
               <option value="Yes">Yes</option>
             </select>
           </div>
+
+
           <div className={s.formGroup}>
             <label className={s.formLabel}>
               Customer ID <span className={s.formRequired}>*</span>
             </label>
-            <input
-              type="number"
-              className={s.formInput}
-              placeholder="Enter Customer ID"
-              value={form.customer_id}
-              disabled={isEditMode}
-              min={1}
-              onChange={(e) => {
-                const val = e.target.value;
-                const num = val === "" ? "" : Number(val);
-                handleChange("customer_id", num);
+            <Select
+              options={customerOptions}
+              isMulti
+              value={customerOptions.filter((opt) =>
+                form.customer_ids.includes(opt.value)
+              )}
+              onChange={(selected: any) => {
+                const values = selected ? selected.map((s: any) => Number(s.value)) : [];
+
+                
+                handleChange("customer_ids", values);
+
                 setErrors((p) => ({
                   ...p,
-                  customer_id: validateCustomerId(num),
+                  customer_ids: values.length === 0 ? "Customer is required" : "",
                 }));
               }}
+              placeholder="Select customers..."
             />
-            {errors.customer_id && (
-              <p className={s.formError}>{errors.customer_id}</p>
+
+            {/* <Select
+              options={customerOptions}
+              value={customerOptions.find(
+                (opt) => opt.value === form.customer_id
+              )}
+              onChange={(selected: any) => {
+                const val = selected ? selected.value : "";
+                handleChange("customer_id", val);
+
+                setErrors((p) => ({
+                  ...p,
+                  customer_id: validateCustomerId(val),
+                }));
+              }}
+              isDisabled={isEditMode}
+              placeholder="Search and select customer..."
+              isClearable
+            /> */}
+
+            {errors.customer_ids && (
+              <p className={s.formError}>{errors.customer_ids}</p>
             )}
           </div>
-        </div>
 
-        <div className={s.formRow}>
-          <div className={s.formGroup}>
-            <label className={s.formLabel}>Status</label>
-            <select
-              className={s.formInput}
-              value={form.status}
-              onChange={(e) => handleChange("status", e.target.value)}
-            >
-              <option value="A">Active</option>
-              <option value="I">Inactive</option>
-            </select>
-          </div>
-        </div>
 
-        {saveError && (
-          <p className="text-red-500 text-sm text-right mb-3">{saveError}</p>
-        )}
 
-        <div className={s.formFooter}>
-          <button
-            type="button"
-            onClick={onCancel}
-            className={s.formCancelBtn}
-            disabled={saving}
-          >
-            <FiX /> Cancel
-          </button>
-          <button
-            type="button"
-            onClick={saveUser}
-            className={s.formSubmitBtn}
-            disabled={saving}
-          >
-            <FaFloppyDisk />
-            {saving
-              ? isEditMode
-                ? "Updating..."
-                : "Saving..."
-              : isEditMode
-              ? "Update User"
-              : "Save User"}
-          </button>
-        </div>
-      </div>
-
-      {showPopup && (
-        <div className={s.popupOverlay}>
-          <div className={s.popupBackdrop} />
-          <div className={s.popupCard}>
-            <FaCircleCheck className={s.popupIcon} />
-            <h2 className={s.popupTitle}>
-              {isEditMode ? "User Updated!" : "User Saved!"}
-            </h2>
-            <p className={s.popupMessage}>
-              {isEditMode
-                ? "User has been successfully updated."
-                : "User has been successfully saved."}
-            </p>
-            <div className={s.popupProgressWrap}>
-              <div className={s.popupProgressBar} />
+          <div className={s.formRow}>
+            <div className={s.formGroup}>
+              <label className={s.formLabel}>Status</label>
+              <select
+                className={s.formInput}
+                value={form.status}
+                onChange={(e) => handleChange("status", e.target.value)}
+              >
+                <option value="A">Active</option>
+                <option value="I">Inactive</option>
+              </select>
             </div>
           </div>
+
+          {saveError && (
+            <p className="text-red-500 text-sm text-right mb-3">{saveError}</p>
+          )}
+
+          <div className={s.formFooter}>
+            <button
+              type="button"
+              onClick={onCancel}
+              className={s.formCancelBtn}
+              disabled={saving}
+            >
+              <FiX /> Cancel
+            </button>
+            <button
+              type="button"
+              onClick={saveUser}
+              className={s.formSubmitBtn}
+              disabled={saving}
+            >
+              <FaFloppyDisk />
+              {saving
+                ? isEditMode
+                  ? "Updating..."
+                  : "Saving..."
+                : isEditMode
+                  ? "Update User"
+                  : "Save User"}
+            </button>
+          </div>
         </div>
-      )}
+
+        {showPopup && (
+          <div className={s.popupOverlay}>
+            <div className={s.popupBackdrop} />
+            <div className={s.popupCard}>
+              <FaCircleCheck className={s.popupIcon} />
+              <h2 className={s.popupTitle}>
+                {isEditMode ? "User Updated!" : "User Saved!"}
+              </h2>
+              <p className={s.popupMessage}>
+                {isEditMode
+                  ? "User has been successfully updated."
+                  : "User has been successfully saved."}
+              </p>
+              <div className={s.popupProgressWrap}>
+                <div className={s.popupProgressBar} />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
+
   );
 }

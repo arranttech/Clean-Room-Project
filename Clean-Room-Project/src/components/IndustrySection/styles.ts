@@ -1,6 +1,6 @@
 const industryDesign = {
     section: "w-full px-6 py-10 scroll-mt-20",
-    container: "mx-auto max-w-[1200px]",
+    container: "pt-10 mx-auto max-w-[1200px]",
     headerWrapper: "text-center mb-16",
     title:
       "text-[40px] font-extrabold tracking-tight text-[#111827] sm:text-[42px]",

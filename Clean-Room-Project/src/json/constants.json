@@ -52,6 +52,69 @@
       "No credit card required",
       "30-day free trial",
       "Cancel anytime"
+    ],
+    "ctaLabel": "Get Started Today",
+    "slides": [
+      {
+        "imageKey": "slide1",
+        "badge": "Advanced Cleanroom Design & Management Solution",
+        "title": "STERI Clean Air HVAC Matrix Platform",
+        "subtitle": "Industry-leading platform for pharmaceutical, biotech, and healthcare facilities requiring precise air quality control and compliance management.",
+        "features": [
+          "ISO 14644 & EU GMP Compliance",
+          "Automated HVAC Calculations",
+          "Multi-Zone Classification Support",
+          "Real-time Project Management"
+        ]
+      },
+      {
+        "imageKey": "slide2",
+        "badge": "Intelligent Air Flow & Climate Control Systems",
+        "title": "Precision HVAC Engineering",
+        "subtitle": "Leverage cutting-edge technology to design optimal HVAC systems with automated calculations for air changes per hour, CFM requirements, and thermal load analysis.",
+        "features": [
+          "Smart ACPH Configuration",
+          "Energy Efficiency Optimization",
+          "Load Calculation Engine",
+          "Ventilation Design Tools"
+        ]
+      },
+      {
+        "imageKey": "slide3",
+        "badge": "Cleanroom Solutions for Production Facilities",
+        "title": "Manufacturing Excellence",
+        "subtitle": "Streamline your manufacturing operations with comprehensive cleanroom design tools tailored for electronics, aerospace, and precision manufacturing environments.",
+        "features": [
+          "Production-Ready Templates",
+          "Contamination Control Planning",
+          "Quality Assurance Integration",
+          "Scalable Design Framework"
+        ]
+      },
+      {
+        "imageKey": "slide4",
+        "badge": "Patient Safety Through Superior Air Quality",
+        "title": "Healthcare Facilities",
+        "subtitle": "Ensure the highest standards of patient care with HVAC systems designed for hospitals, surgical suites, and medical device manufacturing facilities.",
+        "features": [
+          "Operating Room Standards",
+          "Infection Control Protocols",
+          "Medical Device Compliance",
+          "Patient Safety First Design"
+        ]
+      },
+      {
+        "imageKey": "slide5",
+        "badge": "Specialized Environment Control for Scientific Innovation",
+        "title": "Biotech & Research Labs",
+        "subtitle": "Create optimal laboratory environments for research and development with precise control over air quality, temperature, humidity, and particle counts.",
+        "features": [
+          "Laboratory-Grade Standards",
+          "Biosafety Level Compliance",
+          "Research Facility Planning",
+          "Advanced Filtration Design"
+        ]
+      }
     ]
   },
   "footer": {

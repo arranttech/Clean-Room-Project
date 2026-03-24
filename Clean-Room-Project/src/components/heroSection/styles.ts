@@ -1,35 +1,69 @@
-const heroDesign = {
-  section: "w-full bg-white py--30 relative z-0 scroll-mt-32",
+const S = {
+  globalStyles: `
+    .hero-swiper,
+    .hero-swiper .swiper-wrapper,
+    .hero-swiper .swiper-slide { height: 420px !important; }
 
-  container: "mx-auto max-w-[1200px] px-6 pt--32 pb-20 text-center",
+    @media (min-width: 640px) {
+      .hero-swiper,
+      .hero-swiper .swiper-wrapper,
+      .hero-swiper .swiper-slide { height: 500px !important; }
+    }
+    @media (min-width: 768px) {
+      .hero-swiper,
+      .hero-swiper .swiper-wrapper,
+      .hero-swiper .swiper-slide { height: 580px !important; }
+    }
+    @media (min-width: 1024px) {
+      .hero-swiper,
+      .hero-swiper .swiper-wrapper,
+      .hero-swiper .swiper-slide { height: 640px !important; }
+    }
 
-  badgeWrapper: "flex justify-center mt-0 mb-8",
+    .swiper-pagination { bottom: 16px !important; }
+    .hero-dot {
+      display: inline-block;
+      height: 7px; width: 7px;
+      border-radius: 9999px;
+      background: rgba(255,255,255,0.35);
+      transition: all 0.35s ease;
+      cursor: pointer;
+      margin: 0 3px !important;
+    }
+    .swiper-pagination-bullet-active.hero-dot {
+      background: white;
+      width: 28px;
+    }
+  `,
+  section: "relative w-full h-[420px] sm:h-[500px] md:h-[580px] lg:h-[640px] overflow-hidden",
+  navBtn:
+    "absolute top-1/2 -translate-y-1/2 z-30 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-white/10 border border-white/25 backdrop-blur-sm text-white hover:bg-white/20 transition-all duration-200 cursor-pointer",
+  navBtnPrev: "left-2 md:left-4",
+  navBtnNext: "right-2 md:right-4",
+  navIcon: "text-[11px] md:text-[13px]",
+  slideBg: "absolute inset-0 bg-cover bg-center bg-no-repeat z-0",
+  slideTint: "absolute inset-0 z-[1] bg-[#081437]/40",
+  slideOverlay:
+    "absolute inset-0 z-[2] bg-gradient-to-r from-[#0c1a2e]/95 via-[#0c1a2e]/75 to-[#0c1a2e]/30 md:from-[#0c1a2e]/90 md:via-[#0c1a2e]/65 md:to-[#0c1a2e]/20",
+  slideContent: "pl-20 relative z-10 h-full flex items-center justify-start",
+  slideInner: "w-full px-6 sm:px-10 md:px-16 lg:px-24 max-w-[860px]",
   badge:
-    "inline-flex items-center gap-3 rounded-full border border-slate-200 bg-slate-50 px-[24px] py-[10px] text-[16px] font-semibold text-[#334155]",
-
-  titleBlue:
-    "text-[60px] font-extrabold tracking-tight text-[#2563EB] leading-[1.05]",
-  titleDark:
-    "mt-[14px] text-[40px] font-extrabold tracking-tight text-[#1F2937]",
-
-  subtitle: "mt-[15px] text-[22px] font-medium text-[#334155]",
-
-  buttonRow: "mt-[45px] flex items-center justify-center gap-[32px]",
-  primaryButton:
-    "flex items-center justify-center gap-2 rounded-[14px] bg-[#2563EB] px-[56px] py-[16px] text-[18px] font-semibold text-white hover:bg-[#1D4ED8] mb-10",
-
-  primaryArrow: "text-[18px] text-white",
-
-  secondaryButton:
-    "flex items-center justify-center gap-3 rounded-[14px] border-2 border-[#CBD5E1] bg-white px-[56px] py-[16px] text-[18px] font-semibold text-[#1F2937] mb-10",
-
-  playIcon: "text-[14px]",
-
-  footer: "mt-[0px] flex items-center justify-center gap-[56px]",
-  footerItem: "flex items-center gap-3 text-[17px] font-medium text-[#334155]",
-
-
-  checkIcon: "text-blue-600 text-[14px]",
+    "inline-flex items-center gap-[8px] rounded-full bg-[#7c4a1e]/70 border border-[#c07a3a]/50 px-[12px] sm:px-[16px] py-[5px] sm:py-[8px] text-[11px] sm:text-[12px] md:text-[13px] font-semibold text-[#fc8314] mb-[10px] sm:mb-[14px] md:mb-[20px]",
+  badgeDot:
+    "w-[6px] h-[6px] sm:w-[7px] sm:h-[7px] rounded-full bg-[#d47a2e] flex-shrink-0",
+  title:
+    "text-[22px] sm:text-[30px] md:text-[38px] lg:text-[42px] font-extrabold leading-[1.15] tracking-tight text-white mb-[8px] sm:mb-[12px] md:mb-[18px] max-w-[680px]",
+  subtitle:
+    "text-[12px] sm:text-[14px] md:text-[16px] text-white/80 leading-[1.6] mb-[14px] sm:mb-[20px] md:mb-[28px] max-w-[560px]",
+  featuresGrid:
+    "grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-[6px] sm:gap-y-[10px] md:gap-y-[12px] mb-[18px] sm:mb-[26px] md:mb-[36px] max-w-[500px]",
+  featureItem:
+    "flex items-center gap-[8px] text-[12px] sm:text-[13px] md:text-[14px] font-normal text-white/85",
+  featureIconWrapper:
+    "w-[16px] h-[16px] sm:w-[18px] sm:h-[18px] md:w-[20px] md:h-[20px] rounded-full border-[1.5px] border-[#d47a2e] flex items-center justify-center flex-shrink-0",
+  featureIconInner: "text-[#d47a2e] text-[7px] sm:text-[8px] md:text-[9px]",
+  ctaButton:
+    "inline-flex items-center justify-center rounded-[8px] md:rounded-[10px] bg-[#fc8314] hover:bg-[#bf6a20] active:bg-[#a85c18] text-white font-bold text-[13px] sm:text-[14px] md:text-[16px] px-[20px] sm:px-[28px] md:px-[36px] py-[9px] sm:py-[11px] md:py-[13px] transition-colors duration-200 shadow-[0_4px_18px_rgba(212,122,46,0.35)] cursor-pointer",
 }
 
-export default heroDesign
+export default S

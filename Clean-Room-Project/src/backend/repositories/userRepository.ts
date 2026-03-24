@@ -172,7 +172,7 @@ export const userRepository = {
       `SELECT
         u.user_login_id,
         u.user_id,
-        u.customer_id,
+        cu.customer_id,
         u.user_first_name,
         u.user_last_name,
         u.user_email_id,
@@ -188,6 +188,7 @@ export const userRepository = {
         p.user_password
       FROM tUsers u
       LEFT JOIN tUserPassword p ON u.user_login_id = p.user_login_id
+      LEFT JOIN tCustomerUsers cu ON u.user_login_id = cu.user_login_id
       WHERE u.user_login_id = ?
       LIMIT 1`,
       [user_login_id]

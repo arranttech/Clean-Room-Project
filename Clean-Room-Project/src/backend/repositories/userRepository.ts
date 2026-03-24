@@ -1,9 +1,72 @@
 import { database } from "../dbConnection/connections";
 
 export const userRepository = {
+  // createUser: async (payload: any) => {
+  //   console.log("Create user with payload:", payload);
+  //   const [result] = await database.execute(
+  //     `INSERT INTO tUsers (
+  //       user_first_name,
+  //       user_last_name,
+  //       user_id,
+  //       user_email_id,
+  //       user_address,
+  //       user_phone_home,
+  //       user_phone_work,
+  //       created_by,
+  //       updated_by,
+  //       user_admin_flag,
+  //       customer_id,
+  //       status
+  //     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  //     [
+  //       payload.user_first_name,
+  //       payload.user_last_name,
+  //       payload.user_id || null,
+  //       payload.user_email_id,
+  //       payload.user_address || null,
+  //       payload.user_phone_home || null,
+  //       payload.user_phone_work || null,
+  //       payload.created_by || "admin",
+  //       payload.updated_by || "admin",
+  //       payload.user_admin_flag === "Yes" ? "Y" : "N",
+  //       payload.customer_id || null,
+  //       payload.status || "A",
+  //     ]
+  //   );
+  //   console.log(" INSERT RESULT:", result);
+  //   return (result as any).insertId;
+  // },
+
+
   createUser: async (payload: any) => {
-    console.log("Create user with payload:", payload);
-    const [result] = await database.execute(
+  const connection = await database.getConnection();
+
+  try {
+     console.log(" ENTER createUser()");
+    console.log(" RAW PAYLOAD RECEIVED:");
+    console.log(JSON.stringify(payload, null, 2));
+    await connection.beginTransaction();
+     console.log(" Transaction started");
+
+    console.log(" PAYLOAD:", payload);
+
+     console.log(" VALUES BEING INSERTED INTO tUsers:");
+    console.log({
+      user_first_name: payload.user_first_name,
+      user_last_name: payload.user_last_name,
+      user_id: payload.user_id,
+      user_email_id: payload.user_email_id,
+      user_address: payload.user_address,
+      user_phone_home: payload.user_phone_home,
+      user_phone_work: payload.user_phone_work,
+      created_by: payload.created_by,
+      updated_by: payload.updated_by,
+      user_admin_flag: payload.user_admin_flag,
+      status: payload.status,
+    });
+
+    
+    const [result]: any = await connection.execute(
       `INSERT INTO tUsers (
         user_first_name,
         user_last_name,
@@ -15,26 +78,66 @@ export const userRepository = {
         created_by,
         updated_by,
         user_admin_flag,
-        customer_id,
         status
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         payload.user_first_name,
         payload.user_last_name,
-        payload.user_id || null,
+        payload.user_id,
         payload.user_email_id,
-        payload.user_address || null,
-        payload.user_phone_home || null,
-        payload.user_phone_work || null,
+        payload.user_address || "",
+        payload.user_phone_home || "",
+        payload.user_phone_work || "",
         payload.created_by || "admin",
         payload.updated_by || "admin",
         payload.user_admin_flag === "Yes" ? "Y" : "N",
-        payload.customer_id || null,
         payload.status || "A",
       ]
     );
-    return (result as any).insertId;
-  },
+    console.log("INSERT RESULT:", result);
+
+    const userId = result.insertId;
+
+    console.log(" USER INSERTED ID:", userId);
+
+    // 2. Insert into tCustomerUsers 
+    const customerIds = payload.customer_ids || [];
+
+    console.log(" CUSTOMER IDS RECEIVED:", customerIds);
+    console.log(
+      "CUSTOMER IDS TYPES:",
+      customerIds.map((id: any) => typeof id)
+    );
+
+
+    for (const customerId of customerIds) {
+       console.log(`Inserting mapping: userId=${userId}, customerId=${customerId}`);
+      await connection.execute(
+        `INSERT INTO tCustomerUsers (user_login_id, customer_id)
+         VALUES (?, ?)`,
+        [userId, customerId]
+      );
+    }
+    console.log("All customer mappings inserted");
+
+    await connection.commit();
+
+      console.log(" Transaction committed successfully");
+
+    return userId;
+
+  } catch (error) {
+    console.error("TRANSACTION FAILED");
+    await connection.rollback();
+    console.error(" ROLLBACK DONE");
+    console.error("TRANSACTION ERROR:", error);
+    throw error;
+  } finally {
+    connection.release();
+     console.log(" DB CONNECTION RELEASED");
+  }
+},
+
 
   updateUser: async (user_login_id: number, payload: any) => {
     await database.execute(

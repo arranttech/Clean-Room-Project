@@ -49,7 +49,8 @@ export const customerRoute: ServerRoute[] = [
         status: {
           200: Joi.object({
             success: Joi.boolean().required(),
-            customer: Joi.object().optional(),
+           // customer: Joi.object().optional(),
+             customers: Joi.array().items(Joi.object()).required(),
           }),
           404: Joi.object({
             success: Joi.boolean().required(),

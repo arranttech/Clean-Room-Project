@@ -211,16 +211,16 @@ export const userRoute: ServerRoute[] = [
     },
     handler: async (request, h) => {
       try {
-        console.log("🟣 GET /v1/users API HIT");
+        console.log(" GET /v1/users API HIT");
 
-    console.log("🧾 RAW PARAMS:");
+    console.log("RAW PARAMS:");
     console.log(request.params);
         const user_login_id = Number(request.params.user_login_id);
 
-         console.log("🧪 PARSED user_login_id:", user_login_id);
+         console.log(" PARSED user_login_id:", user_login_id);
 
     if (!user_login_id || isNaN(user_login_id)) {
-      console.error("🔴 INVALID user_login_id");
+      console.error(" INVALID user_login_id");
       return h
         .response({ success: false, message: "Invalid user_login_id" })
         .code(400);
@@ -229,7 +229,7 @@ export const userRoute: ServerRoute[] = [
 
         const result = await userRepository.getUserById(user_login_id);
 
-            console.log("🟢 DB RESULT:", result);
+            console.log(" DB RESULT:", result);
 
         if (!result.success)
           return h
@@ -237,7 +237,7 @@ export const userRoute: ServerRoute[] = [
             .code(404);
         return h.response(result).code(200);
       } catch(error) {
-        console.error("🔴 GET USER ERROR:", error);
+        console.error(" GET USER ERROR:", error);
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },

@@ -109,11 +109,15 @@ function ProjectInfoPage() {
         .replace(/\s+/g, "-")
         .replace(/[^A-Z0-9-]/g, "")
         .substring(0, 5);
+        const now = new Date();
     const today = new Date();
     const day = String(today.getDate()).padStart(2, "0");
     const month = String(today.getMonth() + 1).padStart(2, "0");
     const year = String(today.getFullYear()).slice(-2);
-    return `${slug(name)}-${slug(project)}-${day}${month}${year}`;
+    const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
+    return `${slug(name)}-${slug(project)}-${day}${month}${year}-${hours}${minutes}${seconds}`;
   };
 
   useEffect(() => {

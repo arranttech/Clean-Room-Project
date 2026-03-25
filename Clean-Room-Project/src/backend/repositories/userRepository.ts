@@ -168,6 +168,8 @@ export const userRepository = {
 
   getUserById: async (user_login_id: number) => {
     // Direct query instead of stored procedure — includes all fields including status
+
+     console.log(" getUserById called with:", user_login_id);
     const [rows]: any = await database.execute(
       `SELECT
         u.user_login_id,
@@ -189,14 +191,33 @@ export const userRepository = {
       FROM tUsers u
       LEFT JOIN tUserPassword p ON u.user_login_id = p.user_login_id
       LEFT JOIN tCustomerUsers cu ON u.user_login_id = cu.user_login_id
-      WHERE u.user_login_id = ?
-      LIMIT 1`,
+      WHERE u.user_login_id = ?`,
       [user_login_id]
     );
+    console.log(" RAW DB ROWS:", rows);
     if (!rows || rows.length === 0) {
+        console.log(" No user found");
       return { success: false, message: "User not found" };
     }
-    return { success: true, user: rows[0] };
+
+  
+ const customer_ids = rows
+      .map((r: any) => r.customer_id)
+      .filter((id: any) => id !== null);
+
+    console.log("Extracted customer_ids:", customer_ids);
+
+   
+    const { customer_id, ...rest } = rows[0];
+
+    
+    const user = {
+      ...rest,
+      customer_ids,
+    };
+  console.log(" FINAL USER OBJECT:", user);
+
+    return { success: true, user };
   },
 
   getUsers: async () => {

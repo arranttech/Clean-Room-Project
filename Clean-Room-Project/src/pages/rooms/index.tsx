@@ -585,15 +585,6 @@ export default function Room() {
           {isFormVisible && (
             <div className={s.card}>
               <div className={s.cardInner}>
-                <div className={s.topActions}>
-                  <button
-                    type="button"
-                    onClick={() => dispatch(resetRoomForm())}
-                    className={s.clrBtn}
-                  >
-                    Clear
-                  </button>
-                </div>
 
                 {viewMode === "form" ? (
                   <>
@@ -696,6 +687,35 @@ export default function Room() {
                         <div className={s.rangeText}>Range: -20% to +20%</div>
                       </div>
                     </div>
+
+                {/* BOTTOM ACTIONS: Clear , Save Room */}
+                <div className={s.bottomActionsRow}>
+                  <button
+                    type="button"
+                    onClick={() => dispatch(resetRoomForm())}
+                    className={s.clearBtn}
+                  >
+                    <FaBrush className={s.clearBtnIcon} />
+                    Clear
+                  </button>
+                  <button
+                    type="button"
+                    onClick={saveCurrentRoom}
+                    disabled={isSaving}
+                    className={`${s.saveBtn} ${
+                      isSaving ? s.saveBtnDisabled : ""
+                    }`}
+                  >
+                    {isSaving ? (
+                      "Saving..."
+                    ) : (
+                      <>
+                        {T.buttons.saveRoom}
+                        <FaSave className={s.saveBtnIcon} />
+                      </>
+                    )}
+                  </button>
+                </div>
                   </>
                 ) : (
                   <div className={s.tableContainer}>

@@ -18,11 +18,11 @@ export const projectRepository = {
     const [result] = await database.execute(
       `INSERT INTO tProjects
       (customer_id, user_login_id, project_unique_id, project_name,
-       project_unit_branch, project_Industry, project_Handling,
+       project_unit_branch, project_Industry, project_Handling, project_SubIndustry,
        project_Location, project_max_temp, project_min_temp,
        project_relative_min_humid, project_relative_max_humid,
        created_by, updated_by)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         payload.customer_id,
         payload.user_login_id,
@@ -31,6 +31,7 @@ export const projectRepository = {
         payload.unitBranch || null,
         JSON.stringify(payload.industry || []),
         JSON.stringify(payload.handling || []),
+        payload.subIndustry || null,
         payload.selectedLocation?.display_name ||
         payload.selectedLocation ||
         "",
@@ -49,7 +50,7 @@ export const projectRepository = {
     await database.execute(
       `UPDATE tProjects SET
         project_name = ?, project_unit_branch = ?, project_Industry = ?,
-        project_Handling = ?, project_Location = ?, project_max_temp = ?,
+        project_Handling = ?, project_SubIndustry = ?, project_Location = ?, project_max_temp = ?,
         project_min_temp = ?, project_relative_min_humid = ?,
         project_relative_max_humid = ?, updated_by = ?
       WHERE project_id = ?`,
@@ -58,6 +59,7 @@ export const projectRepository = {
         payload.unitBranch || null,
         JSON.stringify(payload.industry || []),
         JSON.stringify(payload.handling || []),
+        payload.subIndustry || null,
         payload.selectedLocation?.display_name ||
         payload.selectedLocation ||
         "",

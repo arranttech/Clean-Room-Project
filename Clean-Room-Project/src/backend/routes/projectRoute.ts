@@ -21,6 +21,7 @@ export const projectRoute: ServerRoute[] = [
           uniqueId: Joi.string().optional().allow("", null),
           industry: Joi.array().items(Joi.string()).optional().default([]),
           handling: Joi.array().items(Joi.string()).optional().default([]),
+          subIndustry: Joi.string().optional().allow("", null),
           selectedLocation: Joi.alternatives().try(
             Joi.object({ display_name: Joi.string().optional() }).unknown(true),
             Joi.string(), Joi.allow(null)
@@ -66,6 +67,7 @@ export const projectRoute: ServerRoute[] = [
           unitBranch: Joi.string().optional().allow("", null),
           industry: Joi.array().items(Joi.string()).optional().default([]),
           handling: Joi.array().items(Joi.string()).optional().default([]),
+          subIndustry: Joi.string().optional().allow("", null),
           selectedLocation: Joi.alternatives().try(
             Joi.object({ display_name: Joi.string().optional() }).unknown(true),
             Joi.string(), Joi.allow(null)

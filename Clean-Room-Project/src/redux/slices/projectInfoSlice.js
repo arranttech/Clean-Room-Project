@@ -8,6 +8,7 @@ const initialState = {
   unitBranch: "",
   handling: [],
   industry: [],
+  subIndustry: [],
   uniqueId: "",
   locationQuery: "",
   selectedLocation: null,

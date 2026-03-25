@@ -19,7 +19,7 @@ export const projectRoute: ServerRoute[] = [
           projectName: Joi.string().required(),
           unitBranch: Joi.string().optional().allow("", null),
           uniqueId: Joi.string().optional().allow("", null),
-          industry: Joi.array().items(Joi.string()).optional().default([]),
+          industry: Joi.string().optional().allow("", null),
           handling: Joi.array().items(Joi.string()).optional().default([]),
           subIndustry: Joi.string().optional().allow("", null),
           selectedLocation: Joi.alternatives().try(
@@ -46,6 +46,9 @@ export const projectRoute: ServerRoute[] = [
         return h.response({ projectId }).code(201);
       } catch (err) {
         console.error("PROJECT CREATE ERROR:", err);
+        if (err instanceof Error && err.message.includes("does not exist")) {
+          return h.response({ error: err.message }).code(400);
+        }
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },
@@ -65,7 +68,7 @@ export const projectRoute: ServerRoute[] = [
           uniqueId: Joi.string().optional().allow("", null),
           projectName: Joi.string().required(),
           unitBranch: Joi.string().optional().allow("", null),
-          industry: Joi.array().items(Joi.string()).optional().default([]),
+          industry: Joi.string().optional().allow("", null),
           handling: Joi.array().items(Joi.string()).optional().default([]),
           subIndustry: Joi.string().optional().allow("", null),
           selectedLocation: Joi.alternatives().try(

@@ -6,6 +6,13 @@ const toFloat = (val: any): number | null => {
   return isNaN(parsed) ? null : parsed;
 };
 
+const normalizeIndustry = (industry: unknown): string[] => {
+  if (typeof industry === "string" && industry.trim()) {
+    return [industry.trim()];
+  }
+  return [];
+};
+
 export const projectRepository = {
   createProject: async (payload: any) => {
     const [customer]: any = await database.execute(
@@ -29,7 +36,7 @@ export const projectRepository = {
         payload.uniqueId || null,
         payload.projectName,
         payload.unitBranch || null,
-        JSON.stringify(payload.industry || []),
+        JSON.stringify(normalizeIndustry(payload.industry)),
         JSON.stringify(payload.handling || []),
         payload.subIndustry || null,
         payload.selectedLocation?.display_name ||
@@ -57,7 +64,7 @@ export const projectRepository = {
       [
         payload.projectName,
         payload.unitBranch || null,
-        JSON.stringify(payload.industry || []),
+        JSON.stringify(normalizeIndustry(payload.industry)),
         JSON.stringify(payload.handling || []),
         payload.subIndustry || null,
         payload.selectedLocation?.display_name ||

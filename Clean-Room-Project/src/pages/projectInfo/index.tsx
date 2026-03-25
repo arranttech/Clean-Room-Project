@@ -220,6 +220,7 @@ function ProjectInfoPage() {
 			unitBranch,
 			handling,
 			industry,
+      subIndustry,
 			uniqueId,
 			selectedLocation,
 			minTemp,

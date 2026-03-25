@@ -8,7 +8,7 @@ export const customerRepository = {
         customers_additional_notes, created_at, created_by,
         CASE WHEN status IS NULL OR status = '' THEN 'A' ELSE status END AS status
       FROM tCustomers
-      LEFT JOIN tCustomerUsers ON tCustomers.customer_id = tCustomerUsers.customer_id
+     
       ORDER BY created_at DESC
     `);
     return result;

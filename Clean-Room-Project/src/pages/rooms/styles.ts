@@ -110,48 +110,6 @@ const roomDesign = {
   popupFooter: "flex justify-end",
   popupBtn:
     "bg-blue-700 hover:bg-blue-800 text-white font-semibold px-8 py-3 rounded-xl transition-colors",
-
-  // ─── Toggle Styles ───
-  toggleContainer: "flex items-center justify-center gap-4 mt-6",
-  toggleBtn: "px-6 py-2 rounded-full text-sm font-semibold transition-all shadow-sm border",
-  toggleBtnActive: "bg-blue-600 text-white border-blue-600",
-  toggleBtnInactive: "bg-white text-gray-600 border-gray-200 hover:bg-gray-50",
-
-  // ─── Table View Styles ───
-  tableContainer: "mt-8 overflow-x-auto rounded-xl border border-slate-200",
-  entryTable: "w-full text-left border-collapse",
-  tableHead: "bg-slate-50 border-b border-slate-200",
-  tableTh: "px-4 py-3 text-xs font-bold text-slate-700 uppercase tracking-wider text-center",
-  tableTr: "border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors",
-  tableTd: "px-2 py-4 text-sm text-slate-600 align-middle text-center",
-  tableInput: "w-full min-w-[60px] rounded-lg border border-slate-300 px-2 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-200 outline-none text-center",
-  tableActionBtn: "p-2 rounded-lg transition-colors inline-flex items-center justify-center",
-  editBtn: "text-blue-600 hover:bg-blue-50 border border-blue-200 px-3 py-1.5 gap-2",
-  tableTitle: "text-lg font-bold text-slate-800",
-  tableHeaderRow: "flex items-center justify-between mb-4 px-2",
-  tableSubtitle: "text-sm text-slate-500",
-
-  tableSelect:
-    "w-full rounded-lg border border-slate-300 bg-white px-2 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-200 outline-none h-auto min-w-[80px]",
-  tableSelectDisabled:
-    "w-full rounded-lg border border-slate-200 bg-slate-100 px-2 py-2 text-sm outline-none cursor-not-allowed h-auto min-w-[80px]",
-
-  tableFooterNoteRow:
-    "p-4 bg-slate-50 flex items-center justify-between border-t border-slate-200",
-  tableFooterNoteText: "text-xs text-slate-400",
-
-  roomCardHeader: "flex items-start justify-between gap-4",
-  footerActions: "flex gap-4",
-
-  deletePopupIconWrap:
-    "w-12 h-12 rounded-full bg-red-50 flex items-center justify-center shrink-0",
-  deletePopupIcon: "text-red-500 text-lg",
-
-  popupFooterRow: "flex justify-end gap-3",
-  popupCancelBtn:
-    "inline-flex items-center justify-center gap-2 border border-gray-300 px-5 py-2.5 rounded-lg hover:bg-gray-50 text-gray-700 font-semibold transition-colors shadow-sm",
-  popupConfirmDeleteBtn:
-    "inline-flex items-center justify-center gap-2 bg-red-500 text-white px-5 py-2.5 rounded-lg hover:bg-red-600 font-semibold transition-colors shadow-sm",
 };
 
 export default roomDesign;

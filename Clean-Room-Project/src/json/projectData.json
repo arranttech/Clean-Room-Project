@@ -1,32 +1,185 @@
 {
-  "industryOptions": [
-    "Hospitals & Healthcare Infrastructure",
-    "Pharmaceuticals & Biotechnology",
-    "Chemical & Petrochemical Plants",
-    "Semiconductor & Battery Manufacturing",
-    "Advanced Research & Defense Facilities",
-    "Tissue Culture Laboratories (Plant)",
-    "Microbiological Laboratories",
-    "Vaccine manufacturing",
-    "Hospitals",
-    "Veterinary laboratories",
-    "Research & Development Laboratories",
-    "Atomic Energy Development centers",
-    "Quality Control Laboratories",
-    "Semi-conductor manufacturing",
-    "Food & Beverage Industries",
-    "Parenterals manufacturing",
-    "Chemical Laboratories",
-    "Cement Inductries",
-    "Power Generation Industries",
-    "Warehouses"
+  "industries": [
+    {
+      "name": "Electronics & Precision Engineering",
+      "subIndustries": [
+        "LED & OLED manufacturing",
+        "Solar PV cell/module manufacturing",
+        "Printed Circuit Board (PCB) manufacturing",
+        "Sensors & micro-electromechanical systems (MEMS)",
+        "Optoelectronics & laser component manufacturing"
+      ]
+    },
+    {
+      "name": "Aerospace & Space Technology",
+      "subIndustries": [
+        "Satellite assembly clean rooms",
+        "Spacecraft component manufacturing",
+        "Rocket engine precision assembly areas",
+        "Composite and carbon fiber manufacturing"
+      ]
+    },
+    {
+      "name": "Automotive & Mobility",
+      "subIndustries": [
+        "Advanced automotive electronics",
+        "ADAS/LiDAR manufacturing",
+        "Precision painting & coating shops",
+        "Engine test labs, NVH labs",
+        "Ship Building Industry",
+        "Aviation Industry"
+      ]
+    },
+    {
+      "name": "Food, Agriculture & Consumer Products",
+      "subIndustries": [
+        "Dairy processing clean zones",
+        "Chocolate and confectionary temperaturecontrolled lines",
+        "Bottling plants",
+        "Cold storage logistics",
+        "Fresh-cut & packaged food clean zones"
+      ]
+    },
+    {
+      "name": "Medical Devices & Allied Sectors",
+      "subIndustries": [
+        "Surgical instruments manufacturing",
+        "Orthopedics and implants manufacturing",
+        "Disposable medical devices",
+        "Dialysis consumables",
+        "Diagnostic equipment labs"
+      ]
+    },
+    {
+      "name": "Pharma",
+      "subIndustries": [
+        "Sterile manufacturing",
+        "Nonsterile, OSD, liquids, topicals",
+        "API and bulk drugs",
+        "HPAPI, hormones, cytotoxics",
+        "Sterile packaging"
+      ]
+    },
+    {
+      "name": "Biotechnology & Biopharma",
+      "subIndustries": [
+        "Cell culture",
+        "Fermentation",
+        "Gene therapy",
+        "Viral vector production",
+        "Biologics and ATMPs"
+      ]
+    },
+    {
+      "name": "Life Sciences",
+      "subIndustries": [
+        "QC, microbiology, R&D labs",
+        "Tissue culture labs",
+        "Analytical labs",
+        "Stability labs",
+        "Preclinical research facilities"
+      ]
+    },
+    {
+      "name": "Healthcare",
+      "subIndustries": [
+        "Hospitals",
+        "Critical care units",
+        "Operating theaters",
+        "Isolation rooms",
+        "IVF labs",
+        "Diagnostic labs"
+      ]
+    },
+    {
+      "name": "Veterinary & Preclinical",
+      "subIndustries": [
+        "Vivariums",
+        "Animal research",
+        "ABSL2 / ABSL3",
+        "Veterinary hospitals (research linked)"
+      ]
+    },
+    {
+      "name": "Nanotechnology & Advanced Materials",
+      "subIndustries": [
+        "Nanomaterial synthesis labs",
+        "Graphene & composite materials",
+        "Advanced polymer processing",
+        "Thin-film deposition labs"
+      ]
+    },
+    {
+      "name": "Cosmetics & Personal Care",
+      "subIndustries": [
+        "Skincare and beauty product manufacturing",
+        "Fragrance manufacturing (controlled HVAC)",
+        "Aerosol filling lines"
+      ]
+    },
+    {
+      "name": "Printing, Packaging & Specialty Production",
+      "subIndustries": [
+        "Specialty ink manufacturing",
+        "Precision printing",
+        "High-end packaging (pharma-grade, medical-grade)",
+        "Sterile packaging facilities"
+      ]
+    },
+    {
+      "name": "Education & Public Institutions",
+      "subIndustries": [
+        "University research labs",
+        "Pilot plant setups",
+        "Government research agencies",
+        "Forensic labs"
+      ]
+    },
+    {
+      "name": "Environmental & Waste Management Segments",
+      "subIndustries": [
+        "Waste-to-energy plants (controlled turbine rooms)",
+        "Chemical waste handling labs",
+        "Bio-waste treatment facilities"
+      ]
+    },
+    {
+      "name": "Hospitality & Commercial Spaces (Control-heavy HVAC)",
+      "subIndustries": [
+        "Hotels (HVAC zoning, IAQ control)",
+        "Shopping malls (central chilled-water systems)",
+        "Museums & heritage conservation centers (temperature & humidity control)",
+        "High-end commercial kitchens"
+      ]
+    },
+    {
+      "name": "UltraSpecialized Segments",
+      "subIndustries": [
+        "Cryogenic storage facilities",
+        "IVF centers and fertility labs",
+        "Forensic pathology labs",
+        "High-purity gas manufacturing plants",
+        "Ammunition and propellant manufacturing",
+        "Luxury watch & precision instrument manufacturing",
+        "Pharmaceutical cold chain logistics",
+        "Space simulation thermal vacuum chambers"
+      ]
+    }
   ],
   "handlingOptions": [
-    "Contagious",
-    "Non-Contagious",
-    "Hazardous",
-    "Non-Hazardous",
-    "Flammable Vapors",
-    "Bio-safety"
+    "Particulate sensitive",
+    "AMC/molecular sensitive",
+    "ESD controlled",
+    "Temperature critical",
+    "Humidity critical",
+    "Allergen-controlled",
+    "Explosive dust",
+    "Radiological",
+    "Cryogenic",
+    "High moisture wash-down",
+    "Pressure cascade-controlled",
+    "Potent compound (HPAPI)",
+    "Odour/Cross contamination",
+    "Sterile/Aseptic"
   ]
 }

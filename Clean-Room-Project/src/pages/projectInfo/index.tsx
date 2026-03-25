@@ -52,17 +52,24 @@ function ProjectInfoPage() {
   const [locationResults, setLocationResults] = useState<any[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [industryOpen, setIndustryOpen] = useState(false);
+  const [subIndustryOpen, setSubIndustryOpen] = useState(false);
   const [handlingOpen, setHandlingOpen] = useState(false);
   const industryRef = useRef<HTMLDivElement>(null);
+  const subIndustryRef = useRef<HTMLDivElement>(null);
   const handlingRef = useRef<HTMLDivElement>(null);
 
-  const { industryOptions, handlingOptions } = projectData;
+  const { industries, handlingOptions } = projectData;
+
+  const subIndustry = useAppSelector((s: any) => s.projectInfo.subIndustry);
+  const selectedIndustryData = industries.find((i: any) => i.name === industry);
+  const subIndustries = selectedIndustryData?.subIndustries || [];
 
   const [errors, setErrors] = useState({
     branch: "",
     project: "",
     handling: "",
     industry: "",
+    subIndustry: "",
   });
 
   const isFormValid = (() => {
@@ -70,7 +77,8 @@ function ProjectInfoPage() {
     if (!projectName || errors.project) return false;
     if (!selectedLocation && !locationQuery) return false;
     if (!handling.length) return false;
-    if (!industry.length) return false;
+    if (!industry) return false;
+    if (!subIndustry) return false;
     return true;
   })();
 
@@ -90,6 +98,11 @@ function ProjectInfoPage() {
         !industryRef.current.contains(e.target as Node)
       )
         setIndustryOpen(false);
+      if (
+        subIndustryRef.current &&
+        !subIndustryRef.current.contains(e.target as Node)
+      )
+        setSubIndustryOpen(false);
       if (
         handlingRef.current &&
         !handlingRef.current.contains(e.target as Node)
@@ -355,63 +368,77 @@ function ProjectInfoPage() {
               <label className={styles.label}>
                 Industry / Sector <span className="text-red-600">*</span>
               </label>
-
-              <div
+              <input
+                className={styles.input + " cursor-pointer"}
+                type="text"
+                value={industry || ""}
+                placeholder="Select Industry"
+                readOnly
                 onClick={() => setIndustryOpen(!industryOpen)}
-                className={`${styles.input} cursor-pointer flex items-center gap-2 flex-wrap`}
+              />
+              <span
+                className={styles.dropdownIcon}
+                style={{ position: "absolute", right: 16, top: 44, pointerEvents: "none" }}
               >
-                {industry.length > 0 ? (
-                  <div className="flex flex-wrap gap-2 flex-1">
-                    {industry.map((item: string) => (
-                      <span
-                        key={item}
-                        className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md text-sm whitespace-nowrap flex items-center gap-1"
-                      >
-                        {item}
-                        <FaXmark
-                          className="cursor-pointer text-xs"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const updated = industry.filter(
-                              (i: string) => i !== item
-                            );
-                            dispatch(
-                              updateField({
-                                field: "industry",
-                                value: updated,
-                              })
-                            );
-                          }}
-                        />
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <span className="text-gray-400 flex-1">Select Industry</span>
-                )}
-                <span className={styles.dropdownIcon}>▼</span>
-              </div>
-
+                ▼
+              </span>
               {industryOpen && (
                 <div className={styles.industryOpen}>
                   <div className={styles.selectIndustry}>Select Industry</div>
-                  {industryOptions.map((item) => (
-                    <label key={item} className={styles.industryOptions}>
-                      <input
-                        type="checkbox"
-                        checked={industry.includes(item)}
-                        onChange={() => {
-                          const updated = industry.includes(item)
-                            ? industry.filter((i: string) => i !== item)
-                            : [...industry, item];
-                          dispatch(
-                            updateField({ field: "industry", value: updated })
-                          );
-                        }}
-                        className={styles.industryCheckbox}
-                      />
-                      <span className="text-sm break-words">{item}</span>
-                    </label>
+                  {industries.map((item: any) => (
+                    <div
+                      key={item.name}
+                      onClick={() => {
+                        dispatch(updateField({ field: "industry", value: item.name }));
+                        dispatch(updateField({ field: "subIndustry", value: "" }));
+                        setIndustryOpen(false);
+                      }}
+                      className={styles.industryOptions}
+                    >
+                      {item.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Sub Industry */}
+          <div className="w-full mb-4">
+            <div ref={subIndustryRef} className={styles.fieldGroup + " w-full relative"}>
+              <label className={styles.label}>
+                Sub Industry <span className="text-red-600">*</span>
+              </label>
+              <input
+                className={styles.input + " cursor-pointer"}
+                type="text"
+                value={subIndustry || ""}
+                placeholder="Select Sub Industry"
+                readOnly
+                onClick={() => {
+                  if (industry) setSubIndustryOpen(!subIndustryOpen);
+                }}
+              />
+              <span
+                className={styles.dropdownIcon}
+                style={{ position: "absolute", right: 16, top: 44, pointerEvents: "none" }}
+              >
+                ▼
+              </span>
+              {subIndustryOpen && industry && (
+                <div className={styles.industryOpen}>
+                  <div className={styles.selectIndustry}>Select Industry First</div>
+                  {subIndustries.map((sub: string) => (
+                    <div
+                      key={sub}
+                      onClick={() => {
+                        dispatch(updateField({ field: "subIndustry", value: sub }));
+                        setSubIndustryOpen(false);
+                      }}
+                      className={styles.industryOptions}
+                    >
+                      {sub}
+                    </div>
                   ))}
                 </div>
               )}

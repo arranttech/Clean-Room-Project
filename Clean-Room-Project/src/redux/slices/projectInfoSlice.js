@@ -2,21 +2,21 @@ import { createSlice } from "@reduxjs/toolkit";
 
 // --- Initial State ---
 const initialState = {
-	isNewProject: false,
-	customerName: "",
-	projectName: "",
-	unitBranch: "",
-	handling: [],
-	industry: "",
-	subIndustry: "",
-	uniqueId: "",
-	locationQuery: "",
-	selectedLocation: null,
-	minTemp: "",
-	maxTemp: "",
-	relativeHumidityMin: "",
-	relativeHumidityMax: "",
-	projectId: null,
+  isNewProject: false,
+  customerName:"",
+  projectName: "",
+  unitBranch: "",
+  handling: [],
+  industry: "",
+  subIndustry: "",
+  uniqueId: "",
+  locationQuery: "",
+  selectedLocation: null,
+  minTemp: "",
+  maxTemp: "",
+  relativeHumidityMin: "",
+  relativeHumidityMax: "",
+  projectId: null,
 };
 
 // --- Slice (actions + reducers combined) ---

@@ -103,7 +103,7 @@ export default function Dashboard() {
 			try {
 				const userRes = await getUserById(loggedInUser.user_login_id);
 				const customer_id =
-					userRes?.user?.customer_id ?? userRes?.customer_id ?? null;
+					userRes?.user?.customer_ids ?? userRes?.customer_ids[0] ?? null;
 				if (!customer_id) return;
 				const customerRes = await getCustomerById(customer_id);
 				const c = customerRes?.customer ?? customerRes;

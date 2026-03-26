@@ -75,7 +75,7 @@ export default function Dashboard() {
     (state: any) => state.projectInfo.projectId
   );
 
-  // ── Close dropdown on outside click ───────────────────────────────────────
+  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -89,7 +89,7 @@ export default function Dashboard() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ── Fetch user + build availableCustomers list ────────────────────────────
+  // Fetch user + build availableCustomers list
   useEffect(() => {
     if (!loggedInUser?.user_login_id) return;
     const fetchUser = async () => {
@@ -144,7 +144,7 @@ export default function Dashboard() {
     fetchUser();
   }, [loggedInUser?.user_login_id]);
 
-  // ── Load active customer into customerSlice ───────────────────────────────
+  // Load active customer into customerSlice
   useEffect(() => {
     const activeId = loggedInUser?.customer_id;
     if (!activeId) return;
@@ -174,14 +174,14 @@ export default function Dashboard() {
     loadCustomer();
   }, [loggedInUser?.customer_id]);
 
-  // Switch customer 
+  // Switch customer
   const handleCustomerSwitch = (newCustomerId: any) => {
     setCustomerDropdownOpen(false);
     if (newCustomerId === loggedInUser?.customer_id) return;
     dispatch(setActiveCustomerId(newCustomerId));
   };
 
-  //Project counts 
+  // Project counts
   useEffect(() => {
     if (!loggedInUser?.user_login_id) return;
     const fetchCounts = async () => {
@@ -201,7 +201,7 @@ export default function Dashboard() {
     fetchCounts();
   }, [loggedInUser?.user_login_id]);
 
-  //In-progress projects
+  // In-progress projects
   useEffect(() => {
     if (!loggedInUser?.user_login_id) return;
     const fetchInProgress = async () => {
@@ -327,9 +327,9 @@ export default function Dashboard() {
 
       <div className={s.contentWrap}>
         <div className={s.container}>
-          {/* ── Welcome row with customer dropdown on the right ── */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
+          {/* ── Welcome row — stacks on mobile, side by side on sm+ ── */}
+          <div className={s.welcomeRow}>
+            <div className={s.welcomeLeft}>
               <div className={s.title2}>
                 {tmpl(text.dashboard.welcomeTitle, { name: firstName })}
               </div>
@@ -339,34 +339,34 @@ export default function Dashboard() {
             </div>
 
             {/* Customer dropdown */}
-            <div ref={dropdownRef} className="relative">
+            <div ref={dropdownRef} className="relative self-start sm:self-auto">
               <button
                 type="button"
                 onClick={() => setCustomerDropdownOpen((p) => !p)}
-                className="flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-4 py-3 shadow-sm hover:shadow-md hover:border-blue-400 transition-all"
+                className={s.customerDropdownBtn}
               >
-                <div className="h-9 w-9 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                <div className={s.customerDropdownIconWrap}>
                   <MdApartment className="text-blue-700 text-lg" />
                 </div>
                 <div className="text-left">
-                  <div className="text-[11px] text-slate-400 font-medium uppercase tracking-widest leading-none mb-0.5">
+                  <div className={s.customerDropdownLabel}>
                     Current Customer
                   </div>
-                  <div className="text-[15px] font-bold text-slate-900 leading-none">
+                  <div className={s.customerDropdownName}>
                     {isLoadingCustomer
                       ? "Loading..."
                       : customerName || "Select Customer"}
                   </div>
                 </div>
                 <FaChevronDown
-                  className={`text-slate-400 text-xs ml-1 transition-transform duration-200 ${
+                  className={`${s.customerDropdownChevron} ${
                     customerDropdownOpen ? "rotate-180" : ""
                   }`}
                 />
               </button>
 
               {customerDropdownOpen && (
-                <div className="absolute right-0 top-[calc(100%+8px)] z-50 bg-white border border-slate-200 rounded-xl shadow-xl min-w-[220px] py-1 overflow-hidden">
+                <div className={s.customerDropdownList}>
                   {availableCustomers.length === 0 ? (
                     <div className="px-4 py-3 text-sm text-slate-400">
                       No customers found
@@ -377,14 +377,14 @@ export default function Dashboard() {
                         key={c.customerId}
                         type="button"
                         onClick={() => handleCustomerSwitch(c.customerId)}
-                        className={`w-full text-left px-4 py-3 text-sm transition-colors hover:bg-blue-50 flex items-center justify-between gap-3 ${
+                        className={`${s.customerDropdownItem} ${
                           c.customerId === loggedInUser?.customer_id
-                            ? "bg-blue-50 font-semibold text-blue-700"
-                            : "text-slate-700"
+                            ? s.customerDropdownItemActive
+                            : s.customerDropdownItemInactive
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <div className="h-7 w-7 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                          <div className={s.customerDropdownItemIcon}>
                             <MdApartment className="text-blue-600 text-sm" />
                           </div>
                           <span>{c.customerName}</span>
@@ -404,7 +404,7 @@ export default function Dashboard() {
           <div className={s.metricsRow}>
             <div className={s.metricCard}>
               <div className={`${s.metricIconWrap} bg-blue-100`}>
-                <FaFolderOpen className="text-blue-700 text-2xl" />
+                <FaFolderOpen className="text-blue-700 text-xl sm:text-2xl" />
               </div>
               <div>
                 <div className={`${s.metricNumber} text-blue-700`}>
@@ -414,11 +414,11 @@ export default function Dashboard() {
               </div>
             </div>
             <div className={s.metricCard}>
-              <div className={`${s.metricIconWrap} bg-orange-100`}>
-                <FaLayerGroup className="text-orange-500 text-2xl" />
+              <div className={`${s.metricIconWrap} bg-blue-100`}>
+                <FaLayerGroup className="text-blue-700 text-xl sm:text-2xl" />
               </div>
               <div>
-                <div className={`${s.metricNumber} text-orange-500`}>
+                <div className={`${s.metricNumber} text-blue-700`}>
                   {counts.inProgress}
                 </div>
                 <div className={s.metricLabel}>In Progress</div>
@@ -426,7 +426,7 @@ export default function Dashboard() {
             </div>
             <div className={s.metricCard}>
               <div className={`${s.metricIconWrap} bg-green-100`}>
-                <FaCheck className="text-green-600 text-2xl" />
+                <FaCheck className="text-green-600 text-xl sm:text-2xl" />
               </div>
               <div>
                 <div className={`${s.metricNumber} text-green-600`}>
@@ -437,10 +437,10 @@ export default function Dashboard() {
             </div>
             <div className={s.metricCard}>
               <div>
-                <div className="text-xs text-slate-400 font-medium uppercase tracking-widest mb-1">
+                <div className="text-[10px] sm:text-xs text-slate-400 font-medium uppercase tracking-widest mb-1">
                   Last Activity
                 </div>
-                <div className="text-lg font-bold text-slate-900">
+                <div className="text-base sm:text-lg font-bold text-slate-900">
                   {new Date().toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
@@ -484,7 +484,7 @@ export default function Dashboard() {
                   : "—";
                 return (
                   <div key={proj.project_id} className={s.cardWrap}>
-                    <div>
+                    <div className="flex-1">
                       <div className={s.projectTitle}>{proj.project_name}</div>
                       <div className={s.projectCustomer}>
                         <span>Customer: </span>
@@ -543,7 +543,7 @@ export default function Dashboard() {
                 className={`${s.actionCardBase} ${s.actionCardHover} text-left`}
               >
                 <div className={`${s.actionIconWrap} bg-blue-700`}>
-                  <FaPlus className="text-white text-2xl" />
+                  <FaPlus className="text-white text-xl sm:text-2xl" />
                 </div>
                 <div>
                   <div className={s.actionTitle}>
@@ -557,12 +557,13 @@ export default function Dashboard() {
                   </div>
                 </div>
               </button>
+
               <Link
                 to="/projects"
                 className={`${s.actionCardBase} ${s.actionCardHover}`}
               >
                 <div className={`${s.actionIconWrap} bg-blue-100`}>
-                  <FaFolderOpen className="text-blue-700 text-2xl" />
+                  <FaFolderOpen className="text-blue-700 text-xl sm:text-2xl" />
                 </div>
                 <div>
                   <div className={s.actionTitle}>
@@ -576,12 +577,13 @@ export default function Dashboard() {
                   </div>
                 </div>
               </Link>
+
               <Link
                 to="/customer-info"
                 className={`${s.actionCardBase} ${s.actionCardHover}`}
               >
                 <div className={`${s.actionIconWrap} bg-slate-100`}>
-                  <MdApartment className="text-blue-700 text-2xl" />
+                  <MdApartment className="text-blue-700 text-xl sm:text-2xl" />
                 </div>
                 <div>
                   <div className={s.actionTitle}>
@@ -609,7 +611,7 @@ export default function Dashboard() {
               {[FaBuilding, FaLayerGroup, FaCalculator].map((Icon, i) => (
                 <div key={i} className={s.featureItem}>
                   <div className={s.featureIconWrap}>
-                    <Icon className="text-blue-700 text-2xl" />
+                    <Icon className="text-blue-700 text-xl sm:text-2xl" />
                   </div>
                   <div className={s.featureTitle}>{features[i].title}</div>
                   <div className={s.featureDesc}>{features[i].desc}</div>

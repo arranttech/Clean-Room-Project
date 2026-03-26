@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
-import { FiSearch, FiPlus, FiEdit2, FiTrash2, FiX, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import {
+  FiSearch,
+  FiPlus,
+  FiEdit2,
+  FiTrash2,
+  FiX,
+  FiChevronLeft,
+  FiChevronRight,
+} from "react-icons/fi";
 import s from "./styles";
 import AddCustomer from ".";
 import {
@@ -33,7 +41,7 @@ export default function Customers({ onCountChange }: CustomersProps) {
   const [fetchError, setFetchError] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<Customer | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 10; // number of customers per page
+  const ITEMS_PER_PAGE = 10;
 
   const loadCustomers = async () => {
     try {
@@ -83,14 +91,16 @@ export default function Customers({ onCountChange }: CustomersProps) {
     }
   };
 
-  const filtered = customers.filter((c) => {
-    const matchesSearch =
-      c.customer_name.toLowerCase().includes(search.toLowerCase()) ||
-      c.customer_email_id.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus =
-      statusFilter === "ALL" ? true : c.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  }).sort((a, b) => a.customer_name.toLowerCase().localeCompare(b.customer_name.toLowerCase()));
+  const filtered = customers
+    .filter((c) => {
+      const matchesSearch =
+        c.customer_name.toLowerCase().includes(search.toLowerCase()) ||
+        c.customer_email_id.toLowerCase().includes(search.toLowerCase());
+      const matchesStatus =
+        statusFilter === "ALL" ? true : c.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => b.customer_id - a.customer_id); 
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -136,14 +146,15 @@ export default function Customers({ onCountChange }: CustomersProps) {
             key={f}
             type="button"
             onClick={() => setStatusFilter(f)}
-            className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all ${statusFilter === f
+            className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+              statusFilter === f
                 ? f === "I"
                   ? "bg-red-500 text-white border-red-500"
                   : f === "A"
-                    ? "bg-green-500 text-white border-green-500"
-                    : "bg-slate-800 text-white border-slate-800"
+                  ? "bg-green-500 text-white border-green-500"
+                  : "bg-slate-800 text-white border-slate-800"
                 : "bg-white text-slate-500 border-slate-200 hover:border-slate-400"
-              }`}
+            }`}
           >
             {f === "ALL" ? "All" : f === "A" ? "Active" : "Inactive"}
           </button>

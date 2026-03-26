@@ -128,6 +128,20 @@ const dashboardDesign = {
   // back button — centered
   backBtn1:
     "mt-10 inline-flex items-center gap-2 border border-slate-300 px-5 py-2.5 rounded-xl hover:bg-slate-100 shadow-sm bg-white text-[14px] font-medium transition-colors",
+
+    // Customer dropdown
+customerDropdownBtn: "flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-4 py-3 shadow-sm hover:shadow-md hover:border-blue-400 transition-all",
+customerDropdownIconWrap: "h-9 w-9 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0",
+customerDropdownLabel: "text-[11px] text-slate-400 font-medium uppercase tracking-widest leading-none mb-0.5",
+customerDropdownName: "text-[15px] font-bold text-slate-900 leading-none",
+customerDropdownChevron: "text-slate-400 text-xs ml-1 transition-transform duration-200",
+customerDropdownList: "absolute right-0 top-[calc(100%+8px)] z-50 bg-white border border-slate-200 rounded-xl shadow-xl min-w-[220px] py-1 overflow-hidden",
+customerDropdownItem: "w-full text-left px-4 py-3 text-sm transition-colors hover:bg-blue-50 flex items-center justify-between gap-3",
+customerDropdownItemActive: "bg-blue-50 font-semibold text-blue-700",
+customerDropdownItemInactive: "text-slate-700",
+customerDropdownItemIcon: "h-7 w-7 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0",
+welcomeRow: "flex items-center justify-between mb-6",
+welcomeLeft: "",
 };
 
 export default dashboardDesign;

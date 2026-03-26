@@ -58,11 +58,33 @@ function ProjectInfoPage() {
   const subIndustryRef = useRef<HTMLDivElement>(null);
   const handlingRef = useRef<HTMLDivElement>(null);
 
-  const { industries, handlingOptions } = projectData;
+  const { industries, handlingOptions, handlingAutoSelectionRules = [] } = projectData as any;
 
   const subIndustry = useAppSelector((s: any) => s.projectInfo.subIndustry);
   const selectedIndustryData = industries.find((i: any) => i.name === industry);
   const subIndustries = selectedIndustryData?.subIndustries || [];
+
+  useEffect(() => {
+    const matchedRule = handlingAutoSelectionRules.find(
+      (rule: any) =>
+        rule.industry === industry && rule.subIndustry === subIndustry
+    );
+
+    if (!matchedRule) return;
+
+    const ruleHandling = Array.isArray(matchedRule.handling)
+      ? matchedRule.handling
+      : [];
+    const mergedHandling = Array.from(new Set([...(handling || []), ...ruleHandling]));
+
+    const isDifferent =
+      mergedHandling.length !== handling.length ||
+      mergedHandling.some((item) => !handling.includes(item));
+
+    if (isDifferent) {
+      dispatch(updateField({ field: "handling", value: mergedHandling }));
+    }
+  }, [industry, subIndustry, handling, handlingAutoSelectionRules, dispatch]);
 
   const [errors, setErrors] = useState({
     branch: "",

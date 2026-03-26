@@ -83,14 +83,28 @@
             "Exhaust"
         ],
         "supplyFilters": [
-            "ULPA filter (U17 - 1)",
-            "ULPA filter (U17 - 2)",
-            "Leagcy (H13 - 1) filter",
-            "Leagcy (H13 - 2) filter",
-            "Leagcy (H14 - 1) filter",
-            "Leagcy (H14 - 2) filter",
-            "Upper HEPA (H15 - 1) filter",
-            "Upper HEPA (H15 - 2) filter",
+            "ULPA filter (U15 ~50mm)",
+            "ULPA filter (U15 ~70mm)",
+            "ULPA filter (U15 ~90mm)",
+            "ULPA filter (U15 ~110mm)",
+            "ULPA filter (U15 ~150mm)",
+            "ULPA filter (U16 ~50mm)",
+            "ULPA filter (U16 ~70mm)",
+            "ULPA filter (U16 ~90mm)",
+            "ULPA filter (U16 ~110mm)",
+            "ULPA filter (U16 ~150mm)",
+            "ULPA filter (U17 ~50mm)",
+            "ULPA filter (U17 ~70mm)",
+            "ULPA filter (U17 ~90mm)",
+            "ULPA filter (U17 ~110mm)",
+            "ULPA filter (U17 ~150mm)",
+            "ULPA filter (U17 ~300mm)",
+            "Leagcy (H13 ~50mm) filter",
+            "Leagcy (H13 ~100mm) filter",
+            "Leagcy (H14 ~150mm) filter",
+            "Leagcy (H14 ~300mm) filter",
+            "Upper HEPA (H15 ~150mm) filter",
+            "Upper HEPA (H15 ~300mm) filter",
             "EPA (pre-HEPA) filter",
             "Pre-HEPA Super fine filter",
             "High Fine filter",
@@ -100,14 +114,28 @@
             "Terminal filters - Supply"
         ],
         "exhaustFilters": [
-            "ULPA filter (U17 - 1)",
-            "ULPA filter (U17 - 2)",
-            "Leagcy (H13 - 1) filter",
-            "Leagcy (H13 - 2) filter",
-            "Leagcy (H14 - 1) filter",
-            "Leagcy (H14 - 2) filter",
-            "Upper HEPA (H15 - 1) filter",
-            "Upper HEPA (H15 - 2) filter",
+            "ULPA filter (U15 ~50mm)",
+            "ULPA filter (U15 ~70mm)",
+            "ULPA filter (U15 ~90mm)",
+            "ULPA filter (U15 ~110mm)",
+            "ULPA filter (U15 ~150mm)",
+            "ULPA filter (U16 ~50mm)",
+            "ULPA filter (U16 ~70mm)",
+            "ULPA filter (U16 ~90mm)",
+            "ULPA filter (U16 ~110mm)",
+            "ULPA filter (U16 ~150mm)",
+            "ULPA filter (U17 ~50mm)",
+            "ULPA filter (U17 ~70mm)",
+            "ULPA filter (U17 ~90mm)",
+            "ULPA filter (U17 ~110mm)",
+            "ULPA filter (U17 ~150mm)",
+            "ULPA filter (U17 ~300mm)",
+            "Leagcy (H13 ~50mm) filter",
+            "Leagcy (H13 ~100mm) filter",
+            "Leagcy (H14 ~150mm) filter",
+            "Leagcy (H14 ~300mm) filter",
+            "Upper HEPA (H15 ~150mm) filter",
+            "Upper HEPA (H15 ~300mm) filter",
             "EPA (pre-HEPA) filter",
             "Pre-HEPA Super fine filter",
             "High Fine filter",
@@ -165,9 +193,139 @@
         ]
     },
     "filterSpecs": {
-        "ULPA filter (U17 - 1)": {
+        "ULPA filter (U15 ~50mm)": {
+            "rating": "0.12 µm (U15)",
+            "depth": "~50 mm",
+            "efficiency": "99.9995%",
+            "initRange": [
+                25,
+                30
+            ],
+            "finalRange": [
+                65,
+                65
+            ]
+        },
+        "ULPA filter (U15 ~70mm)": {
+            "rating": "0.12 µm (U15)",
+            "depth": "~70 mm",
+            "efficiency": "99.9995%",
+            "initRange": [
+                25,
+                30
+            ],
+            "finalRange": [
+                65,
+                65
+            ]
+        },
+        "ULPA filter (U15 ~90mm)": {
+            "rating": "0.12 µm (U15)",
+            "depth": "~90 mm",
+            "efficiency": "99.9995%",
+            "initRange": [
+                25,
+                30
+            ],
+            "finalRange": [
+                65,
+                65
+            ]
+        },
+        "ULPA filter (U15 ~110mm)": {
+            "rating": "0.12 µm (U15)",
+            "depth": "~110 mm",
+            "efficiency": "99.9995%",
+            "initRange": [
+                25,
+                30
+            ],
+            "finalRange": [
+                65,
+                65
+            ]
+        },
+        "ULPA filter (U15 ~150mm)": {
+            "rating": "0.12 µm (U15)",
+            "depth": "~150 mm",
+            "efficiency": "99.9995%",
+            "initRange": [
+                25,
+                30
+            ],
+            "finalRange": [
+                65,
+                65
+            ]
+        },
+        "ULPA filter (U16 ~50mm)": {
+            "rating": "0.12 µm (U16)",
+            "depth": "~50 mm",
+            "efficiency": "99.99995%",
+            "initRange": [
+                30,
+                35
+            ],
+            "finalRange": [
+                65,
+                65
+            ]
+        },
+        "ULPA filter (U16 ~70mm)": {
+            "rating": "0.12 µm (U16)",
+            "depth": "~70 mm",
+            "efficiency": "99.99995%",
+            "initRange": [
+                30,
+                35
+            ],
+            "finalRange": [
+                65,
+                65
+            ]
+        },
+        "ULPA filter (U16 ~90mm)": {
+            "rating": "0.12 µm (U16)",
+            "depth": "~90 mm",
+            "efficiency": "99.99995%",
+            "initRange": [
+                30,
+                35
+            ],
+            "finalRange": [
+                65,
+                65
+            ]
+        },
+        "ULPA filter (U16 ~110mm)": {
+            "rating": "0.12 µm (U16)",
+            "depth": "~110 mm",
+            "efficiency": "99.99995%",
+            "initRange": [
+                30,
+                35
+            ],
+            "finalRange": [
+                65,
+                65
+            ]
+        },
+        "ULPA filter (U16 ~150mm)": {
+            "rating": "0.12 µm (U16)",
+            "depth": "~150 mm",
+            "efficiency": "99.99995%",
+            "initRange": [
+                30,
+                35
+            ],
+            "finalRange": [
+                65,
+                65
+            ]
+        },
+        "ULPA filter (U17 ~50mm)": {
             "rating": "0.12 µm",
-            "depth": "150 mm",
+            "depth": "~50 mm",
             "efficiency": "99.999995%",
             "initRange": [
                 35,
@@ -178,7 +336,59 @@
                 70
             ]
         },
-        "ULPA filter (U17 - 2)": {
+        "ULPA filter (U17 ~70mm)": {
+            "rating": "0.12 µm",
+            "depth": "~70 mm",
+            "efficiency": "99.999995%",
+            "initRange": [
+                35,
+                50
+            ],
+            "finalRange": [
+                55,
+                70
+            ]
+        },
+        "ULPA filter (U17 ~90mm)": {
+            "rating": "0.12 µm",
+            "depth": "~90 mm",
+            "efficiency": "99.999995%",
+            "initRange": [
+                35,
+                50
+            ],
+            "finalRange": [
+                55,
+                70
+            ]
+        },
+        "ULPA filter (U17 ~110mm)": {
+            "rating": "0.12 µm",
+            "depth": "~110 mm",
+            "efficiency": "99.999995%",
+            "initRange": [
+                35,
+                50
+            ],
+            "finalRange": [
+                55,
+                70
+            ]
+        },
+        "ULPA filter (U17 ~150mm)": {
+            "rating": "0.12 µm",
+            "depth": "~150 mm",
+            "efficiency": "99.999995%",
+            "initRange": [
+                35,
+                50
+            ],
+            "finalRange": [
+                55,
+                70
+            ]
+        },
+        "ULPA filter (U17 ~300mm)": {
             "rating": "0.12 µm",
             "depth": "300 mm",
             "efficiency": "99.999995%",
@@ -191,9 +401,9 @@
                 70
             ]
         },
-        "Leagcy (H13 - 1) filter": {
+        "Leagcy (H13 ~150) filter": {
             "rating": "0.3 µm",
-            "depth": "150 mm",
+            "depth": "~150 mm",
             "efficiency": "99.97%",
             "initRange": [
                 20,
@@ -204,9 +414,9 @@
                 50
             ]
         },
-        "Leagcy (H13 - 2) filter": {
+        "Leagcy (H13 ~300) filter": {
             "rating": "0.3 µm",
-            "depth": "300 mm",
+            "depth": "~300 mm",
             "efficiency": "99.97%",
             "initRange": [
                 15,
@@ -217,9 +427,9 @@
                 45
             ]
         },
-        "Leagcy (H14 - 1) filter": {
+        "Leagcy (H14 ~150) filter": {
             "rating": "0.3 µm",
-            "depth": "150 mm",
+            "depth": "~150 mm",
             "efficiency": "99.997%",
             "initRange": [
                 25,
@@ -230,9 +440,9 @@
                 55
             ]
         },
-        "Leagcy (H14 - 2) filter": {
+        "Leagcy (H14 ~300) filter": {
             "rating": "0.3 µm",
-            "depth": "300 mm",
+            "depth": "~300 mm",
             "efficiency": "99.997%",
             "initRange": [
                 18,
@@ -243,9 +453,9 @@
                 50
             ]
         },
-        "Upper HEPA (H15 - 1) filter": {
+        "Upper HEPA (H15 ~150) filter": {
             "rating": "0.3 µm",
-            "depth": "150 mm",
+            "depth": "~150 mm",
             "efficiency": "99.9997%",
             "initRange": [
                 30,
@@ -256,9 +466,9 @@
                 60
             ]
         },
-        "Upper HEPA (H15 - 2) filter": {
+        "Upper HEPA (H15 ~300) filter": {
             "rating": "0.3 µm",
-            "depth": "300 mm",
+            "depth": "~300 mm",
             "efficiency": "99.9997%",
             "initRange": [
                 22,
@@ -271,7 +481,7 @@
         },
         "EPA (pre-HEPA) filter": {
             "rating": "0.3 µm",
-            "depth": "300 mm",
+            "depth": "~300 mm",
             "efficiency": "95%",
             "initRange": [
                 10,
@@ -284,7 +494,7 @@
         },
         "Pre-HEPA Super fine filter": {
             "rating": "1 µm",
-            "depth": "300 mm",
+            "depth": "~300 mm",
             "efficiency": "99.9%",
             "initRange": [
                 11,
@@ -297,7 +507,7 @@
         },
         "High Fine filter": {
             "rating": "3 µm",
-            "depth": "300 mm",
+            "depth": "~300 mm",
             "efficiency": "99.5%",
             "initRange": [
                 9,

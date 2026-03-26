@@ -169,9 +169,10 @@
   "handlingOptions": [
     "Particulate sensitive",
     "AMC/molecular sensitive",
+    "Volatile Organics Control(VOC)",
     "ESD controlled",
     "Temperature critical",
-    "Humidity critical",
+    "Relative Humidity critical",
     "Allergen-controlled",
     "Explosive dust",
     "Radiological",
@@ -181,5 +182,231 @@
     "Potent compound (HPAPI)",
     "Odour/Cross contamination",
     "Sterile/Aseptic"
+  ],
+  "handlingAutoSelectionRules": [
+    {
+      "industry": "Electronics & Precision Engineering",
+      "subIndustry": "LED & OLED manufacturing",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Volatile Organics Control(VOC)",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Electronics & Precision Engineering",
+      "subIndustry": "Solar PV cell/module manufacturing",
+      "handling": [
+        "AMC/molecular sensitive",
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Electronics & Precision Engineering",
+      "subIndustry": "Printed Circuit Board (PCB) manufacturing",
+      "handling": [
+        "ESD controlled",
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Electronics & Precision Engineering",
+      "subIndustry": "Sensors & micro-electromechanical systems (MEMS)",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive"
+      ]
+    },
+      {
+        "industry": "Electronics & Precision Engineering",
+        "subIndustry": "Optoelectronics & laser component manufacturing",
+        "handling": [
+          "Particulate sensitive",
+          "AMC/molecular sensitive",
+          "Temperature critical"
+        ]
+      },
+      {
+        "industry": "Aerospace & Space Technology",
+        "subIndustry": "Satellite assembly clean rooms",
+        "handling": [
+          "Particulate sensitive",
+          "AMC/molecular sensitive"
+        ]
+      },
+      {
+        "industry": "Aerospace & Space Technology",
+        "subIndustry": "Spacecraft component manufacturing",
+        "handling": [
+          "Particulate sensitive",
+          "AMC/molecular sensitive",
+          "Temperature critical",
+          "Relative Humidity critical"
+        ]
+      },
+      {
+        "industry": "Aerospace & Space Technology",
+        "subIndustry": "Rocket engine precision assembly areas",
+        "handling": [
+          "Particulate sensitive"
+        ]
+      },
+      {
+        "industry": "Aerospace & Space Technology",
+        "subIndustry": "Composite and carbon fiber manufacturing",
+        "handling": [
+          "Particulate sensitive",
+          "Volatile Organics Control(VOC)",
+          "Temperature critical",
+          "Odour/Cross contamination"
+        ]
+      },
+      {
+        "industry": "Automotive & Mobility",
+        "subIndustry": "Advanced automotive electronics",
+        "handling": [
+          "Particulate sensitive",
+          "AMC/molecular sensitive",
+          "ESD controlled"
+        ]
+      },
+      {
+        "industry": "Automotive & Mobility",
+        "subIndustry": "ADAS/LiDAR manufacturing",
+        "handling": [
+          "Particulate sensitive",
+          "AMC/molecular sensitive",
+          "Temperature critical"
+        ]
+      },
+      {
+        "industry": "Automotive & Mobility",
+        "subIndustry": "Precision painting & coating shops",
+        "handling": [
+          "Volatile Organics Control(VOC)",
+          "Odour/Cross contamination",
+          "Temperature critical",
+          "Relative Humidity critical"
+        ]
+      },
+      {
+        "industry": "Automotive & Mobility",
+        "subIndustry": "Engine test labs, NVH labs",
+        "handling": [
+          "Temperature critical",
+          "Relative Humidity critical"
+        ]
+      },
+      {
+        "industry": "Automotive & Mobility",
+        "subIndustry": "Ship Building Industry",
+        "handling": [
+        ]
+      },
+      {
+        "industry": "Automotive & Mobility",
+        "subIndustry": "Aviation Industry",
+        "handling": [
+        ]
+      },
+      {
+        "industry": "Food, Agriculture & Consumer Products",
+        "subIndustry": "Dairy processing clean zones",
+        "handling": [
+          "Particulate sensitive",
+          "Temperature critical",
+          "Relative Humidity critical",
+          "Allergen-controlled",
+          "Odour/Cross contamination"
+        ]
+      },
+      {
+        "industry": "Food, Agriculture & Consumer Products",
+        "subIndustry": "Chocolate and confectionary temperaturecontrolled lines",
+        "handling": [
+          "Temperature critical",
+          "Relative Humidity critical",
+          "Odour/Cross contamination"
+        ]
+      },
+      {
+        "industry": "Food, Agriculture & Consumer Products",
+        "subIndustry": "Bottling plants",
+        "handling": [
+          "Particulate sensitive",
+          "Temperature critical",
+          "Relative Humidity critical",
+          "Odour/Cross contamination"
+        ]
+      },
+      {
+        "industry": "Food, Agriculture & Consumer Products",
+        "subIndustry": "Cold storage logistics",
+        "handling": [
+          "Temperature critical",
+          "Relative Humidity critical"
+        ]
+      },
+      {
+        "industry": "Food, Agriculture & Consumer Products",
+        "subIndustry": "Fresh-cut & packaged food clean zones",
+        "handling": [
+          "Particulate sensitive",
+          "Temperature critical",
+          "Relative Humidity critical",
+          "Allergen-controlled"
+        ]
+      },
+      {
+        "industry": "Medical Devices & Allied Sectors",
+        "subIndustry": "Surgical instruments manufacturing",
+        "handling": [
+          "Particulate sensitive",
+          "AMC/molecular sensitive",
+          "Temperature critical"
+        ]
+      },
+      {
+        "industry": "Medical Devices & Allied Sectors",
+        "subIndustry": "Orthopedics and implants manufacturing",
+        "handling": [
+          "Particulate sensitive",
+          "AMC/molecular sensitive",
+          "Temperature critical"
+        ]
+      },
+      {
+        "industry": "Medical Devices & Allied Sectors",
+        "subIndustry": "Disposable medical devices",
+        "handling": [
+          "Particulate sensitive",
+          "AMC/molecular sensitive",
+          "Temperature critical"
+        ]
+      },
+      {
+        "industry": "Medical Devices & Allied Sectors",
+        "subIndustry": "Dialysis consumables",
+        "handling": [
+          "Particulate sensitive",
+          "AMC/molecular sensitive",
+          "Temperature critical"
+        ]
+      },
+      {
+        "industry": "Medical Devices & Allied Sectors",
+        "subIndustry": "Diagnostic equipment labs",
+        "handling": [
+          "Particulate sensitive",
+          "AMC/molecular sensitive",
+          "Temperature critical",
+          "ESD controlled"
+        ]
+      }
   ]
 }

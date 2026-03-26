@@ -4,7 +4,11 @@ import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { setCustomer } from "../../redux/slices/customerSlice";
 import { getCustomerById } from "../../backend/controller/customerController";
 import { getUserById } from "../../backend/controller/userController";
-import { getProjectCounts, getInProgressProjects, getProjectDetails } from "../../backend/controller/projectController";
+import {
+	getProjectCounts,
+	getInProgressProjects,
+	getProjectDetails,
+} from "../../backend/controller/projectController";
 import {
 	FaFolderOpen,
 	FaPlus,
@@ -19,13 +23,20 @@ import { MdApartment } from "react-icons/md";
 import s from "./styles";
 import text from "../../json/dashboard.json";
 import Header from "../../components/header";
-import { resetProjectInfo, updateMultipleFields } from "../../redux/slices/projectInfoSlice";
+import {
+	resetProjectInfo,
+	updateMultipleFields,
+} from "../../redux/slices/projectInfoSlice";
 import { setUser } from "../../redux/slices/userSlice";
-import { setProjectCounts, setInProgressProjects } from "../../redux/slices/dashboardSlice";
-import { updateMultipleStandardsFields, resetStandards } from "../../redux/slices/standardSlice";
+import {
+	setProjectCounts,
+	setInProgressProjects,
+} from "../../redux/slices/dashboardSlice";
+import {
+	updateMultipleStandardsFields,
+	resetStandards,
+} from "../../redux/slices/standardSlice";
 import { setSavedRooms, resetRoom } from "../../redux/slices/roomSlice";
-
-
 
 function tmpl(str: string, vars: Record<string, string | number>) {
 	return str.replace(/\{\{(\w+)\}\}/g, (_, k) => String(vars[k] ?? ""));
@@ -35,7 +46,9 @@ export default function Dashboard() {
 	const [showProfileAlert, setShowProfileAlert] = useState(false);
 	const [firstName, setFirstName] = useState("User");
 	const counts = useAppSelector((state: any) => state.dashboard);
-	const inProgressProjects = useAppSelector((state: any) => state.dashboard.inProgressProjects ?? []);
+	const inProgressProjects = useAppSelector(
+		(state: any) => state.dashboard.inProgressProjects ?? []
+	);
 
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
@@ -55,7 +68,9 @@ export default function Dashboard() {
 							user_login_id: loggedInUser.user_login_id,
 							user_id: u.user_id || loggedInUser.user_id,
 							customer_id: u.customer_id || loggedInUser.customer_id,
-							name: `${u.user_first_name || ""} ${u.user_last_name || ""}`.trim() || loggedInUser.name,
+							name:
+								`${u.user_first_name || ""} ${u.user_last_name || ""}`.trim() ||
+								loggedInUser.name,
 						})
 					);
 					setFirstName(u.user_first_name?.trim() || "User");
@@ -72,11 +87,13 @@ export default function Dashboard() {
 		const fetchCounts = async () => {
 			try {
 				const data = await getProjectCounts(loggedInUser.user_login_id);
-				dispatch(setProjectCounts({
-					total: data.total ?? 0,
-					inProgress: data.inProgress ?? 0,
-					completed: data.completed ?? 0,
-				}));
+				dispatch(
+					setProjectCounts({
+						total: data.total ?? 0,
+						inProgress: data.inProgress ?? 0,
+						completed: data.completed ?? 0,
+					})
+				);
 			} catch (e) {
 				console.error("Failed to fetch project counts:", e);
 			}
@@ -103,7 +120,7 @@ export default function Dashboard() {
 			try {
 				const userRes = await getUserById(loggedInUser.user_login_id);
 				const customer_id =
-					userRes?.user?.customer_ids ?? userRes?.customer_ids[0] ?? null;
+					userRes?.user?.customer_ids?.[0] ?? userRes?.customer_ids ?? null;
 				if (!customer_id) return;
 				const customerRes = await getCustomerById(customer_id);
 				const c = customerRes?.customer ?? customerRes;
@@ -127,13 +144,16 @@ export default function Dashboard() {
 			}
 		};
 		loadCustomer();
-	}, [loggedInUser?.user_login_id]);
+	}, [loggedInUser?.user_login_id, customerId]);
 
 	const [continuingId, setContinuingId] = useState<number | null>(null);
 
-	const currentProjectId = useAppSelector((state: any) => state.projectInfo.projectId);
+	const currentProjectId = useAppSelector(
+		(state: any) => state.projectInfo.projectId
+	);
 
-	const handleContinue = async (proj: any, continueRoute: string) => {		// If this is already the active project in Redux, navigate directly
+	const handleContinue = async (proj: any, continueRoute: string) => {
+		// If this is already the active project in Redux, navigate directly
 		if (currentProjectId === proj.project_id) {
 			navigate(continueRoute);
 			return;
@@ -145,44 +165,60 @@ export default function Dashboard() {
 			// Reset then re-populate all 3 slices
 			dispatch(resetStandards());
 			dispatch(resetRoom());
-			dispatch(updateMultipleFields({
-				projectId: p.project_id,
-				projectName: p.project_name ?? "",
-				unitBranch: p.project_unit_branch ?? "",
-				industry: (() => { try { return JSON.parse(p.project_Industry || "[]"); } catch { return []; } })(),
-				handling: (() => { try { return JSON.parse(p.project_Handling || "[]"); } catch { return []; } })(),
-				uniqueId: p.project_unique_id ?? "",
-				selectedLocation: p.project_Location ?? null,
-				locationQuery: p.project_Location ?? "",
-				minTemp: p.project_min_temp ?? "",
-				maxTemp: p.project_max_temp ?? "",
-				relativeHumidityMin: p.project_relative_min_humid ?? "",
-				relativeHumidityMax: p.project_relative_max_humid ?? "",
-				isNewProject: false,
-			}));
+			dispatch(
+				updateMultipleFields({
+					projectId: p.project_id,
+					projectName: p.project_name ?? "",
+					unitBranch: p.project_unit_branch ?? "",
+					industry: (() => {
+						try {
+							return JSON.parse(p.project_Industry || "[]");
+						} catch {
+							return [];
+						}
+					})(),
+					handling: (() => {
+						try {
+							return JSON.parse(p.project_Handling || "[]");
+						} catch {
+							return [];
+						}
+					})(),
+					uniqueId: p.project_unique_id ?? "",
+					selectedLocation: p.project_Location ?? null,
+					locationQuery: p.project_Location ?? "",
+					minTemp: p.project_min_temp ?? "",
+					maxTemp: p.project_max_temp ?? "",
+					relativeHumidityMin: p.project_relative_min_humid ?? "",
+					relativeHumidityMax: p.project_relative_max_humid ?? "",
+					isNewProject: false,
+				})
+			);
 			if (data.standards?.length > 0) {
 				const std = data.standards[0];
 				const zone = data.zones?.[0];
-				dispatch(updateMultipleStandardsFields({
-					projectStandardId: std.project_standard_id,
-					zoneId: zone?.zone_id ?? null,
-					standard: std.project_standard ?? null,
-					classification: std.project_classification_name ?? null,
-					acph: std.project_ACPH ?? null,
-					system: std.project_system ?? null,
-					systemType: std.project_system_type ?? null,
-					heatingMethod: std.project_heating_method ?? "",
-					coolingMethod: std.project_cooling_method ?? "",
-					tempUnit: std.project_temp_unit ?? "C",
-					reqInsideTempC: std.project_required_inside_temp ?? null,
-					reqInsideHum: std.project_required_inside_humid ?? "",
-					flowVelocity: std.flow_velocity ?? 1.5,
-					heatingFlowVelocity: std.heating_flow_velocity ?? 1.5,
-					coolingFlowVelocity: std.cooling_flow_velocity ?? 1.5,
-					staticPressure: std.static_pressure ?? 0,
-					totalFiltrationStages: std.total_filtration_stages ?? 0,
-					pipeConfiguration: std.pipe_configuration ?? "",
-				}));
+				dispatch(
+					updateMultipleStandardsFields({
+						projectStandardId: std.project_standard_id,
+						zoneId: zone?.zone_id ?? null,
+						standard: std.project_standard ?? null,
+						classification: std.project_classification_name ?? null,
+						acph: std.project_ACPH ?? null,
+						system: std.project_system ?? null,
+						systemType: std.project_system_type ?? null,
+						heatingMethod: std.project_heating_method ?? "",
+						coolingMethod: std.project_cooling_method ?? "",
+						tempUnit: std.project_temp_unit ?? "C",
+						reqInsideTempC: std.project_required_inside_temp ?? null,
+						reqInsideHum: std.project_required_inside_humid ?? "",
+						flowVelocity: std.flow_velocity ?? 1.5,
+						heatingFlowVelocity: std.heating_flow_velocity ?? 1.5,
+						coolingFlowVelocity: std.cooling_flow_velocity ?? 1.5,
+						staticPressure: std.static_pressure ?? 0,
+						totalFiltrationStages: std.total_filtration_stages ?? 0,
+						pipeConfiguration: std.pipe_configuration ?? "",
+					})
+				);
 			}
 			if (data.rooms?.length > 0) {
 				const std = data.standards?.[0];
@@ -253,7 +289,9 @@ export default function Dashboard() {
 								<FaLayerGroup className="text-orange-500 text-2xl" />
 							</div>
 							<div>
-								<div className={`${s.metricNumber} text-orange-500`}>{counts.inProgress}</div>
+								<div className={`${s.metricNumber} text-orange-500`}>
+									{counts.inProgress}
+								</div>
 								<div className={s.metricLabel}>In Progress</div>
 							</div>
 						</div>
@@ -262,7 +300,9 @@ export default function Dashboard() {
 								<FaCheck className="text-green-600 text-2xl" />
 							</div>
 							<div>
-								<div className={`${s.metricNumber} text-green-600`}>{counts.completed}</div>
+								<div className={`${s.metricNumber} text-green-600`}>
+									{counts.completed}
+								</div>
 								<div className={s.metricLabel}>Completed</div>
 							</div>
 						</div>
@@ -288,7 +328,8 @@ export default function Dashboard() {
 								{text.dashboard.projectsTitle}
 							</div>
 							<div className={s.pendingProjects}>
-								{inProgressProjects.length} Incomplete Project{inProgressProjects.length !== 1 ? "s" : ""}
+								{inProgressProjects.length} Incomplete Project
+								{inProgressProjects.length !== 1 ? "s" : ""}
 							</div>
 						</div>
 						{inProgressProjects.length === 0 ? (
@@ -301,26 +342,27 @@ export default function Dashboard() {
 								const stepName = !proj.has_standard
 									? "Classification"
 									: !proj.has_rooms
-									? "Rooms"
-									: "Rooms";
+										? "Rooms"
+										: "Rooms";
 								const continueRoute = !proj.has_standard
 									? "/standards"
 									: !proj.has_rooms
-									? "/room"
-									: "/room";
+										? "/room"
+										: "/room";
 								const formattedDate = proj.last_modified
 									? new Date(proj.last_modified).toLocaleDateString("en-US", {
 											month: "short",
 											day: "numeric",
 											year: "numeric",
-									  })
+										})
 									: "—";
 								return (
 									<div key={proj.project_id} className={s.cardWrap}>
 										<div>
 											<div className={s.projectTitle}>{proj.project_name}</div>
 											<div className={s.projectCustomer}>
-												<span>Customer: </span>{proj.customer_name}
+												<span>Customer: </span>
+												{proj.customer_name}
 											</div>
 											<div className={s.cardStyle}>
 												<div className={s.projectPendingStage}>
@@ -341,9 +383,14 @@ export default function Dashboard() {
 												className={s.viewAllButton}
 												onClick={() => handleContinue(proj, continueRoute)}
 											>
-												{continuingId === proj.project_id
-													? "Loading..."
-													: <>{text.dashboard.progress.buttonText} <FaArrowRight /></>}
+												{continuingId === proj.project_id ? (
+													"Loading..."
+												) : (
+													<>
+														{text.dashboard.progress.buttonText}{" "}
+														<FaArrowRight />
+													</>
+												)}
 											</button>
 										</div>
 									</div>

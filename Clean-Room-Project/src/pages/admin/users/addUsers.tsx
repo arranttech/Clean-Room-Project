@@ -12,9 +12,7 @@ import {
   updateUser,
 } from "../../../backend/controller/userController";
 import { createUserPassword } from "../../../backend/controller/authContoller";
-import {
-  customerDetails,
-} from "../../../backend/controller/customerController";
+import { customerDetails } from "../../../backend/controller/customerController";
 import Select from "react-select";
 
 type AddUserProps = {
@@ -52,7 +50,6 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
     created_by: "admin",
     updated_by: "admin",
     user_admin_flag: "No",
-    // customer_id: "" as number | "",
     customer_ids: [] as number[],
     password: "",
     status: "A",
@@ -60,6 +57,15 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
 
   useEffect(() => {
     if (user) {
+      // Support both customer_ids (array from getUserById) and
+      // customer_id 
+      let ids: number[] = [];
+      if (Array.isArray(user.customer_ids) && user.customer_ids.length > 0) {
+        ids = user.customer_ids.map(Number);
+      } else if (user.customer_id) {
+        ids = String(user.customer_id).split(",").map(Number).filter(Boolean);
+      }
+
       setForm({
         user_first_name: user.user_first_name || "",
         user_last_name: user.user_last_name || "",
@@ -71,12 +77,7 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
         created_by: user.created_by || "admin",
         updated_by: "admin",
         user_admin_flag: user.user_admin_flag === "Y" ? "Yes" : "No",
-        // customer_id: user.customer_ids || [],
-        customer_ids: user.customer_id
-          ? user.customer_id.split(",").map(Number)
-          : [],
-
-
+        customer_ids: ids,
         password: "",
         status: user.status && user.status.trim() !== "" ? user.status : "A",
       });
@@ -104,6 +105,7 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
   const [showPopup, setShowPopup] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [customers, setCustomers] = useState<any[]>([]);
+
   useEffect(() => {
     const loadCustomers = async () => {
       try {
@@ -114,10 +116,8 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
         console.error("Failed to load customers", err);
       }
     };
-
     loadCustomers();
   }, []);
-
 
   const validatefirstName = (v: string) =>
     /^[A-Za-z\s]{3,30}$/.test(v) ? "" : "Enter First Name (3–30 letters only)";
@@ -131,18 +131,8 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
       : "Enter User ID (3–10 chars, letters/numbers/_)";
   const validatePhone = (v: string) =>
     !v || /^\+?[0-9\s\-()]{7,20}$/.test(v) ? "" : "Enter valid phone number";
-  // const validateCustomerId = (v: number | "") => {
-  //   if (v === "" || v === null) return "Customer ID is required";
-  //   if (Number(v) < 1) return "Customer ID must be greater than or equal to 1";
-  //   return "";
-  // };
-  const validateCustomerIds = (v: number[]) => {
-    if (!v || v.length === 0) return "Customer is required";
-    return "";
-  };
-
-
-
+  const validateCustomerIds = (v: number[]) =>
+    !v || v.length === 0 ? "Customer is required" : "";
   const validatePassword = (v: string) => {
     if (!v) return "Password is required";
     if (v.length < 8) return "Password must be at least 8 characters";
@@ -153,7 +143,6 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
       return "Password must contain at least one special character";
     return "";
   };
-
   const validateConfirmPassword = (v: string, pwd: string) => {
     if (!v) return "Please confirm your password";
     if (v !== pwd) return "Passwords do not match";
@@ -211,13 +200,6 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
         await updateUser(user.user_login_id, { ...form });
         console.log("User updated successfully");
       } else {
-        const { customer_ids, ...rest } = form;
-
-        // const payload = {
-        //   ...rest,
-        //   customer_ids,
-        // };
-
         const payload = {
           user_first_name: form.user_first_name,
           user_last_name: form.user_last_name,
@@ -234,10 +216,9 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
           status: form.status,
         };
 
-        console.log("🟢 FRONTEND PAYLOAD:", payload);
+        console.log("FRONTEND PAYLOAD:", payload);
 
         const response = await createUsers(payload);
-        // const response = await createUsers({ ...form });
         if (!response?.userId)
           throw new Error("User creation failed — no userId returned");
         await createUserPassword({
@@ -259,8 +240,6 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
       setSaving(false);
     }
   };
-
-
 
   const customerOptions = customers.map((c) => ({
     value: c.customer_id,
@@ -384,9 +363,9 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
                       confirmPassword:
                         confirmPassword.length > 0
                           ? validateConfirmPassword(
-                            confirmPassword,
-                            e.target.value
-                          )
+                              confirmPassword,
+                              e.target.value
+                            )
                           : p.confirmPassword,
                     }));
                   }}
@@ -511,7 +490,6 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
             </select>
           </div>
 
-
           <div className={s.formGroup}>
             <label className={s.formLabel}>
               Customer ID <span className={s.formRequired}>*</span>
@@ -523,44 +501,22 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
                 form.customer_ids.includes(opt.value)
               )}
               onChange={(selected: any) => {
-                const values = selected ? selected.map((s: any) => Number(s.value)) : [];
-
-                
+                const values = selected
+                  ? selected.map((s: any) => Number(s.value))
+                  : [];
                 handleChange("customer_ids", values);
-
                 setErrors((p) => ({
                   ...p,
-                  customer_ids: values.length === 0 ? "Customer is required" : "",
+                  customer_ids:
+                    values.length === 0 ? "Customer is required" : "",
                 }));
               }}
               placeholder="Select customers..."
             />
-
-            {/* <Select
-              options={customerOptions}
-              value={customerOptions.find(
-                (opt) => opt.value === form.customer_id
-              )}
-              onChange={(selected: any) => {
-                const val = selected ? selected.value : "";
-                handleChange("customer_id", val);
-
-                setErrors((p) => ({
-                  ...p,
-                  customer_id: validateCustomerId(val),
-                }));
-              }}
-              isDisabled={isEditMode}
-              placeholder="Search and select customer..."
-              isClearable
-            /> */}
-
             {errors.customer_ids && (
               <p className={s.formError}>{errors.customer_ids}</p>
             )}
           </div>
-
-
 
           <div className={s.formRow}>
             <div className={s.formGroup}>
@@ -601,8 +557,8 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
                   ? "Updating..."
                   : "Saving..."
                 : isEditMode
-                  ? "Update User"
-                  : "Save User"}
+                ? "Update User"
+                : "Save User"}
             </button>
           </div>
         </div>
@@ -628,6 +584,5 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
         )}
       </div>
     </div>
-
   );
 }

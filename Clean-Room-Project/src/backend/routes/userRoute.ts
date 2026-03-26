@@ -70,38 +70,9 @@ export const userRoute: ServerRoute[] = [
 
           status: Joi.string().valid("A", "I").default("A"),
         })
-          .unknown(true) 
+          .unknown(true)
           .required(),
-
-       
       },
-      // validate: {
-      //   payload: Joi.object({
-      //     user_first_name: Joi.string().required(),
-      //     user_last_name: Joi.string().required(),
-      //     user_id: Joi.string().required(),
-      //     user_email_id: Joi.string().email().required(),
-      //     user_address: Joi.string().optional().allow("", null),
-      //     user_phone_home: Joi.string().optional().allow("", null),
-      //     user_phone_work: Joi.string().optional().allow("", null),
-      //     created_by: Joi.string().optional().default("admin"),
-      //     updated_by: Joi.string().optional().default("admin"),
-      //     user_admin_flag: Joi.string()
-      //       .valid("Yes", "No")
-      //       .optional()
-      //       .default("No"),
-
-      //     //customer_ids: Joi.array().items(Joi.number().integer()).optional(),
-      //     //customer_id: Joi.string().optional().allow("", null),
-      //     customer_ids: Joi.array()
-      //       .items(Joi.number().integer())
-      //       .min(1)
-      //       .required(),
-      //     password: Joi.string().optional().allow("", null),
-      //     status: Joi.string().valid("A", "I").optional().default("A"),
-      //   }).unknown(true).required(),
-
-      // },
       response: {
         status: {
           201: Joi.object({
@@ -114,17 +85,13 @@ export const userRoute: ServerRoute[] = [
     },
     handler: async (request, h) => {
       try {
-
-
         console.log("BACKEND RAW PAYLOAD:");
         console.log(request.payload);
-
-          console.log(" BACKEND RECEIVED PAYLOAD:");
-    console.log(JSON.stringify(request.payload, null, 2));
+        console.log("BACKEND RECEIVED PAYLOAD:");
+        console.log(JSON.stringify(request.payload, null, 2));
 
         const userLoginId = await userRepository.createUser(request.payload);
-
-         console.log(" USER CREATED ID:", userLoginId);
+        console.log("USER CREATED ID:", userLoginId);
 
         return h
           .response({
@@ -132,11 +99,8 @@ export const userRoute: ServerRoute[] = [
             userId: userLoginId,
           })
           .code(201);
-
       } catch (error) {
-        console.error(" BACKEND ERROR:", error);
-        console.error(error);
-
+        console.error("BACKEND ERROR:", error);
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },
@@ -161,6 +125,8 @@ export const userRoute: ServerRoute[] = [
           updated_by: Joi.string().optional().default("admin"),
           user_id: Joi.string().optional().allow("", null),
           customer_id: Joi.number().optional().allow(null, 0),
+          // ── added: accept customer_ids array on edit ──
+          customer_ids: Joi.array().items(Joi.number().integer()).optional(),
           created_by: Joi.string().optional().allow("", null),
           password: Joi.string().optional().allow("", null),
           status: Joi.string().valid("A", "I").optional().default("A"),
@@ -185,7 +151,7 @@ export const userRoute: ServerRoute[] = [
     },
   },
 
-  // GET single user by user_login_id — used by edit modal to prefill form
+// GET single user by user_login_id — used by edit modal to prefill form
   {
     method: "GET",
     path: "/v1/users/{user_login_id}",
@@ -211,33 +177,29 @@ export const userRoute: ServerRoute[] = [
     },
     handler: async (request, h) => {
       try {
-        console.log(" GET /v1/users API HIT");
+        console.log("GET /v1/users API HIT");
+        console.log("RAW PARAMS:", request.params);
 
-    console.log("RAW PARAMS:");
-    console.log(request.params);
         const user_login_id = Number(request.params.user_login_id);
+        console.log("PARSED user_login_id:", user_login_id);
 
-         console.log(" PARSED user_login_id:", user_login_id);
-
-    if (!user_login_id || isNaN(user_login_id)) {
-      console.error(" INVALID user_login_id");
-      return h
-        .response({ success: false, message: "Invalid user_login_id" })
-        .code(400);
-    }
-
+        if (!user_login_id || isNaN(user_login_id)) {
+          console.error("INVALID user_login_id");
+          return h
+            .response({ success: false, message: "Invalid user_login_id" })
+            .code(400);
+        }
 
         const result = await userRepository.getUserById(user_login_id);
-
-            console.log(" DB RESULT:", result);
+        console.log("DB RESULT:", result);
 
         if (!result.success)
           return h
             .response({ success: false, message: result.message })
             .code(404);
         return h.response(result).code(200);
-      } catch(error) {
-        console.error(" GET USER ERROR:", error);
+      } catch (error) {
+        console.error("GET USER ERROR:", error);
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },

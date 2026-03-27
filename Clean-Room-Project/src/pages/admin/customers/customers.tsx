@@ -1,13 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  FiSearch,
-  FiPlus,
-  FiEdit2,
-  FiTrash2,
-  FiX,
-  FiChevronLeft,
-  FiChevronRight,
-} from "react-icons/fi";
+import { FiSearch, FiPlus, FiEdit2, FiTrash2, FiX, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import s from "./styles";
 import AddCustomer from ".";
 import {
@@ -100,7 +92,7 @@ export default function Customers({ onCountChange }: CustomersProps) {
         statusFilter === "ALL" ? true : c.status === statusFilter;
       return matchesSearch && matchesStatus;
     })
-    .sort((a, b) => b.customer_id - a.customer_id); 
+    .sort((a, b) => b.customer_id - a.customer_id); // latest added first
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -172,6 +164,10 @@ export default function Customers({ onCountChange }: CustomersProps) {
         />
       </div>
 
+      {fetchError && (
+        <p className="text-red-500 text-sm text-center py-3">{fetchError}</p>
+      )}
+      
       <div className={s.tableWrap}>
         <table className={s.table}>
           <thead className={s.thead}>

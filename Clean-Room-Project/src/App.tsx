@@ -154,6 +154,7 @@ function App() {
 					<Route path="/projects" element={<AllProjects />} />
 					<Route path="/docs" element={<ApiDocs />} />
 					<Route path="/results/:projectId" element={<Results />} />
+					<Route path="*" element={<Navigate to="/" replace />} />
 				</Route>
 			</Routes>
 

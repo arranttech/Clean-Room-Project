@@ -4,7 +4,7 @@ const headerStyles = {
   left: "flex items-center gap-2 sm:gap-4 flex-shrink-0",
   logoTile: "h-10 w-10 sm:h-12 sm:w-12 rounded-2xl flex items-center justify-center shadow",
   logoImg: "h-10 w-10 sm:h-12 sm:w-12 object-contain",
-  brand: "text-[10px] sm:text-xs tracking-[0.18em] sm:tracking-[0.22em] font-bold text-slate-700 leading-tight hidden sm:block",
+  brand: "text-[10px] sm:text-xs tracking-[0.18em] sm:tracking-[0.22em] font-bold text-blue-500 leading-tight hidden sm:block",
   center: "flex-1 text-center px-2",
   title1: "text-sm sm:text-base lg:text-lg font-extrabold text-[#fc8314] leading-tight",
   subtitle1: "text-xs sm:text-sm font-bold text-slate-700",

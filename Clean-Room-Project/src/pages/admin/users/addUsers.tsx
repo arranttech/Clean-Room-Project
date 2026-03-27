@@ -243,8 +243,33 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
 
   const customerOptions = customers.map((c) => ({
     value: c.customer_id,
-    label: `${c.customer_name} (${c.customer_unique_id})`,
+    label: `${c.customer_name}`,
   }));
+
+  const customStyles = {
+    control: (base: any) => ({
+      ...base,
+      border: "none",
+      boxShadow: "none",
+      backgroundColor: "transparent",
+      minHeight: "10px",
+      height:"22px",
+      cursor: "pointer",
+      
+    }),
+    indicatorSeparator: () => ({
+      display: "none",
+    }),
+    dropdownIndicator: (base: any) => ({
+      ...base,
+      padding: 0,
+    }),
+    valueContainer: (base: any) => ({
+      ...base,
+      padding: 0,
+
+    }),
+  };
 
   return (
     <div>
@@ -363,9 +388,9 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
                       confirmPassword:
                         confirmPassword.length > 0
                           ? validateConfirmPassword(
-                              confirmPassword,
-                              e.target.value
-                            )
+                            confirmPassword,
+                            e.target.value
+                          )
                           : p.confirmPassword,
                     }));
                   }}
@@ -476,7 +501,7 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
         </div>
 
         <div className={s.formRow}>
-          <div className={s.formGroup}>
+          <div>
             <label className={s.formLabel}>
               Admin User <span className={s.formRequired}>*</span>
             </label>
@@ -490,11 +515,13 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
             </select>
           </div>
 
-          <div className={s.formGroup}>
+          <div>
             <label className={s.formLabel}>
               Customer ID <span className={s.formRequired}>*</span>
             </label>
             <Select
+              className={s.formInput }
+              styles={customStyles }
               options={customerOptions}
               isMulti
               value={customerOptions.filter((opt) =>
@@ -517,51 +544,53 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
               <p className={s.formError}>{errors.customer_ids}</p>
             )}
           </div>
+        </div>
 
-          <div className={s.formRow}>
-            <div className={s.formGroup}>
-              <label className={s.formLabel}>Status</label>
-              <select
-                className={s.formInput}
-                value={form.status}
-                onChange={(e) => handleChange("status", e.target.value)}
-              >
-                <option value="A">Active</option>
-                <option value="I">Inactive</option>
-              </select>
-            </div>
-          </div>
 
-          {saveError && (
-            <p className="text-red-500 text-sm text-right mb-3">{saveError}</p>
-          )}
-
-          <div className={s.formFooter}>
-            <button
-              type="button"
-              onClick={onCancel}
-              className={s.formCancelBtn}
-              disabled={saving}
+        <div className={s.formRow}>
+          <div className={s.formGroup}>
+            <label className={s.formLabel}>Status</label>
+            <select
+              className={s.formInput}
+              value={form.status}
+              onChange={(e) => handleChange("status", e.target.value)}
             >
-              <FiX /> Cancel
-            </button>
-            <button
-              type="button"
-              onClick={saveUser}
-              className={s.formSubmitBtn}
-              disabled={saving}
-            >
-              <FaFloppyDisk />
-              {saving
-                ? isEditMode
-                  ? "Updating..."
-                  : "Saving..."
-                : isEditMode
-                ? "Update User"
-                : "Save User"}
-            </button>
+              <option value="A">Active</option>
+              <option value="I">Inactive</option>
+            </select>
           </div>
         </div>
+
+        {saveError && (
+          <p className="text-red-500 text-sm text-right mb-3">{saveError}</p>
+        )}
+
+        <div className={s.formFooter}>
+          <button
+            type="button"
+            onClick={onCancel}
+            className={s.formCancelBtn}
+            disabled={saving}
+          >
+            <FiX /> Cancel
+          </button>
+          <button
+            type="button"
+            onClick={saveUser}
+            className={s.formSubmitBtn}
+            disabled={saving}
+          >
+            <FaFloppyDisk />
+            {saving
+              ? isEditMode
+                ? "Updating..."
+                : "Saving..."
+              : isEditMode
+                ? "Update User"
+                : "Save User"}
+          </button>
+        </div>
+
 
         {showPopup && (
           <div className={s.popupOverlay}>

@@ -14,6 +14,8 @@ import {
 import { createUserPassword } from "../../../backend/controller/authContoller";
 import { customerDetails } from "../../../backend/controller/customerController";
 import Select from "react-select";
+import { components } from "react-select";
+
 
 type AddUserProps = {
   user?: any;
@@ -244,8 +246,54 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
   const customerOptions = customers.map((c) => ({
     value: c.customer_id,
     label: `${c.customer_name}`,
+    address: `${c.customer_address}`,
   }));
+  const CustomOption = (props: any) => {
+  const { data, isSelected } = props;
 
+  return (
+    <components.Option {...props}>
+      <div style={{ display: "flex", alignItems: "flex-start" }}>
+        <input
+          type="checkbox"
+          checked={isSelected}
+          onChange={() => null}
+          style={{ marginRight: 8, marginTop: 4}}
+        />
+        <div >
+          <div style={{ fontWeight: "600", fontSize: "14px" }}>
+            {data.label}
+          </div>
+          <div style={{ fontSize: "12px", color: "#666" }}>
+            {data.address}
+          </div>
+        </div>
+      </div>
+    </components.Option>
+  );
+};
+
+  const CustomValueContainer = ({ children, ...props }: any) => {
+    const { getValue } = props;
+    const selected = getValue();
+
+    if (selected.length > 2) {
+      return (
+        <components.ValueContainer {...props}>
+
+          <div style={{ width: "100%", textAlign: "left", fontWeight: 600, fontSize: "14px" }}>
+            {selected.length} selected
+          </div>
+        </components.ValueContainer>
+      );
+    }
+
+    return (
+      <components.ValueContainer {...props}>
+        {children}
+      </components.ValueContainer>
+    );
+  };
   const customStyles = {
     control: (base: any) => ({
       ...base,
@@ -253,9 +301,8 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
       boxShadow: "none",
       backgroundColor: "transparent",
       minHeight: "10px",
-      height:"22px",
+      height: "22px",
       cursor: "pointer",
-      
     }),
     indicatorSeparator: () => ({
       display: "none",
@@ -264,10 +311,74 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
       ...base,
       padding: 0,
     }),
-    valueContainer: (base: any) => ({
+    placeholder: (base: any) => ({
       ...base,
-      padding: 0,
+      textAlign: "left",
+      marginLeft: "2px",
+    }),
 
+     menuList: (base: any) => ({
+    ...base,
+    padding: "6px",
+  }),
+
+   option: (base: any, state: any) => ({
+    ...base,
+    backgroundColor: state.isSelected
+      ? "#84ade2" // light blue
+      : state.isFocused
+      ? "#dbeafe" // hover
+      : "#ffffff",
+    color: "#1e293b",
+    padding: "10px 12px",
+    marginBottom: "6px", // 👈 gap between items
+    borderRadius: "8px", // 👈 prevents "stuck" look
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "flex-start",
+  }),
+
+
+    valueContainer: (base: any, props: any) => {
+      const count = props.getValue().length;
+      return {
+        ...base,
+        padding: 0,
+        display: "flex",
+        width: "100%",
+        justifyContent: count <= 2 ? "center" : "flex-start",
+        flexWrap: "nowrap",
+        overflow: "hidden",
+        gap:"6px"
+      };
+    },
+    input: (base: any) => ({
+      ...base,
+      margin: 0,
+    }),
+
+   
+    multiValue: (base: any) => ({
+      ...base,
+      backgroundColor: "#589cf5",
+      borderRadius: "6px",
+      padding: "2px 6px",
+      margin: "2px",
+      display: "flex",
+      alignItems: "center",
+    }),
+    multiValueLabel: (base: any) => ({
+      ...base,
+      color: "#003366",
+      fontWeight: 500,
+    }),
+    multiValueRemove: (base: any) => ({
+      ...base,
+      color: "#003366",
+      ":hover": {
+        backgroundColor: "#99ccff",
+        color: "#000",
+      },
     }),
   };
 
@@ -520,10 +631,16 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
               Customer ID <span className={s.formRequired}>*</span>
             </label>
             <Select
-              className={s.formInput }
-              styles={customStyles }
+              className={s.formInput}
+              styles={customStyles}
+              components={{
+                Option: CustomOption,
+                ValueContainer: CustomValueContainer
+              }}
               options={customerOptions}
               isMulti
+              closeMenuOnSelect={false}
+              hideSelectedOptions={false}
               value={customerOptions.filter((opt) =>
                 form.customer_ids.includes(opt.value)
               )}

@@ -1,5 +1,3 @@
-import { projectInfo } from "../../../backend/controller";
-
 const projectListIfoStyle = {
     backButton: " flex items-center gap-2 mb-6 border border-gray-300 text-gray-500 hover:bg-blue-100 px-4 py-2 rounded-lg bg-white shadow-sm inline-block font-medium w-max transition-colors duration-200",
     projectInfoCard: "bg-white p-6 rounded-xl shadow-sm mb-6",

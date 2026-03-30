@@ -249,48 +249,56 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
     address: `${c.customer_address}`,
   }));
   const CustomOption = (props: any) => {
-  const { data, isSelected } = props;
-
-  return (
-    <components.Option {...props}>
-      <div style={{ display: "flex", alignItems: "flex-start" }}>
-        <input
-          type="checkbox"
-          checked={isSelected}
-          onChange={() => null}
-          style={{ marginRight: 8, marginTop: 4}}
-        />
-        <div >
-          <div style={{ fontWeight: "600", fontSize: "14px" }}>
-            {data.label}
-          </div>
-          <div style={{ fontSize: "12px", color: "#666" }}>
-            {data.address}
-          </div>
-        </div>
-      </div>
-    </components.Option>
-  );
-};
-
-  const CustomValueContainer = ({ children, ...props }: any) => {
-    const { getValue } = props;
-    const selected = getValue();
-
-    if (selected.length > 2) {
-      return (
-        <components.ValueContainer {...props}>
-
-          <div style={{ width: "100%", textAlign: "left", fontWeight: 600, fontSize: "14px" }}>
-            {selected.length} selected
-          </div>
-        </components.ValueContainer>
-      );
-    }
+    const { data, isSelected } = props;
 
     return (
+      <components.Option {...props}>
+        <div style={{ display: "flex", alignItems: "flex-start" }}>
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={() => null}
+            style={{ marginRight: 8, marginTop: 4 }}
+          />
+          <div >
+            <div style={{ fontWeight: "600", fontSize: "14px" }}>
+              {data.label}
+            </div>
+            <div style={{ fontSize: "12px", color: "#0e0d0d" }}>
+              {data.address}
+            </div>
+          </div>
+        </div>
+      </components.Option>
+    );
+  };
+
+  // const CustomValueContainer = ({ children, ...props }: any) => {
+  //   const { getValue } = props;
+  //   const selected = getValue();
+
+  //   if (selected.length > 2) {
+  //     return (
+  //       <components.ValueContainer {...props}>
+
+  //         <div style={{ width: "100%", textAlign: "left", fontWeight: 600, fontSize: "14px" }}>
+  //           {selected.length} selected
+  //         </div>
+  //       </components.ValueContainer>
+  //     );
+  //   }
+
+  //   return (
+  //     <components.ValueContainer {...props}>
+  //       {children}
+  //     </components.ValueContainer>
+  //   );
+  // };
+
+  const CustomValueContainer = (props: any) => {
+    return (
       <components.ValueContainer {...props}>
-        {children}
+        {props.children}
       </components.ValueContainer>
     );
   };
@@ -301,11 +309,14 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
       boxShadow: "none",
       backgroundColor: "transparent",
       minHeight: "10px",
-      height: "22px",
+      height: "30px",
       cursor: "pointer",
+      alignItems: "center",
     }),
     indicatorSeparator: () => ({
-      display: "none",
+      display: "flex",
+      height: "100%",
+      alignItems: "center",
     }),
     dropdownIndicator: (base: any) => ({
       ...base,
@@ -317,66 +328,85 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
       marginLeft: "2px",
     }),
 
-     menuList: (base: any) => ({
-    ...base,
-    padding: "6px",
-  }),
+    menuList: (base: any) => ({
+      ...base,
+      padding: "6px",
+    }),
 
-   option: (base: any, state: any) => ({
-    ...base,
-    backgroundColor: state.isSelected
-      ? "#84ade2" // light blue
-      : state.isFocused
-      ? "#dbeafe" // hover
-      : "#ffffff",
-    color: "#1e293b",
-    padding: "10px 12px",
-    marginBottom: "6px", // 👈 gap between items
-    borderRadius: "8px", // 👈 prevents "stuck" look
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "flex-start",
-  }),
+    option: (base: any, state: any) => ({
+      ...base,
+      backgroundColor: state.isSelected
+        ? "#84ade2"
+        : state.isFocused
+          ? "#dbeafe"
+          : "#ffffff",
+      color: "#1e293b",
+      padding: "10px 12px",
+      marginBottom: "6px",
+      borderRadius: "8px",
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "flex-start",
+    }),
 
 
-    valueContainer: (base: any, props: any) => {
-      const count = props.getValue().length;
-      return {
-        ...base,
-        padding: 0,
-        display: "flex",
-        width: "100%",
-        justifyContent: count <= 2 ? "center" : "flex-start",
-        flexWrap: "nowrap",
-        overflow: "hidden",
-        gap:"6px"
-      };
-    },
+    // valueContainer: (base: any, props: any) => {
+    //   const count = props.getValue().length;
+    //   return {
+    //     ...base,
+    //     padding: 0,
+    //     display: "flex",
+    //     width: "100%",
+    //     justifyContent: count <= 2 ? "center" : "flex-start",
+    //     flexWrap: "nowrap",
+    //     overflow: "hidden",
+    //     gap:"6px"
+    //   };
+    // },
+
+    valueContainer: (base: any) => ({
+      ...base,
+      padding: "0px 20px 2px  0px ",
+      display: "flex",
+      flexWrap: "nowrap",
+      overflowX: "auto",
+      overflowY: "hidden",
+      whiteSpace: "nowrap",
+      gap: "6px",
+
+      // Optional: nicer scrollbar
+      scrollbarWidth: "thin",
+      alignItems: "center",
+      height: "100%",
+
+    }),
+
     input: (base: any) => ({
       ...base,
       margin: 0,
+      padding: 0,
     }),
 
-   
+
     multiValue: (base: any) => ({
       ...base,
-      backgroundColor: "#589cf5",
+      backgroundColor: "#eb9147",
       borderRadius: "6px",
-      padding: "2px 6px",
-      margin: "2px",
-      display: "flex",
+    
       alignItems: "center",
+      flexShrink: 0,
     }),
+
     multiValueLabel: (base: any) => ({
       ...base,
-      color: "#003366",
+      color: "#070a0e",
       fontWeight: 500,
     }),
     multiValueRemove: (base: any) => ({
       ...base,
       color: "#003366",
       ":hover": {
-        backgroundColor: "#99ccff",
+        backgroundColor: "#a9b4be",
         color: "#000",
       },
     }),

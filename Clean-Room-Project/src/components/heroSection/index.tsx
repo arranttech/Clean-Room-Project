@@ -53,7 +53,7 @@ export default function HeroPage() {
         modules={[Autoplay, Pagination, EffectFade]}
         effect="fade"
         fadeEffect={{ crossFade: true }}
-        autoplay={{ delay: 5000, disableOnInteraction: false, pauseOnMouseEnter: true }}
+        autoplay={{ delay: 4000, disableOnInteraction: false }}
         pagination={{
           clickable: true,
           renderBullet: (_index, className) =>

@@ -1,108 +1,81 @@
+import theme from "../../../styles/theme";
+
 const customersDesign = {
-  // Header
-  panelHeader: "flex items-center justify-between mb-6",
-  panelTitle:
-    "text-2xl font-extrabold bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent tracking-tight",
-  addBtn:
-    "flex items-center gap-2 bg-blue-800 text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-colors shadow-sm",
+  panelHeader:  theme.panelHeader,
+  panelTitle:   theme.panelTitle,
+  addBtn:       theme.btnIcon,
 
-  // Search
-  searchWrap: "relative mb-5",
-  searchIcon:
-    "absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base",
-  searchInput:
-    "w-full border border-slate-200 rounded-xl bg-white pl-10 pr-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm",
+  searchWrap:   theme.searchWrap,
+  searchIcon:   theme.searchIcon,
+  searchInput:  theme.searchInput,
 
-  // Table
-  tableWrap:
-    "bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden",
-  table: "w-full",
-  thead: "bg-slate-900",
-  th: "px-5 py-3.5 text-left text-xs font-bold text-white uppercase tracking-wider",
-  thActions:
-    "px-5 py-3.5 text-right text-xs font-bold text-white uppercase tracking-wider",
-  tbody: "divide-y divide-slate-50",
-  tr: "hover:bg-blue-50/50 transition-colors",
-  td: "px-5 py-4 text-sm text-slate-600",
-  tdName: "px-5 py-4 text-sm font-semibold text-slate-900",
-  tdEmail: "px-5 py-4 text-sm text-slate-500",
-  tdActions: "px-5 py-4 text-right",
-  emptyRow: "px-5 py-16 text-center text-sm text-slate-400",
+  tableWrap:    theme.tableWrap,
+  table:        theme.table,
+  thead:        theme.thead,
+  th:           theme.th,
+  thActions:    theme.thActions,
+  tbody:        theme.tbody,
+  tr:           theme.tr,
+  td:           theme.td,
+  tdName:       theme.tdName,
+  tdEmail:      theme.tdEmail,
+  tdActions:    theme.tdActions,
+  emptyRow:     theme.emptyRow,
 
-  // Action Buttons
-  editBtn:
-    "text-blue-400 hover:text-orange-600 transition-colors p-1.5 rounded-lg hover:bg-orange-50 mr-1",
-  deleteBtn:
-    "text-red-500 hover:text-red-700 transition-colors p-1.5 rounded-lg hover:bg-red-50",
+  editBtn:      theme.tableEditBtn,
+  deleteBtn:    theme.tableDeleteBtn,
 
-  // Status Badges
-  statusActive:
-    "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700",
-  statusInactive:
-    "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-600",
+  statusActive:   theme.badgeActive,
+  statusInactive: theme.badgeInactive,
 
-  // Form
-  formTitle: "text-2xl font-bold text-slate-900 mb-6",
-  formCard: "bg-white rounded-2xl border border-slate-200 shadow-sm p-8",
-  formGroup: "mb-5",
-  formRow: "grid grid-cols-2 gap-5 mb-5",
-  formLabel: "block text-sm font-semibold text-slate-700 mb-1.5",
-  formRequired: "text-red-500 ml-0.5",
-  formInput:
-    "w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all",
-  formTextarea:
-    "w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-y",
-  formDivider: "border-t border-slate-100 mt-6 pt-6",
-  formFooter: "flex items-center justify-end gap-3",
-  formCancelBtn:
-    "flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all",
-  formSubmitBtn:
-    "flex items-center gap-2 bg-blue-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-all shadow-sm",
-  formError: "text-red-500 text-xs mt-1",
+  formTitle:    theme.formTitle,
+  formCard:     theme.formCard,
+  formGroup:    theme.formGroup,
+  formRow:      theme.formRow,
+  formLabel:    theme.formLabel,
+  formRequired: theme.formRequired,
+  formInput:    theme.formInput,
+  formTextarea: theme.formTextarea,
+  formDivider:  "border-t border-slate-100 mt-6 pt-6",
+  formFooter:   theme.formFooter,
+  formCancelBtn: theme.formCancelBtn,
+  formSubmitBtn: theme.formSubmitBtn,
+  formError:    theme.formError,
 
-  // Success Popup
-  popupOverlay: "fixed inset-0 z-50 flex items-center justify-center",
-  popupBackdrop: "absolute inset-0 bg-black/40 backdrop-blur-sm",
-  popupCard:
-    "relative z-10 bg-white rounded-2xl shadow-2xl px-10 py-8 flex flex-col items-center gap-3 min-w-[320px]",
-  popupIcon: "text-green-500 text-5xl",
-  popupTitle: "text-xl font-bold text-slate-900",
-  popupMessage: "text-sm text-slate-500 text-center",
-  popupProgressWrap:
-    "w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-2",
-  popupProgressBar:
-    "h-full bg-green-500 rounded-full animate-[progress_2s_linear_forwards]",
+  popupOverlay:     theme.modalOverlay,
+  popupBackdrop:    theme.modalBackdrop,
+  popupCard:        theme.successPopupCard,
+  popupIcon:        theme.successPopupIcon,
+  popupTitle:       "text-xl font-bold text-slate-900",
+  popupMessage:     "text-sm text-slate-500 text-center",
+  popupProgressWrap: theme.successProgressWrap,
+  popupProgressBar:  theme.successProgressBar,
 
-  // Delete Modal
-  deleteOverlay: "fixed inset-0 z-50 flex items-center justify-center",
-  deleteBackdrop: "absolute inset-0 bg-black/40 backdrop-blur-sm",
+  deleteOverlay:    theme.modalOverlay,
+  deleteBackdrop:   theme.modalBackdrop,
   deleteCard:
     "relative z-10 bg-white rounded-2xl shadow-2xl px-8 py-7 flex flex-col items-center gap-4 min-w-[340px] max-w-sm w-full",
-  deleteIconWrap: "bg-red-50 rounded-full p-4",
-  deleteIcon: "text-red-500 text-3xl",
-  deleteTitle: "text-xl font-bold text-slate-900",
-  deleteMessage: "text-sm text-slate-500 text-center",
+  deleteIconWrap:   "bg-red-50 rounded-full p-4",
+  deleteIcon:       "text-red-500 text-3xl",
+  deleteTitle:      "text-xl font-bold text-slate-900",
+  deleteMessage:    "text-sm text-slate-500 text-center",
   deleteCustomerName: "font-semibold text-slate-700",
-  deleteBtnRow: "flex items-center gap-3 w-full mt-1",
-  deleteCancelBtn:
-    "flex-1 flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all",
-  deleteConfirmBtn:
-    "flex-1 flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all shadow-sm",
+  deleteBtnRow:     "flex items-center gap-3 w-full mt-1",
+  deleteCancelBtn:  theme.btnSecondaryFull,
+  deleteConfirmBtn: theme.btnDangerFull,
 
-  // --- Pagination ---
-  paginationWrap: "flex items-center justify-between mt-6 px-2",
-  paginationInfo: "text-sm text-slate-500 font-medium",
-  paginationControls: "flex items-center gap-2",
+  paginationWrap:     theme.paginationWrap,
+  paginationInfo:     theme.paginationInfo,
+  paginationControls: theme.paginationControls,
   paginationBtn: (active: boolean, disabled: boolean) => {
-    const base = "w-9 h-9 flex items-center justify-center rounded-xl text-sm font-semibold transition-all border";
-    if (disabled) return `${base} bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed`;
-    if (active) return `${base} bg-blue-600 text-white border-blue-600 shadow-sm`;
-    return `${base} bg-white text-slate-600 border-slate-200 hover:border-slate-400 hover:bg-slate-50`;
+    if (disabled) return `${theme.paginationBtnBase} ${theme.paginationBtnDisabled}`;
+    if (active)   return `${theme.paginationBtnBase} ${theme.paginationBtnActive}`;
+    return `${theme.paginationBtnBase} ${theme.paginationBtnInactive}`;
   },
   paginationNavBtn: (disabled: boolean) => {
-    const base = "px-4 h-9 flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all border";
-    if (disabled) return `${base} bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed`;
-    return `${base} bg-white text-slate-600 border-slate-200 hover:border-slate-400 hover:bg-slate-50`;
-  }
+    if (disabled) return `${theme.paginationNavBase} ${theme.paginationBtnDisabled}`;
+    return `${theme.paginationNavBase} ${theme.paginationBtnInactive}`;
+  },
 };
+
 export default customersDesign;

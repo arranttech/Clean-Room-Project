@@ -1,120 +1,97 @@
+import theme from "../../../styles/theme";
+
 const profileDesign = {
-	// ---  Header Styling ---
-	panelHeader: "flex items-center justify-between mb-6",
-	panelTitleWrap: "flex flex-col gap-1",
-	panelTitle: "text-2xl font-bold text-slate-900 ml-4",
-	panelSubtitle: "text-sm text-slate-500 ml-4",
-	addBtn:
-		"flex items-center gap-2 bg-blue-800 text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-colors shadow-sm",
+  panelHeader:     theme.panelHeader,
+  panelTitleWrap:  "flex flex-col gap-1",
+  panelTitle:      "text-2xl font-bold text-slate-900 ml-4",
+  panelSubtitle:   "text-sm text-slate-500 ml-4",
+  addBtn:          theme.btnIcon,
 
-	// --- Search Bar Styling ---
-	searchWrap: "relative mb-5",
-	searchIcon:
-		"absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base",
-	searchInput:
-		"w-full border border-slate-200 rounded-xl bg-white pl-10 pr-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm",
+  searchWrap:      theme.searchWrap,
+  searchIcon:      theme.searchIcon,
+  searchInput:     theme.searchInput,
 
-	// --- Table Styling ---
-	// --- Table Styling ---
-	tableWrap: "bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden",
-	table: "w-full",
-	thead: "bg-slate-900",
-	th: "px-5 py-3.5 text-left text-xs font-bold text-white uppercase tracking-wider",
-	thActions: "px-5 py-3.5 text-right text-xs font-bold text-white uppercase tracking-wider",
-	tbody: "divide-y divide-slate-50",
-	tr: "hover:bg-blue-50/50 transition-colors",
-	tdScreenId: "px-5 py-4 text-sm font-semibold text-slate-900",
-	tdScreenName: "px-5 py-4 text-sm text-slate-600",
-	tdProfileName: "px-5 py-4 text-sm font-semibold text-slate-900",
-	td: "px-5 py-4 text-sm text-slate-600",
-	tdActions: "px-5 py-4 text-right",
+  tableWrap:       theme.tableWrap,
+  table:           theme.table,
+  thead:           theme.thead,
+  th:              theme.th,
+  thActions:       theme.thActions,
+  tbody:           theme.tbody,
+  tr:              theme.tr,
+  td:              theme.td,
+  tdScreenId:      theme.tdName,
+  tdScreenName:    theme.td,
+  tdProfileName:   theme.tdName,
+  tdActions:       theme.tdActions,
+  emptyRow:        theme.emptyRow,
 
-	// --- Badges ---
-	statusActive: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700",
-	statusInactive: "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-600",
+  statusActive:    theme.badgeActive,
+  statusInactive:  theme.badgeInactive,
 
-	// --- Action Buttons Styling ---
-	editBtn:
-		"text-blue-800 hover:text-blue-700 transition-colors p-1.5 rounded-lg hover:bg-blue-50",
-	deleteBtn:
-		"text-red-500 hover:text-red-700 transition-colors p-1.5 rounded-lg hover:bg-red-50",
+  editBtn:         theme.tableEditBtn,
+  deleteBtn:       theme.tableDeleteBtn,
 
-	// --- Empty State ---
-	emptyRow: "px-5 py-16 text-center text-sm text-slate-400",
+  formTitle:       theme.formTitle,
+  formCard:        theme.formCard,
+  formSectionTitle: "text-lg font-bold text-blue-600 mb-6",
+  formGroup:       "mb-6",
+  formRow:         "mb-6",
+  formLabel:       theme.formLabel,
+  formRequired:    theme.formRequired,
+  formInput:       theme.formInput,
+  formTextarea:
+    "w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-y min-h-[110px]",
+  formDivider:     "border-t border-slate-100 mt-6 pt-6",
+  formFooter:      theme.formFooter,
+  formCancelBtn:   theme.formCancelBtn,
+  formSubmitBtn:   theme.formSubmitBtn,
+  formError:       theme.formError,
 
-	// --- Add Profile Form Styling ---
-	formTitle: "text-2xl font-bold text-slate-900 mb-6",
-	formCard: "bg-white rounded-2xl border border-slate-200 shadow-sm p-8",
-	formSectionTitle: "text-lg font-bold text-blue-600 mb-6",
-	formGroup: "mb-6",
-	formRow: "mb-6",
-	formLabel: "block text-sm font-semibold text-slate-700 mb-1.5",
-	formRequired: "text-red-500 ml-0.5",
-	formInput:
-		"w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all",
-	formTextarea:
-		"w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-y min-h-[110px]",
-	formDivider: "border-t border-slate-100 mt-6 pt-6",
-	formFooter: "flex items-center justify-end gap-3",
-	formCancelBtn:
-		"flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all",
-	formSubmitBtn:
-		"flex items-center gap-2 bg-blue-600 text-white text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-all shadow-sm",
-	formError: "text-red-500 text-xs mt-1",
+  assignCard:
+    "bg-white rounded-2xl border border-slate-200 shadow-sm p-8 flex flex-col gap-6",
+  assignGrid:      "grid grid-cols-2 gap-8",
+  assignCol:       "border border-slate-200 rounded-xl overflow-hidden",
+  assignHeader:
+    "bg-slate-50 border-b border-slate-200 px-5 py-4 font-semibold text-slate-800 text-sm",
+  assignList:      "flex flex-col max-h-[400px] overflow-y-auto",
+  assignListItem:
+    "flex items-center gap-3 px-5 py-4 border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors last:border-0",
+  assignRadio:
+    "w-4 h-4 text-blue-600 bg-white border-slate-300 focus:ring-blue-500 focus:ring-2 cursor-pointer",
+  assignLabel:     "text-sm text-slate-700 cursor-pointer flex-1 font-medium",
+  assignLabelActive: "text-sm text-slate-900 cursor-pointer flex-1 font-bold",
 
-	// --- Assign Profile Styling ---
-	assignCard:
-		"bg-white rounded-2xl border border-slate-200 shadow-sm p-8 flex flex-col gap-6",
-	assignGrid: "grid grid-cols-2 gap-8",
-	assignCol: "border border-slate-200 rounded-xl overflow-hidden",
-	assignHeader:
-		"bg-slate-50 border-b border-slate-200 px-5 py-4 font-semibold text-slate-800 text-sm",
-	assignList: "flex flex-col max-h-[400px] overflow-y-auto",
-	assignListItem:
-		"flex items-center gap-3 px-5 py-4 border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors last:border-0",
-	assignRadio:
-		"w-4 h-4 text-blue-600 bg-white border-slate-300 focus:ring-blue-500 focus:ring-2 cursor-pointer",
-	assignLabel: "text-sm text-slate-700 cursor-pointer flex-1 font-medium",
-	assignLabelActive: "text-sm text-slate-900 cursor-pointer flex-1 font-bold",
+  popupOverlay:     theme.modalOverlay,
+  popupBackdrop:    theme.modalBackdrop,
+  popupCard:        theme.successPopupCard,
+  popupIcon:        theme.successPopupIcon,
+  popupTitle:       "text-xl font-bold text-slate-900",
+  popupMessage:     "text-sm text-slate-500 text-center",
+  popupProgressWrap: theme.successProgressWrap,
+  popupProgressBar:  theme.successProgressBar,
 
-	// --- Success Popup ---
-	popupOverlay: "fixed inset-0 z-50 flex items-center justify-center",
-	popupBackdrop: "absolute inset-0 bg-black/40 backdrop-blur-sm",
-	popupCard: "relative z-10 bg-white rounded-2xl shadow-2xl px-10 py-8 flex flex-col items-center gap-3 min-w-[320px]",
-	popupIcon: "text-green-500 text-5xl",
-	popupTitle: "text-xl font-bold text-slate-900",
-	popupMessage: "text-sm text-slate-500 text-center",
-	popupProgressWrap: "w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-2",
-	popupProgressBar: "h-full bg-green-500 rounded-full animate-[progress_2s_linear_forwards]",
+  placeholderWrap:
+    "flex flex-col items-center justify-center h-full w-full text-center",
+  placeholderIconWrap:  "mb-4 text-slate-300",
+  placeholderTitle:     "text-xl font-bold text-slate-800 mb-2",
+  placeholderText:      "text-slate-500 text-sm",
 
-	// --- Layout and Placeholder Styling ---
-	placeholderWrap:
-		"flex flex-col items-center justify-center h-full w-full text-center",
-	placeholderIconWrap: "mb-4 text-slate-300",
-	placeholderTitle: "text-xl font-bold text-slate-800 mb-2",
-	placeholderText: "text-slate-500 text-sm",
+  assignColWrap:  "flex flex-col gap-2",
+  assignColTitle: "text-sm font-bold text-slate-900 mb-1",
+  assignFooterWrap: "border-t border-slate-100 pt-6 flex justify-end gap-3 mt-4",
 
-	// --- Assign Profile specific ---
-	assignColWrap: "flex flex-col gap-2",
-	assignColTitle: "text-sm font-bold text-slate-900 mb-1",
-	assignFooterWrap:
-		"border-t border-slate-100 pt-6 flex justify-end gap-3 mt-4",
-
-	// --- Pagination ---
-	paginationWrap: "flex items-center justify-between mt-6 px-2",
-	paginationInfo: "text-sm text-slate-500 font-medium",
-	paginationControls: "flex items-center gap-2",
-	paginationBtn: (active: boolean, disabled: boolean) => {
-		const base = "w-9 h-9 flex items-center justify-center rounded-xl text-sm font-semibold transition-all border";
-		if (disabled) return `${base} bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed`;
-		if (active) return `${base} bg-blue-600 text-white border-blue-600 shadow-sm`;
-		return `${base} bg-white text-slate-600 border-slate-200 hover:border-slate-400 hover:bg-slate-50`;
-	},
-	paginationNavBtn: (disabled: boolean) => {
-		const base = "px-4 h-9 flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-all border";
-		if (disabled) return `${base} bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed`;
-		return `${base} bg-white text-slate-600 border-slate-200 hover:border-slate-400 hover:bg-slate-50`;
-	}
+  paginationWrap:     theme.paginationWrap,
+  paginationInfo:     theme.paginationInfo,
+  paginationControls: theme.paginationControls,
+  paginationBtn: (active: boolean, disabled: boolean) => {
+    if (disabled) return `${theme.paginationBtnBase} ${theme.paginationBtnDisabled}`;
+    if (active)   return `${theme.paginationBtnBase} ${theme.paginationBtnActive}`;
+    return `${theme.paginationBtnBase} ${theme.paginationBtnInactive}`;
+  },
+  paginationNavBtn: (disabled: boolean) => {
+    if (disabled) return `${theme.paginationNavBase} ${theme.paginationBtnDisabled}`;
+    return `${theme.paginationNavBase} ${theme.paginationBtnInactive}`;
+  },
 };
 
 export default profileDesign;

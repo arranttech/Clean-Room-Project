@@ -40,8 +40,8 @@ export const projectRepository = {
         JSON.stringify(payload.handling || []),
         payload.subIndustry || null,
         payload.selectedLocation?.display_name ||
-        payload.selectedLocation ||
-        "",
+          payload.selectedLocation ||
+          "",
         toFloat(payload.maxTemp),
         toFloat(payload.minTemp),
         toFloat(payload.relativeHumidityMin),
@@ -57,8 +57,8 @@ export const projectRepository = {
     await database.execute(
       `UPDATE tProjects SET
         project_name = ?, project_unit_branch = ?, project_Industry = ?,
-        project_Handling = ?, project_SubIndustry = ?, project_Location = ?, project_max_temp = ?,
-        project_min_temp = ?, project_relative_min_humid = ?,
+        project_Handling = ?, project_SubIndustry = ?, project_Location = ?,
+        project_max_temp = ?, project_min_temp = ?, project_relative_min_humid = ?,
         project_relative_max_humid = ?, updated_by = ?
       WHERE project_id = ?`,
       [
@@ -68,8 +68,8 @@ export const projectRepository = {
         JSON.stringify(payload.handling || []),
         payload.subIndustry || null,
         payload.selectedLocation?.display_name ||
-        payload.selectedLocation ||
-        "",
+          payload.selectedLocation ||
+          "",
         toFloat(payload.maxTemp),
         toFloat(payload.minTemp),
         toFloat(payload.relativeHumidityMin),
@@ -108,56 +108,29 @@ export const projectRepository = {
     try {
       const [rows]: any = await database.execute(
         `SELECT
-        p.project_id,
-        p.project_unique_id,
-        p.project_name,
-        p.project_unit_branch,
-        p.project_Industry,
-        p.project_Handling,
-        p.project_Location,
-        p.project_status,
-        p.created_at,
-        p.created_by,
-        p.updated_by,
-        c.customer_name,
-        c.customer_address,
-        c.customer_phone,
-        c.customer_email_id,
-        s.project_standard_id, 
-        s.project_standard,
-s.project_classification_name,
-s.project_ACPH,
-r.project_RoomName,
-r.room_Length,
-r.room_Width,
-r.room_Height,
-r.room_Occupancy,
-r.room_Equipment_Load,
-r.room_Lighting,
-r.room_FreshAir,
-r.room_ExhaustAir
-      FROM tProjects p
-       JOIN tCustomers c ON c.customer_id = p.customer_id
-      JOIN tRoomStandards s ON s.project_id = p.project_id
- JOIN  tZoneRooms r ON r.project_standard_id = s.project_standard_id
-      WHERE p.user_login_id = ?
-        AND p.project_status = 'COMPLETED'
-        
-      ORDER BY p.created_at DESC`,
+          p.project_id, p.project_unique_id, p.project_name, p.project_unit_branch,
+          p.project_Industry, p.project_Handling, p.project_Location, p.project_status,
+          p.created_at, p.created_by, p.updated_by,
+          c.customer_name, c.customer_address, c.customer_phone, c.customer_email_id,
+          s.project_standard_id, s.project_standard, s.project_classification_name, s.project_ACPH,
+          r.project_RoomName, r.room_Length, r.room_Width, r.room_Height,
+          r.room_Occupancy, r.room_Equipment_Load, r.room_Lighting, r.room_FreshAir, r.room_ExhaustAir
+        FROM tProjects p
+        JOIN tCustomers c ON c.customer_id = p.customer_id
+        JOIN tRoomStandards s ON s.project_id = p.project_id
+        JOIN tZoneRooms r ON r.project_standard_id = s.project_standard_id
+        WHERE p.user_login_id = ? AND p.project_status = 'COMPLETED'
+        ORDER BY p.created_at DESC`,
         [user_id]
       );
-      console.log("Repository SQL Result:", JSON.stringify(rows, null, 2));
       return rows;
     } catch (err) {
       console.error("Repository ERROR:", err);
       throw err;
     }
-
   },
 
-  
   getProjectDetailsForEdit: async (projectId: number) => {
-    // Project + Customer
     const [[project]]: any = await database.execute(
       `SELECT p.project_id, p.project_unique_id, p.project_name,
         p.project_unit_branch, p.project_Industry, p.project_Handling,
@@ -170,7 +143,6 @@ r.room_ExhaustAir
       [projectId]
     );
 
-    // Standards (all, ordered by creation)
     const [standards]: any = await database.execute(
       `SELECT project_standard_id, project_id, project_system, project_system_type,
         project_heating_method, project_cooling_method, project_standard,
@@ -186,19 +158,16 @@ r.room_ExhaustAir
       [projectId]
     );
 
-    // Zones
     const [zones]: any = await database.execute(
       `SELECT zone_id, zone_name FROM tProjectZones WHERE project_id = ?`,
       [projectId]
     );
 
-    // Rooms with all IDs needed to rebuild savedRooms
     const [rooms]: any = await database.execute(
       `SELECT r.project_RoomId, r.zone_id, r.project_standard_id,
         r.project_RoomName, r.room_Length, r.room_Width, r.room_Height,
         r.room_Occupancy, r.room_Equipment_Load, r.room_Lighting,
-        r.room_Infiltrations, r.room_FreshAir, r.room_ExhaustAir,
-        r.project_ACPH
+        r.room_Infiltrations, r.room_FreshAir, r.room_ExhaustAir, r.project_ACPH
       FROM tZoneRooms r
       INNER JOIN tRoomStandards rs ON rs.project_standard_id = r.project_standard_id
       WHERE rs.project_id = ?`,
@@ -211,10 +180,7 @@ r.room_ExhaustAir
   getInProgressProjectsByUserId: async (user_id: string) => {
     const [rows]: any = await database.execute(
       `SELECT
-        p.project_id,
-        p.project_name,
-        p.created_at AS last_modified,
-        c.customer_name,
+        p.project_id, p.project_name, p.created_at AS last_modified, c.customer_name,
         COUNT(DISTINCT s.project_standard_id) > 0 AS has_standard,
         COUNT(DISTINCT r.project_RoomId) > 0 AS has_rooms
       FROM tProjects p
@@ -238,11 +204,11 @@ r.room_ExhaustAir
     }));
   },
 
-  // EXCEL REPO
+  // ── EXCEL EXPORT ────────────────────────────────────────────────────────────
+  // zones query fetches ALL 19 zone_* total columns so the Excel TOTAL row
   getProjectExportData: async (projectId: number) => {
-    // Project + Customer
     const [[project]]: any = await database.execute(
-      `SELECT 
+      `SELECT
         p.project_id, p.project_unique_id, p.project_name, p.project_status,
         p.project_unit_branch, p.project_Industry, p.project_Handling,
         p.project_Location, p.project_max_temp, p.project_min_temp,
@@ -254,39 +220,63 @@ r.room_ExhaustAir
       WHERE p.project_id = ?`,
       [projectId]
     );
-  
-    // Standards
+
     const [standards]: any = await database.execute(
       `SELECT * FROM tRoomStandards WHERE project_id = ?`,
       [projectId]
     );
-  
-    // Zones
+
+    // Fetch ALL 19 zone_* total columns 
     const [zones]: any = await database.execute(
-      `SELECT zone_id, zone_name FROM tProjectZones WHERE project_id = ?`,
+      `SELECT
+        zone_id,
+        zone_name,
+        zone_Area,
+        zone_Volume,
+        zone_RoomCfm,
+        zone_FreshAir,
+        zone_ExhaustAir,
+        zone_DehumidCfm,
+        zone_Rem_Water_Vapour,
+        zone_ResultCfm,
+        zone_Room_Termi_Supply_Mod,
+        zone_Room_AC_Load_TR,
+        zone_Cfm_AC_Load_TR,
+        zone_Res_Cooling_Load_TR,
+        zone_add_Water_Vapour,
+        zone_HumidCfm,
+        zone_ResultCfm_Hot,
+        zone_Room_Term_Supply_Mod,
+        zone_Room_Heating_Load_TR,
+        zone_Cfm_Heating_Load_TR,
+        zone_Result_Heating_Load_TR
+      FROM tProjectZones
+      WHERE project_id = ?
+      ORDER BY zone_id ASC`,
       [projectId]
     );
-  
-   // Rooms with Zone name
-const [rooms]: any = await database.execute(
-  `SELECT 
-    z.zone_name,
-    r.project_RoomName, r.room_Length, r.room_Width,
-    r.room_Height, r.room_Occupancy, r.room_Equipment_Load,
-    r.room_Lighting, r.room_Infiltrations, r.room_FreshAir,
-    r.room_ExhaustAir, r.project_ACPH
-  FROM tZoneRooms r
-  INNER JOIN tRoomStandards rs ON rs.project_standard_id = r.project_standard_id
-  INNER JOIN tProjectZones z ON z.zone_id = r.zone_id
-  WHERE rs.project_id = ?`,
-  [projectId]
-);
-    // Results
+
+    const [rooms]: any = await database.execute(
+      `SELECT
+        z.zone_id,
+        z.zone_name,
+        r.project_RoomName, r.room_Length, r.room_Width,
+        r.room_Height, r.room_Occupancy, r.room_Equipment_Load,
+        r.room_Lighting, r.room_Infiltrations, r.room_FreshAir,
+        r.room_ExhaustAir, r.project_ACPH,
+        r.project_standard_id
+      FROM tZoneRooms r
+      INNER JOIN tRoomStandards rs ON rs.project_standard_id = r.project_standard_id
+      INNER JOIN tProjectZones z ON z.zone_id = r.zone_id
+      WHERE rs.project_id = ?`,
+      [projectId]
+    );
+
     const [results]: any = await database.execute(
       `SELECT * FROM tProjectResults WHERE project_id = ?`,
       [projectId]
     );
-  
+
     return { project, standards, zones, rooms, results };
   },
 };

@@ -15,7 +15,8 @@ const roomDesign = {
   sectionDivider: "mt-3 sm:mt-4 border-t border-slate-300",
 
   grid2: "mt-3 sm:mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6",
-  grid3: "mt-3 sm:mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6",
+  grid3:
+    "mt-3 sm:mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6",
 
   field: "flex flex-col gap-2",
   labelRow: "flex items-center gap-2",
@@ -32,7 +33,8 @@ const roomDesign = {
 
   topActions: "flex justify-end mb-4",
 
-  footer: "flex flex-wrap justify-between gap-3 max-w-auto mt-6 sm:mt-10 mx-auto",
+  footer:
+    "flex flex-wrap justify-between gap-3 max-w-auto mt-6 sm:mt-10 mx-auto",
   backBtn:
     "inline-flex items-center gap-2 sm:gap-3 border border-gray-300 px-3 sm:px-4 py-2 rounded-lg hover:bg-gray-100 shadow-lg text-xs sm:text-sm",
   saveBtn:
@@ -40,7 +42,7 @@ const roomDesign = {
   clrBtn:
     "inline-flex items-center gap-2 border border-gray-300 px-3 sm:px-4 py-2 rounded-lg hover:bg-gray-100 shadow-sm text-xs sm:text-sm",
   zoneBtn:
-    "inline-flex items-center bg-blue-800 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-blue-900 shadow-lg gap-2 text-xs sm:text-sm",
+    "inline-flex items-center bg-blue-800 text-white px-4 sm:px-6 py-2 rounded-lg hover:bg-blue-900 shadow-lg gap-2 text-xs sm:text-sm ml-40",
 
   bottomActionsRow: "flex gap-3 justify-end mt-4 sm:mt-6",
   clearBtn:
@@ -117,8 +119,7 @@ const roomDesign = {
   toggleBtn:
     "px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold transition-all shadow-sm border",
   toggleBtnActive: "bg-blue-600 text-white border-blue-600",
-  toggleBtnInactive:
-    "bg-white text-gray-600 border-gray-200 hover:bg-gray-50",
+  toggleBtnInactive: "bg-white text-gray-600 border-gray-200 hover:bg-gray-50",
 
   tableContainer:
     "mt-4 sm:mt-8 overflow-x-auto rounded-xl border border-slate-200",

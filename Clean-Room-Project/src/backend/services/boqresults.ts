@@ -1,7 +1,7 @@
 import boqresult from "../../json/boqresult.json";
-import { CalculatedZoneResults } from "../services/cummulativecal.ts";
-import { RoomPayload } from "../services/service.ts";
-import { getSystemFlags } from "./service.ts";
+import { CalculatedZoneResults } from "../services/cummulativecal";
+import { RoomPayload } from "../services/service";
+import { getSystemFlags } from "./service";
 
 export type RoomBOQPayload = RoomPayload;
 export type BOQPayload = CalculatedZoneResults;
@@ -76,8 +76,8 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
 
     function calculateFilterStages(): number {
         if (!classification) return 3;
-        const stage3Match = s.stage3Or4?.some(item => String(item).trim().toUpperCase() === classification);
-        const stage4Match = s.stage4Or5?.some(item => String(item).trim().toUpperCase() === classification);
+        const stage3Match = s.stage3Or4?.some((item:any) => String(item).trim().toUpperCase() === classification);
+        const stage4Match = s.stage4Or5?.some((item:any) => String(item).trim().toUpperCase() === classification);
 
         if (!isNumericTemp && temp !== "") {
             if (stage3Match) return 4;

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef} from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { setCustomer } from "../../redux/slices/customerSlice";
@@ -403,11 +403,11 @@ export default function Dashboard() {
           {/* ── Metrics ── */}
           <div className={s.metricsRow}>
             <div className={s.metricCard}>
-              <div className={`${s.metricIconWrap} bg-blue-100`}>
-                <FaFolderOpen className="text-blue-700 text-xl sm:text-2xl" />
+              <div className={`${s.metricIconWrap} bg-orange-100`}>
+                <FaFolderOpen className="text-orange-600 text-xl sm:text-2xl" />
               </div>
               <div>
-                <div className={`${s.metricNumber} text-blue-700`}>
+                <div className={`${s.metricNumber} text-orange-500`}>
                   {counts.total}
                 </div>
                 <div className={s.metricLabel}>Total Projects</div>

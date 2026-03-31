@@ -4,6 +4,7 @@ import { useAppSelector, useAppDispatch } from "../../redux/hooks";
 import {
   updateStandardsField,
   updateMultipleStandardsFields,
+  resetStandards,
 } from "../../redux/slices/standardSlice";
 import { updateInProgressProject } from "../../redux/slices/dashboardSlice";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
@@ -96,7 +97,9 @@ export default function Standard() {
     (state: any) => state.projectInfo.projectId
   );
   const projectId = location.state?.projectId ?? projectIdFromRedux;
-  const user_id = useAppSelector((state: any) => String(state.user?.user_id || state.user?.user_login_id));
+  const user_id = useAppSelector((state: any) =>
+    String(state.user?.user_id || state.user?.user_login_id)
+  );
 
   const standards = useAppSelector((state: any) => state.standards);
   const {
@@ -148,10 +151,24 @@ export default function Standard() {
 
   const [modalMessage, setModalMessage] = useState("");
 
+  // ──when room.tsx passes resetKey via navigate state (addAnotherZone),
+  useEffect(() => {
+    if (!location.state?.resetKey) return;
+    dispatch(resetStandards());
+    // Wipe the nav state so a manual page refresh doesn't re-trigger this.
+    window.history.replaceState({}, "");
+  }, [location.state?.resetKey]);
+
+  // ── DB pre-fill: only runs for the FIRST zone visit (when standard is empty
   useEffect(() => {
     if (!projectId) return;
-    if (zoneIdFromRedux === null) return;
+    // Skip DB pre-fill if this is a fresh "add another zone" navigation
+    if (location.state?.resetKey) return;
+    // Skip if already populated from a previous visit
     if (standard) return;
+    // Skip if zoneId is set (means we already created a zone for this session)
+    if (zoneIdFromRedux) return;
+
     const fetchStandards = async () => {
       try {
         const data = await getRoomStandards(projectId);
@@ -190,7 +207,7 @@ export default function Standard() {
       }
     };
     fetchStandards();
-  }, [projectId, zoneIdFromRedux]);
+  }, [projectId, zoneIdFromRedux, location.state?.resetKey]);
 
   const selectedStandard = standardsData.find((x) => x.title === standard);
   const SPECIAL_STANDARDS = ["NC-Non Classified", "ISO 14698", "SCHEDULE M"];
@@ -515,12 +532,14 @@ export default function Standard() {
       );
       throw new Error("Missing project_id for zone creation");
     }
-    const data = await createProjectZone({ project_id: freshProjectId, user_id });
+    const data = await createProjectZone({
+      project_id: freshProjectId,
+      user_id,
+    });
     console.log("Zone created:", data);
     return data;
   };
 
-  // ── handleNext ──
   const handleNext = async (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
     if (!isFormValid) {
@@ -582,15 +601,14 @@ export default function Standard() {
         rhMin,
         rhMax,
         ...ahuPayload,
-        totalFiltrationStages: totalFiltrationStages,
-        staticPressure: staticPressure,
+        totalFiltrationStages,
+        staticPressure,
         flowVelocity,
         heatingFlowVelocity,
         coolingFlowVelocity,
       };
 
       if (finalProjectStandardId) {
-        // PUT — update existing row
         await updateRoomStandards(finalProjectStandardId, payload);
         console.log("Room standards updated:", finalProjectStandardId);
         dispatch(
@@ -600,7 +618,6 @@ export default function Standard() {
             last_modified: new Date().toISOString(),
           })
         );
-
         toast.success("Details updated successfully!", {
           onClose: () =>
             navigate("/room", {
@@ -608,14 +625,13 @@ export default function Standard() {
                 ...roomPayload,
                 zoneId: finalZoneId,
                 projectStandardId: finalProjectStandardId,
-                totalFiltrationStages: totalFiltrationStages,
-                staticPressure: staticPressure,
+                totalFiltrationStages,
+                staticPressure,
               },
             }),
           autoClose: 1500,
         });
       } else {
-        // POST — create new row
         const standardData = await roomStandards(payload);
         finalProjectStandardId = standardData?.roomStandardsId;
         if (!finalProjectStandardId) {
@@ -636,7 +652,6 @@ export default function Standard() {
           })
         );
         console.log("Standard created, ID:", finalProjectStandardId);
-
         toast.success("Details saved successfully!", {
           onClose: () =>
             navigate("/room", {
@@ -644,8 +659,8 @@ export default function Standard() {
                 ...roomPayload,
                 zoneId: finalZoneId,
                 projectStandardId: finalProjectStandardId,
-                totalFiltrationStages: totalFiltrationStages,
-                staticPressure: staticPressure,
+                totalFiltrationStages,
+                staticPressure,
               },
             }),
           autoClose: 1500,
@@ -697,7 +712,7 @@ export default function Standard() {
                         updateStandardsField({ field: "systemType", value: "" })
                       );
                     }}
-                    required={true}
+                    required
                   >
                     <option value="">{t.placeholders.system}</option>
                     <option value={t.options.systems.heating}>
@@ -757,7 +772,7 @@ export default function Standard() {
                           updateStandardsField({ field: "acph", value: "" })
                         );
                       }}
-                      required={true}
+                      required
                     >
                       <option value="">{systemTypePlaceholder}</option>
                       {systemTypes.map((v: string) => (
@@ -793,7 +808,7 @@ export default function Standard() {
                             })
                           )
                         }
-                        required={true}
+                        required
                       >
                         <option value="">{t.placeholders.heatingMethod}</option>
                         {heatingMethods.map((m: string) => (
@@ -825,7 +840,7 @@ export default function Standard() {
                             })
                           )
                         }
-                        required={true}
+                        required
                       >
                         <option value="">{t.placeholders.coolingMethod}</option>
                         {coolingMethods.map((m: string) => (
@@ -869,7 +884,7 @@ export default function Standard() {
                           updateStandardsField({ field: "acph", value: "" })
                         );
                       }}
-                      required={true}
+                      required
                     >
                       <option value="">{t.placeholders.standard}</option>
                       {filteredStandardsData.map((item) => (
@@ -900,7 +915,7 @@ export default function Standard() {
                           })
                         )
                       }
-                      required={true}
+                      required
                     >
                       <option value="">
                         {selectedStandard
@@ -934,7 +949,7 @@ export default function Standard() {
                           })
                         )
                       }
-                      required={true}
+                      required
                     >
                       {acphDisabled ? (
                         <option value="">{t.placeholders.acphDisabled}</option>
@@ -1031,7 +1046,7 @@ export default function Standard() {
                     placeholder={tempPlaceholder}
                     value={reqInsideTempDisplay || ""}
                     maxLength={3}
-                    required={true}
+                    required
                     onChange={(e) => {
                       onReqInsideTempChange(e.target.value);
                       setErrors((p) => ({
@@ -1069,7 +1084,7 @@ export default function Standard() {
                     placeholder={t.placeholders.reqHumidity}
                     maxLength={3}
                     value={reqInsideHum || ""}
-                    required={true}
+                    required
                     onChange={(e) => {
                       allowNumericInput(
                         (v) =>
@@ -1158,6 +1173,7 @@ export default function Standard() {
           </button>
         </div>
       </div>
+
       {modalMessage && (
         <div className={s.modalOverlay}>
           <div className={s.modalContent}>

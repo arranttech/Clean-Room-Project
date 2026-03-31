@@ -61,8 +61,7 @@ export default function Header() {
         <div className={s.left}>
           <div
             className={s.logoTile}
-            onClick={() => navigate("/")}
-            style={{ cursor: "pointer" }}
+            onClick={() => navigate("/dashboard")}
           >
             <img src="/Arrant.jpeg" alt="Arrant Dynamics" className={s.logoImg} />
           </div>
@@ -72,26 +71,28 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Center — title */}
+        {/* Center — always in the middle third */}
         <div className={s.center}>
           <div className={s.title1}>STERI Clean Air</div>
           <div className={s.subtitle1}>HVAC Matrix Platform</div>
         </div>
 
-        {/* Right — user info + logout */}
+        {/* Right — name truncates, never bleeds into center */}
         <div className={s.right}>
-          {/* Hide email on very small screens */}
-          <div className="flex flex-col items-end">
-            <span className="text-xs sm:text-sm font-bold text-blue-600 whitespace-nowrap">
+          <div className="flex flex-col items-end min-w-0">
+            {/* FIX: truncate + max-w stops the name overflowing into center */}
+            <span className={s.userName} title={displayName}>
               {displayName}
             </span>
             {userEmail && (
-              <span className="text-[10px] sm:text-xs text-slate-500 mt-0.5 hidden sm:block whitespace-nowrap">
+              <span className={s.userEmail} title={userEmail}>
                 {userEmail}
               </span>
             )}
           </div>
-          <div className="w-px h-8 bg-slate-200 hidden sm:block" />
+
+          <div className="w-px h-8 bg-slate-200 hidden sm:block flex-shrink-0" />
+
           <button type="button" className={s.logout} onClick={onLogout}>
             <FiLogOut className="text-[16px] sm:text-[18px]" />
             <span className="hidden sm:inline">Logout</span>

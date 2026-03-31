@@ -39,6 +39,7 @@ import {
 
 } from "../../backend/controller/roomController";
 import { storeresults } from "../../backend/controller/resultsController";
+import { updateZoneTotals } from "../../backend/controller/zoneController";
 import { airflowService } from "../../backend/services/service";
 import Header from "../../components/header";
 import { FaPencil } from "react-icons/fa6";
@@ -93,6 +94,9 @@ const toNullableNumber = (value: any): number | null => {
   return Number.isFinite(num) ? num : null;
 };
 
+const r2 = (v: number) => Math.round(v * 100) / 100;
+const r3 = (v: number) => Math.round(v * 1000) / 1000;
+
 export default function Room() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -142,7 +146,9 @@ export default function Room() {
     projectStandardIdFromNav
   );
 
-  const user_id = useAppSelector((state: any) => String(state.user?.user_id || state.user?.user_login_id));
+  const user_id = useAppSelector((state: any) =>
+    String(state.user?.user_id || state.user?.user_login_id)
+  );
 
   const [acphDeviation, setAcphDeviation] = useState<number>(0);
   const [selectedAcph, setSelectedAcph] = useState<number | string>(
@@ -319,8 +325,7 @@ export default function Room() {
       } else {
         const data = await addRooms({
           zone_id: zoneId,
-          projectStandardId,
-          roomName: form.roomName,
+          projectStandardId,          roomName: form.roomName,
           length: form.length,
           width: form.width,
           height: form.height,
@@ -396,7 +401,7 @@ export default function Room() {
     }
   };
 
-  // ── Generate: calculate → POST to DB → navigate to /results/:projectId ───
+  // ── Generate results ──────────────────────────────────────────────────────
   const goToResultsPage = async () => {
     const missing: string[] = [];
     if (!projectId)
@@ -415,7 +420,6 @@ export default function Room() {
     try {
       const roomsSnapshot = [...savedRooms];
 
-      // Step 1: Calculate airflow for all rooms
       const allAirflowResults = roomsSnapshot.map((room) =>
         airflowService({
           roomName: room.roomName,
@@ -447,7 +451,6 @@ export default function Room() {
       for (let idx = 0; idx < roomsSnapshot.length; idx++) {
         const room = roomsSnapshot[idx];
         const result = allAirflowResults[idx];
-
         await storeresults({
           project_RoomId: toNullableNumber(room.backendRoomId),
           project_id: projectId,
@@ -485,8 +488,48 @@ export default function Room() {
         });
       }
 
+      // ── Write zone totals to tProjectZones — ALL 19 columns ───────────────
+      const zoneGroups = new Map<number | string, typeof roomsSnapshot>();
+      for (const room of roomsSnapshot) {
+        const zid = room.zoneId;
+        if (!zoneGroups.has(zid)) zoneGroups.set(zid, []);
+        zoneGroups.get(zid)!.push(room);
+      }
+
+      for (const [zoneId, zoneRooms] of zoneGroups.entries()) {
+        const zoneResults = zoneRooms.map(
+          (room) => allAirflowResults[roomsSnapshot.indexOf(room)]
+        );
+        const sum = (key: keyof (typeof zoneResults)[0]): number =>
+          zoneResults.reduce((acc, r) => acc + (Number(r[key]) || 0), 0);
+
+        await updateZoneTotals(zoneId, {
+          // Shared
+          zone_Area: r2(sum("areaFt2")),
+          zone_Volume: r2(sum("volumeFt3")),
+          zone_RoomCfm: r2(sum("roomCfm")),
+          zone_FreshAir: r2(sum("freshAir")),
+          zone_ExhaustAir: r2(sum("exhaustAir")),
+          zone_DehumidCfm: r2(sum("dehumidValue")),
+          zone_Rem_Water_Vapour: r3(sum("removedWater")),
+          // Cooling (new columns)
+          zone_ResultCfm: r2(sum("resultantCfm")),
+          zone_Room_Termi_Supply_Mod: r2(sum("roomTermSupplyValue")),
+          zone_Room_AC_Load_TR: r2(sum("roomACValue")),
+          zone_Cfm_AC_Load_TR: r2(sum("cfmACLoadTR")),
+          zone_Res_Cooling_Load_TR: r2(sum("resultCoolLoadTR")),
+          zone_add_Water_Vapour: r2(sum("addWaterValue")),
+          // Heating
+          zone_HumidCfm: r2(sum("humidValue")),
+          zone_ResultCfm_Hot: r2(sum("resultantheatCfm")),
+          zone_Room_Term_Supply_Mod: r2(sum("roomTermSupplyHeatValue")),
+          zone_Room_Heating_Load_TR: r2(sum("roomHeatLoadTR")),
+          zone_Cfm_Heating_Load_TR: r2(sum("cfmHeatLoadTRValue")),
+          zone_Result_Heating_Load_TR: r2(sum("resultHeatLoadTR")),
+        });
+      }
+
       navigate(`/results/${projectId}`);
-      // Reset Redux after successful generation
       dispatch(resetRoom());
       dispatch(resetStandards());
       dispatch(resetProjectInfo());
@@ -499,6 +542,7 @@ export default function Room() {
     }
   };
 
+  // ── Add Another Zone ──────────────────────────────────────────────────────
   const addAnotherZone = () => {
     if (!savedRooms.length) {
       alert("Please add at least one room before adding another zone.");
@@ -508,7 +552,10 @@ export default function Room() {
     currentProjectStandardIdRef.current = null;
     dispatch(resetStandards());
     dispatch(resetRoomForm());
-    navigate("/standards");
+    navigate("/standards", {
+      replace: true,
+      state: { resetKey: Date.now() },
+    });
   };
 
   const renderInput = (key: keyof RoomForm) => {
@@ -524,24 +571,24 @@ export default function Room() {
               key === "roomName"
                 ? constants.Tooltip.roomNameTooltip
                 : key === "length"
-                  ? constants.Tooltip.lengthTooltip
-                  : key === "width"
-                    ? constants.Tooltip.widthTooltip
-                    : key === "height"
-                      ? constants.Tooltip.heightTooltip
-                      : key === "occupancy"
-                        ? constants.Tooltip.occupancyTooltip
-                        : key === "equipmentLoad"
-                          ? constants.Tooltip.equipmentLoadTooltip
-                          : key === "lightingLoad"
-                            ? constants.Tooltip.lightingLoadTooltip
-                            : key === "infiltrationsPerHour"
-                              ? constants.Tooltip.infiltrationsTooltip
-                              : key === "freshAirPercent"
-                                ? constants.Tooltip.freshAirTooltip
-                                : key === "exhaustAir"
-                                  ? constants.Tooltip.exhaustAirTooltip
-                                  : ""
+                ? constants.Tooltip.lengthTooltip
+                : key === "width"
+                ? constants.Tooltip.widthTooltip
+                : key === "height"
+                ? constants.Tooltip.heightTooltip
+                : key === "occupancy"
+                ? constants.Tooltip.occupancyTooltip
+                : key === "equipmentLoad"
+                ? constants.Tooltip.equipmentLoadTooltip
+                : key === "lightingLoad"
+                ? constants.Tooltip.lightingLoadTooltip
+                : key === "infiltrationsPerHour"
+                ? constants.Tooltip.infiltrationsTooltip
+                : key === "freshAirPercent"
+                ? constants.Tooltip.freshAirTooltip
+                : key === "exhaustAir"
+                ? constants.Tooltip.exhaustAirTooltip
+                : ""
             }
           />
         </label>
@@ -597,16 +644,18 @@ export default function Room() {
             <button
               type="button"
               onClick={() => setViewMode("form")}
-              className={`${s.toggleBtn} ${viewMode === "form" ? s.toggleBtnActive : s.toggleBtnInactive
-                }`}
+              className={`${s.toggleBtn} ${
+                viewMode === "form" ? s.toggleBtnActive : s.toggleBtnInactive
+              }`}
             >
               Form View
             </button>
             <button
               type="button"
               onClick={() => setViewMode("table")}
-              className={`${s.toggleBtn} ${viewMode === "table" ? s.toggleBtnActive : s.toggleBtnInactive
-                }`}
+              className={`${s.toggleBtn} ${
+                viewMode === "table" ? s.toggleBtnActive : s.toggleBtnInactive
+              }`}
             >
               Table View
             </button>
@@ -646,7 +695,6 @@ export default function Room() {
           {isFormVisible && (
             <div className={s.card}>
               <div className={s.cardInner}>
-
                 {viewMode === "form" ? (
                   <>
                     <div className={s.sectionTitle}>
@@ -1021,7 +1069,6 @@ export default function Room() {
         </div>
       </div>
 
-      {/* ── Missing Info Modal ── */}
       {showMissingPopup && (
         <div className={s.popupOverlay}>
           <div className={s.popupCard}>

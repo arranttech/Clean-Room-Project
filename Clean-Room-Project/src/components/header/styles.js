@@ -4,7 +4,7 @@ const headerStyles = {
   header:
     "w-full bg-white border-b border-slate-200 shadow-sm",
   headerInner:
-    "mx-auto max-w-auto px-4 sm:px-8 lg:px-14 h-auto min-h-[64px] py-3 flex items-center justify-between gap-2",
+    "mx-auto w-full max-w-screen-2xl px-4 sm:px-8 lg:px-14 h-auto min-h-[64px] py-3 flex items-center justify-between gap-2",
   left:
     "flex items-center gap-2 sm:gap-4 flex-shrink-0",
   logoTile:

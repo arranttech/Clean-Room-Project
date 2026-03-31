@@ -221,17 +221,55 @@ export const roomRepository = {
       `SELECT COUNT(*) as count FROM tZoneRooms WHERE zone_id = ?`,
       [zoneId]
     );
-    const remaining = (rows as any)[0].count;
-    console.log(`Zone ${zoneId} has ${remaining} rooms remaining`);
+    // const remaining = (rows as any)[0].count;
+    // console.log(`Zone ${zoneId} has ${remaining} rooms remaining`);
 
-    // no rooms left, delete the zone
-    if (remaining === 0) {
-      console.log(`Deleting zone ${zoneId}`);
-      await database.execute(
-        `DELETE FROM tProjectZones WHERE zone_id = ?`,
-        [zoneId]
-      );
-    }
+    // // no rooms left, delete the zone
+    // if (remaining === 0) {
+    //   console.log(`Deleting zone ${zoneId}`);
+    //   await database.execute(
+    //     `DELETE FROM tProjectZones WHERE zone_id = ?`,
+    //     [zoneId]
+    //   );
+    // }
   },
+
+  updateZoneRoom: async (roomId: number, payload: any) => {
+  await database.execute(
+    `UPDATE tZoneRooms SET
+      zone_id=?,
+      project_standard_id=?,
+      project_RoomName=?,
+      room_Length=?,
+      room_Width=?,
+      room_Height=?,
+      room_Occupancy=?,
+      room_Equipment_Load=?,
+      room_Lighting=?,
+      room_Infiltrations=?,
+      room_FreshAir=?,
+      room_ExhaustAir=?,
+      project_ACPH=?,
+      updated_by=?
+    WHERE project_RoomId=?`,
+    [
+      toNum(payload.zone_id),
+      toNum(payload.projectStandardId),
+      toStr(payload.roomName),
+      toStr(payload.length),
+      toStr(payload.width),
+      toStr(payload.height),
+      toStr(payload.occupancy),
+      toStr(payload.equipmentLoad),
+      toStr(payload.lightingLoad),
+      toStr(payload.infiltrationsPerHour),
+      toStr(payload.freshAirPercent),
+      toStr(payload.exhaustAir),
+      toStr(payload.selectedAcph),
+      payload.user_id,
+      roomId,
+    ]
+  );
+},
 
 };

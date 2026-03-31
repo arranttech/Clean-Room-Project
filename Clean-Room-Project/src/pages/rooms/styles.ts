@@ -38,22 +38,23 @@ const roomDesign = {
 
   bottomActionsRow: `flex gap-3 justify-end mt-4 sm:mt-6`,
   clearBtn:
-    `inline-flex items-center gap-2 bg-white text-${theme.textSecondary} border border-${theme.borderColor} px-4 sm:px-6 py-2 ${theme.roundSm} hover:bg-slate-50 ${theme.shadowLg} text-xs sm:text-sm ${theme.transition}`,
-  clearBtnIcon: `mr-1.5 rotate-[180deg]`,
-  saveBtnDisabled: theme.btnDisabled,
-  saveBtnIcon: `ml-1.5`,
+    "inline-flex items-center gap-2 bg-white text-gray-700 border border-gray-300 px-4 sm:px-6 py-2 rounded-lg hover:bg-gray-50 shadow-lg text-xs sm:text-sm",
+  clearBtnIcon: "mr-1.5 rotate-[180deg]",
+  saveBtnDisabled: "opacity-80 cursor-not-allowed",
+  saveBtnIcon: "ml-1.5",
 
-  roomsList: `mt-4 sm:mt-6 flex flex-col gap-3 sm:gap-4`,
-  roomCard: `${theme.roundMd} border border-${theme.borderColor} bg-white p-3 sm:p-4`,
-  roomCardTitle: `mt-2 sm:mt-3 text-sm ${theme.weightSemibold} text-${theme.textPrimary}`,
-  roomCardLine: `text-xs text-${theme.textSecondary}`,
+  roomsList: "mt-4 sm:mt-6 flex flex-col gap-3 sm:gap-4",
+  roomCard: "rounded-xl border border-slate-200 bg-white p-3 sm:p-4",
+  roomCardTitle: "mt-2 sm:mt-3 text-sm font-semibold text-slate-900",
+  roomCardLine: "text-xs text-slate-600",
 
-  savedHeaderRow: `flex items-center justify-between`,
-  savedHeaderTitle: `text-sm ${theme.weightXBold} text-${theme.textSecondary}`,
-  savedHeaderCount: `text-xs text-${theme.textDisabled}`,
-  divider: theme.divider,
-  emptyState: `text-center text-${theme.textDisabled} py-6 sm:py-8 text-sm`,
-  deleteBtn: `text-${theme.textMuted} hover:text-${theme.error}`,
+  savedHeaderRow: "flex items-center justify-between",
+  savedHeaderTitle: "text-sm font-extrabold text-slate-700",
+  savedHeaderCount: "text-xs text-slate-500",
+  divider: "mt-3 sm:mt-4 border-t border-slate-200",
+  emptyState: "text-center text-slate-500 py-6 sm:py-8 text-sm",
+  deleteBtn: "text-slate-600 hover:text-red-700 hover:text-blue-900 hover:bg-orange-400 hover:p-[5px] rounded-[5px]",
+  editBTN:"text-slate-600 hover:text-blue-900 hover:bg-orange-400 hover:p-[5px] rounded-[5px] border-0 ml-[93%]",
 
   emptyWrap:
     `py-10 sm:py-14 flex flex-col items-center justify-center text-center`,

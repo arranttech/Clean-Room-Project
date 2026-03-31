@@ -59,7 +59,8 @@ const roomDesign = {
   savedHeaderCount: "text-xs text-slate-500",
   divider: "mt-3 sm:mt-4 border-t border-slate-200",
   emptyState: "text-center text-slate-500 py-6 sm:py-8 text-sm",
-  deleteBtn: "text-slate-600 hover:text-red-700",
+  deleteBtn: "text-slate-600 hover:text-red-700 hover:text-blue-900 hover:bg-orange-400 hover:p-[5px] rounded-[5px]",
+  editBTN:"text-slate-600 hover:text-blue-900 hover:bg-orange-400 hover:p-[5px] rounded-[5px] border-0 ml-[93%]",
 
   emptyWrap:
     "py-10 sm:py-14 flex flex-col items-center justify-center text-center",

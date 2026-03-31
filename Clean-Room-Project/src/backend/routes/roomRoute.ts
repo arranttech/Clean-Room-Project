@@ -231,4 +231,56 @@ export const roomRoute: ServerRoute[] = [
 			}
 		},
 	},
+	{
+		method: "PUT",
+		path: "/v1/zonerooms/{roomId}",
+		options: {
+			description: "Update zone room",
+			tags: ["api", "zones"],
+			validate: {
+				params: Joi.object({
+					roomId: Joi.number().integer().required(),
+				}),
+				payload: Joi.object({
+					zone_id: Joi.number().required(),
+					user_id: Joi.string().required(),
+					projectStandardId: Joi.number().optional().allow(null),
+					roomName: Joi.string().required(),
+					length: strOrNull,
+					width: strOrNull,
+					height: strOrNull,
+					occupancy: strOrNull,
+					equipmentLoad: strOrNull,
+					lightingLoad: strOrNull,
+					infiltrationsPerHour: strOrNull,
+					freshAirPercent: strOrNull,
+					exhaustAir: strOrNull,
+					selectedAcph: numOrNull,
+				}),
+			},
+		},
+		// handler: async (request, h) => {
+		// 	const { roomId } = request.params as any;
+		// 	const payload = request.payload as any;
+
+		// 	await roomRepository.updateZoneRoom(roomId, payload);
+
+		// 	return h.response({ success: true }).code(200);
+		// },
+		handler: async (request, h) => {
+			try {
+				const { roomId } = request.params as any;
+				const payload = request.payload as any;
+
+				console.log("UPDATE PAYLOAD:", payload);
+
+				await roomRepository.updateZoneRoom(roomId, payload);
+
+				return h.response({ success: true }).code(200);
+			} catch (error) {
+				console.error("updateZoneRoom error:", error);
+				return h.response({ error: "Internal Server Error" }).code(500);
+			}
+		}
+	},
 ];

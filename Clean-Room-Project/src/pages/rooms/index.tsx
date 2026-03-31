@@ -18,7 +18,9 @@ import {
   removeRoom,
   openNewRoomForm,
   resetRoom,
+  updateRoom
 } from "../../redux/slices/roomSlice";
+
 import { resetProjectInfo } from "../../redux/slices/projectInfoSlice";
 import {
   updateInProgressProject,
@@ -33,10 +35,13 @@ import constants from "../../json/constants.json";
 import {
   addRooms,
   deleteZoneRoom,
+  updateZoneRoom
+
 } from "../../backend/controller/roomController";
 import { storeresults } from "../../backend/controller/resultsController";
 import { airflowService } from "../../backend/services/service";
 import Header from "../../components/header";
+import { FaPencil } from "react-icons/fa6";
 
 type StandardItem = {
   id: number;
@@ -241,82 +246,138 @@ export default function Room() {
     );
   }, [form, isVentilationOnly]);
 
-  // ── Save room to DB ────────────────────────────────────────────────────────
-  const saveCurrentRoom = async () => {
+
+
+  const handleSaveRoom = async () => {
+    console.log("🟢 SAVE TRIGGERED");
+    console.log("Form:", form);
+    console.log("Selected ACPH:", selectedAcph);
+    console.log("Editing Room:", editingRoom);
     if (!isRoomReadyToSave) {
       alert("Please fill all fields.");
       return;
     }
+
     if (selectedAcph === "" || selectedAcph == null) {
       alert("Please select an ACPH value.");
       return;
     }
 
-    const zoneId = currentZoneIdRef.current;
-    const projectStandardId = currentProjectStandardIdRef.current;
+
+    const zoneId = editingRoom
+      ? editingRoom.zoneId
+      : currentZoneIdRef.current;
+
+    const projectStandardId = editingRoom
+      ? editingRoom.projectStandardId
+      : currentProjectStandardIdRef.current;
+
+    console.log("📌 Zone ID Source:", editingRoom ? "FROM EDIT ROOM" : "FROM NAV");
+    console.log("Zone ID:", zoneId);
+    console.log("Project Standard ID:", projectStandardId);
 
     if (!zoneId) {
-      alert("Zone ID is missing. Please go back to Standards and try again.");
+      alert("Zone ID is missing.");
       return;
     }
 
     setIsSaving(true);
+
     try {
-      const data = await addRooms({
-        zone_id: zoneId,
-        projectStandardId,
-        roomName: form.roomName,
-        length: form.length,
-        width: form.width,
-        height: form.height,
-        occupancy: form.occupancy,
-        equipmentLoad: form.equipmentLoad,
-        lightingLoad: form.lightingLoad,
-        infiltrationsPerHour: form.infiltrationsPerHour,
-        freshAirPercent: form.freshAirPercent,
-        exhaustAir: form.exhaustAir,
-        selectedAcph: Number(selectedAcph),
-        user_id,
-      });
-      const backendRoomId: number | null = data?.zoneRoomsId ?? null;
-
-      dispatch(
-        saveRoom({
-          ...form,
-          id: generateId(),
-          acph: Number(selectedAcph),
-          backendRoomId,
-          zoneId,
+      if (editingRoom) {
+        if (!editingRoom.backendRoomId) {
+          toast.error("Invalid room ID for update");
+          return;
+        }
+        const payload = {
+          zone_id: Number(zoneId),
+          projectStandardId:
+            projectStandardId != null ? Number(projectStandardId) : null,
+          roomName: form.roomName,
+          length: form.length || null,
+          width: form.width || null,
+          height: form.height || null,
+          occupancy: form.occupancy || null,
+          equipmentLoad: form.equipmentLoad || null,
+          lightingLoad: form.lightingLoad || null,
+          infiltrationsPerHour: form.infiltrationsPerHour || null,
+          freshAirPercent: form.freshAirPercent || null,
+          exhaustAir: form.exhaustAir || null,
+          selectedAcph: Number(selectedAcph),
+          user_id,
+        };
+        await updateZoneRoom(editingRoom.backendRoomId, payload);
+        dispatch(
+          updateRoom({
+            ...editingRoom,
+            ...form,
+            acph: Number(selectedAcph),
+          })
+        );
+        setEditingRoom(null);
+        toast.success("Room updated successfully!");
+      } else {
+        const data = await addRooms({
+          zone_id: zoneId,
           projectStandardId,
-          zoneStandard: standard,
-          zoneClassification: classification,
-          zoneSystem: system,
-          zoneSystemType: systemType,
-          zoneCoolingMethod: coolingMethod,
-          zoneHeatingMethod: heatingMethod,
-          zoneReqInsideTempC: reqInsideTempC,
-          zoneReqInsideHum: reqInsideHum,
-        })
-      );
-      dispatch(
-        updateInProgressProject({
-          project_id: projectId,
-          has_rooms: true,
-          last_modified: new Date().toISOString(),
-        })
-      );
-      setSelectedAcph(standardsAcph ?? "");
-
-      // ✅ Toast on room save
-      toast.success("Room saved successfully!");
-    } catch (error) {
-      toast.error("Failed to save room. Please try again.");
-      console.error("Failed to save room:", error);
+          roomName: form.roomName,
+          length: form.length,
+          width: form.width,
+          height: form.height,
+          occupancy: form.occupancy,
+          equipmentLoad: form.equipmentLoad,
+          lightingLoad: form.lightingLoad,
+          infiltrationsPerHour: form.infiltrationsPerHour,
+          freshAirPercent: form.freshAirPercent,
+          exhaustAir: form.exhaustAir,
+          selectedAcph: Number(selectedAcph),
+          user_id,
+        });
+        const backendRoomId = data?.zoneRoomsId ?? null;
+        dispatch(
+          saveRoom({
+            ...form,
+            id: generateId(),
+            acph: Number(selectedAcph),
+            backendRoomId,
+            zoneId,
+            projectStandardId,
+            zoneStandard: standard,
+            zoneClassification: classification,
+            zoneSystem: system,
+            zoneSystemType: systemType,
+            zoneCoolingMethod: coolingMethod,
+            zoneHeatingMethod: heatingMethod,
+            zoneReqInsideTempC: reqInsideTempC,
+            zoneReqInsideHum: reqInsideHum,
+          })
+        );
+        toast.success("Room saved successfully!");
+      }
+      dispatch(resetRoomForm());
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Operation failed.");
     } finally {
       setIsSaving(false);
     }
   };
-
+  //edit functionality
+  const [editingRoom, setEditingRoom] = useState<SavedRoom | null>(null);
+  const handleEditRoom = (room: SavedRoom) => {
+    setEditingRoom(room);
+    dispatch(updateRoomFormField({ field: "roomName", value: room.roomName }));
+    dispatch(updateRoomFormField({ field: "length", value: room.length }));
+    dispatch(updateRoomFormField({ field: "width", value: room.width }));
+    dispatch(updateRoomFormField({ field: "height", value: room.height }));
+    dispatch(updateRoomFormField({ field: "occupancy", value: room.occupancy }));
+    dispatch(updateRoomFormField({ field: "equipmentLoad", value: room.equipmentLoad }));
+    dispatch(updateRoomFormField({ field: "lightingLoad", value: room.lightingLoad }));
+    dispatch(updateRoomFormField({ field: "infiltrationsPerHour", value: room.infiltrationsPerHour }));
+    dispatch(updateRoomFormField({ field: "freshAirPercent", value: room.freshAirPercent }));
+    dispatch(updateRoomFormField({ field: "exhaustAir", value: room.exhaustAir }));
+    setSelectedAcph(room.acph);
+    dispatch(openNewRoomForm());
+  };
   const confirmDeleteRoom = (room: SavedRoom) => setDeleteTarget(room);
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
@@ -688,34 +749,44 @@ export default function Room() {
                       </div>
                     </div>
 
-                {/* BOTTOM ACTIONS: Clear , Save Room */}
-                <div className={s.bottomActionsRow}>
-                  <button
-                    type="button"
-                    onClick={() => dispatch(resetRoomForm())}
-                    className={s.clearBtn}
-                  >
-                    <FaBrush className={s.clearBtnIcon} />
-                    Clear
-                  </button>
-                  <button
-                    type="button"
-                    onClick={saveCurrentRoom}
-                    disabled={isSaving}
-                    className={`${s.saveBtn} ${
-                      isSaving ? s.saveBtnDisabled : ""
-                    }`}
-                  >
-                    {isSaving ? (
-                      "Saving..."
-                    ) : (
-                      <>
-                        {T.buttons.saveRoom}
+                    {/* BOTTOM ACTIONS: Clear , Save Room */}
+                    <div className={s.bottomActionsRow}>
+                      <button
+                        type="button"
+                        onClick={() => dispatch(resetRoomForm())}
+                        className={s.clearBtn}
+                      >
+                        <FaBrush className={s.clearBtnIcon} />
+                        Clear
+                      </button>
+                  
+                      {editingRoom && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingRoom(null);
+                            dispatch(resetRoomForm());
+                          }}
+                          className={s.clearBtn}
+                        >
+                          Cancel Edit
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={handleSaveRoom}
+                        disabled={isSaving}
+                        className={`${s.saveBtn} ${isSaving ? s.saveBtnDisabled : ""}`}
+                      >
+                        {isSaving
+                          ? "Saving..."
+                          : editingRoom
+                            ? "Update Room"
+                            : "Save Room"}
                         <FaSave className={s.saveBtnIcon} />
-                      </>
-                    )}
-                  </button>
-                </div>
+                      </button>
+                    </div>
                   </>
                 ) : (
                   <div className={s.tableContainer}>
@@ -805,7 +876,7 @@ export default function Room() {
                             <div className="flex gap-2 justify-center">
                               <button
                                 type="button"
-                                onClick={saveCurrentRoom}
+                                onClick={handleSaveRoom}
                                 className={`${s.tableActionBtn} ${s.editBtn}`}
                                 disabled={isSaving}
                               >
@@ -876,6 +947,13 @@ export default function Room() {
                         </div>
                         <button
                           type="button"
+                          onClick={() => handleEditRoom(r)}
+                          className={s.editBTN}
+                        >
+                          <FaPencil />
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => confirmDeleteRoom(r)}
                           className={s.deleteBtn}
                         >
@@ -921,12 +999,15 @@ export default function Room() {
             <div className={s.footerActions}>
               <button
                 type="button"
-                onClick={saveCurrentRoom}
+                onClick={handleSaveRoom}
                 disabled={isSaving}
                 className={s.backBtn}
               >
                 {isSaving ? "Saving..." : T.buttons.saveRoom}
               </button>
+
+            
+
               <button
                 type="button"
                 onClick={goToResultsPage}
@@ -981,6 +1062,8 @@ export default function Room() {
           </div>
         </div>
       )}
+
+
       {/* ── Delete Confirmation Modal ── */}
       {deleteTarget && (
         <div className={s.popupOverlay}>

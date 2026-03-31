@@ -43,7 +43,7 @@ const roomSlice = createSlice({
       );
     },
     openNewRoomForm: (state) => {
-      state.form = { ...initialState.form };
+      //state.form = { ...initialState.form };
       state.isFormVisible = true;
     },
     // Only clears form — savedRooms preserved 
@@ -58,6 +58,16 @@ const roomSlice = createSlice({
     setSavedRooms: (state, action) => {
       state.savedRooms = action.payload;
     },
+
+    updateRoom: (state, action) => {
+  const index = state.savedRooms.findIndex(
+    (r) => r.id === action.payload.id
+  );
+  if (index !== -1) {
+    state.savedRooms[index] = action.payload;
+  }
+}
+    
   },
 });
 
@@ -71,6 +81,7 @@ export const {
   openNewRoomForm,
   resetRoom,
   setSavedRooms,
+  updateRoom,
 } = roomSlice.actions;
 
 export default roomSlice.reducer;

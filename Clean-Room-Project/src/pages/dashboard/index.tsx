@@ -186,7 +186,7 @@ export default function Dashboard() {
     if (!loggedInUser?.user_login_id) return;
     const fetchCounts = async () => {
       try {
-        const data = await getProjectCounts(loggedInUser.user_login_id);
+        const data = await getProjectCounts(loggedInUser.user_login_id, loggedInUser.customer_id);
         dispatch(
           setProjectCounts({
             total: data.total ?? 0,
@@ -199,21 +199,21 @@ export default function Dashboard() {
       }
     };
     fetchCounts();
-  }, [loggedInUser?.user_login_id]);
+  }, [loggedInUser?.user_login_id, loggedInUser?.customer_id]);
 
   // In-progress projects
   useEffect(() => {
     if (!loggedInUser?.user_login_id) return;
     const fetchInProgress = async () => {
       try {
-        const res = await getInProgressProjects(loggedInUser.user_login_id);
+        const res = await getInProgressProjects(loggedInUser.user_login_id, loggedInUser.customer_id);
         dispatch(setInProgressProjects(res.projects ?? []));
       } catch (e) {
         console.error("Failed to fetch in-progress projects:", e);
       }
     };
     fetchInProgress();
-  }, [loggedInUser?.user_login_id]);
+  }, [loggedInUser?.user_login_id, loggedInUser?.customer_id]);
 
   // Continue in-progress project
   const handleContinue = async (proj: any, continueRoute: string) => {

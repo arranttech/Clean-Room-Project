@@ -78,6 +78,7 @@ export default function ProjectListInfo() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeTabs, setActiveTabs] = useState<Record<number, number>>({});
   const userId = useAppSelector((state: any) => state.user?.user_login_id);
+  const loggedInUser = useAppSelector((state: any) => state.user);
 
   function formatDate(raw: string): string {
     try {
@@ -123,13 +124,16 @@ export default function ProjectListInfo() {
 
     const loadProjects = async () => {
       try {
-        const res = await getCompletedProjects(userId);
-        // const rows = res.projects || [];
+       
+        const res = await getCompletedProjects(
+          loggedInUser.user_login_id,
+          loggedInUser.customer_id
+        );
+
+      
         const rows = res.projects.filter((p: any) => p.project_id === projectIdNumber);
 
-        console.log("========= RAW DATABASE ROWS =========");
-        console.table(rows);
-
+       
         const projectMap: Record<number, any> = {};
 
         rows.forEach((row: any, index: number) => {
@@ -248,7 +252,7 @@ export default function ProjectListInfo() {
     };
 
     loadProjects();
-  }, [userId]);
+  }, [loggedInUser?.user_login_id, loggedInUser?.customer_id]);
 
   const handleTabClick = (projectId: number, standardId: number) => {
 
@@ -264,6 +268,16 @@ export default function ProjectListInfo() {
       [projectId]: standardId
     }));
   };
+  if (!projects.length) {
+    return (
+      <>
+        <Header />
+        <div className="p-10 text-center text-gray-500">
+          No project data found.
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

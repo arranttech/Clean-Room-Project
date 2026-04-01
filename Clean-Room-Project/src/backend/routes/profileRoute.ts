@@ -5,9 +5,7 @@ import { profileRepository } from "../repositories";
 const errorSchema = Joi.object({ error: Joi.string().required() });
 
 export const profileRoute: ServerRoute[] = [
-	// =========================
-	// GET /v1/profiles
-	// =========================
+	
 	{
 		method: "GET",
 		path: "/v1/profiles",
@@ -31,9 +29,7 @@ export const profileRoute: ServerRoute[] = [
 		},
 	},
 
-	// =========================
-	// POST /v1/profiles
-	// =========================
+	
 	{
 		method: "POST",
 		path: "/v1/profiles",
@@ -75,9 +71,7 @@ export const profileRoute: ServerRoute[] = [
 		},
 	},
 
-	// =========================
-	// PUT /v1/profiles/{id}
-	// =========================
+
 	{
 		method: "PUT",
 		path: "/v1/profiles/{id}",
@@ -119,9 +113,7 @@ export const profileRoute: ServerRoute[] = [
 		},
 	},
 
-	// =========================
-	// GET /v1/profiledetails
-	// =========================
+	
 	{
 		method: "GET",
 		path: "/v1/profiledetails",
@@ -154,9 +146,6 @@ export const profileRoute: ServerRoute[] = [
 		},
 	},
 
-	// =========================
-	// POST /v1/profiledetails
-	// =========================
 	{
 		method: "POST",
 		path: "/v1/profiledetails",
@@ -193,9 +182,7 @@ export const profileRoute: ServerRoute[] = [
 		},
 	},
 
-	// =========================
-	// POST /v1/assign-profile
-	// =========================
+
 	{
 		method: "POST",
 		path: "/v1/assign-profile",
@@ -238,9 +225,6 @@ export const profileRoute: ServerRoute[] = [
 		},
 	},
 
-	// =========================
-	// GET /v1/assigned-profiles
-	// =========================
 	{
 		method: "GET",
 		path: "/v1/assigned-profiles",
@@ -263,9 +247,7 @@ export const profileRoute: ServerRoute[] = [
 			}
 		},
 	},
-	// =========================
-	// DELETE /v1/assigned-profiles/{id}
-	// =========================
+	
 	{
 		method: "DELETE",
 		path: "/v1/assigned-profiles/{id}",

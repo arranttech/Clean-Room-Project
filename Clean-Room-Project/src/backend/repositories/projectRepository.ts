@@ -87,15 +87,24 @@ export const projectRepository = {
     );
   },
 
-  getProjectCountsByUserId: async (user_id: string) => {
+  getProjectCountsByUserId: async (user_id: string, customer_id: number) => {
     const [rows]: any = await database.execute(
+      // `SELECT
+      //   COUNT(*) AS total,
+      //   SUM(CASE WHEN project_status = 'INPROGRESS' THEN 1 ELSE 0 END) AS inProgress,
+      //   SUM(CASE WHEN project_status = 'COMPLETED' THEN 1 ELSE 0 END) AS completed
+      // FROM tProjects
+      // JOIN tCustomers c ON c.customer_id = p.customer_id,
+      // WHERE user_login_id = ?`,
       `SELECT
         COUNT(*) AS total,
         SUM(CASE WHEN project_status = 'INPROGRESS' THEN 1 ELSE 0 END) AS inProgress,
         SUM(CASE WHEN project_status = 'COMPLETED' THEN 1 ELSE 0 END) AS completed
-      FROM tProjects
-      WHERE user_login_id = ?`,
-      [user_id]
+      FROM tProjects p
+      JOIN tCustomers c ON c.customer_id = p.customer_id
+      WHERE p.user_login_id = ?
+      AND p.customer_id = ?`,
+      [user_id, customer_id]
     );
     return {
       total: rows[0]?.total ?? 0,
@@ -104,7 +113,7 @@ export const projectRepository = {
     };
   },
 
-  getCompletedProjectsByUserId: async (user_id: string) => {
+  getCompletedProjectsByUserId: async (user_id: string, customer_id: number) => {
     try {
       const [rows]: any = await database.execute(
         `SELECT
@@ -117,15 +126,15 @@ export const projectRepository = {
           r.room_Occupancy, r.room_Equipment_Load, r.room_Lighting, r.room_FreshAir, r.room_ExhaustAir
         FROM tProjects p
         JOIN tCustomers c ON c.customer_id = p.customer_id
-        JOIN tRoomStandards s ON s.project_id = p.project_id
-        JOIN tZoneRooms r ON r.project_standard_id = s.project_standard_id
-        WHERE p.user_login_id = ? AND p.project_status = 'COMPLETED'
+        LEFT JOIN tRoomStandards s ON s.project_id = p.project_id
+        LEFT JOIN tZoneRooms r ON r.project_standard_id = s.project_standard_id
+        WHERE p.user_login_id = ? AND p.customer_id = ? AND p.project_status = 'COMPLETED'
         ORDER BY p.created_at DESC`,
-        [user_id]
+        [user_id, customer_id]
       );
       return rows;
     } catch (err) {
-      console.error("Repository ERROR:", err);
+     
       throw err;
     }
   },
@@ -177,7 +186,7 @@ export const projectRepository = {
     return { project, standards, zones, rooms };
   },
 
-  getInProgressProjectsByUserId: async (user_id: string) => {
+  getInProgressProjectsByUserId: async (user_id: string, customer_id: number) => {
     const [rows]: any = await database.execute(
       `SELECT
         p.project_id, p.project_name, p.created_at AS last_modified, c.customer_name,
@@ -187,10 +196,10 @@ export const projectRepository = {
       JOIN tCustomers c ON c.customer_id = p.customer_id
       LEFT JOIN tRoomStandards s ON s.project_id = p.project_id
       LEFT JOIN tZoneRooms r ON r.project_standard_id = s.project_standard_id
-      WHERE p.user_login_id = ? AND p.project_status = 'INPROGRESS'
+      WHERE p.user_login_id = ? AND p.customer_id = ? AND p.project_status = 'INPROGRESS'
       GROUP BY p.project_id, p.project_name, p.created_at, c.customer_name
       ORDER BY p.created_at DESC`,
-      [user_id]
+      [user_id, customer_id]
     );
     return rows.map((row: any) => ({
       project_id: row.project_id,

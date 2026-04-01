@@ -413,6 +413,7 @@ function ProjectInfoPage() {
                       onClick={() => {
                         dispatch(updateField({ field: "industry", value: item.name }));
                         dispatch(updateField({ field: "subIndustry", value: "" }));
+                        dispatch(updateField({ field: "handling", value: [] }));
                         setIndustryOpen(false);
                       }}
                       className={styles.industryOptions}
@@ -455,6 +456,7 @@ function ProjectInfoPage() {
                       key={sub}
                       onClick={() => {
                         dispatch(updateField({ field: "subIndustry", value: sub }));
+                        dispatch(updateField({ field: "handling", value: [] }));
                         setSubIndustryOpen(false);
                       }}
                       className={styles.industryOptions}

@@ -63,15 +63,16 @@ export default function AllProjects() {
   const [error, setError] = useState<string | null>(null);
 
   const userId = useAppSelector((state: any) => state.user?.user_login_id);
+  const loggedInUser = useAppSelector((state: any) => state.user);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!loggedInUser?.user_login_id) return;
 
     (async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await getCompletedProjects(userId);
+        const res = await getCompletedProjects(loggedInUser.user_login_id, loggedInUser.customer_id);
         const projectsRaw = res.projects || [];
 
         // Group by project_id to remove duplicates
@@ -106,13 +107,14 @@ export default function AllProjects() {
 
         setProjects(uniqueProjects);
       } catch (err) {
-        console.error("Failed to load completed projects:", err);
+        
         setError("Failed to load projects. Please try again.");
       } finally {
         setLoading(false);
       }
     })();
-  }, [userId]);
+  }, [loggedInUser?.user_login_id, loggedInUser?.customer_id]);
+ 
 
   return (
     <div className={s.page}>

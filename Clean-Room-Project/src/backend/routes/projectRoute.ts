@@ -45,7 +45,7 @@ export const projectRoute: ServerRoute[] = [
         const projectId = await projectRepository.createProject(request.payload);
         return h.response({ projectId }).code(201);
       } catch (err) {
-        console.error("PROJECT CREATE ERROR:", err);
+       
         if (err instanceof Error && err.message.includes("does not exist")) {
           return h.response({ error: err.message }).code(400);
         }
@@ -88,7 +88,7 @@ export const projectRoute: ServerRoute[] = [
         await projectRepository.updateProject(parseInt(projectId), request.payload);
         return h.response({ success: true }).code(200);
       } catch (err) {
-        console.error("PROJECT UPDATE ERROR:", err);
+      
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },
@@ -120,7 +120,7 @@ export const projectRoute: ServerRoute[] = [
         await projectRepository.updateProjectStatus(parseInt(projectId), status);
         return h.response({ success: true }).code(200);
       } catch (err) {
-        console.error("PROJECT STATUS UPDATE ERROR:", err);
+       
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },
@@ -135,6 +135,7 @@ export const projectRoute: ServerRoute[] = [
       validate: {
         query: Joi.object({
           user_id: Joi.string().required(),
+          customer_id: Joi.number().required(),
         }),
       },
       response: {
@@ -146,11 +147,11 @@ export const projectRoute: ServerRoute[] = [
     },
     handler: async (request, h) => {
       try {
-        const { user_id } = request.query as any;
-        const projects = await projectRepository.getInProgressProjectsByUserId(user_id);
+        const { user_id, customer_id } = request.query as any;
+        const projects = await projectRepository.getInProgressProjectsByUserId(user_id, customer_id);
         return h.response({ projects }).code(200);
       } catch (err) {
-        console.error("GET INPROGRESS PROJECTS ERROR:", err);
+       
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },
@@ -165,6 +166,7 @@ export const projectRoute: ServerRoute[] = [
       validate: {
         query: Joi.object({
           user_id: Joi.string().required(),
+          customer_id: Joi.number().required(),
         }),
       },
       response: {
@@ -176,11 +178,11 @@ export const projectRoute: ServerRoute[] = [
     },
     handler: async (request, h) => {
       try {
-        const { user_id } = request.query as any;
-        const projects = await projectRepository.getCompletedProjectsByUserId(user_id);
+        const { user_id, customer_id } = request.query as any;
+        const projects = await projectRepository.getCompletedProjectsByUserId(user_id, customer_id);
         return h.response({ projects }).code(200);
       } catch (err) {
-        console.error("GET COMPLETED PROJECTS ERROR:", err);
+       
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },
@@ -195,6 +197,7 @@ export const projectRoute: ServerRoute[] = [
       validate: {
         query: Joi.object({
           user_id: Joi.string().required(),
+          customer_id: Joi.number().required(),
         }),
       },
       response: {
@@ -210,11 +213,11 @@ export const projectRoute: ServerRoute[] = [
     },
     handler: async (request, h) => {
       try {
-        const { user_id } = request.query as any;
-        const counts = await projectRepository.getProjectCountsByUserId(user_id);
+        const { user_id, customer_id } = request.query as any;
+        const counts = await projectRepository.getProjectCountsByUserId(user_id, customer_id);
         return h.response(counts).code(200);
       } catch (err) {
-        console.error("GET PROJECT COUNTS ERROR:", err);
+        
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },
@@ -237,7 +240,7 @@ export const projectRoute: ServerRoute[] = [
         const data = await projectRepository.getProjectDetailsForEdit(parseInt(projectId));
         return h.response(data).code(200);
       } catch (err) {
-        console.error("GET PROJECT DETAILS ERROR:", err);
+       
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },
@@ -260,7 +263,7 @@ export const projectRoute: ServerRoute[] = [
         const data = await projectRepository.getProjectExportData(parseInt(projectId));
         return h.response(data).code(200);
       } catch (err) {
-        console.error("PROJECT EXPORT ERROR:", err);
+       
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },

@@ -37,6 +37,15 @@ type StandardItem = {
 };
 type StandardJson = { standards: StandardItem[]; text: any };
 
+export type CalculatedZoneResults = {
+  flowVelocity?: number;
+  heatingFlowVelocity?: number;
+  coolingFlowVelocity?: number;
+  totalFiltrationStages?: number;
+  staticPressure?: number;
+  pipeConfiguration?: string;
+};
+
 const data = standardDataJson as unknown as StandardJson;
 const standardsData = data.standards;
 const t = data.text;
@@ -126,7 +135,8 @@ export default function Standard() {
     staticPressure,
   } = standards;
 
-  const ahuPayload = ahupayload(standards);
+
+const ahuPayload = ahupayload(standards);
 
   const minTempC = useAppSelector((state: any) => state.projectInfo.minTemp);
   const maxTempC = useAppSelector((state: any) => state.projectInfo.maxTemp);

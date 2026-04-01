@@ -26,6 +26,9 @@ export type CalculatedZoneResults = {
 	zoneCfmHeatLoadTRValue: number;
 	zoneRoomHeatLoadTR: number;
 	zoneResultHeatLoadTR: number;
+	totalFiltrationStages?: number;
+	staticPressure?: number;
+	pipeConfiguration?: string;
 	flowVelocity?: number;
 	heatingFlowVelocity?: number;
 	coolingFlowVelocity?: number;

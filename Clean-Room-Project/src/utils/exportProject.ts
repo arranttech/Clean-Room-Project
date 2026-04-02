@@ -1,4 +1,5 @@
 import XLSXStyle from "xlsx-js-style";
+import { buildBOQSheet } from "./boqResult"; 
 
 // Colours
 const C = {
@@ -363,16 +364,13 @@ function buildZoneSheet(
   return ws;
 }
 
-// Main export
-// fetchFn 
-
+// Main export — unchanged except Sheet 3 BOQ appended at bottom
 export async function downloadProjectXLSX(
   projectId:       number,
   projectUniqueId: string,
   fetchFn:         (id: number) => Promise<any>
 ) {
   const data = await fetchFn(projectId);
-  // zones now contains full tProjectZones 
   const { project, standards, rooms, results, zones } = data;
 
   const wb = XLSXStyle.utils.book_new();
@@ -382,5 +380,8 @@ export async function downloadProjectXLSX(
     buildZoneSheet(standards ?? [], rooms ?? [], results ?? [], zones ?? []),
     "Zone"
   );
+  // ── Sheet 3: BOQ (static data — PDF layout replica) ─────────────────────
+  XLSXStyle.utils.book_append_sheet(wb, buildBOQSheet(), "BOQ");
+
   XLSXStyle.writeFile(wb, `${projectUniqueId}_export.xlsx`);
 }

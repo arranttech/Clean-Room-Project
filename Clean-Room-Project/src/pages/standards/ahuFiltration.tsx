@@ -9,6 +9,28 @@ import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
 
 const config = (ahuData as any).ahuConstructionConfig;
+const filterSelectionConfig = (ahuData as any).filtrationSelection;
+const filterSpecsMap = (ahuData as any).filterSpecs;
+
+const FILTER_SPEC_ALIASES: Record<string, string> = {
+    "EPA (H11) (pre-HEPA) filter": "EPA (pre-HEPA) filter",
+    "Leagcy (H13 ~50mm) filter": "Leagcy (H13 ~150) filter",
+    "Leagcy (H13 ~100mm) filter": "Leagcy (H13 ~300) filter",
+    "Leagcy (H14 ~150mm) filter": "Leagcy (H14 ~150) filter",
+    "Leagcy (H14 ~300mm) filter": "Leagcy (H14 ~300) filter",
+    "Upper HEPA (H15 ~150mm) filter": "Upper HEPA (H15 ~150) filter",
+    "Upper HEPA (H15 ~300mm) filter": "Upper HEPA (H15 ~300) filter",
+};
+
+const getFilterSpecs = (filterName: string) => {
+    if (!filterName) return null;
+    if (filterSpecsMap[filterName]) return filterSpecsMap[filterName];
+    const alias = FILTER_SPEC_ALIASES[filterName];
+    if (alias && filterSpecsMap[alias]) return filterSpecsMap[alias];
+    const withoutMm = filterName.replace(/~(\d+)mm/g, "~$1");
+    if (filterSpecsMap[withoutMm]) return filterSpecsMap[withoutMm];
+    return null;
+};
 
 export const AHU_CONSTRUCTION_FIELDS = Object.keys(config.fields);
 const MM_WG_TO_PA = config.calculationConstants.MM_WG_TO_PA;
@@ -193,12 +215,14 @@ const AHUFiltration = () => {
         coolingMethod,
         coolingFlowVelocity,
         bioSafetyLevel,
+        standard,
+        classification,
+        systemType,
     } = useAppSelector((state: any) => state.standards);
 
     const filterTypes = Array.isArray(filterTypeSelection) ? filterTypeSelection : [filterTypeSelection].filter(Boolean);
 
     const handling = useAppSelector((state: any) => state.projectInfo?.handling || []);
-    const isRestrictedHandling = handling.some((h: string) => config.handling.restrictedHandlingValues.includes(h));
     const specialHandlingOptions = config.handling.specialHandlingOptions;
     const hasSpecialHandling = handling.length > 0 && handling.some((h: string) => specialHandlingOptions.includes(h)); // true if any selected handling matches special handling criteria
 
@@ -220,19 +244,9 @@ const AHUFiltration = () => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    useEffect(() => {
-        if (!isRestrictedHandling || !filterTypes.includes("Exhaust")) return;
-        handleChange("filterTypeSelection", filterTypes.filter((t: string) => t !== "Exhaust"));
-        handleChange("selectedFilters", selectedFilters.filter((k: string) => !k.startsWith("Exhaust:")));
-        const details = { ...selectedFilterDetails };
-        Object.keys(details).forEach((k: string) => k.startsWith("Exhaust:") && delete details[k]);
-        handleChange("selectedFilterDetails", details);
-    }, [isRestrictedHandling]);
-
-
     // DERIVED VALUES: Count stages and calculate total pressure drop
     const kExhaust = (filterTypes.includes("Exhaust") && hasSpecialHandling)
-        ? ahuData.filtrationSelection.specialExhaustFilters.map(f => `Exhaust:${f}`)
+        ? filterSelectionConfig.specialExhaustFilters.map((f: string) => `Exhaust:${f}`)
         : [];
     const activeFilters = [...new Set([...(selectedFilters || []), ...kExhaust])]
         .filter(k => k && filterTypes.some(t => k.startsWith(`${t}:`)));
@@ -241,7 +255,7 @@ const AHUFiltration = () => {
     const filterDpSumMmWg = activeFilters.reduce((sum, k) => {
         const detail = selectedFilterDetails[k];
         if (detail?.finalDp) return sum + (detail.finalDp / MM_WG_TO_PA);
-        const specs = (ahuData.filterSpecs as any)[k.split(":")[1]];
+        const specs = getFilterSpecs(k.split(":")[1]);
         return sum + (specs ? Math.max(...specs.finalRange) : 0);
     }, 0);
 
@@ -270,7 +284,7 @@ const AHUFiltration = () => {
             currentSelected.push(k);
             // Initialize filter detail if not present
             if (!selectedFilterDetails[k]) {
-                const specs = (ahuData.filterSpecs as any)[filter];
+                const specs = getFilterSpecs(filter);
                 if (specs) {
                     dispatch(updateFilterDetail({
                         filterName: k,
@@ -319,15 +333,82 @@ const AHUFiltration = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [flowMedium, heatingMethod, coolingMethod]);
 
+    // Auto-select filters from JSON rules for ISO cleanroom ventilation flow.
+    useEffect(() => {
+        const autoRules = Array.isArray(filterSelectionConfig.autoSelectionRules)
+            ? filterSelectionConfig.autoSelectionRules
+            : [];
+
+        const matchedRule = autoRules.find((rule: any) =>
+            rule.standard === standard &&
+            rule.system === system &&
+            rule.systemType === systemType
+        );
+        if (!matchedRule) return;
+
+        const classRule = (matchedRule.classifications || []).find(
+            (entry: any) => entry.name === classification
+        );
+        if (!classRule) return;
+
+        const requestedTypes = Array.isArray(classRule.filterTypeSelection)
+            ? classRule.filterTypeSelection.filter(Boolean)
+            : [];
+        const selectedTypesForRule = filterTypes.filter((type: string) =>
+            requestedTypes.includes(type)
+        );
+        if (selectedTypesForRule.length === 0) return;
+
+        const nextSelected = [...(selectedFilters || [])];
+        const detailsToAdd: Array<{ filterName: string; details: any }> = [];
+
+        selectedTypesForRule.forEach((type: string) => {
+            const configuredFilters = Array.isArray(classRule.filters?.[type])
+                ? classRule.filters[type]
+                : [];
+
+            configuredFilters.forEach((filterName: string) => {
+                const key = `${type}:${filterName}`;
+                if (nextSelected.includes(key)) return;
+                nextSelected.push(key);
+
+                const specs = getFilterSpecs(filterName);
+                if (specs && !selectedFilterDetails[key]) {
+                    detailsToAdd.push({
+                        filterName: key,
+                        details: {
+                            unit: "Pa",
+                            initialDp: specs.initRange[0] * MM_WG_TO_PA,
+                            finalDp: Math.max(...specs.finalRange) * MM_WG_TO_PA,
+                        },
+                    });
+                }
+            });
+        });
+
+        const selectedChanged =
+            nextSelected.length !== selectedFilters.length ||
+            nextSelected.some((k: string) => !selectedFilters.includes(k));
+
+        if (selectedChanged) {
+            handleChange("selectedFilters", nextSelected);
+        }
+        if (detailsToAdd.length > 0) {
+            detailsToAdd.forEach(({ filterName, details }) => {
+                dispatch(updateFilterDetail({ filterName, details }));
+            });
+        }
+    }, [standard, system, systemType, classification, filterTypes, selectedFilters, selectedFilterDetails]);
+
     // Auto-select special exhaust filters
     useEffect(() => {
         if (!filterTypes.includes("Exhaust") || !hasSpecialHandling) return;
-        const kEx = ahuData.filtrationSelection.specialExhaustFilters.map(f => `Exhaust:${f}`);
-        const missing = kEx.filter(k => !selectedFilters.includes(k));
+        const kEx = filterSelectionConfig.specialExhaustFilters.map((f: string) => `Exhaust:${f}`);
+        const missing = kEx.filter((k: string) => !selectedFilters.includes(k));
         if (missing.length > 0) {
             handleChange("selectedFilters", [...selectedFilters, ...missing]);
-            missing.forEach(k => {
-                const specs = (ahuData.filterSpecs as any)[k.split(":")[1]];
+            missing.forEach((k: string) => {
+                const specs = getFilterSpecs(k.split(":")[1]);
                 if (specs) dispatch(updateFilterDetail({
                     filterName: k,
                     details: { unit: "Pa", initialDp: specs.initRange[0] * MM_WG_TO_PA, finalDp: Math.max(...specs.finalRange) * MM_WG_TO_PA }
@@ -628,7 +709,6 @@ const AHUFiltration = () => {
                                             <div className={s.dropdownMenu}>
                                                 <div className={s.dropdownContent}>
                                                     {ahuData.filtrationSelection.filterType
-                                                        .filter((v: string) => isRestrictedHandling ? v === "Supply" : true)
                                                         .map((v: string) => {
                                                             const isSelected = filterTypes.includes(v);
                                                             return (
@@ -703,7 +783,7 @@ const AHUFiltration = () => {
                                                     : ahuData.filtrationSelection.supplyFilters;
 
                                                 const specialExhaustFilters = type === "Exhaust" && hasSpecialHandling
-                                                    ? ahuData.filtrationSelection.specialExhaustFilters
+                                                    ? filterSelectionConfig.specialExhaustFilters
                                                     : [];
 
                                                 const currentFilters = (type === "Exhaust" && hasSpecialHandling)
@@ -721,7 +801,7 @@ const AHUFiltration = () => {
                                                                 const k = `${type}:${filter}`;
                                                                 const isSelected = (selectedFilters || []).includes(k);
                                                                 const isPreselectedAndDisabled = specialExhaustFilters.includes(filter);
-                                                                const specs = (ahuData.filterSpecs as any)[filter];
+                                                                const specs = getFilterSpecs(filter);
                                                                 return (
                                                                     <div key={k} className={s.inputGroup}>
                                                                         <label className={`${s.filterLabelBase} ${isPreselectedAndDisabled ? s.filterLabelDisabled : s.filterLabelEnabled}`}>

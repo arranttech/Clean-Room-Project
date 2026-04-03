@@ -34,6 +34,77 @@ const getFilterSpecs = (filterName: string) => {
 
 export const AHU_CONSTRUCTION_FIELDS = Object.keys(config.fields);
 const MM_WG_TO_PA = config.calculationConstants.MM_WG_TO_PA;
+const ISO8_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:Pre-HEPA Super fine filter",
+    "Supply:High Fine filter",
+    "Supply:Fine pre-filter",
+]);
+const ISO7_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:Leagcy (H14 ~300mm) filter",
+    "Supply:Leagcy (H14 ~150mm) filter",
+    "Supply:Leagcy (H13 ~300mm) filter",
+    "Supply:ULPA filter (U15 ~150mm)",
+    "Supply:Pre-HEPA Super fine filter",
+    "Supply:High Fine filter",
+    "Supply:Fine pre-filter",
+]);
+const ISO6_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:ULPA filter (U15 ~150mm)",
+    "Supply:Leagcy (H14 ~150mm) filter",
+    "Supply:Pre-HEPA Super fine filter",
+    "Supply:High Fine filter",
+    "Supply:Fine pre-filter",
+]);
+const ISO5_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:ULPA filter (U15 ~150mm)",
+    "Supply:Leagcy (H14 ~150mm) filter",
+    "Supply:Pre-HEPA Super fine filter",
+    "Supply:High Fine filter",
+    "Supply:Fine pre-filter",
+]);
+const ISO4_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:ULPA filter (U17 ~150mm)",
+    "Supply:Pre-HEPA Super fine filter",
+    "Supply:High Fine filter",
+    "Supply:Fine pre-filter",
+]);
+const ISO3_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:Pre-HEPA Super fine filter",
+    "Supply:High Fine filter",
+    "Supply:Fine pre-filter",
+]);
+const ISO2_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:Pre-HEPA Super fine filter",
+    "Supply:High Fine filter",
+    "Supply:Fine pre-filter",
+]);
+const ISO1_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:Pre-HEPA Super fine filter",
+    "Supply:High Fine filter",
+    "Supply:Fine pre-filter",
+]);
+const getIsoVentilationSuggestedSupplyKeys = (
+    standard: string,
+    system: string,
+    systemType: string,
+    classification: string
+) => {
+    const isIsoVentilationContext =
+        standard === "ISO 14644-4" &&
+        system === "Ventilation System" &&
+        systemType === "Cleanroom Ventilation System";
+
+    if (!isIsoVentilationContext) return new Set<string>();
+    if (classification === "ISO 8") return ISO8_VENTILATION_SUGGESTED_SUPPLY_KEYS;
+    if (classification === "ISO 7") return ISO7_VENTILATION_SUGGESTED_SUPPLY_KEYS;
+    if (classification === "ISO 6") return ISO6_VENTILATION_SUGGESTED_SUPPLY_KEYS;
+    if (classification === "ISO 5") return ISO5_VENTILATION_SUGGESTED_SUPPLY_KEYS;
+    if (classification === "ISO 4") return ISO4_VENTILATION_SUGGESTED_SUPPLY_KEYS;
+    if (classification === "ISO 3") return ISO3_VENTILATION_SUGGESTED_SUPPLY_KEYS;
+    if (classification === "ISO 2") return ISO2_VENTILATION_SUGGESTED_SUPPLY_KEYS;
+    if (classification === "ISO 1") return ISO1_VENTILATION_SUGGESTED_SUPPLY_KEYS;
+    return new Set<string>();
+};
 
 export const ahupayload = (standards: any) => {
     const payload: any = {};
@@ -241,6 +312,13 @@ const AHUFiltration = () => {
         (entry: any) => entry.name === classification
     );
     const autoRuleContextKey = `${standard || ""}||${system || ""}||${systemType || ""}||${classification || ""}`;
+    const isoVentilationSuggestedSupplyKeys = getIsoVentilationSuggestedSupplyKeys(
+        standard,
+        system,
+        systemType,
+        classification
+    );
+    const hasIsoVentilationSuggestionMode = isoVentilationSuggestedSupplyKeys.size > 0;
     const currentRuleSupplyKeys = (Array.isArray(matchedAutoClassForUi?.filters?.Supply)
         ? matchedAutoClassForUi.filters.Supply
         : []
@@ -254,7 +332,9 @@ const AHUFiltration = () => {
             const filtersForType = Array.isArray(matchedAutoClassForUi?.filters?.[type])
                 ? matchedAutoClassForUi.filters[type]
                 : [];
-            return filtersForType.map((filterName: string) => `${type}:${filterName}`);
+            return filtersForType
+                .map((filterName: string) => `${type}:${filterName}`)
+                .filter((key: string) => !(hasIsoVentilationSuggestionMode && isoVentilationSuggestedSupplyKeys.has(key)));
         })
     );
     const dismissedRuleKeysForUi =
@@ -402,6 +482,15 @@ const AHUFiltration = () => {
 
     // Auto-select filters from JSON rules for ISO cleanroom ventilation flow.
     useEffect(() => {
+        const isoVentilationSuggestedSupplyKeysForEffect = getIsoVentilationSuggestedSupplyKeys(
+            standard,
+            system,
+            systemType,
+            classification
+        );
+        const hasIsoVentilationSuggestionModeForEffect =
+            isoVentilationSuggestedSupplyKeysForEffect.size > 0;
+
         const autoRules = Array.isArray(filterSelectionConfig.autoSelectionRules)
             ? filterSelectionConfig.autoSelectionRules
             : [];
@@ -433,7 +522,9 @@ const AHUFiltration = () => {
         const dismissedSupplySet =
             dismissedSupplyByContextRef.current[autoRuleContextKey] || new Set();
 
-        const nextSelected = [...(selectedFilters || [])];
+        const nextSelected = hasIsoVentilationSuggestionModeForEffect
+            ? [...(selectedFilters || [])].filter((k: string) => !isoVentilationSuggestedSupplyKeysForEffect.has(k))
+            : [...(selectedFilters || [])];
         const detailsToAdd: Array<{ filterName: string; details: any }> = [];
 
         selectedTypesForRule.forEach((type: string) => {
@@ -443,6 +534,7 @@ const AHUFiltration = () => {
 
             configuredFilters.forEach((filterName: string) => {
                 const key = `${type}:${filterName}`;
+                if (hasIsoVentilationSuggestionModeForEffect && isoVentilationSuggestedSupplyKeysForEffect.has(key)) return;
                 if (type === "Supply" && dismissedSupplySet.has(key)) return;
                 if (nextSelected.includes(key)) return;
                 nextSelected.push(key);
@@ -889,13 +981,18 @@ const AHUFiltration = () => {
                                                                     !isSelected &&
                                                                     autoRulePreselectedKeys.has(k) &&
                                                                     dismissedRuleKeysForUi.has(k);
+                                                                const isIso8VentilationSuggestedNotSelected =
+                                                                    !isSelected &&
+                                                                    hasIsoVentilationSuggestionMode &&
+                                                                    isoVentilationSuggestedSupplyKeys.has(k);
                                                                 const showOrangeForNonSelected =
                                                                     hasPreselectedModeActive &&
                                                                     !isPreselectedAndDisabled &&
                                                                     !isRulePreselectedButManuallyRemoved &&
+                                                                    !isIso8VentilationSuggestedNotSelected &&
                                                                     !isSelected;
                                                                 const checkboxStyle: CSSProperties | undefined =
-                                                                    isRulePreselectedButManuallyRemoved
+                                                                    (isRulePreselectedButManuallyRemoved || isIso8VentilationSuggestedNotSelected)
                                                                         ? {
                                                                             appearance: "none",
                                                                             WebkitAppearance: "none",

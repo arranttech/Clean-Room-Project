@@ -59,8 +59,7 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
 
   useEffect(() => {
     if (user) {
-      // Support both customer_ids (array from getUserById) and
-      // customer_id 
+
       let ids: number[] = [];
       if (Array.isArray(user.customer_ids) && user.customer_ids.length > 0) {
         ids = user.customer_ids.map(Number);
@@ -257,7 +256,8 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
           <input
             type="checkbox"
             checked={isSelected}
-            onChange={() => null}
+            readOnly
+            onClick={(e) => e.stopPropagation()}
             style={{ marginRight: 8, marginTop: 4 }}
           />
           <div >
@@ -272,29 +272,6 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
       </components.Option>
     );
   };
-
-  // const CustomValueContainer = ({ children, ...props }: any) => {
-  //   const { getValue } = props;
-  //   const selected = getValue();
-
-  //   if (selected.length > 2) {
-  //     return (
-  //       <components.ValueContainer {...props}>
-
-  //         <div style={{ width: "100%", textAlign: "left", fontWeight: 600, fontSize: "14px" }}>
-  //           {selected.length} selected
-  //         </div>
-  //       </components.ValueContainer>
-  //     );
-  //   }
-
-  //   return (
-  //     <components.ValueContainer {...props}>
-  //       {children}
-  //     </components.ValueContainer>
-  //   );
-  // };
-
   const CustomValueContainer = (props: any) => {
     return (
       <components.ValueContainer {...props}>
@@ -350,20 +327,6 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
     }),
 
 
-    // valueContainer: (base: any, props: any) => {
-    //   const count = props.getValue().length;
-    //   return {
-    //     ...base,
-    //     padding: 0,
-    //     display: "flex",
-    //     width: "100%",
-    //     justifyContent: count <= 2 ? "center" : "flex-start",
-    //     flexWrap: "nowrap",
-    //     overflow: "hidden",
-    //     gap:"6px"
-    //   };
-    // },
-
     valueContainer: (base: any) => ({
       ...base,
       padding: "0px 20px 2px  0px ",
@@ -392,7 +355,7 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
       ...base,
       backgroundColor: "#eb9147",
       borderRadius: "6px",
-    
+
       alignItems: "center",
       flexShrink: 0,
     }),
@@ -665,11 +628,14 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
               styles={customStyles}
               components={{
                 Option: CustomOption,
-                ValueContainer: CustomValueContainer
+              
               }}
               options={customerOptions}
               isMulti
               closeMenuOnSelect={false}
+              
+               menuPortalTarget={document.body}
+              menuPosition="fixed"
               hideSelectedOptions={false}
               value={customerOptions.filter((opt) =>
                 form.customer_ids.includes(opt.value)

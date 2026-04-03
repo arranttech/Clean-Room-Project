@@ -54,6 +54,7 @@ function ProjectInfoPage() {
   const [industryOpen, setIndustryOpen] = useState(false);
   const [subIndustryOpen, setSubIndustryOpen] = useState(false);
   const [handlingOpen, setHandlingOpen] = useState(false);
+  const [dismissedHandlingByContext, setDismissedHandlingByContext] = useState<Record<string, string[]>>({});
   const industryRef = useRef<HTMLDivElement>(null);
   const subIndustryRef = useRef<HTMLDivElement>(null);
   const handlingRef = useRef<HTMLDivElement>(null);
@@ -84,10 +85,26 @@ function ProjectInfoPage() {
       dismissedHandlingByContextRef.current[handlingRuleContextKey] = new Set();
     }
     dismissedHandlingByContextRef.current[handlingRuleContextKey].add(item);
+    setDismissedHandlingByContext((prev) => {
+      const existing = prev[handlingRuleContextKey] || [];
+      if (existing.includes(item)) return prev;
+      return {
+        ...prev,
+        [handlingRuleContextKey]: [...existing, item],
+      };
+    });
   };
 
   const clearHandlingDismissed = (item: string) => {
     dismissedHandlingByContextRef.current[handlingRuleContextKey]?.delete(item);
+    setDismissedHandlingByContext((prev) => {
+      const existing = prev[handlingRuleContextKey] || [];
+      if (!existing.includes(item)) return prev;
+      return {
+        ...prev,
+        [handlingRuleContextKey]: existing.filter((v) => v !== item),
+      };
+    });
   };
 
   useEffect(() => {
@@ -504,6 +521,12 @@ function ProjectInfoPage() {
                         // Explicitly reselecting a sub-industry should re-apply defaults for that context.
                         appliedHandlingRuleContextRef.current = "";
                         delete dismissedHandlingByContextRef.current[nextContextKey];
+                        setDismissedHandlingByContext((prev) => {
+                          if (!prev[nextContextKey]) return prev;
+                          const next = { ...prev };
+                          delete next[nextContextKey];
+                          return next;
+                        });
                         dispatch(updateField({ field: "subIndustry", value: sub }));
                         dispatch(updateField({ field: "handling", value: [] }));
                         setSubIndustryOpen(false);
@@ -588,26 +611,49 @@ function ProjectInfoPage() {
                       groupB.includes(h)
                     );
 
+                    const isSelected = handling.includes(item);
+                    const currentRuleHandling = getCurrentRuleHandling();
+                    const isDismissedPreselected =
+                      !isSelected &&
+                      currentRuleHandling.includes(item) &&
+                      (dismissedHandlingByContext[handlingRuleContextKey] || []).includes(item);
+
                     const isDisabled =
-                      (isItemInA && isGroupBSelected) ||
-                      (isItemInB && isGroupASelected);
+                      !isSelected &&
+                      ((isItemInA && isGroupBSelected) ||
+                        (isItemInB && isGroupASelected));
+                    const showDisabledState =
+                      isDisabled && !isDismissedPreselected;
+                    const checkboxStyle = isDismissedPreselected
+                      ? {
+                          appearance: "none" as const,
+                          WebkitAppearance: "none" as const,
+                          MozAppearance: "none" as const,
+                          width: "18px",
+                          height: "18px",
+                          border: "2px solid #22c55e",
+                          borderRadius: "4px",
+                          backgroundColor: "#dcfce7",
+                        }
+                      : undefined;
 
                     return (
                       <label
                         key={item}
                         className={`flex items-center gap-3 px-4 py-3 ${
-                          isDisabled
+                          showDisabledState
                             ? "cursor-not-allowed opacity-50"
                             : "cursor-pointer hover:bg-gray-50"
                         }`}
                       >
                         <input
                           type="checkbox"
-                          checked={handling.includes(item)}
+                          checked={isSelected}
+                          style={checkboxStyle}
                           disabled={isDisabled}
                           onChange={() => {
                             if (isDisabled) return;
-                            const isRemoving = handling.includes(item);
+                            const isRemoving = isSelected;
                             if (isRemoving) {
                               markHandlingDismissed(item);
                             } else {
@@ -621,12 +667,12 @@ function ProjectInfoPage() {
                             );
                           }}
                           className={`h-5 w-5 shrink-0 rounded-md border-gray-300 ${
-                            isDisabled ? "text-gray-400" : "text-blue-600"
+                            showDisabledState ? "text-gray-400" : "text-blue-600"
                           }`}
                         />
                         <span
                           className={`text-sm break-words ${
-                            isDisabled ? "text-gray-400" : ""
+                            showDisabledState ? "text-gray-400" : ""
                           }`}
                         >
                           {item}

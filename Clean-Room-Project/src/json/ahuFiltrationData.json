@@ -99,8 +99,8 @@
             "ULPA filter (U17 ~110mm)",
             "ULPA filter (U17 ~150mm)",
             "ULPA filter (U17 ~300mm)",
-            "Leagcy (H13 ~50mm) filter",
-            "Leagcy (H13 ~100mm) filter",
+            "Leagcy (H13 ~150mm) filter",
+            "Leagcy (H13 ~300mm) filter",
             "Leagcy (H14 ~150mm) filter",
             "Leagcy (H14 ~300mm) filter",
             "Upper HEPA (H15 ~150mm) filter",
@@ -135,8 +135,8 @@
             "ULPA filter (U17 ~110mm)",
             "ULPA filter (U17 ~150mm)",
             "ULPA filter (U17 ~300mm)",
-            "Leagcy (H13 ~50mm) filter",
-            "Leagcy (H13 ~100mm) filter",
+            "Leagcy (H13 ~150mm) filter",
+            "Leagcy (H13 ~300mm) filter",
             "Leagcy (H14 ~150mm) filter",
             "Leagcy (H14 ~300mm) filter",
             "Upper HEPA (H15 ~150mm) filter",
@@ -152,6 +152,7 @@
             "PCO VOC Oxidation Filter",
             "HEPA + Carbon Combo Filter",
             "Exhaust Air filter",
+            "Fresh Air filter",
             "Terminal filters - Exhaust"
         ],
         "exhaustImpact": [
@@ -213,15 +214,13 @@
                         "filters": {
                             "Supply": [
                                 "Coarse-to-medium filter",
-                                "High Fine filter",
-                                "Pre-HEPA Super fine filter",
-                                "Fine pre-filter",
                                 "EPA (H11) (pre-HEPA) filter",
                                 "Fresh Air filter"
                             ],
                             "Exhaust": [
                                 "Coarse-to-medium filter",
-                                "Fine pre-filter"
+                                "Fine pre-filter",
+                                "Fresh Air filter"
                             ]
                         }
                     },
@@ -231,16 +230,13 @@
                         "filters": {
                             "Supply": [
                                 "Coarse-to-medium filter",
-                                "High Fine filter",
-                                "Pre-HEPA Super fine filter",
-                                "Fine pre-filter",
-                                "Leagcy (H14 ~300mm) filter",
-                                "Fresh Air filter",
-                                "Leagcy (H14 ~150mm) filter"
+                                "Leagcy (H13 ~150mm) filter",
+                                "Fresh Air filter"
                             ],
                             "Exhaust": [
                                 "Coarse-to-medium filter",
-                                "Fine pre-filter"
+                                "Fine pre-filter",
+                                "Fresh Air filter"
                             ]
                         }
                     },
@@ -250,16 +246,13 @@
                         "filters": {
                             "Supply": [
                                 "Coarse-to-medium filter",
-                                "Fine pre-filter",
-                                "High Fine filter",
-                                "Pre-HEPA Super fine filter",
-                                "EPA (H11) (pre-HEPA) filter",
-                                "Fresh Air filter",
-                                "Leagcy (H14 ~150mm) filter"
+                                "Leagcy (H13 ~150mm) filter",
+                                "Fresh Air filter"
                             ],
                             "Exhaust": [
                                 "Coarse-to-medium filter",
-                                "Fine pre-filter"
+                                "Fine pre-filter",
+                                "Fresh Air filter"
                             ]
                         }
                     },
@@ -269,15 +262,14 @@
                         "filters": {
                             "Supply": [
                                 "Coarse-to-medium filter",
-                                "Fine pre-filter",
-                                "High Fine filter",
                                 "Fresh Air filter",
-                                "Pre-HEPA Super fine filter",
+                                "Leagcy (H13 ~150mm) filter",
                                 "EPA (H11) (pre-HEPA) filter"
                             ],
                             "Exhaust": [
                                 "Coarse-to-medium filter",
-                                "Fine pre-filter"
+                                "Fine pre-filter",
+                                "Fresh Air filter"
                             ]
                         }
                     },
@@ -287,19 +279,14 @@
                         "filters": {
                             "Supply": [
                                 "Coarse-to-medium filter",
-                                "Fine pre-filter",
-                                "High Fine filter",
-                                "Pre-HEPA Super fine filter",
-                                "Leagcy (H13 ~150mm) filter",
                                 "ULPA filter (U16 ~150mm)",
                                 "Fresh Air filter",
-                                "ULPA filter (U17 ~150mm)",
-                                "EPA (H11) (pre-HEPA) filter",
-                                "Leagcy (H14 ~150mm) filter"
+                                "EPA (H11) (pre-HEPA) filter"
                             ],
                             "Exhaust": [
                                 "Coarse-to-medium filter",
-                                "Fine pre-filter"
+                                "Fine pre-filter",
+                                "Fresh Air filter"
                             ]
                         }
                     },
@@ -309,16 +296,14 @@
                         "filters": {
                             "Supply": [
                                 "Coarse-to-medium filter",
-                                "Fine pre-filter",
-                                "High Fine filter",
                                 "Fresh Air filter",
                                 "ULPA filter (U17 ~150mm)",
-                                "ULPA filter (U15 ~150mm)",
-                                "Pre-HEPA Super fine filter"
+                                "ULPA filter (U16 ~150mm)"
                             ],
                             "Exhaust": [
                                 "Coarse-to-medium filter",
-                                "Fine pre-filter"
+                                "Fine pre-filter",
+                                "Fresh Air filter"
                             ]
                         }
                     },
@@ -328,16 +313,14 @@
                         "filters": {
                             "Supply": [
                                 "Coarse-to-medium filter",
-                                "Fine pre-filter",
-                                "High Fine filter",
                                 "ULPA filter (U17 ~150mm)",
-                                "ULPA filter (U15 ~150mm)",
-                                "Pre-HEPA Super fine filter",
+                                "ULPA filter (U16 ~150mm)",
                                 "Fresh Air filter"
                             ],
                             "Exhaust": [
                                 "Coarse-to-medium filter",
-                                "Fine pre-filter"
+                                "Fine pre-filter",
+                                "Fresh Air filter"
                             ]
                         }
                     },
@@ -347,16 +330,14 @@
                         "filters": {
                             "Supply": [
                                 "Coarse-to-medium filter",
-                                "Fine pre-filter",
-                                "High Fine filter",
                                 "ULPA filter (U17 ~150mm)",
-                                "ULPA filter (U15 ~150mm)",
-                                "Fresh Air filter",
-                                "Pre-HEPA Super fine filter"
+                                "ULPA filter (U16 ~150mm)",
+                                "Fresh Air filter"
                             ],
                             "Exhaust": [
                                 "Coarse-to-medium filter",
-                                "Fine pre-filter"
+                                "Fine pre-filter",
+                                "Fresh Air filter"
                             ]
                         }
                     }

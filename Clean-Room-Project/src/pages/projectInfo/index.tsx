@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useAppSelector, useAppDispatch } from "../../redux/hooks";
 import {
   updateField,
@@ -57,6 +57,8 @@ function ProjectInfoPage() {
   const industryRef = useRef<HTMLDivElement>(null);
   const subIndustryRef = useRef<HTMLDivElement>(null);
   const handlingRef = useRef<HTMLDivElement>(null);
+  const appliedHandlingRuleContextRef = useRef<string>("");
+  const dismissedHandlingByContextRef = useRef<Record<string, Set<string>>>({});
 
   const { industries, handlingOptions, handlingAutoSelectionRules = [] } = projectData as any;
 
@@ -64,18 +66,53 @@ function ProjectInfoPage() {
   const selectedIndustryData = industries.find((i: any) => i.name === industry);
   const subIndustries = selectedIndustryData?.subIndustries || [];
 
-  useEffect(() => {
+  const handlingRuleContextKey = `${industry || ""}||${subIndustry || ""}`;
+
+  const getCurrentRuleHandling = useCallback(() => {
     const matchedRule = handlingAutoSelectionRules.find(
       (rule: any) =>
         rule.industry === industry && rule.subIndustry === subIndustry
     );
+    return Array.isArray(matchedRule?.handling) ? matchedRule.handling : [];
+  }, [handlingAutoSelectionRules, industry, subIndustry]);
 
-    if (!matchedRule) return;
+  const markHandlingDismissed = (item: string) => {
+    const ruleHandling = getCurrentRuleHandling();
+    if (!ruleHandling.includes(item)) return;
 
-    const ruleHandling = Array.isArray(matchedRule.handling)
-      ? matchedRule.handling
-      : [];
-    const mergedHandling = Array.from(new Set([...(handling || []), ...ruleHandling]));
+    if (!dismissedHandlingByContextRef.current[handlingRuleContextKey]) {
+      dismissedHandlingByContextRef.current[handlingRuleContextKey] = new Set();
+    }
+    dismissedHandlingByContextRef.current[handlingRuleContextKey].add(item);
+  };
+
+  const clearHandlingDismissed = (item: string) => {
+    dismissedHandlingByContextRef.current[handlingRuleContextKey]?.delete(item);
+  };
+
+  useEffect(() => {
+    if (!industry || !subIndustry) {
+      appliedHandlingRuleContextRef.current = "";
+      return;
+    }
+
+    // Apply defaults once per industry/sub-industry context.
+    if (appliedHandlingRuleContextRef.current === handlingRuleContextKey) return;
+    appliedHandlingRuleContextRef.current = handlingRuleContextKey;
+
+    const ruleHandling = getCurrentRuleHandling();
+    if (ruleHandling.length === 0) return;
+
+    const dismissedSet =
+      dismissedHandlingByContextRef.current[handlingRuleContextKey] || new Set();
+    const suggestedHandling = ruleHandling.filter(
+      (item: string) => !dismissedSet.has(item)
+    );
+    if (suggestedHandling.length === 0) return;
+
+    const mergedHandling = Array.from(
+      new Set([...(handling || []), ...suggestedHandling])
+    );
 
     const isDifferent =
       mergedHandling.length !== handling.length ||
@@ -84,7 +121,15 @@ function ProjectInfoPage() {
     if (isDifferent) {
       dispatch(updateField({ field: "handling", value: mergedHandling }));
     }
-  }, [industry, subIndustry, handling, handlingAutoSelectionRules, dispatch]);
+  }, [
+    industry,
+    subIndustry,
+    handling,
+    handlingAutoSelectionRules,
+    handlingRuleContextKey,
+    getCurrentRuleHandling,
+    dispatch,
+  ]);
 
   const [errors, setErrors] = useState({
     branch: "",
@@ -455,6 +500,10 @@ function ProjectInfoPage() {
                     <div
                       key={sub}
                       onClick={() => {
+                        const nextContextKey = `${industry || ""}||${sub}`;
+                        // Explicitly reselecting a sub-industry should re-apply defaults for that context.
+                        appliedHandlingRuleContextRef.current = "";
+                        delete dismissedHandlingByContextRef.current[nextContextKey];
                         dispatch(updateField({ field: "subIndustry", value: sub }));
                         dispatch(updateField({ field: "handling", value: [] }));
                         setSubIndustryOpen(false);
@@ -495,6 +544,7 @@ function ProjectInfoPage() {
                           className="cursor-pointer text-xs"
                           onClick={(e) => {
                             e.stopPropagation();
+                            markHandlingDismissed(item);
                             const updated = handling.filter(
                               (i: string) => i !== item
                             );
@@ -557,7 +607,13 @@ function ProjectInfoPage() {
                           disabled={isDisabled}
                           onChange={() => {
                             if (isDisabled) return;
-                            const updated = handling.includes(item)
+                            const isRemoving = handling.includes(item);
+                            if (isRemoving) {
+                              markHandlingDismissed(item);
+                            } else {
+                              clearHandlingDismissed(item);
+                            }
+                            const updated = isRemoving
                               ? handling.filter((i: string) => i !== item)
                               : [...handling, item];
                             dispatch(

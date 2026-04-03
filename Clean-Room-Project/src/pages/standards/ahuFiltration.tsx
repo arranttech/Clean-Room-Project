@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, type CSSProperties } from "react";
 import { HiChevronDown, HiX, HiCheck } from "react-icons/hi";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { updateStandardsField, updateFilterDetail, updateMultipleStandardsFields } from "../../redux/slices/standardSlice";
@@ -182,6 +182,9 @@ const AHUFiltration = () => {
     const [showFiltrationDetails, setShowFiltrationDetails] = useState(false);
     const [filterTypeOpen, setFilterTypeOpen] = useState(false);
     const filterTypeRef = useRef<HTMLDivElement>(null);
+    const appliedAutoRuleRef = useRef<string>("");
+    const dismissedSupplyByContextRef = useRef<Record<string, Set<string>>>({});
+    const dismissedRuleKeysByContextRef = useRef<Record<string, Set<string>>>({});
 
     // Redux state values
     const {
@@ -226,6 +229,47 @@ const AHUFiltration = () => {
     const specialHandlingOptions = config.handling.specialHandlingOptions;
     const hasSpecialHandling = handling.length > 0 && handling.some((h: string) => specialHandlingOptions.includes(h)); // true if any selected handling matches special handling criteria
 
+    const autoRulesForUi = Array.isArray(filterSelectionConfig.autoSelectionRules)
+        ? filterSelectionConfig.autoSelectionRules
+        : [];
+    const matchedAutoRuleForUi = autoRulesForUi.find((rule: any) =>
+        rule.standard === standard &&
+        rule.system === system &&
+        rule.systemType === systemType
+    );
+    const matchedAutoClassForUi = (matchedAutoRuleForUi?.classifications || []).find(
+        (entry: any) => entry.name === classification
+    );
+    const autoRuleContextKey = `${standard || ""}||${system || ""}||${systemType || ""}||${classification || ""}`;
+    const currentRuleSupplyKeys = (Array.isArray(matchedAutoClassForUi?.filters?.Supply)
+        ? matchedAutoClassForUi.filters.Supply
+        : []
+    ).map((filterName: string) => `Supply:${filterName}`);
+
+    const autoRulePreselectedKeys = new Set<string>(
+        (Array.isArray(matchedAutoClassForUi?.filterTypeSelection)
+            ? matchedAutoClassForUi.filterTypeSelection
+            : []
+        ).flatMap((type: string) => {
+            const filtersForType = Array.isArray(matchedAutoClassForUi?.filters?.[type])
+                ? matchedAutoClassForUi.filters[type]
+                : [];
+            return filtersForType.map((filterName: string) => `${type}:${filterName}`);
+        })
+    );
+    const dismissedRuleKeysForUi =
+        dismissedRuleKeysByContextRef.current[autoRuleContextKey] || new Set<string>();
+
+    const hasRuleBasedPreselected = [...autoRulePreselectedKeys].some((k: string) =>
+        selectedFilters.includes(k)
+    );
+
+    const hasPreselectedModeActive =
+        hasRuleBasedPreselected ||
+        (hasSpecialHandling &&
+            filterTypes.includes("Exhaust") &&
+            (filterSelectionConfig.specialExhaustFilters?.length ?? 0) > 0);
+
     const systems = (standardDataJson as any).text.options.systems;
     const isHeating = [systems.heating, systems.heatingVentilation, systems.heatingCooling].includes(system);
     const isCooling = [systems.cooling, systems.coolingVentilation, systems.heatingCooling].includes(system);
@@ -251,6 +295,8 @@ const AHUFiltration = () => {
     const activeFilters = [...new Set([...(selectedFilters || []), ...kExhaust])]
         .filter(k => k && filterTypes.some(t => k.startsWith(`${t}:`)));
     const numStages = activeFilters.length;
+    const numSupplyStages = activeFilters.filter((k: string) => k.startsWith("Supply:")).length;
+    const numExhaustStages = activeFilters.filter((k: string) => k.startsWith("Exhaust:")).length;
 
     const filterDpSumMmWg = activeFilters.reduce((sum, k) => {
         const detail = selectedFilterDetails[k];
@@ -280,8 +326,29 @@ const AHUFiltration = () => {
         const index = currentSelected.indexOf(k);
         if (index > -1) {
             currentSelected.splice(index, 1);
+
+            if (autoRulePreselectedKeys.has(k)) {
+                if (!dismissedRuleKeysByContextRef.current[autoRuleContextKey]) {
+                    dismissedRuleKeysByContextRef.current[autoRuleContextKey] = new Set();
+                }
+                dismissedRuleKeysByContextRef.current[autoRuleContextKey].add(k);
+            }
+
+            if (type === "Supply" && currentRuleSupplyKeys.includes(k)) {
+                if (!dismissedSupplyByContextRef.current[autoRuleContextKey]) {
+                    dismissedSupplyByContextRef.current[autoRuleContextKey] = new Set();
+                }
+                dismissedSupplyByContextRef.current[autoRuleContextKey].add(k);
+            }
         } else {
             currentSelected.push(k);
+
+            dismissedRuleKeysByContextRef.current[autoRuleContextKey]?.delete(k);
+
+            if (type === "Supply") {
+                dismissedSupplyByContextRef.current[autoRuleContextKey]?.delete(k);
+            }
+
             // Initialize filter detail if not present
             if (!selectedFilterDetails[k]) {
                 const specs = getFilterSpecs(filter);
@@ -359,6 +426,13 @@ const AHUFiltration = () => {
         );
         if (selectedTypesForRule.length === 0) return;
 
+        const applyKey = `${autoRuleContextKey}||${selectedTypesForRule.slice().sort().join(",")}`;
+        if (appliedAutoRuleRef.current === applyKey) return;
+        appliedAutoRuleRef.current = applyKey;
+
+        const dismissedSupplySet =
+            dismissedSupplyByContextRef.current[autoRuleContextKey] || new Set();
+
         const nextSelected = [...(selectedFilters || [])];
         const detailsToAdd: Array<{ filterName: string; details: any }> = [];
 
@@ -369,6 +443,7 @@ const AHUFiltration = () => {
 
             configuredFilters.forEach((filterName: string) => {
                 const key = `${type}:${filterName}`;
+                if (type === "Supply" && dismissedSupplySet.has(key)) return;
                 if (nextSelected.includes(key)) return;
                 nextSelected.push(key);
 
@@ -398,7 +473,16 @@ const AHUFiltration = () => {
                 dispatch(updateFilterDetail({ filterName, details }));
             });
         }
-    }, [standard, system, systemType, classification, filterTypes, selectedFilters, selectedFilterDetails]);
+    }, [
+        standard,
+        system,
+        systemType,
+        classification,
+        filterTypes,
+        selectedFilters,
+        selectedFilterDetails,
+        autoRuleContextKey,
+    ]);
 
     // Auto-select special exhaust filters
     useEffect(() => {
@@ -801,6 +885,39 @@ const AHUFiltration = () => {
                                                                 const k = `${type}:${filter}`;
                                                                 const isSelected = (selectedFilters || []).includes(k);
                                                                 const isPreselectedAndDisabled = specialExhaustFilters.includes(filter);
+                                                                const isRulePreselectedButManuallyRemoved =
+                                                                    !isSelected &&
+                                                                    autoRulePreselectedKeys.has(k) &&
+                                                                    dismissedRuleKeysForUi.has(k);
+                                                                const showOrangeForNonSelected =
+                                                                    hasPreselectedModeActive &&
+                                                                    !isPreselectedAndDisabled &&
+                                                                    !isRulePreselectedButManuallyRemoved &&
+                                                                    !isSelected;
+                                                                const checkboxStyle: CSSProperties | undefined =
+                                                                    isRulePreselectedButManuallyRemoved
+                                                                        ? {
+                                                                            appearance: "none",
+                                                                            WebkitAppearance: "none",
+                                                                            MozAppearance: "none",
+                                                                            width: "18px",
+                                                                            height: "18px",
+                                                                            border: "2px solid #22c55e",
+                                                                            borderRadius: "4px",
+                                                                            backgroundColor: "#dcfce7",
+                                                                        }
+                                                                        : showOrangeForNonSelected
+                                                                            ? {
+                                                                                appearance: "none",
+                                                                                WebkitAppearance: "none",
+                                                                                MozAppearance: "none",
+                                                                                width: "18px",
+                                                                                height: "18px",
+                                                                                border: "2px solid #fc8314",
+                                                                                borderRadius: "4px",
+                                                                                backgroundColor: "#ffe7d1",
+                                                                            }
+                                                                            : undefined;
                                                                 const specs = getFilterSpecs(filter);
                                                                 return (
                                                                     <div key={k} className={s.inputGroup}>
@@ -810,6 +927,7 @@ const AHUFiltration = () => {
                                                                                     type="checkbox"
                                                                                     className={`${s.checkboxBase} ${isPreselectedAndDisabled ? s.checkboxDisabled : s.checkboxEnabled}`}
                                                                                     checked={isSelected || isPreselectedAndDisabled}
+                                                                                    style={checkboxStyle}
                                                                                     disabled={isPreselectedAndDisabled}
                                                                                     onChange={() => handleFilterToggle(type, filter)}
                                                                                 />
@@ -844,12 +962,36 @@ const AHUFiltration = () => {
                                     {/* No. of Filtration Stages */}
                                     <div className={s.field}>
                                         <label className={s.label}>
-                                            No. of Filtration Stages in AHU <span className={s.autoCalcNote}>(Auto-calculated)</span>
+                                            Total number of filtration stages in AHU <span className={s.autoCalcNote}>(Auto-calculated)</span>
                                         </label>
                                         <input
                                             type="text"
                                             className={s.inputDisabled}
                                             value={numStages}
+                                            readOnly
+                                        />
+                                    </div>
+
+                                    <div className={s.field}>
+                                        <label className={s.label}>
+                                            Number of filtration stages in Supply <span className={s.autoCalcNote}>(Auto-calculated)</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            className={s.inputDisabled}
+                                            value={numSupplyStages}
+                                            readOnly
+                                        />
+                                    </div>
+
+                                    <div className={s.field}>
+                                        <label className={s.label}>
+                                            Number of filtration stages in Exhaust <span className={s.autoCalcNote}>(Auto-calculated)</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            className={s.inputDisabled}
+                                            value={numExhaustStages}
                                             readOnly
                                         />
                                     </div>

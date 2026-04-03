@@ -161,6 +161,32 @@ const ahuPayload = ahupayload(standards);
 
   const [modalMessage, setModalMessage] = useState("");
 
+  const clearSupplyFilters = () => {
+    const currentFilters = Array.isArray(selectedFilters) ? selectedFilters : [];
+    const nextFilters = currentFilters.filter(
+      (key: string) => !key.startsWith("Supply:")
+    );
+    const currentDetails = standards.selectedFilterDetails || {};
+    const nextDetails = Object.fromEntries(
+      Object.entries(currentDetails).filter(
+        ([key]) => !String(key).startsWith("Supply:")
+      )
+    );
+
+    const filtersChanged = nextFilters.length !== currentFilters.length;
+    const detailsChanged =
+      Object.keys(nextDetails).length !== Object.keys(currentDetails).length;
+
+    if (filtersChanged || detailsChanged) {
+      dispatch(
+        updateMultipleStandardsFields({
+          selectedFilters: nextFilters,
+          selectedFilterDetails: nextDetails,
+        })
+      );
+    }
+  };
+
   // ──when room.tsx passes resetKey via navigate state (addAnotherZone),
   useEffect(() => {
     if (!location.state?.resetKey) return;
@@ -878,6 +904,7 @@ const ahuPayload = ahupayload(standards);
                       className={s.select}
                       value={standard}
                       onChange={(e) => {
+                        clearSupplyFilters();
                         dispatch(
                           updateStandardsField({
                             field: "standard",
@@ -917,14 +944,15 @@ const ahuPayload = ahupayload(standards);
                       className={selectedStandard ? s.select : s.selectDisabled}
                       disabled={!selectedStandard}
                       value={classification}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        clearSupplyFilters();
                         dispatch(
                           updateStandardsField({
                             field: "classification",
                             value: e.target.value,
                           })
-                        )
-                      }
+                        );
+                      }}
                       required
                     >
                       <option value="">

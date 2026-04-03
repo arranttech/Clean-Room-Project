@@ -110,6 +110,11 @@
             "High Fine filter",
             "Fine pre-filter",
             "Coarse-to-medium filter",
+            "Activated Carbon V Cell Filter",
+            "Chemisorbent AMC Filter",
+            "Flame Arrestor Filter",
+            "PCO VOC Oxidation Filter",
+            "HEPA + Carbon Combo Filter",
             "Fresh Air filter",
             "Terminal filters - Supply"
         ],
@@ -141,6 +146,11 @@
             "High Fine filter",
             "Fine pre-filter",
             "Coarse-to-medium filter",
+            "Activated Carbon V Cell Filter",
+            "Chemisorbent AMC Filter",
+            "Flame Arrestor Filter",
+            "PCO VOC Oxidation Filter",
+            "HEPA + Carbon Combo Filter",
             "Exhaust Air filter",
             "Terminal filters - Exhaust"
         ],
@@ -206,7 +216,8 @@
                                 "High Fine filter",
                                 "Pre-HEPA Super fine filter",
                                 "Fine pre-filter",
-                                "EPA (H11) (pre-HEPA) filter"
+                                "EPA (H11) (pre-HEPA) filter",
+                                "Fresh Air filter"
                             ],
                             "Exhaust": [
                                 "Coarse-to-medium filter",
@@ -224,6 +235,7 @@
                                 "Pre-HEPA Super fine filter",
                                 "Fine pre-filter",
                                 "Leagcy (H14 ~300mm) filter",
+                                "Fresh Air filter",
                                 "Leagcy (H14 ~150mm) filter"
                             ],
                             "Exhaust": [
@@ -242,6 +254,7 @@
                                 "High Fine filter",
                                 "Pre-HEPA Super fine filter",
                                 "EPA (H11) (pre-HEPA) filter",
+                                "Fresh Air filter",
                                 "Leagcy (H14 ~150mm) filter"
                             ],
                             "Exhaust": [
@@ -258,6 +271,7 @@
                                 "Coarse-to-medium filter",
                                 "Fine pre-filter",
                                 "High Fine filter",
+                                "Fresh Air filter",
                                 "Pre-HEPA Super fine filter",
                                 "EPA (H11) (pre-HEPA) filter"
                             ],
@@ -278,6 +292,7 @@
                                 "Pre-HEPA Super fine filter",
                                 "Leagcy (H13 ~150mm) filter",
                                 "ULPA filter (U16 ~150mm)",
+                                "Fresh Air filter",
                                 "ULPA filter (U17 ~150mm)",
                                 "EPA (H11) (pre-HEPA) filter",
                                 "Leagcy (H14 ~150mm) filter"
@@ -296,6 +311,7 @@
                                 "Coarse-to-medium filter",
                                 "Fine pre-filter",
                                 "High Fine filter",
+                                "Fresh Air filter",
                                 "ULPA filter (U17 ~150mm)",
                                 "ULPA filter (U15 ~150mm)",
                                 "Pre-HEPA Super fine filter"
@@ -316,7 +332,8 @@
                                 "High Fine filter",
                                 "ULPA filter (U17 ~150mm)",
                                 "ULPA filter (U15 ~150mm)",
-                                "Pre-HEPA Super fine filter"
+                                "Pre-HEPA Super fine filter",
+                                "Fresh Air filter"
                             ],
                             "Exhaust": [
                                 "Coarse-to-medium filter",
@@ -334,6 +351,7 @@
                                 "High Fine filter",
                                 "ULPA filter (U17 ~150mm)",
                                 "ULPA filter (U15 ~150mm)",
+                                "Fresh Air filter",
                                 "Pre-HEPA Super fine filter"
                             ],
                             "Exhaust": [
@@ -696,6 +714,71 @@
             "finalRange": [
                 18,
                 25
+            ]
+        },
+        "Activated Carbon V Cell Filter": {
+            "rating": "Gas Phase Molecular Filter",
+            "depth": "292 mm V cell",
+            "efficiency": "80-95% for VOCs",
+            "initRange": [
+                10,
+                15
+            ],
+            "finalRange": [
+                10,
+                15
+            ]
+        },
+        "Chemisorbent AMC Filter": {
+            "rating": "V bank / cassette type",
+            "depth": "292 mm",
+            "efficiency": "SO2, H2S, NO2, NH3, O3, VOCs",
+            "initRange": [
+                12,
+                18
+            ],
+            "finalRange": [
+                12,
+                18
+            ]
+        },
+        "Flame Arrestor Filter": {
+            "rating": "SS304 or SS316",
+            "depth": "20 / 50 / 100 mm",
+            "efficiency": "Mesh Aperture: 0.4-0.8 mm",
+            "initRange": [
+                2,
+                5
+            ],
+            "finalRange": [
+                2,
+                5
+            ]
+        },
+        "PCO VOC Oxidation Filter": {
+            "rating": "Module",
+            "depth": "100-250 mm",
+            "efficiency": "VOC Efficiency: Up to 95%",
+            "initRange": [
+                24,
+                24
+            ],
+            "finalRange": [
+                24,
+                24
+            ]
+        },
+        "HEPA + Carbon Combo Filter": {
+            "rating": "H13 / H14",
+            "depth": "292 mm",
+            "efficiency": "99.95-99.995%",
+            "initRange": [
+                25,
+                35
+            ],
+            "finalRange": [
+                65,
+                65
             ]
         },
         "Fresh Air filter": {

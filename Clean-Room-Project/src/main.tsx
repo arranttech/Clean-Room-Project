@@ -7,11 +7,13 @@ import store, { persistor } from "./redux/store";
 import App from "./App";
 import "./index.css";
 import { initAutoLogout } from './utils/auth.ts';
+import { handleLogout } from "./utils/logout";
 
 // Schedule auto logout if there's an existing token
 initAutoLogout(() => {
-  localStorage.removeItem('token');
-  window.location.href = '/login';
+  handleLogout(store.dispatch).finally(() => {
+    window.location.href = '/login';
+  });
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

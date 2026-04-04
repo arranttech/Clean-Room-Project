@@ -205,6 +205,224 @@
         "autoSelectionRules": [
             {
                 "standard": "ISO 14644-4",
+                "system": ["Air-Cooling System", "Air-Heating System"],
+                "systemType": ["Non-Classified Air-Cooling System", "Non-Classified Air-Heating System"],
+                "methods": ["Chilled Water", "Brine", "DX"],
+                "classifications": [
+                    {
+                        "name": "ISO 9 (Non-Classified)",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Fresh Air filter"
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "standard": "ISO 14644-4",
+                "system": ["Air-Cooling System","Air-Heating System"],
+                "systemType": ["Cleanroom Air-Cooling System","Comfort Air-Cooling System", "Cleanroom Air-Heating System", "Comfort Air-Heating System"],
+                "methods": ["Chilled Water", "Brine", "DX", "Steam","Hot Water"],
+                "classifications": [
+                    {
+                        "name": "ISO 8",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "EPA (H11) (pre-HEPA) filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 7",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Leagcy (H13 ~300mm) filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 6",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Leagcy (H13 ~150mm) filter",
+                                "EPA (H11) (pre-HEPA) filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 5",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "EPA (H11) (pre-HEPA) filter",
+                                "Leagcy (H14 ~150mm) filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 4",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "EPA (H11) (pre-HEPA) filter",
+                                "Pre-HEPA Super fine filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 3",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "ULPA filter (U17 ~150mm)",
+                                "Leagcy (H14 ~300mm) filter",
+                                "Pre-HEPA Super fine filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 2",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Leagcy (H14 ~300mm) filter",
+                                "ULPA filter (U17 ~150mm)",
+                                "Pre-HEPA Super fine filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 1",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Leagcy (H14 ~150mm) filter",
+                                "ULPA filter (U17 ~150mm)",
+                                "Pre-HEPA Super fine filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter"
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "standard": "ISO 14644-4",
+                "system": ["Air-Cooling System","Air-Heating System"],
+                "systemType": ["Non-Classified Air-Cooling System", "Non-Classified Air-Heating System"],
+                "methods": ["Chilled Water", "Brine", "DX", "Steam","Hot Water"],
+                "classifications": [
+                    {
+                        "name": "ISO 9 (Non-Classified)",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Fresh Air filter"
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "standard": "ISO 14644-4",
+                "system": "Ventilation System",
+                "systemType": "Non-Classified Ventilation System",
+                "classifications": [
+                    {
+                        "name": "ISO 9 (Non-Classified)",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Fresh Air filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Fresh Air filter"
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "standard": "ISO 14644-4",
                 "system": "Ventilation System",
                 "systemType": "Cleanroom Ventilation System",
                 "classifications": [

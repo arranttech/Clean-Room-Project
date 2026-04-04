@@ -48,8 +48,8 @@ export default function Header() {
 
   const displayName = userFullName || loggedInUser?.name;
 
-  const onLogout = () => {
-    handleLogout(dispatch);
+  const onLogout = async () => {
+    await handleLogout(dispatch);
     navigate("/");
   };
 

@@ -34,6 +34,10 @@ const getFilterSpecs = (filterName: string) => {
 
 export const AHU_CONSTRUCTION_FIELDS = Object.keys(config.fields);
 const MM_WG_TO_PA = config.calculationConstants.MM_WG_TO_PA;
+const ISO9_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:Pre-HEPA Super fine filter",
+    "Supply:High Fine filter",
+]);
 const ISO8_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
     "Supply:Pre-HEPA Super fine filter",
     "Supply:High Fine filter",
@@ -83,6 +87,19 @@ const ISO1_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
     "Supply:High Fine filter",
     "Supply:Fine pre-filter",
 ]);
+const ISO8_COOLING_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:High Fine filter",
+    "Supply:Leagcy (H13 ~150mm) filter",
+    "Supply:Leagcy (H13 ~300mm) filter",
+    "Supply:Leagcy (H14 ~150mm) filter",
+    "Supply:Leagcy (H14 ~300mm) filter",
+]);
+const ISO7_COOLING_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:High Fine filter",
+    "Supply:Leagcy (H13 ~150mm) filter",
+    "Supply:Leagcy (H14 ~150mm) filter",
+    "Supply:Leagcy (H14 ~300mm) filter",
+]);
 const getIsoVentilationSuggestedSupplyKeys = (
     standard: string,
     system: string,
@@ -92,9 +109,10 @@ const getIsoVentilationSuggestedSupplyKeys = (
     const isIsoVentilationContext =
         standard === "ISO 14644-4" &&
         system === "Ventilation System" &&
-        systemType === "Cleanroom Ventilation System";
+        (systemType === "Cleanroom Ventilation System" || systemType === "Non-Classified Ventilation System");
 
     if (!isIsoVentilationContext) return new Set<string>();
+    if (classification === "ISO 9 (Non-Classified)") return ISO9_VENTILATION_SUGGESTED_SUPPLY_KEYS;
     if (classification === "ISO 8") return ISO8_VENTILATION_SUGGESTED_SUPPLY_KEYS;
     if (classification === "ISO 7") return ISO7_VENTILATION_SUGGESTED_SUPPLY_KEYS;
     if (classification === "ISO 6") return ISO6_VENTILATION_SUGGESTED_SUPPLY_KEYS;
@@ -105,6 +123,97 @@ const getIsoVentilationSuggestedSupplyKeys = (
     if (classification === "ISO 1") return ISO1_VENTILATION_SUGGESTED_SUPPLY_KEYS;
     return new Set<string>();
 };
+
+const getContextSuggestedSupplyKeys = (
+    standard: string,
+    system: string,
+    systemType: string,
+    classification: string,
+    coolingMethod: string,
+    heatingMethod: string
+) => {
+    const ventilationSuggested = getIsoVentilationSuggestedSupplyKeys(
+        standard,
+        system,
+        systemType,
+        classification
+    );
+    if (ventilationSuggested.size > 0) return ventilationSuggested;
+
+    const isIso9ThermalContext =
+        standard === "ISO 14644-4" &&
+        ["Air-Cooling System", "Air-Heating System"].includes(system) &&
+        ["ISO 9", "ISO 9 (Non-Classified)"].includes(classification);
+
+    if (isIso9ThermalContext) {
+        return ISO9_VENTILATION_SUGGESTED_SUPPLY_KEYS;
+    }
+
+    const isIsoCoolingContext =
+        standard === "ISO 14644-4" &&
+        system === "Air-Cooling System" &&
+        systemType === "Cleanroom Air-Cooling System" &&
+        ["ISO 8", "ISO 7"].includes(classification) &&
+        ["Chilled Water", "Brine", "DX"].includes(coolingMethod);
+
+    const isIsoHeatingContext =
+        standard === "ISO 14644-4" &&
+        system === "Air-Heating System" &&
+        systemType === "Cleanroom Air-Heating System" &&
+        ["ISO 8", "ISO 7"].includes(classification) &&
+        ["Hot Water", "Steam"].includes(heatingMethod);
+
+    if (!isIsoCoolingContext && !isIsoHeatingContext) return new Set<string>();
+    if (classification === "ISO 8") return ISO8_COOLING_SUGGESTED_SUPPLY_KEYS;
+    if (classification === "ISO 7") return ISO7_COOLING_SUGGESTED_SUPPLY_KEYS;
+    return new Set<string>();
+};
+
+const ruleMatchesSelectionContext = (
+    rule: any,
+    standard: string,
+    system: string,
+    systemType: string,
+    coolingMethod: string,
+    heatingMethod: string
+) => {
+    const configuredSystems = Array.isArray(rule.system)
+        ? rule.system.filter(Boolean)
+        : [rule.system].filter(Boolean);
+
+    const configuredSystemTypes = Array.isArray(rule.systemType)
+        ? rule.systemType.filter(Boolean)
+        : [rule.systemType].filter(Boolean);
+
+    const systemMatches =
+        configuredSystems.length > 0 && configuredSystems.includes(system);
+    const systemTypeMatches =
+        configuredSystemTypes.length > 0 && configuredSystemTypes.includes(systemType);
+
+    if (
+        rule.standard !== standard ||
+        !systemMatches ||
+        !systemTypeMatches
+    ) {
+        return false;
+    }
+
+    const configuredMethods = Array.isArray(rule.methods)
+        ? rule.methods.filter(Boolean)
+        : Array.isArray(rule.coolingMethods)
+        ? rule.coolingMethods.filter(Boolean)
+        : Array.isArray(rule.heatingMethods)
+        ? rule.heatingMethods.filter(Boolean)
+        : [];
+
+    if (configuredMethods.length > 0) {
+        const methodCandidates = [coolingMethod, heatingMethod].filter(Boolean);
+        return methodCandidates.some((method) => configuredMethods.includes(method));
+    }
+
+    return true;
+};
+
 
 export const ahupayload = (standards: any) => {
     const payload: any = {};
@@ -304,21 +413,21 @@ const AHUFiltration = () => {
         ? filterSelectionConfig.autoSelectionRules
         : [];
     const matchedAutoRuleForUi = autoRulesForUi.find((rule: any) =>
-        rule.standard === standard &&
-        rule.system === system &&
-        rule.systemType === systemType
+        ruleMatchesSelectionContext(rule, standard, system, systemType, coolingMethod, heatingMethod)
     );
     const matchedAutoClassForUi = (matchedAutoRuleForUi?.classifications || []).find(
         (entry: any) => entry.name === classification
     );
-    const autoRuleContextKey = `${standard || ""}||${system || ""}||${systemType || ""}||${classification || ""}`;
-    const isoVentilationSuggestedSupplyKeys = getIsoVentilationSuggestedSupplyKeys(
+    const autoRuleContextKey = `${standard || ""}||${system || ""}||${systemType || ""}||${classification || ""}||${coolingMethod || ""}||${heatingMethod || ""}`;
+    const contextSuggestedSupplyKeys = getContextSuggestedSupplyKeys(
         standard,
         system,
         systemType,
-        classification
+        classification,
+        coolingMethod,
+        heatingMethod
     );
-    const hasIsoVentilationSuggestionMode = isoVentilationSuggestedSupplyKeys.size > 0;
+    const hasSuggestedSupplyMode = contextSuggestedSupplyKeys.size > 0;
     const currentRuleSupplyKeys = (Array.isArray(matchedAutoClassForUi?.filters?.Supply)
         ? matchedAutoClassForUi.filters.Supply
         : []
@@ -334,7 +443,7 @@ const AHUFiltration = () => {
                 : [];
             return filtersForType
                 .map((filterName: string) => `${type}:${filterName}`)
-                .filter((key: string) => !(hasIsoVentilationSuggestionMode && isoVentilationSuggestedSupplyKeys.has(key)));
+                .filter((key: string) => !(hasSuggestedSupplyMode && contextSuggestedSupplyKeys.has(key)));
         })
     );
     const dismissedRuleKeysForUi =
@@ -482,23 +591,23 @@ const AHUFiltration = () => {
 
     // Auto-select filters from JSON rules for ISO cleanroom ventilation flow.
     useEffect(() => {
-        const isoVentilationSuggestedSupplyKeysForEffect = getIsoVentilationSuggestedSupplyKeys(
+        const contextSuggestedSupplyKeysForEffect = getContextSuggestedSupplyKeys(
             standard,
             system,
             systemType,
-            classification
+            classification,
+            coolingMethod,
+            heatingMethod
         );
-        const hasIsoVentilationSuggestionModeForEffect =
-            isoVentilationSuggestedSupplyKeysForEffect.size > 0;
+        const hasSuggestedSupplyModeForEffect =
+            contextSuggestedSupplyKeysForEffect.size > 0;
 
         const autoRules = Array.isArray(filterSelectionConfig.autoSelectionRules)
             ? filterSelectionConfig.autoSelectionRules
             : [];
 
         const matchedRule = autoRules.find((rule: any) =>
-            rule.standard === standard &&
-            rule.system === system &&
-            rule.systemType === systemType
+            ruleMatchesSelectionContext(rule, standard, system, systemType, coolingMethod, heatingMethod)
         );
         if (!matchedRule) return;
 
@@ -522,8 +631,8 @@ const AHUFiltration = () => {
         const dismissedSupplySet =
             dismissedSupplyByContextRef.current[autoRuleContextKey] || new Set();
 
-        const nextSelected = hasIsoVentilationSuggestionModeForEffect
-            ? [...(selectedFilters || [])].filter((k: string) => !isoVentilationSuggestedSupplyKeysForEffect.has(k))
+        const nextSelected = hasSuggestedSupplyModeForEffect
+            ? [...(selectedFilters || [])].filter((k: string) => !contextSuggestedSupplyKeysForEffect.has(k))
             : [...(selectedFilters || [])];
         const detailsToAdd: Array<{ filterName: string; details: any }> = [];
 
@@ -534,7 +643,7 @@ const AHUFiltration = () => {
 
             configuredFilters.forEach((filterName: string) => {
                 const key = `${type}:${filterName}`;
-                if (hasIsoVentilationSuggestionModeForEffect && isoVentilationSuggestedSupplyKeysForEffect.has(key)) return;
+                if (hasSuggestedSupplyModeForEffect && contextSuggestedSupplyKeysForEffect.has(key)) return;
                 if (type === "Supply" && dismissedSupplySet.has(key)) return;
                 if (nextSelected.includes(key)) return;
                 nextSelected.push(key);
@@ -570,6 +679,8 @@ const AHUFiltration = () => {
         system,
         systemType,
         classification,
+        coolingMethod,
+        heatingMethod,
         filterTypes,
         selectedFilters,
         selectedFilterDetails,
@@ -981,18 +1092,18 @@ const AHUFiltration = () => {
                                                                     !isSelected &&
                                                                     autoRulePreselectedKeys.has(k) &&
                                                                     dismissedRuleKeysForUi.has(k);
-                                                                const isIso8VentilationSuggestedNotSelected =
+                                                                const isSuggestedNotSelected =
                                                                     !isSelected &&
-                                                                    hasIsoVentilationSuggestionMode &&
-                                                                    isoVentilationSuggestedSupplyKeys.has(k);
+                                                                    hasSuggestedSupplyMode &&
+                                                                    contextSuggestedSupplyKeys.has(k);
                                                                 const showOrangeForNonSelected =
                                                                     hasPreselectedModeActive &&
                                                                     !isPreselectedAndDisabled &&
                                                                     !isRulePreselectedButManuallyRemoved &&
-                                                                    !isIso8VentilationSuggestedNotSelected &&
+                                                                    !isSuggestedNotSelected &&
                                                                     !isSelected;
                                                                 const checkboxStyle: CSSProperties | undefined =
-                                                                    (isRulePreselectedButManuallyRemoved || isIso8VentilationSuggestedNotSelected)
+                                                                    (isRulePreselectedButManuallyRemoved || isSuggestedNotSelected)
                                                                         ? {
                                                                             appearance: "none",
                                                                             WebkitAppearance: "none",

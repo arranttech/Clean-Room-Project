@@ -12,7 +12,11 @@ export const handleLogout = async (dispatch) => {
   dispatch(resetCustomer());
   dispatch(clearUser());
   localStorage.removeItem("token");
-  await persistor.purge(); // clears sessionStorage
+
+  // Ensure latest in-memory state is written and then fully purged.
+  await persistor.flush();
+  await persistor.purge();
+  persistor.persist();
 };
 
 export const CleanProjectDetails = (dispatch) => {

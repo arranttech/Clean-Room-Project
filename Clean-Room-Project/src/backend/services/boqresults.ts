@@ -22,7 +22,7 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
     const pipeConfiguration = zone.pipeConfiguration ?? "";
 
     const currentZoneSystem = zone.zoneSystem ?? "";
-    const { showCooling, showHeating } = getSystemFlags(currentZoneSystem, room || {} as RoomPayload);
+    const { showCooling, showHeating, isVentilationSystem } = getSystemFlags(currentZoneSystem, room || {} as RoomPayload);
 
     const isHeatingandCooling = showCooling && showHeating;
     const ahu = boqresult.fields.AHUSize;
@@ -33,22 +33,28 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
 
     const AHUCoolLoadTR = zone.zoneResultCoolLoadTR ?? 0;
 
-
-    function calculatedAHUCfm(): number {
+    function calculatedAHUCfm(){
         const exhaustAir = Number(zone.zoneExhaustAir || 0);
+        const freshAir = Number(zone.zoneFreshAir || 0);
+        const roomCFM = Number(zone.zoneRoomCfm || 0);
         const coolingBase = Number(zone.zoneResultantCfm || 0);
         const heatingBase = Number(zone.zoneResultantHeatCfm || 0);
 
-        const coolingCfm = Math.ceil(coolingBase / 250) * 250;
-        const heatingCfm = Math.ceil(heatingBase / 250) * 250;
-        const exhaustCfm = Math.ceil(exhaustAir / 250) * 250;
 
-        if (exhaustAir > 0) return exhaustCfm;
-        if (isHeatingandCooling) return Math.max(coolingCfm, heatingCfm);
+        const coolingCfm = exhaustAir !== 0 ? Math.ceil((exhaustAir * 1.10) / 50) * 50 : Math.ceil(coolingBase / 250) * 250;
+        const heatingCfm = exhaustAir !== 0 ? Math.ceil((exhaustAir * 1.10) / 50) * 50 : Math.ceil(heatingBase / 250) * 250;
+        const ventilationCfm = exhaustAir !== 0 ? Math.ceil(roomCFM / 250) * 250 : Math.ceil((roomCFM + freshAir) / 100) * 100;
+        
+
+        if (isHeatingandCooling && (coolingCfm > 0 || heatingCfm > 0)) {
+            return Math.max(coolingCfm, heatingCfm);
+        }
+
         if (showCooling) return coolingCfm;
         if (showHeating) return heatingCfm;
 
-        return 0;
+        if (isVentilationSystem) return ventilationCfm;
+
     }
 
     function calculateAHUWidth(cfm: number): number {
@@ -173,7 +179,6 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
 
     function calculateWaterLS(GPM: number): number {
         if (zone.zoneExhaustAir > 0 || !GPM) return 0;
-        // Rounding to 1 decimal place
         return Math.round((GPM * w) * 10) / 10;
     }
 
@@ -190,8 +195,8 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
 
             const formulaPart = (p1 * GPM * p2) / (p3 * v);
             const val = Math.sqrt(formulaPart) * p4;
-            
-            return Math.round(val * 10) / 10; 
+
+            return Math.round(val * 10) / 10;
         };
 
         if (Array.isArray(velocity)) {
@@ -205,7 +210,7 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
     const finalWidth = calculateAHUWidth(finalCfm);
     const finalHeight = calculateAHUHeight(finalCfm);
     const finalCoolingCoil = calculateCoolingCoil(finalWidth, finalHeight, Number(AHUCoolLoadTR));
-    
+
     const displayVelocity = displayflowvelocity();
     const finalWaterGPM = calculateGPM();
 

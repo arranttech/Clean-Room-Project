@@ -595,6 +595,30 @@ const AHUFiltration = () => {
     };
 
     useEffect(() => {
+        if (!system) {
+            if (plantRoomDistance !== "") {
+                dispatch(
+                    updateStandardsField({
+                        field: "plantRoomDistance",
+                        value: "",
+                    })
+                );
+            }
+            return;
+        }
+
+        if (plantRoomDistance !== "" && plantRoomDistance !== null && plantRoomDistance !== undefined) {
+            return;
+        }
+        dispatch(
+            updateStandardsField({
+                field: "plantRoomDistance",
+                value: config.plantRoomDistanceLimits.min,
+            })
+        );
+    }, [system, plantRoomDistance, dispatch]);
+
+    useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             if (filterTypeRef.current && !filterTypeRef.current.contains(e.target as Node)) {
                 setFilterTypeOpen(false);
@@ -603,6 +627,25 @@ const AHUFiltration = () => {
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    useEffect(() => {
+        if (!system) {
+            if (pipeConfiguration !== "") {
+                dispatch(updateStandardsField({ field: "pipeConfiguration", value: "" }));
+            }
+            return;
+        }
+
+        const shouldAutoSelectSinglePipe = [
+            systems.heating,
+            systems.cooling,
+            systems.coolingVentilation,
+            systems.heatingVentilation,
+        ].includes(system);
+        if (!shouldAutoSelectSinglePipe) return;
+        if (pipeConfiguration === "Single Pipe") return;
+        dispatch(updateStandardsField({ field: "pipeConfiguration", value: "Single Pipe" }));
+    }, [system, pipeConfiguration, dispatch, systems]);
 
     // DERIVED VALUES: Count stages and calculate total pressure drop
     const kExhaust = (filterTypes.includes("Exhaust") && hasSpecialHandling)

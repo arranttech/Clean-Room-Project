@@ -137,7 +137,7 @@ function Login() {
 								/>
 							</div>
 
-							<Link to="/register" className={styles.resetPwdLink}>
+							<Link to="/forgot-password" className={styles.resetPwdLink}>
 								<span>Forgot Password?</span>
 							</Link>
 

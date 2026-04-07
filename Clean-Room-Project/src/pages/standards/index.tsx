@@ -216,6 +216,7 @@ const ahuPayload = ahupayload(standards);
               systemType: std.project_system_type || "",
               heatingMethod: std.project_heating_method || "",
               coolingMethod: std.project_cooling_method || "",
+              additionalDpValue: std.additional_pressure_drop || "",
               standard: std.project_standard || "",
               classification: std.project_classification_name || "",
               acph: std.project_ACPH ? String(std.project_ACPH) : "",
@@ -235,6 +236,8 @@ const ahuPayload = ahupayload(standards);
               staticPressure: std.static_pressure || 0,
               heatingFlowVelocity: std.heating_flow_velocity || 1.5,
               coolingFlowVelocity: std.cooling_flow_velocity || 1.5,
+              ahufiltrationData: std.ahu_filtration_data ? JSON.parse(std.ahu_filtration_data) : [],
+              ahuConstructionData: std.ahu_construction_specifications ? JSON.parse(std.ahu_construction_specifications) : [],
             })
           );
         }
@@ -636,12 +639,13 @@ const ahuPayload = ahupayload(standards);
         minTempC,
         rhMin,
         rhMax,
-        ...ahuPayload,
         totalFiltrationStages,
         staticPressure,
         flowVelocity,
         heatingFlowVelocity,
         coolingFlowVelocity,
+        additionalDpValue,
+        ...ahuPayload,
       };
 
       if (finalProjectStandardId) {

@@ -52,6 +52,8 @@ const initialState = {
 	additionalDpValue: "",
 	totalFiltrationStages: 0,
 	staticPressure: 0,
+	ahufiltrationData: [],
+	ahuConstructionData: [],
 };
 
 const standardsSlice = createSlice({

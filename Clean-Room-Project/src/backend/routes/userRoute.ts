@@ -44,30 +44,23 @@ export const userRoute: ServerRoute[] = [
     options: {
       description: "Create a new user",
       tags: ["api", "users"],
-
       validate: {
         payload: Joi.object({
           user_first_name: Joi.string().required(),
           user_last_name: Joi.string().required(),
           user_id: Joi.string().required(),
           user_email_id: Joi.string().email().required(),
-
           user_address: Joi.string().allow("", null),
           user_phone_home: Joi.string().allow("", null),
           user_phone_work: Joi.string().allow("", null),
-
           created_by: Joi.string().default("admin"),
           updated_by: Joi.string().default("admin"),
-
           user_admin_flag: Joi.string().valid("Yes", "No").default("No"),
-
           customer_ids: Joi.array()
             .items(Joi.number().integer())
             .min(1)
             .required(),
-
           password: Joi.string().allow("", null),
-
           status: Joi.string().valid("A", "I").default("A"),
         })
           .unknown(true)
@@ -85,14 +78,8 @@ export const userRoute: ServerRoute[] = [
     },
     handler: async (request, h) => {
       try {
-        console.log("BACKEND RAW PAYLOAD:");
-        console.log(request.payload);
-        console.log("BACKEND RECEIVED PAYLOAD:");
-        console.log(JSON.stringify(request.payload, null, 2));
-
+        console.log("BACKEND RAW PAYLOAD:", request.payload);
         const userLoginId = await userRepository.createUser(request.payload);
-        console.log("USER CREATED ID:", userLoginId);
-
         return h
           .response({
             message: "User created successfully",
@@ -110,7 +97,7 @@ export const userRoute: ServerRoute[] = [
     method: "PUT",
     path: "/v1/users/update",
     options: {
-      description: "Update user by ID",
+      description: "Update user by ID (partial or full)",
       tags: ["api", "users"],
       validate: {
         payload: Joi.object({
@@ -125,7 +112,6 @@ export const userRoute: ServerRoute[] = [
           updated_by: Joi.string().optional().default("admin"),
           user_id: Joi.string().optional().allow("", null),
           customer_id: Joi.number().optional().allow(null, 0),
-          // ── added: accept customer_ids array on edit ──
           customer_ids: Joi.array().items(Joi.number().integer()).optional(),
           created_by: Joi.string().optional().allow("", null),
           password: Joi.string().optional().allow("", null),
@@ -145,13 +131,59 @@ export const userRoute: ServerRoute[] = [
         const { id, ...updates } = payload;
         await userRepository.updateUser(Number(id), updates);
         return h.response({ message: "User updated successfully" }).code(200);
-      } catch {
+      } catch (err) {
+        console.error("UPDATE USER ERROR:", err);
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },
   },
 
-// GET single user by user_login_id — used by edit modal to prefill form
+  {
+    method: "PUT",
+    path: "/v1/password/update",
+    options: {
+      description: "Update user password",
+      tags: ["api", "users"],
+      validate: {
+        payload: Joi.object({
+          id: Joi.number().integer().positive().required(),
+          current_password: Joi.string().required(),
+          new_password: Joi.string().min(8).required(),
+        }).required(),
+      },
+      response: {
+        status: {
+          200: Joi.object({ message: Joi.string().required() }),
+          400: Joi.object({ error: Joi.string().required() }),
+          500: errorSchema,
+        },
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const { id, current_password, new_password } = request.payload as any;
+        console.log("PASSWORD UPDATE REQUEST — id:", id);
+        const success = await userRepository.updatePassword(
+          Number(id),
+          current_password,
+          new_password
+        );
+        console.log("updatePassword result:", success);
+        if (!success) {
+          return h
+            .response({ error: "Current password is incorrect" })
+            .code(400);
+        }
+        return h
+          .response({ message: "Password updated successfully" })
+          .code(200);
+      } catch (err) {
+        console.error("UPDATE PASSWORD ERROR:", err);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
   {
     method: "GET",
     path: "/v1/users/{user_login_id}",
@@ -177,22 +209,13 @@ export const userRoute: ServerRoute[] = [
     },
     handler: async (request, h) => {
       try {
-        console.log("GET /v1/users API HIT");
-        console.log("RAW PARAMS:", request.params);
-
         const user_login_id = Number(request.params.user_login_id);
-        console.log("PARSED user_login_id:", user_login_id);
-
         if (!user_login_id || isNaN(user_login_id)) {
-          console.error("INVALID user_login_id");
           return h
             .response({ success: false, message: "Invalid user_login_id" })
             .code(400);
         }
-
         const result = await userRepository.getUserById(user_login_id);
-        console.log("DB RESULT:", result);
-
         if (!result.success)
           return h
             .response({ success: false, message: result.message })

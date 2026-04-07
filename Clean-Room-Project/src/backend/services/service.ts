@@ -33,12 +33,14 @@ export type RoomPayload = {
 const t = resultsText;
 
 
-export function getSystemFlags(zoneSystem: string, room: RoomPayload) {
+export function getSystemFlags(zoneSystem: string, zoneSystemType: string, room: RoomPayload) {
   const zoneSystemName = String(zoneSystem || "")
     .toUpperCase()
     .trim();
+  const zoneSystemTypeName = String(zoneSystemType || "")
+    .toUpperCase()
+    .trim();
 
-  // Centralized Validation Logic
   const reqInsideTempLocal = Number(room.zoneReqInsideTempC || 0);
   const isTempValid =
     !isNaN(reqInsideTempLocal) && room.zoneReqInsideTempC !== "";
@@ -55,11 +57,16 @@ export function getSystemFlags(zoneSystem: string, room: RoomPayload) {
     (name: string) => name.toUpperCase() === zoneSystemName
   );
 
+  const isVentilationSystem =
+    zoneSystemName === "VENTILATION SYSTEM" ||
+    zoneSystemTypeName === "VENTILATION SYSTEM";
+
   return {
     isCoolingSystem,
     isHeatingSystem,
     isHeatingandCoolingSystem,
-    isTempValid, // For external use in boqresults.ts
+    isTempValid,
+    isVentilationSystem,
     showCooling: isCoolingSystem || isHeatingandCoolingSystem,
     showHeating: isHeatingSystem || isHeatingandCoolingSystem,
   };
@@ -121,11 +128,7 @@ export function airflowService(room: RoomPayload): AirflowResults {
   const roomClassi = String(room.zoneClassification ?? "").trim();
 
   // ================= SYSTEM FLAGS =================
-  const { showCooling, showHeating, isTempValid } = getSystemFlags(room.zoneSystem || "", room);
-
-  const isVentilationSystem =
-    room.zoneSystem === "Ventilation System" ||
-    room.zoneSystemType === "Ventilation System";
+  const { showCooling, showHeating, isTempValid, isVentilationSystem } = getSystemFlags(room.zoneSystem || "", room.zoneSystemType || "", room);
 
   const frAirCal = t.fields.remWaterVapour.FrAirCal.value;
   const c1 = t.fields.remWaterVapour.delTempConst;
@@ -150,7 +153,7 @@ export function airflowService(room: RoomPayload): AirflowResults {
   const baseFreshAir = roomCfm * faFactor;
 
   const freshAir = isVentilationSystem ? (faPercent + 1.10) * roomCfm : eaFactor === 0 ? baseFreshAir : eaRaw + faPercent;
-  const exhaustAir =  isVentilationSystem ? (eaFactor + 1.00) * roomCfm : roomCfm * eaFactor;
+  const exhaustAir = isVentilationSystem ? (eaFactor + 1.00) * roomCfm : roomCfm * eaFactor;
 
 
   let dehumidValue: number | string;

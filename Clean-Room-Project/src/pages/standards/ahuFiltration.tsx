@@ -33,6 +33,10 @@ const getFilterSpecs = (filterName: string) => {
 };
 
 export const AHU_CONSTRUCTION_FIELDS = Object.keys(config.fields);
+export const AHU_CONSTRUCTION_KEYS = [
+    ...Object.keys(config.fields || {}),
+    ...Object.keys((ahuData as any).additionalSpecifications || {})
+];
 const MM_WG_TO_PA = config.calculationConstants.MM_WG_TO_PA;
 const ISO9_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
     "Supply:Pre-HEPA Super fine filter",
@@ -186,7 +190,7 @@ const getContextSuggestedSupplyKeys = (
 
     const isIso9ToIso1ThermalContext =
         standard === "ISO 14644-4" &&
-        ["Air-Cooling System", "Air-Heating System","Air Cooling and Air Heating System"].includes(system) &&
+        ["Air-Cooling System", "Air-Heating System", "Air Cooling and Air Heating System"].includes(system) &&
         [
             "Cleanroom Air-Cooling System",
             "Non-Classified Air-Cooling System",
@@ -240,7 +244,7 @@ const getContextSuggestedExhaustKeys = (
 
     const isIso9ToIso1ThermalContext =
         standard === "ISO 14644-4" &&
-        ["Air-Cooling System", "Air-Heating System","Air Cooling and Air Heating System"].includes(system) &&
+        ["Air-Cooling System", "Air-Heating System", "Air Cooling and Air Heating System"].includes(system) &&
         [
             "Cleanroom Air-Cooling System",
             "Non-Classified Air-Cooling System",
@@ -315,10 +319,10 @@ const ruleMatchesSelectionContext = (
     const configuredMethods = Array.isArray(rule.methods)
         ? rule.methods.filter(Boolean)
         : Array.isArray(rule.coolingMethods)
-        ? rule.coolingMethods.filter(Boolean)
-        : Array.isArray(rule.heatingMethods)
-        ? rule.heatingMethods.filter(Boolean)
-        : [];
+            ? rule.coolingMethods.filter(Boolean)
+            : Array.isArray(rule.heatingMethods)
+                ? rule.heatingMethods.filter(Boolean)
+                : [];
 
     if (configuredMethods.length > 0) {
         const methodCandidates = [coolingMethod, heatingMethod].filter(Boolean);
@@ -334,6 +338,24 @@ export const ahupayload = (standards: any) => {
     AHU_CONSTRUCTION_FIELDS.forEach(field => {
         payload[field] = standards[field];
     });
+    
+    const filterData = [...(standards.ahufiltrationData || [])];
+    const pushFilterState = (field: string) => {
+        const existingIndex = filterData.findIndex((item: any) => item.field === field);
+        if (existingIndex >= 0) {
+            filterData[existingIndex] = { field, value: standards[field] };
+        } else if (standards[field] !== undefined) {
+            filterData.push({ field, value: standards[field] });
+        }
+    };
+
+    // Ensure all critical filtration states are saved in the database JSON
+    pushFilterState("selectedFilters");
+    pushFilterState("filterTypeSelection");
+    pushFilterState("selectedFilterDetails");
+
+    payload.ahufiltrationData = filterData;
+    payload.ahuConstructionData = standards.ahuConstructionData || [];
     return payload;
 };
 
@@ -515,6 +537,8 @@ const AHUFiltration = () => {
         standard,
         classification,
         systemType,
+        ahufiltrationData = [],
+        ahuConstructionData = [],
     } = useAppSelector((state: any) => state.standards);
 
     const filterTypes = Array.isArray(filterTypeSelection) ? filterTypeSelection : [filterTypeSelection].filter(Boolean);
@@ -592,6 +616,45 @@ const AHUFiltration = () => {
 
     const handleChange = (field: string, value: any) => {
         dispatch(updateStandardsField({ field, value }));
+        
+        const SEPARATE_COLUMNS = ["flowVelocity", "heatingFlowVelocity", "coolingFlowVelocity", "selectedFilters", "filterTypeSelection", "plantRoomDistance", "additionalDpValue"];
+        if (SEPARATE_COLUMNS.includes(field)) return;
+
+        if (AHU_CONSTRUCTION_KEYS.includes(field)) {
+            handleAhuConstructionDataChange(field, value);
+        } else {
+            handleAhuFiltrationDataChange(field, value);
+        }
+    };
+
+    const handleAhuConstructionDataChange = (field: string, value: any) => {
+        const prevData = Array.isArray(ahuConstructionData) ? ahuConstructionData : [];
+        const existingIndex = prevData.findIndex((item: any) => item.field === field);
+        let newData;
+        if (existingIndex >= 0) {
+            newData = [...prevData];
+            newData[existingIndex] = { ...newData[existingIndex], value: value };
+        } else {
+            newData = [...prevData, { field: field, value: value }];
+        }
+        dispatch(updateStandardsField({ field: "ahuConstructionData", value: newData }));
+    };
+
+    const handleAhuFiltrationDataChange = (field: string, value: any) => {
+        const prevData = Array.isArray(ahufiltrationData) ? ahufiltrationData : [];
+        // 1. Check if an object for this field already exists in the array
+        const existingIndex = prevData.findIndex((item: any) => item.field === field);
+
+        let newData;
+        if (existingIndex >= 0) {
+            // 2. If it exists, create a copy of the array and update that specific object
+            newData = [...prevData];
+            newData[existingIndex] = { ...newData[existingIndex], value: value };
+        } else {
+            // 3. If it doesn't exist yet, push it as a new object
+            newData = [...prevData, { field: field, value: value }];
+        }
+        dispatch(updateStandardsField({ field: "ahufiltrationData", value: newData }));
     };
 
     useEffect(() => {
@@ -787,8 +850,8 @@ const AHUFiltration = () => {
                     !contextSuggestedExhaustKeysForEffect.has(k)
             )
             : hasSuggestedExhaustModeForEffect
-            ? [...(selectedFilters || [])].filter((k: string) => !contextSuggestedExhaustKeysForEffect.has(k))
-            : [...(selectedFilters || [])];
+                ? [...(selectedFilters || [])].filter((k: string) => !contextSuggestedExhaustKeysForEffect.has(k))
+                : [...(selectedFilters || [])];
         const detailsToAdd: Array<{ filterName: string; details: any }> = [];
 
         selectedTypesForRule.forEach((type: string) => {

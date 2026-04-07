@@ -32,7 +32,6 @@ export type RoomPayload = {
 
 const t = resultsText;
 
-// ================= UTILITY: SYSTEM FLAGS =================
 
 export function getSystemFlags(zoneSystem: string, room: RoomPayload) {
   const zoneSystemName = String(zoneSystem || "")
@@ -95,7 +94,6 @@ export type AirflowResults = {
   coolingFlowVelocity?: number;
 };
 
-// ================= SERVICE: AIRFLOW CALCULATION =================
 
 export function airflowService(room: RoomPayload): AirflowResults {
 
@@ -144,21 +142,17 @@ export function airflowService(room: RoomPayload): AirflowResults {
   const volumeFt3 = Math.ceil(areaFt2 * H * 3.28 * 100) / 100;
   const roomCfm = (volumeFt3 * ACPH) / 60;
 
-  const faPercent = isVentilationSystem ? 110 : Number(room.freshAirPercent || 0);
+  const faPercent = Number(room.freshAirPercent || 0);
   const faFactor = faPercent / 100;
 
   const eaRaw = Number(room.exhaustAir || 0);
   const eaFactor = eaRaw > 1 ? eaRaw / 100 : eaRaw;
   const baseFreshAir = roomCfm * faFactor;
 
-  const freshAir = isVentilationSystem
-    ? faPercent
-    : eaFactor === 0
-      ? baseFreshAir
-      : eaRaw + faPercent;
-  const exhaustAir = roomCfm * eaFactor;
+  const freshAir = isVentilationSystem ? (faPercent + 1.10) * roomCfm : eaFactor === 0 ? baseFreshAir : eaRaw + faPercent;
+  const exhaustAir =  isVentilationSystem ? (eaFactor + 1.00) * roomCfm : roomCfm * eaFactor;
 
-  // ================= RESULT VARIABLES =================
+
   let dehumidValue: number | string;
   let removedWater: number | string;
   let resultantCfm: number | string = 0;

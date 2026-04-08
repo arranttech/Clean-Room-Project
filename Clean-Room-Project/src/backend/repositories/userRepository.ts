@@ -1,28 +1,18 @@
 import { database } from "../dbConnection/connections";
+import bcrypt from "bcrypt";
 
 export const userRepository = {
   createUser: async (payload: any) => {
     const connection = await database.getConnection();
     try {
       console.log("ENTER createUser()");
-      console.log("RAW PAYLOAD RECEIVED:");
-      console.log(JSON.stringify(payload, null, 2));
       await connection.beginTransaction();
-      console.log("Transaction started");
 
       const [result]: any = await connection.execute(
         `INSERT INTO tUsers (
-          user_first_name,
-          user_last_name,
-          user_id,
-          user_email_id,
-          user_address,
-          user_phone_home,
-          user_phone_work,
-          created_by,
-          updated_by,
-          user_admin_flag,
-          status
+          user_first_name, user_last_name, user_id, user_email_id,
+          user_address, user_phone_home, user_phone_work,
+          created_by, updated_by, user_admin_flag, status
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           payload.user_first_name,
@@ -38,73 +28,81 @@ export const userRepository = {
           payload.status || "A",
         ]
       );
-      console.log("INSERT RESULT:", result);
 
       const userId = result.insertId;
-      console.log("USER INSERTED ID:", userId);
 
       const customerIds = payload.customer_ids || [];
-      console.log("CUSTOMER IDS RECEIVED:", customerIds);
-
       for (const customerId of customerIds) {
-        console.log(`Inserting mapping: userId=${userId}, customerId=${customerId}`);
         await connection.execute(
           `INSERT INTO tCustomerUsers (user_login_id, customer_id) VALUES (?, ?)`,
           [userId, customerId]
         );
       }
-      console.log("All customer mappings inserted");
 
       await connection.commit();
-      console.log("Transaction committed successfully");
-
       return userId;
     } catch (error) {
-      console.error("TRANSACTION FAILED");
       await connection.rollback();
-      console.error("ROLLBACK DONE");
-      console.error("TRANSACTION ERROR:", error);
       throw error;
     } finally {
       connection.release();
-      console.log("DB CONNECTION RELEASED");
     }
   },
 
   updateUser: async (user_login_id: number, payload: any) => {
+    const fields: string[] = [];
+    const values: any[] = [];
+
+    if (payload.user_first_name !== undefined) {
+      fields.push("user_first_name = ?");
+      values.push(payload.user_first_name);
+    }
+    if (payload.user_last_name !== undefined) {
+      fields.push("user_last_name = ?");
+      values.push(payload.user_last_name);
+    }
+    if (payload.user_email_id !== undefined) {
+      fields.push("user_email_id = ?");
+      values.push(payload.user_email_id);
+    }
+    if (payload.user_address !== undefined) {
+      fields.push("user_address = ?");
+      values.push(payload.user_address);
+    }
+    if (payload.user_phone_home !== undefined) {
+      fields.push("user_phone_home = ?");
+      values.push(payload.user_phone_home);
+    }
+    if (payload.user_phone_work !== undefined) {
+      fields.push("user_phone_work = ?");
+      values.push(payload.user_phone_work);
+    }
+    if (payload.user_admin_flag !== undefined) {
+      fields.push("user_admin_flag = ?");
+      values.push(payload.user_admin_flag === "Yes" ? "Y" : "N");
+    }
+    if (payload.status !== undefined) {
+      fields.push("status = ?");
+      values.push(payload.status);
+    }
+
+    fields.push("updated_by = ?");
+    values.push(payload.updated_by || "admin");
+
+    if (fields.length <= 1) return;
+
+    values.push(user_login_id);
+
     await database.execute(
-      `UPDATE tUsers
-        SET
-            user_first_name = ?,
-            user_last_name = ?,
-            user_email_id = ?,
-            user_address = ?,
-            user_phone_home = ?,
-            user_phone_work = ?,
-            user_admin_flag = ?,
-            status = ?
-        WHERE user_login_id = ?`,
-      [
-        payload.user_first_name,
-        payload.user_last_name,
-        payload.user_email_id,
-        payload.user_address,
-        payload.user_phone_home,
-        payload.user_phone_work,
-        payload.user_admin_flag === "Yes" ? "Y" : "N",
-        payload.status || "A",
-        user_login_id,
-      ]
+      `UPDATE tUsers SET ${fields.join(", ")} WHERE user_login_id = ?`,
+      values
     );
 
-    // Update customer mappings if customer_ids provided
     if (payload.customer_ids && Array.isArray(payload.customer_ids)) {
-      // Delete existing mappings first
       await database.execute(
         `DELETE FROM tCustomerUsers WHERE user_login_id = ?`,
         [user_login_id]
       );
-      // Re-insert updated mappings
       for (const customerId of payload.customer_ids) {
         await database.execute(
           `INSERT INTO tCustomerUsers (user_login_id, customer_id) VALUES (?, ?)`,
@@ -112,6 +110,49 @@ export const userRepository = {
         );
       }
     }
+  },
+
+  updatePassword: async (
+    user_login_id: number,
+    current_password: string,
+    new_password: string
+  ) => {
+    console.log("updatePassword called for user_login_id:", user_login_id);
+
+    const [rows]: any = await database.execute(
+      `SELECT user_password_id, user_password
+       FROM tUserPassword
+       WHERE user_login_id = ?
+       ORDER BY created_date DESC LIMIT 1`,
+      [user_login_id]
+    );
+
+    console.log("Password rows found:", rows?.length);
+
+    if (!rows || rows.length === 0) {
+      console.log("No password row found");
+      return false;
+    }
+
+    const storedHash = rows[0].user_password;
+    const passwordId = rows[0].user_password_id;
+
+    const isMatch = await bcrypt.compare(current_password, storedHash);
+    console.log("Password match:", isMatch);
+
+    if (!isMatch) return false;
+
+    const hashedNewPassword = await bcrypt.hash(new_password, 10);
+
+    await database.execute(
+      `UPDATE tUserPassword
+       SET user_password = ?, updated_date = NOW(), updated_by = 'user'
+       WHERE user_password_id = ? AND user_login_id = ?`,
+      [hashedNewPassword, passwordId, user_login_id]
+    );
+
+    console.log("Password updated successfully for user:", user_login_id);
+    return true;
   },
 
   getUserById: async (user_login_id: number) => {
@@ -132,18 +173,14 @@ export const userRepository = {
         u.updated_by,
         u.created_date,
         u.updated_date,
-        CASE WHEN u.status IS NULL OR u.status = '' THEN 'A' ELSE u.status END AS status,
-        p.user_password
+        CASE WHEN u.status IS NULL OR u.status = '' THEN 'A' ELSE u.status END AS status
       FROM tUsers u
-      LEFT JOIN tUserPassword p ON u.user_login_id = p.user_login_id
       LEFT JOIN tCustomerUsers cu ON u.user_login_id = cu.user_login_id
       WHERE u.user_login_id = ?`,
       [user_login_id]
     );
-    console.log("RAW DB ROWS:", rows);
 
     if (!rows || rows.length === 0) {
-      console.log("No user found");
       return { success: false, message: "User not found" };
     }
 
@@ -151,13 +188,8 @@ export const userRepository = {
       .map((r: any) => r.customer_id)
       .filter((id: any) => id !== null);
 
-    console.log("Extracted customer_ids:", customer_ids);
-
     const { customer_id, ...rest } = rows[0];
-    const user = { ...rest, customer_ids };
-    console.log("FINAL USER OBJECT:", user);
-
-    return { success: true, user };
+    return { success: true, user: { ...rest, customer_ids } };
   },
 
   getUsers: async () => {

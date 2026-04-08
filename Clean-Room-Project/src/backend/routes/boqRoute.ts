@@ -107,6 +107,8 @@ export const boqRoute: ServerRoute[] = [
 					zoneName: Joi.string().required(),
 					zoneSystem: Joi.string().required(),
 					zoneExhaustAir: Joi.number().required(),
+					zoneRoomCfm: Joi.number().optional(),
+					zoneFreshAir: Joi.number().optional(),
 					zoneResultantCfm: Joi.number().required(),
 					zoneResultantHeatCfm: Joi.number().required(),
 					zoneReqInsideTempC: Joi.alternatives()

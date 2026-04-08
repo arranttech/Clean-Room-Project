@@ -50,9 +50,12 @@ const initialState = {
 	selectedFilterDetails: {},
 	exhaustImpactPercentage: "",
 	bioSafetyLevel: "",
-	additionalDpValue: "",
+	additionalDpValue: 0,
+	additionalDpValueExhaust: 0,
 	totalFiltrationStages: 0,
 	staticPressure: 0,
+	ahufiltrationData: [],
+	ahuConstructionData: [],
 };
 
 const standardsSlice = createSlice({

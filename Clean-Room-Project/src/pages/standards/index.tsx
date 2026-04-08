@@ -130,6 +130,7 @@ export default function Standard() {
     heatingFlowVelocity,
     coolingFlowVelocity,
     additionalDpValue,
+    additionalDpValueExhaust,
     filterTypeSelection,
     selectedFilters,
     totalFiltrationStages,
@@ -162,6 +163,32 @@ export default function Standard() {
 
   const [modalMessage, setModalMessage] = useState("");
 
+  const clearSupplyFilters = () => {
+    const currentFilters = Array.isArray(selectedFilters) ? selectedFilters : [];
+    const nextFilters = currentFilters.filter(
+      (key: string) => !key.startsWith("Supply:")
+    );
+    const currentDetails = standards.selectedFilterDetails || {};
+    const nextDetails = Object.fromEntries(
+      Object.entries(currentDetails).filter(
+        ([key]) => !String(key).startsWith("Supply:")
+      )
+    );
+
+    const filtersChanged = nextFilters.length !== currentFilters.length;
+    const detailsChanged =
+      Object.keys(nextDetails).length !== Object.keys(currentDetails).length;
+
+    if (filtersChanged || detailsChanged) {
+      dispatch(
+        updateMultipleStandardsFields({
+          selectedFilters: nextFilters,
+          selectedFilterDetails: nextDetails,
+        })
+      );
+    }
+  };
+
   // ──when room.tsx passes resetKey via navigate state (addAnotherZone),
   useEffect(() => {
     if (!location.state?.resetKey) return;
@@ -191,6 +218,7 @@ export default function Standard() {
               systemType: std.project_system_type || "",
               heatingMethod: std.project_heating_method || "",
               coolingMethod: std.project_cooling_method || "",
+              additionalDpValue: std.additional_pressure_drop ?? 0,
               standard: std.project_standard || "",
               classification: std.project_classification_name || "",
               acph: std.project_ACPH ? String(std.project_ACPH) : "",
@@ -210,6 +238,8 @@ export default function Standard() {
               staticPressure: std.static_pressure || 0,
               heatingFlowVelocity: std.heating_flow_velocity || 1.5,
               coolingFlowVelocity: std.cooling_flow_velocity || 1.5,
+              ahufiltrationData: std.ahu_filtration_data ? JSON.parse(std.ahu_filtration_data) : [],
+              ahuConstructionData: std.ahu_construction_specifications ? JSON.parse(std.ahu_construction_specifications) : [],
             })
           );
         }
@@ -529,6 +559,7 @@ export default function Standard() {
       if (!reqInsideTempC || (errors as any).temperature) return false;
     }
     if (additionalDpValue === "") return false;
+    if (additionalDpValueExhaust === "") return false;
     return true;
   })();
 
@@ -625,12 +656,13 @@ export default function Standard() {
         minTempC,
         rhMin,
         rhMax,
-        ...ahuPayload,
         totalFiltrationStages,
         staticPressure,
         flowVelocity,
         heatingFlowVelocity,
         coolingFlowVelocity,
+        additionalDpValue,
+        ...ahuPayload,
       };
 
       if (finalProjectStandardId) {
@@ -921,6 +953,7 @@ export default function Standard() {
                       className={s.select}
                       value={standard}
                       onChange={(e) => {
+                        clearSupplyFilters();
                         dispatch(
                           updateStandardsField({
                             field: "standard",
@@ -960,14 +993,15 @@ export default function Standard() {
                       className={selectedStandard ? s.select : s.selectDisabled}
                       disabled={!selectedStandard}
                       value={classification}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        clearSupplyFilters();
                         dispatch(
                           updateStandardsField({
                             field: "classification",
                             value: e.target.value,
                           })
-                        )
-                      }
+                        );
+                      }}
                       required
                     >
                       <option value="">

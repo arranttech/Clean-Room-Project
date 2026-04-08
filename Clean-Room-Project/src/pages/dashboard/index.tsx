@@ -234,11 +234,13 @@ export default function Dashboard() {
           unitBranch: p.project_unit_branch ?? "",
           industry: (() => {
             try {
-              return JSON.parse(p.project_Industry || "[]");
+              const parsed = JSON.parse(p.project_Industry || "[]");
+              return Array.isArray(parsed) ? parsed[0] ?? "" : "";
             } catch {
-              return [];
+              return "";
             }
           })(),
+          subIndustry: p.project_SubIndustry ?? "",
           handling: (() => {
             try {
               return JSON.parse(p.project_Handling || "[]");

@@ -142,6 +142,9 @@ export const roomRepository = {
       toNum(payload.staticPressure),
       toNum(payload.heatingFlowVelocity),
       toNum(payload.coolingFlowVelocity),
+      toNum(payload.additionalDpValue),
+      JSON.stringify(payload.ahufiltrationData || []),
+      JSON.stringify(payload.ahuConstructionData || []),
       payload.user_id ?? null,
       Number.isNaN(standardId) ? null : standardId,
     ];
@@ -175,6 +178,9 @@ export const roomRepository = {
         static_pressure = ?,
         heating_flow_velocity = ?,
         cooling_flow_velocity = ?,
+        additional_pressure_drop = ?,
+        ahu_filtration_data = ?,
+        ahu_construction_specifications = ?,
         updated_by = ?
       WHERE project_standard_id = ?`,
       params
@@ -239,8 +245,7 @@ export const roomRepository = {
       [roomId]
     );
 
-    // count remaining rooms in that zone
-    const [rows] = await database.execute(
+    await database.execute(
       `SELECT COUNT(*) as count FROM tZoneRooms WHERE zone_id = ?`,
       [zoneId]
     );

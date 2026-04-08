@@ -32,14 +32,15 @@ export type RoomPayload = {
 
 const t = resultsText;
 
-// ================= UTILITY: SYSTEM FLAGS =================
 
-export function getSystemFlags(zoneSystem: string, room: RoomPayload) {
+export function getSystemFlags(zoneSystem: string, zoneSystemType: string, room: RoomPayload) {
   const zoneSystemName = String(zoneSystem || "")
     .toUpperCase()
     .trim();
+  const zoneSystemTypeName = String(zoneSystemType || "")
+    .toUpperCase()
+    .trim();
 
-  // Centralized Validation Logic
   const reqInsideTempLocal = Number(room.zoneReqInsideTempC || 0);
   const isTempValid =
     !isNaN(reqInsideTempLocal) && room.zoneReqInsideTempC !== "";
@@ -56,11 +57,16 @@ export function getSystemFlags(zoneSystem: string, room: RoomPayload) {
     (name: string) => name.toUpperCase() === zoneSystemName
   );
 
+  const isVentilationSystem =
+    zoneSystemName === "VENTILATION SYSTEM" ||
+    zoneSystemTypeName === "VENTILATION SYSTEM";
+
   return {
     isCoolingSystem,
     isHeatingSystem,
     isHeatingandCoolingSystem,
-    isTempValid, // For external use in boqresults.ts
+    isTempValid,
+    isVentilationSystem,
     showCooling: isCoolingSystem || isHeatingandCoolingSystem,
     showHeating: isHeatingSystem || isHeatingandCoolingSystem,
   };
@@ -95,7 +101,6 @@ export type AirflowResults = {
   coolingFlowVelocity?: number;
 };
 
-// ================= SERVICE: AIRFLOW CALCULATION =================
 
 export function airflowService(room: RoomPayload): AirflowResults {
 
@@ -123,11 +128,7 @@ export function airflowService(room: RoomPayload): AirflowResults {
   const roomClassi = String(room.zoneClassification ?? "").trim();
 
   // ================= SYSTEM FLAGS =================
-  const { showCooling, showHeating, isTempValid } = getSystemFlags(room.zoneSystem || "", room);
-
-  const isVentilationSystem =
-    room.zoneSystem === "Ventilation System" ||
-    room.zoneSystemType === "Ventilation System";
+  const { showCooling, showHeating, isTempValid, isVentilationSystem } = getSystemFlags(room.zoneSystem || "", room.zoneSystemType || "", room);
 
   const frAirCal = t.fields.remWaterVapour.FrAirCal.value;
   const c1 = t.fields.remWaterVapour.delTempConst;
@@ -144,21 +145,17 @@ export function airflowService(room: RoomPayload): AirflowResults {
   const volumeFt3 = Math.ceil(areaFt2 * H * 3.28 * 100) / 100;
   const roomCfm = (volumeFt3 * ACPH) / 60;
 
-  const faPercent = isVentilationSystem ? 110 : Number(room.freshAirPercent || 0);
+  const faPercent = Number(room.freshAirPercent || 0);
   const faFactor = faPercent / 100;
 
   const eaRaw = Number(room.exhaustAir || 0);
   const eaFactor = eaRaw > 1 ? eaRaw / 100 : eaRaw;
   const baseFreshAir = roomCfm * faFactor;
 
-  const freshAir = isVentilationSystem
-    ? faPercent
-    : eaFactor === 0
-      ? baseFreshAir
-      : eaRaw + faPercent;
-  const exhaustAir = roomCfm * eaFactor;
+  const freshAir = isVentilationSystem ? (faPercent + 1.10) * roomCfm : eaFactor === 0 ? baseFreshAir : eaRaw + faPercent;
+  const exhaustAir = isVentilationSystem ? (eaFactor + 1.00) * roomCfm : roomCfm * eaFactor;
 
-  // ================= RESULT VARIABLES =================
+
   let dehumidValue: number | string;
   let removedWater: number | string;
   let resultantCfm: number | string = 0;

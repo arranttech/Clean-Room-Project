@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, type CSSProperties } from "react";
 import { HiChevronDown, HiX, HiCheck } from "react-icons/hi";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { updateStandardsField, updateFilterDetail, updateMultipleStandardsFields } from "../../redux/slices/standardSlice";
@@ -33,13 +33,349 @@ const getFilterSpecs = (filterName: string) => {
 };
 
 export const AHU_CONSTRUCTION_FIELDS = Object.keys(config.fields);
+export const AHU_CONSTRUCTION_KEYS = [
+    ...Object.keys(config.fields || {}),
+    ...Object.keys((ahuData as any).additionalSpecifications || {})
+];
 const MM_WG_TO_PA = config.calculationConstants.MM_WG_TO_PA;
+const ISO9_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:Pre-HEPA Super fine filter",
+    "Supply:High Fine filter",
+]);
+const ISO8_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:Pre-HEPA Super fine filter",
+    "Supply:High Fine filter",
+    "Supply:Fine pre-filter",
+]);
+const ISO7_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:Leagcy (H14 ~300mm) filter",
+    "Supply:Leagcy (H14 ~150mm) filter",
+    "Supply:Leagcy (H13 ~300mm) filter",
+    "Supply:ULPA filter (U15 ~150mm)",
+    "Supply:Pre-HEPA Super fine filter",
+    "Supply:High Fine filter",
+    "Supply:Fine pre-filter",
+]);
+const ISO6_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:ULPA filter (U15 ~150mm)",
+    "Supply:Leagcy (H14 ~150mm) filter",
+    "Supply:Pre-HEPA Super fine filter",
+    "Supply:High Fine filter",
+    "Supply:Fine pre-filter",
+]);
+const ISO5_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:ULPA filter (U15 ~150mm)",
+    "Supply:Leagcy (H14 ~150mm) filter",
+    "Supply:Pre-HEPA Super fine filter",
+    "Supply:High Fine filter",
+    "Supply:Fine pre-filter",
+]);
+const ISO4_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:ULPA filter (U17 ~150mm)",
+    "Supply:Pre-HEPA Super fine filter",
+    "Supply:High Fine filter",
+    "Supply:Fine pre-filter",
+]);
+const ISO3_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:Pre-HEPA Super fine filter",
+    "Supply:High Fine filter",
+    "Supply:Fine pre-filter",
+]);
+const ISO2_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:Pre-HEPA Super fine filter",
+    "Supply:High Fine filter",
+    "Supply:Fine pre-filter",
+]);
+const ISO1_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:Pre-HEPA Super fine filter",
+    "Supply:High Fine filter",
+    "Supply:Fine pre-filter",
+]);
+const ISO9_TO_ISO1_VENTILATION_SUGGESTED_EXHAUST_KEYS = new Set<string>([
+    "Exhaust:High Fine filter",
+    "Exhaust:Pre-HEPA Super fine filter",
+    "Exhaust:Leagcy (H13 ~300mm) filter",
+    "Exhaust:Leagcy (H14 ~300mm) filter",
+]);
+const ISO9_TO_ISO1_THERMAL_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:Legacy (H13 ~300mm) filter",
+    "Supply:EPA (H11) (pre-HEPA) filter",
+    "Supply:High Fine filter",
+]);
+const ISO9_TO_ISO1_THERMAL_SUGGESTED_EXHAUST_KEYS = new Set<string>([
+    "Exhaust:Legacy (H13 ~300mm) filter",
+    "Exhaust:EPA (H11) (pre-HEPA) filter",
+    "Exhaust:High Fine filter",
+]);
+const ISO8_COOLING_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:High Fine filter",
+    "Supply:Leagcy (H13 ~150mm) filter",
+    "Supply:Leagcy (H13 ~300mm) filter",
+    "Supply:Leagcy (H14 ~150mm) filter",
+    "Supply:Leagcy (H14 ~300mm) filter",
+]);
+const ISO7_COOLING_SUGGESTED_SUPPLY_KEYS = new Set<string>([
+    "Supply:High Fine filter",
+    "Supply:Leagcy (H13 ~150mm) filter",
+    "Supply:Leagcy (H14 ~150mm) filter",
+    "Supply:Leagcy (H14 ~300mm) filter",
+]);
+const getIsoVentilationSuggestedSupplyKeys = (
+    standard: string,
+    system: string,
+    systemType: string,
+    classification: string
+) => {
+    const isIsoVentilationContext =
+        standard === "ISO 14644-4" &&
+        system === "Ventilation System" &&
+        (
+            systemType === "Cleanroom Ventilation System" ||
+            systemType === "Non-Classified Ventilation System" ||
+            systemType === "Non Cleanroom Ventilation System"
+        );
+
+    if (!isIsoVentilationContext) return new Set<string>();
+    if (classification === "ISO 9" || classification === "ISO 9 (Non-Classified)") {
+        return ISO9_VENTILATION_SUGGESTED_SUPPLY_KEYS;
+    }
+    if (classification === "ISO 8") return ISO8_VENTILATION_SUGGESTED_SUPPLY_KEYS;
+    if (classification === "ISO 7") return ISO7_VENTILATION_SUGGESTED_SUPPLY_KEYS;
+    if (classification === "ISO 6") return ISO6_VENTILATION_SUGGESTED_SUPPLY_KEYS;
+    if (classification === "ISO 5") return ISO5_VENTILATION_SUGGESTED_SUPPLY_KEYS;
+    if (classification === "ISO 4") return ISO4_VENTILATION_SUGGESTED_SUPPLY_KEYS;
+    if (classification === "ISO 3") return ISO3_VENTILATION_SUGGESTED_SUPPLY_KEYS;
+    if (classification === "ISO 2") return ISO2_VENTILATION_SUGGESTED_SUPPLY_KEYS;
+    if (classification === "ISO 1") return ISO1_VENTILATION_SUGGESTED_SUPPLY_KEYS;
+    return new Set<string>();
+};
+
+const getIsoVentilationSuggestedExhaustKeys = (
+    standard: string,
+    system: string,
+    systemType: string,
+    classification: string
+) => {
+    const isIsoVentilationContext =
+        standard === "ISO 14644-4" &&
+        system === "Ventilation System" &&
+        (
+            systemType === "Cleanroom Ventilation System" ||
+            systemType === "Non-Classified Ventilation System" ||
+            systemType === "Non Cleanroom Ventilation System"
+        );
+
+    if (!isIsoVentilationContext) return new Set<string>();
+    if (["ISO 9", "ISO 9 (Non-Classified)", "ISO 8", "ISO 7", "ISO 6", "ISO 5", "ISO 4", "ISO 3", "ISO 2", "ISO 1"].includes(classification)) {
+        return ISO9_TO_ISO1_VENTILATION_SUGGESTED_EXHAUST_KEYS;
+    }
+    return new Set<string>();
+};
+
+const getContextSuggestedSupplyKeys = (
+    standard: string,
+    system: string,
+    systemType: string,
+    classification: string,
+    coolingMethod: string,
+    heatingMethod: string
+) => {
+    const ventilationSuggested = getIsoVentilationSuggestedSupplyKeys(
+        standard,
+        system,
+        systemType,
+        classification
+    );
+    if (ventilationSuggested.size > 0) return ventilationSuggested;
+
+    const isIso9ToIso1ThermalContext =
+        standard === "ISO 14644-4" &&
+        [
+            "Air-Cooling System",
+            "Air Cooling and Ventilation System",
+            "Air-Heating System",
+            "Air Heating and Ventilation System",
+            "Air Cooling and Air Heating System",
+        ].includes(system) &&
+        [
+            "Cleanroom Air-Cooling System",
+            "Non-Classified Air-Cooling System",
+            "Comfort Air-Cooling System",
+            "Cleanroom Air-Heating System",
+            "Non-Classified Air-Heating System",
+            "Comfort Air-Heating System",
+            "Cleanroom Air System (Heating & Cooling)",
+            "Comfort Air System (Heating & Cooling)",
+            "Non-Classified Air System (Heating & Cooling)",
+        ].includes(systemType) &&
+        ["ISO 9", "ISO 9 (Non-Classified)", "ISO 8", "ISO 7", "ISO 6", "ISO 5", "ISO 4", "ISO 3", "ISO 2", "ISO 1"].includes(classification);
+
+    if (isIso9ToIso1ThermalContext) {
+        return ISO9_TO_ISO1_THERMAL_SUGGESTED_SUPPLY_KEYS;
+    }
+
+    const isIsoCoolingContext =
+        standard === "ISO 14644-4" &&
+        ["Air-Cooling System", "Air Cooling and Ventilation System"].includes(system) &&
+        systemType === "Cleanroom Air-Cooling System" &&
+        ["ISO 8", "ISO 7"].includes(classification) &&
+        ["Chilled Water", "Brine", "DX"].includes(coolingMethod);
+
+    const isIsoHeatingContext =
+        standard === "ISO 14644-4" &&
+        ["Air-Heating System", "Air Heating and Ventilation System"].includes(system) &&
+        systemType === "Cleanroom Air-Heating System" &&
+        ["ISO 8", "ISO 7"].includes(classification) &&
+        ["Hot Water", "Steam"].includes(heatingMethod);
+
+    if (!isIsoCoolingContext && !isIsoHeatingContext) return new Set<string>();
+    if (classification === "ISO 8") return ISO8_COOLING_SUGGESTED_SUPPLY_KEYS;
+    if (classification === "ISO 7") return ISO7_COOLING_SUGGESTED_SUPPLY_KEYS;
+    return new Set<string>();
+};
+
+const getContextSuggestedExhaustKeys = (
+    standard: string,
+    system: string,
+    systemType: string,
+    classification: string
+) => {
+    const ventilationSuggested = getIsoVentilationSuggestedExhaustKeys(
+        standard,
+        system,
+        systemType,
+        classification
+    );
+    if (ventilationSuggested.size > 0) return ventilationSuggested;
+
+    const isIso9ToIso1ThermalContext =
+        standard === "ISO 14644-4" &&
+        [
+            "Air-Cooling System",
+            "Air Cooling and Ventilation System",
+            "Air-Heating System",
+            "Air Heating and Ventilation System",
+            "Air Cooling and Air Heating System",
+        ].includes(system) &&
+        [
+            "Cleanroom Air-Cooling System",
+            "Non-Classified Air-Cooling System",
+            "Comfort Air-Cooling System",
+            "Cleanroom Air-Heating System",
+            "Non-Classified Air-Heating System",
+            "Comfort Air-Heating System",
+            "Cleanroom Air System (Heating & Cooling)",
+            "Comfort Air System (Heating & Cooling)",
+            "Non-Classified Air System (Heating & Cooling)",
+        ].includes(systemType) &&
+        ["ISO 9", "ISO 9 (Non-Classified)", "ISO 8", "ISO 7", "ISO 6", "ISO 5", "ISO 4", "ISO 3", "ISO 2", "ISO 1"].includes(classification);
+
+    if (isIso9ToIso1ThermalContext) {
+        return ISO9_TO_ISO1_THERMAL_SUGGESTED_EXHAUST_KEYS;
+    }
+
+    return new Set<string>();
+};
+
+const ruleMatchesSelectionContext = (
+    rule: any,
+    standard: string,
+    system: string,
+    systemType: string,
+    coolingMethod: string,
+    heatingMethod: string
+) => {
+    const configuredSystems = Array.isArray(rule.system)
+        ? rule.system.filter(Boolean)
+        : [rule.system].filter(Boolean);
+
+    const configuredSystemTypes = Array.isArray(rule.systemType)
+        ? rule.systemType.filter(Boolean)
+        : [rule.systemType].filter(Boolean);
+
+    const systemCandidates =
+        system === "Air Cooling and Air Heating System"
+            ? ["Air-Cooling System", "Air-Heating System", system]
+            : system === "Air Cooling and Ventilation System"
+                ? ["Air-Cooling System", system]
+                : system === "Air-Cooling System"
+                    ? ["Air Cooling and Ventilation System", system]
+                    : system === "Air Heating and Ventilation System"
+                        ? ["Air-Heating System", system]
+                        : system === "Air-Heating System"
+                            ? ["Air Heating and Ventilation System", system]
+            : [system];
+
+    const combinedSystemTypeMap: Record<string, string[]> = {
+        "Cleanroom Air System (Heating & Cooling)": [
+            "Cleanroom Air-Cooling System",
+            "Cleanroom Air-Heating System",
+        ],
+        "Comfort Air System (Heating & Cooling)": [
+            "Comfort Air-Cooling System",
+            "Comfort Air-Heating System",
+        ],
+        "Non-Classified Air System (Heating & Cooling)": [
+            "Non-Classified Air-Cooling System",
+            "Non-Classified Air-Heating System",
+        ],
+    };
+    const mappedSystemTypes = combinedSystemTypeMap[systemType] || [];
+    const systemTypeCandidates = [systemType, ...mappedSystemTypes];
+
+    const systemMatches =
+        configuredSystems.length > 0 && systemCandidates.some((candidate) => configuredSystems.includes(candidate));
+    const systemTypeMatches =
+        configuredSystemTypes.length > 0 && systemTypeCandidates.some((candidate) => configuredSystemTypes.includes(candidate));
+
+    if (
+        rule.standard !== standard ||
+        !systemMatches ||
+        !systemTypeMatches
+    ) {
+        return false;
+    }
+
+    const configuredMethods = Array.isArray(rule.methods)
+        ? rule.methods.filter(Boolean)
+        : Array.isArray(rule.coolingMethods)
+            ? rule.coolingMethods.filter(Boolean)
+            : Array.isArray(rule.heatingMethods)
+                ? rule.heatingMethods.filter(Boolean)
+                : [];
+
+    if (configuredMethods.length > 0) {
+        const methodCandidates = [coolingMethod, heatingMethod].filter(Boolean);
+        return methodCandidates.some((method) => configuredMethods.includes(method));
+    }
+
+    return true;
+};
+
 
 export const ahupayload = (standards: any) => {
     const payload: any = {};
     AHU_CONSTRUCTION_FIELDS.forEach(field => {
         payload[field] = standards[field];
     });
+    
+    const filterData = [...(standards.ahufiltrationData || [])];
+    const pushFilterState = (field: string) => {
+        const existingIndex = filterData.findIndex((item: any) => item.field === field);
+        if (existingIndex >= 0) {
+            filterData[existingIndex] = { field, value: standards[field] };
+        } else if (standards[field] !== undefined) {
+            filterData.push({ field, value: standards[field] });
+        }
+    };
+
+    // Ensure all critical filtration states are saved in the database JSON
+    pushFilterState("selectedFilters");
+    pushFilterState("filterTypeSelection");
+    pushFilterState("selectedFilterDetails");
+
+    payload.ahufiltrationData = filterData;
+    payload.ahuConstructionData = standards.ahuConstructionData || [];
     return payload;
 };
 
@@ -182,6 +518,9 @@ const AHUFiltration = () => {
     const [showFiltrationDetails, setShowFiltrationDetails] = useState(false);
     const [filterTypeOpen, setFilterTypeOpen] = useState(false);
     const filterTypeRef = useRef<HTMLDivElement>(null);
+    const appliedAutoRuleRef = useRef<string>("");
+    const dismissedSupplyByContextRef = useRef<Record<string, Set<string>>>({});
+    const dismissedRuleKeysByContextRef = useRef<Record<string, Set<string>>>({});
 
     // Redux state values
     const {
@@ -210,6 +549,7 @@ const AHUFiltration = () => {
         selectedFilterDetails = {},
         exhaustImpactPercentage,
         additionalDpValue,
+        additionalDpValueExhaust,
         system,
         heatingMethod,
         coolingMethod,
@@ -218,6 +558,8 @@ const AHUFiltration = () => {
         standard,
         classification,
         systemType,
+        ahufiltrationData = [],
+        ahuConstructionData = [],
     } = useAppSelector((state: any) => state.standards);
 
     const filterTypes = Array.isArray(filterTypeSelection) ? filterTypeSelection : [filterTypeSelection].filter(Boolean);
@@ -226,13 +568,154 @@ const AHUFiltration = () => {
     const specialHandlingOptions = config.handling.specialHandlingOptions;
     const hasSpecialHandling = handling.length > 0 && handling.some((h: string) => specialHandlingOptions.includes(h)); // true if any selected handling matches special handling criteria
 
+    const autoRulesForUi = Array.isArray(filterSelectionConfig.autoSelectionRules)
+        ? filterSelectionConfig.autoSelectionRules
+        : [];
+    const matchedAutoRuleForUi = autoRulesForUi.find((rule: any) =>
+        ruleMatchesSelectionContext(rule, standard, system, systemType, coolingMethod, heatingMethod)
+    );
+    const matchedAutoClassForUi = (matchedAutoRuleForUi?.classifications || []).find(
+        (entry: any) => entry.name === classification
+    );
+    const autoRuleContextKey = `${standard || ""}||${system || ""}||${systemType || ""}||${classification || ""}||${coolingMethod || ""}||${heatingMethod || ""}`;
+    const contextSuggestedSupplyKeys = getContextSuggestedSupplyKeys(
+        standard,
+        system,
+        systemType,
+        classification,
+        coolingMethod,
+        heatingMethod
+    );
+    const hasSuggestedSupplyMode = contextSuggestedSupplyKeys.size > 0;
+    const contextSuggestedExhaustKeys = getContextSuggestedExhaustKeys(
+        standard,
+        system,
+        systemType,
+        classification
+    );
+    const hasSuggestedExhaustMode = contextSuggestedExhaustKeys.size > 0;
+    const currentRuleSupplyKeys = (Array.isArray(matchedAutoClassForUi?.filters?.Supply)
+        ? matchedAutoClassForUi.filters.Supply
+        : []
+    ).map((filterName: string) => `Supply:${filterName}`);
+
+    const autoRulePreselectedKeys = new Set<string>(
+        (Array.isArray(matchedAutoClassForUi?.filterTypeSelection)
+            ? matchedAutoClassForUi.filterTypeSelection
+            : []
+        ).flatMap((type: string) => {
+            const filtersForType = Array.isArray(matchedAutoClassForUi?.filters?.[type])
+                ? matchedAutoClassForUi.filters[type]
+                : [];
+            return filtersForType
+                .map((filterName: string) => `${type}:${filterName}`)
+                .filter(
+                    (key: string) =>
+                        !(
+                            (hasSuggestedSupplyMode && contextSuggestedSupplyKeys.has(key)) ||
+                            (hasSuggestedExhaustMode && contextSuggestedExhaustKeys.has(key))
+                        )
+                );
+        })
+    );
+    const dismissedRuleKeysForUi =
+        dismissedRuleKeysByContextRef.current[autoRuleContextKey] || new Set<string>();
+
+    const hasRuleBasedPreselected = [...autoRulePreselectedKeys].some((k: string) =>
+        selectedFilters.includes(k)
+    );
+
+    const hasPreselectedModeActive =
+        hasRuleBasedPreselected ||
+        (hasSpecialHandling &&
+            filterTypes.includes("Exhaust") &&
+            (filterSelectionConfig.specialExhaustFilters?.length ?? 0) > 0);
+
     const systems = (standardDataJson as any).text.options.systems;
     const isHeating = [systems.heating, systems.heatingVentilation, systems.heatingCooling].includes(system);
     const isCooling = [systems.cooling, systems.coolingVentilation, systems.heatingCooling].includes(system);
 
     const handleChange = (field: string, value: any) => {
         dispatch(updateStandardsField({ field, value }));
+        
+        const SEPARATE_COLUMNS = ["flowVelocity", "heatingFlowVelocity", "coolingFlowVelocity", "selectedFilters", "filterTypeSelection", "plantRoomDistance", "additionalDpValue"];
+        if (SEPARATE_COLUMNS.includes(field)) return;
+
+        if (AHU_CONSTRUCTION_KEYS.includes(field)) {
+            handleAhuConstructionDataChange(field, value);
+        } else {
+            handleAhuFiltrationDataChange(field, value);
+        }
     };
+
+    const handleAhuConstructionDataChange = (field: string, value: any) => {
+        const prevData = Array.isArray(ahuConstructionData) ? ahuConstructionData : [];
+        const existingIndex = prevData.findIndex((item: any) => item.field === field);
+        let newData;
+        if (existingIndex >= 0) {
+            newData = [...prevData];
+            newData[existingIndex] = { ...newData[existingIndex], value: value };
+        } else {
+            newData = [...prevData, { field: field, value: value }];
+        }
+        dispatch(updateStandardsField({ field: "ahuConstructionData", value: newData }));
+    };
+
+    const handleAhuFiltrationDataChange = (field: string, value: any) => {
+        const prevData = Array.isArray(ahufiltrationData) ? ahufiltrationData : [];
+        // 1. Check if an object for this field already exists in the array
+        const existingIndex = prevData.findIndex((item: any) => item.field === field);
+
+        let newData;
+        if (existingIndex >= 0) {
+            // 2. If it exists, create a copy of the array and update that specific object
+            newData = [...prevData];
+            newData[existingIndex] = { ...newData[existingIndex], value: value };
+        } else {
+            // 3. If it doesn't exist yet, push it as a new object
+            newData = [...prevData, { field: field, value: value }];
+        }
+        dispatch(updateStandardsField({ field: "ahufiltrationData", value: newData }));
+    };
+
+    useEffect(() => {
+        if (additionalDpValueExhaust !== "" && Number(additionalDpValueExhaust) !== 0) return;
+        const saved = (Array.isArray(ahufiltrationData) ? ahufiltrationData : []).find(
+            (item: any) => item?.field === "additionalDpValueExhaust"
+        );
+        if (saved && saved.value !== undefined && saved.value !== null && saved.value !== "") {
+            dispatch(
+                updateStandardsField({
+                    field: "additionalDpValueExhaust",
+                    value: Number(saved.value),
+                })
+            );
+        }
+    }, [additionalDpValueExhaust, ahufiltrationData, dispatch]);
+
+    useEffect(() => {
+        if (!system) {
+            if (plantRoomDistance !== "") {
+                dispatch(
+                    updateStandardsField({
+                        field: "plantRoomDistance",
+                        value: "",
+                    })
+                );
+            }
+            return;
+        }
+
+        if (plantRoomDistance !== "" && plantRoomDistance !== null && plantRoomDistance !== undefined) {
+            return;
+        }
+        dispatch(
+            updateStandardsField({
+                field: "plantRoomDistance",
+                value: config.plantRoomDistanceLimits.min,
+            })
+        );
+    }, [system, plantRoomDistance, dispatch]);
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -244,6 +727,25 @@ const AHUFiltration = () => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    useEffect(() => {
+        if (!system) {
+            if (pipeConfiguration !== "") {
+                dispatch(updateStandardsField({ field: "pipeConfiguration", value: "" }));
+            }
+            return;
+        }
+
+        const shouldAutoSelectSinglePipe = [
+            systems.heating,
+            systems.cooling,
+            systems.coolingVentilation,
+            systems.heatingVentilation,
+        ].includes(system);
+        if (!shouldAutoSelectSinglePipe) return;
+        if (pipeConfiguration === "Single Pipe") return;
+        dispatch(updateStandardsField({ field: "pipeConfiguration", value: "Single Pipe" }));
+    }, [system, pipeConfiguration, dispatch, systems]);
+
     // DERIVED VALUES: Count stages and calculate total pressure drop
     const kExhaust = (filterTypes.includes("Exhaust") && hasSpecialHandling)
         ? filterSelectionConfig.specialExhaustFilters.map((f: string) => `Exhaust:${f}`)
@@ -251,18 +753,37 @@ const AHUFiltration = () => {
     const activeFilters = [...new Set([...(selectedFilters || []), ...kExhaust])]
         .filter(k => k && filterTypes.some(t => k.startsWith(`${t}:`)));
     const numStages = activeFilters.length;
+    const numSupplyStages = activeFilters.filter((k: string) => k.startsWith("Supply:")).length;
+    const numExhaustStages = activeFilters.filter((k: string) => k.startsWith("Exhaust:")).length;
 
-    const filterDpSumMmWg = activeFilters.reduce((sum, k) => {
+    const getFinalDpMmWgForKey = (k: string) => {
         const detail = selectedFilterDetails[k];
-        if (detail?.finalDp) return sum + (detail.finalDp / MM_WG_TO_PA);
+        if (detail?.finalDp) return detail.finalDp / MM_WG_TO_PA;
         const specs = getFilterSpecs(k.split(":")[1]);
-        return sum + (specs ? Math.max(...specs.finalRange) : 0);
-    }, 0);
+        return specs ? Math.max(...specs.finalRange) : 0;
+    };
+
+    const filterDpSumMmWg = activeFilters.reduce((sum, k) => sum + getFinalDpMmWgForKey(k), 0);
+    const supplyFinalPressureMmWg = activeFilters
+        .filter((k: string) => k.startsWith("Supply:"))
+        .reduce((sum, k) => sum + getFinalDpMmWgForKey(k), 0);
+    const exhaustFinalPressureMmWg = activeFilters
+        .filter((k: string) => k.startsWith("Exhaust:"))
+        .reduce((sum, k) => sum + getFinalDpMmWgForKey(k), 0);
+
+    const formatPressureDisplay = (mmWgValue: number) => {
+        const pa = Math.round(mmWgValue * MM_WG_TO_PA);
+        return `${Math.round(mmWgValue)} mmWG / ${pa} Pa`;
+    };
+    const supplyFinalPressureWithAdditionalMmWg =
+        supplyFinalPressureMmWg + (Number(additionalDpValue) || 0);
+    const exhaustFinalPressureWithAdditionalMmWg =
+        exhaustFinalPressureMmWg + (Number(additionalDpValueExhaust) || 0);
+    const supplyFinalPressureDisplay = formatPressureDisplay(supplyFinalPressureWithAdditionalMmWg);
+    const exhaustFinalPressureDisplay = formatPressureDisplay(exhaustFinalPressureWithAdditionalMmWg);
 
     // Static Pressure (mmWG) = (Plant Room Distance (m) * 0.7) + Sum of Filter Δp (mmWG) + Additional Δp (mmWG)
     const staticPressureMmWg = (Number(plantRoomDistance) * config.calculationConstants.PLANT_ROOM_DISTANCE_FACTOR) + filterDpSumMmWg + (Number(additionalDpValue) || 0);
-    const staticPressurePa = Math.round(staticPressureMmWg * MM_WG_TO_PA);
-    const staticPressureDisplay = `${Math.round(staticPressureMmWg)} mmWG / ${staticPressurePa} Pa`;
 
     // Sync calculated values to Redux
     useEffect(() => {
@@ -280,8 +801,29 @@ const AHUFiltration = () => {
         const index = currentSelected.indexOf(k);
         if (index > -1) {
             currentSelected.splice(index, 1);
+
+            if (autoRulePreselectedKeys.has(k)) {
+                if (!dismissedRuleKeysByContextRef.current[autoRuleContextKey]) {
+                    dismissedRuleKeysByContextRef.current[autoRuleContextKey] = new Set();
+                }
+                dismissedRuleKeysByContextRef.current[autoRuleContextKey].add(k);
+            }
+
+            if (type === "Supply" && currentRuleSupplyKeys.includes(k)) {
+                if (!dismissedSupplyByContextRef.current[autoRuleContextKey]) {
+                    dismissedSupplyByContextRef.current[autoRuleContextKey] = new Set();
+                }
+                dismissedSupplyByContextRef.current[autoRuleContextKey].add(k);
+            }
         } else {
             currentSelected.push(k);
+
+            dismissedRuleKeysByContextRef.current[autoRuleContextKey]?.delete(k);
+
+            if (type === "Supply") {
+                dismissedSupplyByContextRef.current[autoRuleContextKey]?.delete(k);
+            }
+
             // Initialize filter detail if not present
             if (!selectedFilterDetails[k]) {
                 const specs = getFilterSpecs(filter);
@@ -335,14 +877,31 @@ const AHUFiltration = () => {
 
     // Auto-select filters from JSON rules for ISO cleanroom ventilation flow.
     useEffect(() => {
+        const contextSuggestedSupplyKeysForEffect = getContextSuggestedSupplyKeys(
+            standard,
+            system,
+            systemType,
+            classification,
+            coolingMethod,
+            heatingMethod
+        );
+        const hasSuggestedSupplyModeForEffect =
+            contextSuggestedSupplyKeysForEffect.size > 0;
+        const contextSuggestedExhaustKeysForEffect = getContextSuggestedExhaustKeys(
+            standard,
+            system,
+            systemType,
+            classification
+        );
+        const hasSuggestedExhaustModeForEffect =
+            contextSuggestedExhaustKeysForEffect.size > 0;
+
         const autoRules = Array.isArray(filterSelectionConfig.autoSelectionRules)
             ? filterSelectionConfig.autoSelectionRules
             : [];
 
         const matchedRule = autoRules.find((rule: any) =>
-            rule.standard === standard &&
-            rule.system === system &&
-            rule.systemType === systemType
+            ruleMatchesSelectionContext(rule, standard, system, systemType, coolingMethod, heatingMethod)
         );
         if (!matchedRule) return;
 
@@ -359,7 +918,22 @@ const AHUFiltration = () => {
         );
         if (selectedTypesForRule.length === 0) return;
 
-        const nextSelected = [...(selectedFilters || [])];
+        const applyKey = `${autoRuleContextKey}||${selectedTypesForRule.slice().sort().join(",")}`;
+        if (appliedAutoRuleRef.current === applyKey) return;
+        appliedAutoRuleRef.current = applyKey;
+
+        const dismissedSupplySet =
+            dismissedSupplyByContextRef.current[autoRuleContextKey] || new Set();
+
+        const nextSelected = hasSuggestedSupplyModeForEffect
+            ? [...(selectedFilters || [])].filter(
+                (k: string) =>
+                    !contextSuggestedSupplyKeysForEffect.has(k) &&
+                    !contextSuggestedExhaustKeysForEffect.has(k)
+            )
+            : hasSuggestedExhaustModeForEffect
+                ? [...(selectedFilters || [])].filter((k: string) => !contextSuggestedExhaustKeysForEffect.has(k))
+                : [...(selectedFilters || [])];
         const detailsToAdd: Array<{ filterName: string; details: any }> = [];
 
         selectedTypesForRule.forEach((type: string) => {
@@ -369,6 +943,9 @@ const AHUFiltration = () => {
 
             configuredFilters.forEach((filterName: string) => {
                 const key = `${type}:${filterName}`;
+                if (hasSuggestedSupplyModeForEffect && contextSuggestedSupplyKeysForEffect.has(key)) return;
+                if (hasSuggestedExhaustModeForEffect && contextSuggestedExhaustKeysForEffect.has(key)) return;
+                if (type === "Supply" && dismissedSupplySet.has(key)) return;
                 if (nextSelected.includes(key)) return;
                 nextSelected.push(key);
 
@@ -398,7 +975,18 @@ const AHUFiltration = () => {
                 dispatch(updateFilterDetail({ filterName, details }));
             });
         }
-    }, [standard, system, systemType, classification, filterTypes, selectedFilters, selectedFilterDetails]);
+    }, [
+        standard,
+        system,
+        systemType,
+        classification,
+        coolingMethod,
+        heatingMethod,
+        filterTypes,
+        selectedFilters,
+        selectedFilterDetails,
+        autoRuleContextKey,
+    ]);
 
     // Auto-select special exhaust filters
     useEffect(() => {
@@ -801,6 +1389,44 @@ const AHUFiltration = () => {
                                                                 const k = `${type}:${filter}`;
                                                                 const isSelected = (selectedFilters || []).includes(k);
                                                                 const isPreselectedAndDisabled = specialExhaustFilters.includes(filter);
+                                                                const isRulePreselectedButManuallyRemoved =
+                                                                    !isSelected &&
+                                                                    autoRulePreselectedKeys.has(k) &&
+                                                                    dismissedRuleKeysForUi.has(k);
+                                                                const isSuggestedNotSelected =
+                                                                    !isSelected &&
+                                                                    ((hasSuggestedSupplyMode && contextSuggestedSupplyKeys.has(k)) ||
+                                                                        (hasSuggestedExhaustMode && contextSuggestedExhaustKeys.has(k)));
+                                                                const showOrangeForNonSelected =
+                                                                    hasPreselectedModeActive &&
+                                                                    !isPreselectedAndDisabled &&
+                                                                    !isRulePreselectedButManuallyRemoved &&
+                                                                    !isSuggestedNotSelected &&
+                                                                    !isSelected;
+                                                                const checkboxStyle: CSSProperties | undefined =
+                                                                    (isRulePreselectedButManuallyRemoved || isSuggestedNotSelected)
+                                                                        ? {
+                                                                            appearance: "none",
+                                                                            WebkitAppearance: "none",
+                                                                            MozAppearance: "none",
+                                                                            width: "18px",
+                                                                            height: "18px",
+                                                                            border: "2px solid #22c55e",
+                                                                            borderRadius: "4px",
+                                                                            backgroundColor: "#dcfce7",
+                                                                        }
+                                                                        : showOrangeForNonSelected
+                                                                            ? {
+                                                                                appearance: "none",
+                                                                                WebkitAppearance: "none",
+                                                                                MozAppearance: "none",
+                                                                                width: "18px",
+                                                                                height: "18px",
+                                                                                border: "2px solid #fc8314",
+                                                                                borderRadius: "4px",
+                                                                                backgroundColor: "#ffe7d1",
+                                                                            }
+                                                                            : undefined;
                                                                 const specs = getFilterSpecs(filter);
                                                                 return (
                                                                     <div key={k} className={s.inputGroup}>
@@ -810,6 +1436,7 @@ const AHUFiltration = () => {
                                                                                     type="checkbox"
                                                                                     className={`${s.checkboxBase} ${isPreselectedAndDisabled ? s.checkboxDisabled : s.checkboxEnabled}`}
                                                                                     checked={isSelected || isPreselectedAndDisabled}
+                                                                                    style={checkboxStyle}
                                                                                     disabled={isPreselectedAndDisabled}
                                                                                     onChange={() => handleFilterToggle(type, filter)}
                                                                                 />
@@ -841,22 +1468,32 @@ const AHUFiltration = () => {
 
                             <div className={s.finalSection}>
                                 <div className={s.finalGrid}>
-                                    {/* No. of Filtration Stages */}
                                     <div className={s.field}>
                                         <label className={s.label}>
-                                            No. of Filtration Stages in AHU <span className={s.autoCalcNote}>(Auto-calculated)</span>
+                                            Number of filtration stages in Supply <span className={s.autoCalcNote}>(Auto-calculated)</span>
                                         </label>
                                         <input
                                             type="text"
                                             className={s.inputDisabled}
-                                            value={numStages}
+                                            value={numSupplyStages}
                                             readOnly
                                         />
                                     </div>
 
-                                    {/* Additional Pressure Drop */}
                                     <div className={s.field}>
-                                        <label className={s.label}>Include any additional pressure drop allowance <span className={s.required}>*</span></label>
+                                        <label className={s.label}>
+                                            Number of filtration stages in Exhaust <span className={s.autoCalcNote}>(Auto-calculated)</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            className={s.inputDisabled}
+                                            value={numExhaustStages}
+                                            readOnly
+                                        />
+                                    </div>
+
+                                    <div className={s.field}>
+                                        <label className={s.label}>Include any additional pressure drop allowance for supply filters <span className={s.required}>*</span></label>
                                         <select
                                             className={s.select + " py-4"}
                                             value={additionalDpValue}
@@ -876,21 +1513,51 @@ const AHUFiltration = () => {
                                         </select>
                                     </div>
 
-                                    {/* Static Pressure Requirement */}
+                                    <div className={s.field}>
+                                        <label className={s.label}>Include any additional pressure drop allowance for exhaust filters <span className={s.required}>*</span></label>
+                                        <select
+                                            className={s.select + " py-4"}
+                                            value={additionalDpValueExhaust}
+                                            onChange={(e) => handleChange("additionalDpValueExhaust", e.target.value === "" ? "" : Number(e.target.value))}
+                                            required={true}
+                                        >
+                                            <option value="" disabled>Select Option</option>
+                                            <option value={0}>None</option>
+                                            {additionalDpOptions.map((mmwg: number) => {
+                                                const pa = Math.round(mmwg * MM_WG_TO_PA);
+                                                return (
+                                                    <option key={mmwg} value={mmwg}>
+                                                        {mmwg} mmWG / {pa} Pa
+                                                    </option>
+                                                );
+                                            })}
+                                        </select>
+                                    </div>
+
                                     <div className={s.field}>
                                         <label className={s.label}>
-                                            Static Pressure Requirement for Blower
-                                            <Tooltip id="staticPressure" content={constants.Tooltip.staticPressureTooltip} />
+                                            Static pressure requirement for blower in Supply filters <span className={s.autoCalcNote}>(Auto-calculated)</span>
                                         </label>
-                                        <div className={s.relativeBox}>
-                                            <input
-                                                type="text"
-                                                className={s.inputDisabled + " bg-slate-50 font-bold text-blue-900"}
-                                                value={staticPressureDisplay}
-                                                readOnly
-                                            />
-                                        </div>
+                                        <input
+                                            type="text"
+                                            className={s.inputDisabled}
+                                            value={supplyFinalPressureDisplay}
+                                            readOnly
+                                        />
                                     </div>
+
+                                    <div className={s.field}>
+                                        <label className={s.label}>
+                                            Static pressure requirement for blower in Exhaust filters <span className={s.autoCalcNote}>(Auto-calculated)</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            className={s.inputDisabled}
+                                            value={exhaustFinalPressureDisplay}
+                                            readOnly
+                                        />
+                                    </div>
+
                                 </div>
                             </div>
                         </div>

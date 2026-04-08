@@ -25,6 +25,7 @@ import Main from "./pages/admin/adminLayout";
 import { refreshSession } from "./backend/controller/authContoller";
 import { clearSessionTimers, scheduleSessionTimers } from "./utils/auth";
 import ErrorScreen from "./pages/ErrorHandler/ErrorScreen";
+import ForgotPassword from "./pages/forgotPassword";
 
 const SESSION_WARNING_BEFORE_MS = 110 * 1000;
 const SESSION_WARNING_MINUTES = SESSION_WARNING_BEFORE_MS / (60 * 1000);
@@ -137,7 +138,8 @@ function App() {
 				{/* guest routes */}
 				<Route path="/login" element={<Login />} />
 				<Route path="/register" element={<Register />} />
-
+				<Route path="/forgot-password" element={<ForgotPassword />} />
+				
 				{/* public routes */}
 				<Route path="/customer-info" element={<CustomerInfoPage />} />
 				<Route path="/project-info" element={<ProjectInfoPage />} />

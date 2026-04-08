@@ -45,6 +45,7 @@ export const roomRoute: ServerRoute[] = [
 				payload: Joi.object({
 					project_id: Joi.number().integer().required(),
 					user_id: Joi.string().required(),
+					zone_name: Joi.string().trim().min(2).max(50).required(),
 					system: strOrNull,
 					systemType: strOrNull,
 					heatingMethod: strOrNull,
@@ -71,7 +72,9 @@ export const roomRoute: ServerRoute[] = [
 		},
 		handler: async (request, h) => {
 			try {
+				 console.log("Received createRoomStandards payload:", request.payload);
 				const id = await roomRepository.createRoomStandards(request.payload);
+				console.log("Created room standard ID:", id);
 				return h.response({ roomStandardsId: id }).code(201);
 			} catch (error) {
 				console.error("createRoomStandards error:", error);

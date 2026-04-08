@@ -17,6 +17,7 @@ const initialState = {
 	flowVelocity: 1.5,
 	heatingFlowVelocity: 1.5,
 	coolingFlowVelocity: 1.5,
+	zoneName: "",
 	zoneId: "",
 	projectStandardId: "",
 	// Filtration

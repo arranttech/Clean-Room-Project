@@ -190,7 +190,13 @@ const getContextSuggestedSupplyKeys = (
 
     const isIso9ToIso1ThermalContext =
         standard === "ISO 14644-4" &&
-        ["Air-Cooling System", "Air-Heating System", "Air Cooling and Air Heating System"].includes(system) &&
+        [
+            "Air-Cooling System",
+            "Air Cooling and Ventilation System",
+            "Air-Heating System",
+            "Air Heating and Ventilation System",
+            "Air Cooling and Air Heating System",
+        ].includes(system) &&
         [
             "Cleanroom Air-Cooling System",
             "Non-Classified Air-Cooling System",
@@ -210,14 +216,14 @@ const getContextSuggestedSupplyKeys = (
 
     const isIsoCoolingContext =
         standard === "ISO 14644-4" &&
-        system === "Air-Cooling System" &&
+        ["Air-Cooling System", "Air Cooling and Ventilation System"].includes(system) &&
         systemType === "Cleanroom Air-Cooling System" &&
         ["ISO 8", "ISO 7"].includes(classification) &&
         ["Chilled Water", "Brine", "DX"].includes(coolingMethod);
 
     const isIsoHeatingContext =
         standard === "ISO 14644-4" &&
-        system === "Air-Heating System" &&
+        ["Air-Heating System", "Air Heating and Ventilation System"].includes(system) &&
         systemType === "Cleanroom Air-Heating System" &&
         ["ISO 8", "ISO 7"].includes(classification) &&
         ["Hot Water", "Steam"].includes(heatingMethod);
@@ -244,7 +250,13 @@ const getContextSuggestedExhaustKeys = (
 
     const isIso9ToIso1ThermalContext =
         standard === "ISO 14644-4" &&
-        ["Air-Cooling System", "Air-Heating System", "Air Cooling and Air Heating System"].includes(system) &&
+        [
+            "Air-Cooling System",
+            "Air Cooling and Ventilation System",
+            "Air-Heating System",
+            "Air Heating and Ventilation System",
+            "Air Cooling and Air Heating System",
+        ].includes(system) &&
         [
             "Cleanroom Air-Cooling System",
             "Non-Classified Air-Cooling System",
@@ -284,6 +296,14 @@ const ruleMatchesSelectionContext = (
     const systemCandidates =
         system === "Air Cooling and Air Heating System"
             ? ["Air-Cooling System", "Air-Heating System", system]
+            : system === "Air Cooling and Ventilation System"
+                ? ["Air-Cooling System", system]
+                : system === "Air-Cooling System"
+                    ? ["Air Cooling and Ventilation System", system]
+                    : system === "Air Heating and Ventilation System"
+                        ? ["Air-Heating System", system]
+                        : system === "Air-Heating System"
+                            ? ["Air Heating and Ventilation System", system]
             : [system];
 
     const combinedSystemTypeMap: Record<string, string[]> = {
@@ -529,6 +549,7 @@ const AHUFiltration = () => {
         selectedFilterDetails = {},
         exhaustImpactPercentage,
         additionalDpValue,
+        additionalDpValueExhaust,
         system,
         heatingMethod,
         coolingMethod,
@@ -658,6 +679,21 @@ const AHUFiltration = () => {
     };
 
     useEffect(() => {
+        if (additionalDpValueExhaust !== "" && Number(additionalDpValueExhaust) !== 0) return;
+        const saved = (Array.isArray(ahufiltrationData) ? ahufiltrationData : []).find(
+            (item: any) => item?.field === "additionalDpValueExhaust"
+        );
+        if (saved && saved.value !== undefined && saved.value !== null && saved.value !== "") {
+            dispatch(
+                updateStandardsField({
+                    field: "additionalDpValueExhaust",
+                    value: Number(saved.value),
+                })
+            );
+        }
+    }, [additionalDpValueExhaust, ahufiltrationData, dispatch]);
+
+    useEffect(() => {
         if (!system) {
             if (plantRoomDistance !== "") {
                 dispatch(
@@ -739,12 +775,15 @@ const AHUFiltration = () => {
         const pa = Math.round(mmWgValue * MM_WG_TO_PA);
         return `${Math.round(mmWgValue)} mmWG / ${pa} Pa`;
     };
-    const supplyFinalPressureDisplay = formatPressureDisplay(supplyFinalPressureMmWg);
-    const exhaustFinalPressureDisplay = formatPressureDisplay(exhaustFinalPressureMmWg);
+    const supplyFinalPressureWithAdditionalMmWg =
+        supplyFinalPressureMmWg + (Number(additionalDpValue) || 0);
+    const exhaustFinalPressureWithAdditionalMmWg =
+        exhaustFinalPressureMmWg + (Number(additionalDpValueExhaust) || 0);
+    const supplyFinalPressureDisplay = formatPressureDisplay(supplyFinalPressureWithAdditionalMmWg);
+    const exhaustFinalPressureDisplay = formatPressureDisplay(exhaustFinalPressureWithAdditionalMmWg);
 
     // Static Pressure (mmWG) = (Plant Room Distance (m) * 0.7) + Sum of Filter Δp (mmWG) + Additional Δp (mmWG)
     const staticPressureMmWg = (Number(plantRoomDistance) * config.calculationConstants.PLANT_ROOM_DISTANCE_FACTOR) + filterDpSumMmWg + (Number(additionalDpValue) || 0);
-    const staticPressureDisplay = formatPressureDisplay(staticPressureMmWg);
 
     // Sync calculated values to Redux
     useEffect(() => {
@@ -1454,32 +1493,7 @@ const AHUFiltration = () => {
                                     </div>
 
                                     <div className={s.field}>
-                                        <label className={s.label}>
-                                            Final static pressure in Supply filters <span className={s.autoCalcNote}>(Auto-calculated)</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            className={s.inputDisabled}
-                                            value={supplyFinalPressureDisplay}
-                                            readOnly
-                                        />
-                                    </div>
-
-                                    <div className={s.field}>
-                                        <label className={s.label}>
-                                            Final static pressure in Exhaust filters <span className={s.autoCalcNote}>(Auto-calculated)</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            className={s.inputDisabled}
-                                            value={exhaustFinalPressureDisplay}
-                                            readOnly
-                                        />
-                                    </div>
-
-                                    {/* Additional Pressure Drop */}
-                                    <div className={s.field}>
-                                        <label className={s.label}>Include any additional pressure drop allowance <span className={s.required}>*</span></label>
+                                        <label className={s.label}>Include any additional pressure drop allowance for supply filters <span className={s.required}>*</span></label>
                                         <select
                                             className={s.select + " py-4"}
                                             value={additionalDpValue}
@@ -1499,21 +1513,51 @@ const AHUFiltration = () => {
                                         </select>
                                     </div>
 
-                                    {/* Static Pressure Requirement */}
+                                    <div className={s.field}>
+                                        <label className={s.label}>Include any additional pressure drop allowance for exhaust filters <span className={s.required}>*</span></label>
+                                        <select
+                                            className={s.select + " py-4"}
+                                            value={additionalDpValueExhaust}
+                                            onChange={(e) => handleChange("additionalDpValueExhaust", e.target.value === "" ? "" : Number(e.target.value))}
+                                            required={true}
+                                        >
+                                            <option value="" disabled>Select Option</option>
+                                            <option value={0}>None</option>
+                                            {additionalDpOptions.map((mmwg: number) => {
+                                                const pa = Math.round(mmwg * MM_WG_TO_PA);
+                                                return (
+                                                    <option key={mmwg} value={mmwg}>
+                                                        {mmwg} mmWG / {pa} Pa
+                                                    </option>
+                                                );
+                                            })}
+                                        </select>
+                                    </div>
+
                                     <div className={s.field}>
                                         <label className={s.label}>
-                                            Static Pressure Requirement for Blower
-                                            <Tooltip id="staticPressure" content={constants.Tooltip.staticPressureTooltip} />
+                                            Static pressure requirement for blower in Supply filters <span className={s.autoCalcNote}>(Auto-calculated)</span>
                                         </label>
-                                        <div className={s.relativeBox}>
-                                            <input
-                                                type="text"
-                                                className={s.inputDisabled + " bg-slate-50 font-bold text-blue-900"}
-                                                value={staticPressureDisplay}
-                                                readOnly
-                                            />
-                                        </div>
+                                        <input
+                                            type="text"
+                                            className={s.inputDisabled}
+                                            value={supplyFinalPressureDisplay}
+                                            readOnly
+                                        />
                                     </div>
+
+                                    <div className={s.field}>
+                                        <label className={s.label}>
+                                            Static pressure requirement for blower in Exhaust filters <span className={s.autoCalcNote}>(Auto-calculated)</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            className={s.inputDisabled}
+                                            value={exhaustFinalPressureDisplay}
+                                            readOnly
+                                        />
+                                    </div>
+
                                 </div>
                             </div>
                         </div>

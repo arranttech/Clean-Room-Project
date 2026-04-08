@@ -129,6 +129,7 @@ export default function Standard() {
     heatingFlowVelocity,
     coolingFlowVelocity,
     additionalDpValue,
+    additionalDpValueExhaust,
     filterTypeSelection,
     selectedFilters,
     totalFiltrationStages,
@@ -216,7 +217,7 @@ const ahuPayload = ahupayload(standards);
               systemType: std.project_system_type || "",
               heatingMethod: std.project_heating_method || "",
               coolingMethod: std.project_cooling_method || "",
-              additionalDpValue: std.additional_pressure_drop || "",
+              additionalDpValue: std.additional_pressure_drop ?? 0,
               standard: std.project_standard || "",
               classification: std.project_classification_name || "",
               acph: std.project_ACPH ? String(std.project_ACPH) : "",
@@ -555,6 +556,7 @@ const ahuPayload = ahupayload(standards);
       if (!reqInsideTempC || (errors as any).temperature) return false;
     }
     if (additionalDpValue === "") return false;
+    if (additionalDpValueExhaust === "") return false;
     return true;
   })();
 

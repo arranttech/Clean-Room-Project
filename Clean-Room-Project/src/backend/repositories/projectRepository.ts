@@ -142,7 +142,7 @@ export const projectRepository = {
   getProjectDetailsForEdit: async (projectId: number) => {
     const [[project]]: any = await database.execute(
       `SELECT p.project_id, p.project_unique_id, p.project_name,
-        p.project_unit_branch, p.project_Industry, p.project_Handling,
+        p.project_unit_branch, p.project_Industry, p.project_Handling, p.project_SubIndustry,
         p.project_Location, p.project_max_temp, p.project_min_temp,
         p.project_relative_min_humid, p.project_relative_max_humid,
         c.customer_name

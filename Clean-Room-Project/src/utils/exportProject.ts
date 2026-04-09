@@ -407,8 +407,8 @@ function buildZoneSheet(
       (r) => !r.room_ExhaustAir || parseFloat(r.room_ExhaustAir) === 0
     );
 
-    renderTable(`${zoneName} (Exhaust)`, zoneId, roomsWithExhaust);
-    renderTable(`${zoneName} (Supply)`, zoneId, roomsWithoutExhaust);
+    renderTable(`${zoneName} (With Exhaust Air)`, zoneId, roomsWithExhaust);
+    renderTable(`${zoneName} (Without Exhaust Air)`, zoneId, roomsWithoutExhaust);
   }
 
   const ws = buildWS(allRows);

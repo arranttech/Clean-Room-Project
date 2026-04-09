@@ -2,8 +2,7 @@ import { ServerRoute } from "@hapi/hapi";
 import Joi from "joi";
 import { cumulativeZoneService } from "../services/cummulativecal";
 import { boqresults, BOQPayload } from "../services/boqresults";
-import { zoneRepository } from "../repositories/zoneRepository";
-
+import { truncate } from "node:fs/promises";
 
 export const boqRoute: ServerRoute[] = [
 
@@ -11,7 +10,8 @@ export const boqRoute: ServerRoute[] = [
 		method: "POST",
 		path: "/v1/cummulativecalculation",
 		options: {
-			description: "Calculate cumulative values for a zone containing multiple rooms",
+			description:
+				"Calculate cumulative values for a zone containing multiple rooms",
 			tags: ["api", "calculations", "cumulative"],
 			validate: {
 				payload: Joi.object({
@@ -49,10 +49,27 @@ export const boqRoute: ServerRoute[] = [
 			response: {
 				status: {
 					200: Joi.object({
-						
-						exhaustTotals: Joi.object().required(),
-						nonExhaustTotals: Joi.object().required(),
-					}).required(),
+						zoneName: Joi.string().required(),
+						zoneArea: Joi.number().required(),
+						zoneVolume: Joi.number().required(),
+						zoneRoomCfm: Joi.number().required(),
+						zoneFreshAir: Joi.number().required(),
+						zoneExhaustAir: Joi.number().required(),
+						zoneDehumidValue: Joi.number().required(),
+						zoneRemovedWater: Joi.number().required(),
+						zoneResultantCfm: Joi.number().required(),
+						zoneRoomACValue: Joi.number().required(),
+						zoneRoomTermSupplyValue: Joi.number().required(),
+						zoneCfmACLoadTR: Joi.number().required(),
+						zoneResultCoolLoadTR: Joi.number().required(),
+						zoneAddWaterValue: Joi.number().required(),
+						zoneHumidValue: Joi.number().required(),
+						zoneResultantHeatCfm: Joi.number().required(),
+						zoneRoomTermSupplyHeatValue: Joi.number().required(),
+						zoneCfmHeatLoadTRValue: Joi.number().required(),
+						zoneRoomHeatLoadTR: Joi.number().required(),
+						zoneResultHeatLoadTR: Joi.number().required(),
+					}).unknown(true).required(),
 					400: Joi.object({
 						error: Joi.string().required(),
 					}),
@@ -64,18 +81,8 @@ export const boqRoute: ServerRoute[] = [
 		},
 		handler: async (request, h) => {
 			try {
-				
 				const { zoneName, rooms } = request.payload as any;
-				const payload = request.payload as any; 
-
 				const result = await cumulativeZoneService(zoneName, rooms);
-
-				const exhaustId = await zoneRepository.createProjectZone(payload, 'Exhaust');
-				await zoneRepository.updateZoneTotals(exhaustId, result.exhaustTotals);
-
-				const nonExhaustId = await zoneRepository.createProjectZone(payload, 'Non-Exhaust');
-				await zoneRepository.updateZoneTotals(nonExhaustId, result.nonExhaustTotals);
-				
 				return h.response(result).code(200);
 			} catch (err: any) {
 				console.error("Cumulative calculation error:", err);

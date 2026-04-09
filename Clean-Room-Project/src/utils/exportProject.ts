@@ -131,8 +131,10 @@ const COLS: Col[] = [
   { label: "Heat Flow Velocity", key: "heating_flow_velocity", sec: "brown", src: "std" },
   { label: "Cool Flow Velocity", key: "cooling_flow_velocity", sec: "brown", src: "std" },
   { label: "Pipe Configuration", key: "pipe_configuration", sec: "brown", src: "std" },
-  { label: "Static Pressure", key: "static_Pressure", sec: "brown", src: "std" },
-  { label: "Filtration Stages", key: "total_Filtration_Stages", sec: "brown", src: "std" },
+  { label: "Static Pressure (Supply)", key: "static_Pressure_Supply", sec: "brown", src: "std" },
+  { label: "Static Pressure (Exhaust)", key: "static_Pressure_Exhaust", sec: "brown", src: "std" },
+  { label: "Filtration Stages (Supply)", key: "total_Filtration_Stages_Supply", sec: "brown", src: "std" },
+  { label: "Filtration Stages (Exhaust)", key: "total_Filtration_Stages_Exhaust", sec: "brown", src: "std" },
   // COOLING — zoneCol = exact tProjectZones column name
   { label: "Area (m²)", key: "project_Area", sec: "cooling", src: "result", zoneCol: "zone_Area" },
   { label: "Volume (m³)", key: "project_Volume", sec: "cooling", src: "result", zoneCol: "zone_Volume" },

@@ -31,7 +31,7 @@ export const zoneRoute: ServerRoute[] = [
 		handler: async (request, h) => {
 			try {
 				const payload = request.payload as any;
-				const zoneId = await zoneRepository.createProjectZone(payload);
+				const zoneId = await zoneRepository.createProjectZone(payload, "Exhaust");
 				return h.response({ zoneId }).code(201);
 			} catch {
 				return h.response({ error: "Internal Server Error" }).code(500);

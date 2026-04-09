@@ -24,7 +24,6 @@ import ApiDocs from "./pages/ApiDocs";
 import Main from "./pages/admin/adminLayout";
 import { refreshSession } from "./backend/controller/authContoller";
 import { clearSessionTimers, scheduleSessionTimers } from "./utils/auth";
-import ErrorScreen from "./pages/ErrorHandler/ErrorScreen";
 import ForgotPassword from "./pages/forgotPassword";
 
 const SESSION_WARNING_BEFORE_MS = 110 * 1000;
@@ -149,9 +148,6 @@ function App() {
 					element={<ProjectListInfoPage />}
 				/>
 
-
-				
-
 				{/* protected routes */}
 				<Route element={<ProtectedRoute />}>
 					<Route path="/dashboard" element={<Dashboard />} />
@@ -160,9 +156,8 @@ function App() {
 					<Route path="/projects" element={<AllProjects />} />
 					<Route path="/docs" element={<ApiDocs />} />
 					<Route path="/results/:projectId" element={<Results />} />
-					{/* <Route path="*" element={<Navigate to="/" replace />} /> */}
+					<Route path="*" element={<Navigate to="/" replace />} />
 				</Route>
-				<Route path="*" element={<ErrorScreen />} />
 			</Routes>
 
 			{showSessionPopup && (

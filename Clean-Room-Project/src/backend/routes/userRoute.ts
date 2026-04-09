@@ -36,16 +36,6 @@ export const userRoute: ServerRoute[] = [
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },
-    // Inside your GET /v1/users handler
-    // handler: async (request, h) => {
-    //   try {
-    //     // INTENTIONAL BUG: misspell the repository function
-    //     const users = await userRepositor.getUsers(); // <-- typo here (should be userRepository)
-    //     return h.response({ users }).code(200);
-    //   } catch {
-    //     return h.response({ error: "Internal Server Error" }).code(500);
-    //   }
-    // }
   },
 
   {
@@ -194,7 +184,6 @@ export const userRoute: ServerRoute[] = [
     },
   },
 
-  // GET single user by user_login_id — used by edit modal to prefill form
   {
     method: "GET",
     path: "/v1/users/{user_login_id}",

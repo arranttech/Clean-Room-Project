@@ -7,7 +7,6 @@ import {
   getUserById,
   deleteUser,
 } from "../../../backend/controller/userController";
-import { useError } from "../../../pages/ErrorHandler/ErrorContext";
 
 interface UsersProps {
   onCountChange?: (count: number) => void;
@@ -32,7 +31,6 @@ type User = {
 };
 
 export default function Users({ onCountChange }: UsersProps) {
-  const {setError} = useError();
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"ALL" | "A" | "I">("ALL");
@@ -49,10 +47,8 @@ export default function Users({ onCountChange }: UsersProps) {
       const list = data.users ?? data ?? [];
       setUsers(list);
       if (onCountChange) onCountChange(list.length);
-    } catch (error: any) {
+    } catch (error) {
       console.error((error as Error).message);
-      setError((error as Error).message || "Failed to load users. Please try again later.");
-     
     } finally {
       setLoading(false);
     }
@@ -86,18 +82,15 @@ export default function Users({ onCountChange }: UsersProps) {
   const handleEdit = async (user: User) => {
     try {
       const data = await getUserById(user.user_login_id);
-     
+      // route returns { success, user } — same pattern as customers
       if (!data?.success || !data?.user) {
         console.error("User not found or fetch failed");
-        setError("User not found or fetch failed");
-        
         return;
       }
       setEditUser(data.user);
       setShowAdd(true);
-    } catch (error: any) {
+    } catch (error) {
       console.error("Failed to fetch user:", (error as Error).message);
-      setError((error as Error).message || "Failed to fetch user. Please try again later.");
     }
   };
 
@@ -114,7 +107,6 @@ export default function Users({ onCountChange }: UsersProps) {
       );
     } catch (err) {
       console.error("Delete error:", err);
-      setError( (err as Error).message ||"Failed to delete user. Please try again later.");
     } finally {
       setDeleteTarget(null);
     }

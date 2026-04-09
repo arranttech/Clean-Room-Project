@@ -30,83 +30,68 @@ const s = (payload: any) => {
 };
 
 export const roomRepository = {
- 
-
   createRoomStandards: async (rawPayload: any) => {
-  console.log("RAW PAYLOAD:", rawPayload);
-
-  const payload = s(rawPayload);
-
-  console.log("TRANSFORMED PAYLOAD:", payload);
-
-  const query = `INSERT INTO tRoomStandards (
-    project_id,
-    zone_name,
-    project_system,
-    project_system_type,
-    project_heating_method,
-    project_cooling_method,
-    project_standard,
-    project_classification_name,
-    project_ACPH,
-    project_temp_unit,
-    project_required_inside_temp,
-    project_required_inside_humid,
-    project_max_temp,
-    project_min_temp,
-    project_relative_min_humid,
-    project_relative_max_humid,
-    flow_velocity,
-    pipe_configuration,
-    total_filtration_stages,
-    static_pressure,
-    heating_flow_velocity,
-    cooling_flow_velocity,
-    created_by,
-    updated_by
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-
-  const values = [
-    payload.project_id,
-    payload.zone_name ?? null,
-    payload.system ?? null,
-    payload.systemType ?? null,
-    payload.heatingMethod ?? null,
-    payload.coolingMethod ?? null,
-    payload.standard ?? null,
-    payload.classification ?? null,
-    toNum(payload.acph),
-    payload.tempUnit ?? null,
-    toNum(payload.reqInsideTempC),
-    toNum(payload.reqInsideHum),
-    toNum(payload.maxTempC),
-    toNum(payload.minTempC),
-    toNum(payload.rhMin),
-    toNum(payload.rhMax),
-    toNum(payload.flowVelocity),
-    payload.pipeConfiguration ?? null,
-    toNum(payload.totalFiltrationStages),
-    toNum(payload.staticPressure),
-    toNum(payload.heatingFlowVelocity),
-    toNum(payload.coolingFlowVelocity),
-    payload.user_id ?? null,
-    payload.user_id ?? null,
-  ];
-
-  console.log("SQL VALUES:", values);
-
-  const undefinedIndex = values.findIndex(v => v === undefined);
-  if (undefinedIndex !== -1) {
-   
-    throw new Error("Undefined value found in SQL params");
-  }
-
-  const [result] = await database.execute(query, values);
-
-  console.log("INSERT RESULT:", result);
-
-  return (result as any).insertId;
-},
+    const payload = s(rawPayload);
+    const [result] = await database.execute(
+      `INSERT INTO tRoomStandards (
+        project_id,
+        project_system,
+        project_system_type,
+        project_heating_method,
+        project_cooling_method,
+        project_standard,
+        project_classification_name,
+        project_ACPH,
+        project_temp_unit,
+        project_required_inside_temp,
+        project_required_inside_humid,
+        project_max_temp,
+        project_min_temp,
+        project_relative_min_humid,
+        project_relative_max_humid,
+        flow_velocity,
+        pipe_configuration,
+        total_filtration_stages,
+        static_pressure,
+        heating_flow_velocity,
+        cooling_flow_velocity,
+        additional_pressure_drop,
+        ahu_filtration_data,
+        ahu_construction_specifications,
+        created_by,
+        updated_by
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        payload.project_id,
+        payload.system ?? null,
+        payload.systemType ?? null,
+        payload.heatingMethod ?? null,
+        payload.coolingMethod ?? null,
+        payload.standard ?? null,
+        payload.classification ?? null,
+        toNum(payload.acph),
+        payload.tempUnit ?? null,
+        toNum(payload.reqInsideTempC),
+        toNum(payload.reqInsideHum),
+        toNum(payload.maxTempC),
+        toNum(payload.minTempC),
+        toNum(payload.rhMin),
+        toNum(payload.rhMax),
+        toNum(payload.flowVelocity),
+        payload.pipeConfiguration ?? null,
+        toNum(payload.totalFiltrationStages),
+        toNum(payload.staticPressure),
+        toNum(payload.heatingFlowVelocity),
+        toNum(payload.coolingFlowVelocity),
+        toNum(payload.additionalDpValue),
+        JSON.stringify(payload.ahufiltrationData || []),
+        JSON.stringify(payload.ahuConstructionData || []),
+        payload.user_id ?? null,
+        payload.user_id ?? null,
+      ]
+    );
+    return (result as any).insertId;
+  },
 
   getRoomStandards: async (payload?: { project_id?: number }) => {
     let query = `SELECT * FROM tRoomStandards`;
@@ -121,7 +106,6 @@ export const roomRepository = {
   updateRoomStandards: async (standardId: number, rawPayload: any) => {
     const payload = s(rawPayload);
     const params = [
-      payload.zone_name ?? null,
       payload.system ?? null,
       payload.systemType ?? null,
       payload.heatingMethod ?? null,
@@ -157,7 +141,6 @@ export const roomRepository = {
 
     await database.execute(
       `UPDATE tRoomStandards SET
-        zone_name = ?,
         project_system = ?,
         project_system_type = ?,
         project_heating_method = ?,

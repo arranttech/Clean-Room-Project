@@ -26,6 +26,7 @@ import {
   FaChevronDown,
 } from "react-icons/fa";
 import { MdApartment } from "react-icons/md";
+import { FaTimes } from "react-icons/fa";
 import s from "./styles";
 import text from "../../json/dashboard.json";
 import Header from "../../components/header";
@@ -53,6 +54,7 @@ export default function Dashboard() {
   const [customerDropdownOpen, setCustomerDropdownOpen] = useState(false);
   const [isLoadingCustomer, setIsLoadingCustomer] = useState(false);
   const [continuingId, setContinuingId] = useState<number | null>(null);
+  const [pendingCustomerSwitch, setPendingCustomerSwitch] = useState<{ id: any; name: string } | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const counts = useAppSelector((state: any) => state.dashboard);
@@ -129,9 +131,10 @@ export default function Dashboard() {
                 return {
                   customerId: id,
                   customerName: c?.customer_name || `Customer ${id}`,
+                  customerAddress: c?.customer_address || "",
                 };
               } catch {
-                return { customerId: id, customerName: `Customer ${id}` };
+                return { customerId: id, customerName: `Customer ${id}`, customerAddress: "" };
               }
             })
           );
@@ -175,10 +178,17 @@ export default function Dashboard() {
   }, [loggedInUser?.customer_id]);
 
   // Switch customer
-  const handleCustomerSwitch = (newCustomerId: any) => {
+  const handleCustomerSwitch = (newCustomerId: any, newCustomerName: string) => {
     setCustomerDropdownOpen(false);
     if (newCustomerId === loggedInUser?.customer_id) return;
-    dispatch(setActiveCustomerId(newCustomerId));
+    setPendingCustomerSwitch({ id: newCustomerId, name: newCustomerName });
+  };
+
+  const confirmCustomerSwitch = () => {
+    if (pendingCustomerSwitch) {
+      dispatch(setActiveCustomerId(pendingCustomerSwitch.id));
+      setPendingCustomerSwitch(null);
+    }
   };
 
   // Project counts
@@ -351,7 +361,7 @@ export default function Dashboard() {
                   <MdApartment className="text-blue-700 text-lg" />
                 </div>
                 <div className="text-left">
-                  <div className={s.customerDropdownLabel}>
+                  <div className={s.customerDropdownSubLabel}>
                     Current Customer
                   </div>
                   <div className={s.customerDropdownName}>
@@ -374,28 +384,61 @@ export default function Dashboard() {
                       No customers found
                     </div>
                   ) : (
-                    availableCustomers.map((c) => (
-                      <button
-                        key={c.customerId}
-                        type="button"
-                        onClick={() => handleCustomerSwitch(c.customerId)}
-                        className={`${s.customerDropdownItem} ${
-                          c.customerId === loggedInUser?.customer_id
-                            ? s.customerDropdownItemActive
-                            : s.customerDropdownItemInactive
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className={s.customerDropdownItemIcon}>
-                            <MdApartment className="text-blue-600 text-sm" />
-                          </div>
-                          <span>{c.customerName}</span>
+                    <>
+                      <div className={s.customerDropdownHeader}>
+                        <div className={s.customerDropdownHeaderTitle}>
+                          Switch Customer
                         </div>
-                        {c.customerId === loggedInUser?.customer_id && (
-                          <FaCheck className="text-blue-600 text-xs flex-shrink-0" />
-                        )}
-                      </button>
-                    ))
+                        <div className={s.customerDropdownHeaderSubtitle}>
+                          {availableCustomers.length} customer{availableCustomers.length !== 1 ? "s" : ""} available
+                        </div>
+                      </div>
+                      <div className={s.customerDropdownScrollArea}>
+                        {availableCustomers.map((c: any) => {
+                          const isSelected = c.customerId === loggedInUser?.customer_id;
+                          return (
+                            <button
+                              key={c.customerId}
+                              type="button"
+                              onClick={() => handleCustomerSwitch(c.customerId, c.customerName)}
+                              className={`${s.customerDropdownItem} ${
+                                isSelected
+                                  ? s.customerDropdownItemActive
+                                  : s.customerDropdownItemInactive
+                              }`}
+                            >
+                              <div className={s.customerDropdownItemContent}>
+                                <div className={s.customerDropdownRadioWrap}>
+                                  <input
+                                    type="radio"
+                                    checked={isSelected}
+                                    readOnly
+                                    className={`${s.customerDropdownRadioBase} ${
+                                      isSelected
+                                        ? s.customerDropdownRadioSelected
+                                        : s.customerDropdownRadioUnselected
+                                    }`}
+                                  />
+                                  {isSelected && (
+                                    <FaCheck className={s.customerDropdownCheckIcon} />
+                                  )}
+                                </div>
+                                <div className={s.customerDropdownTextWrap}>
+                                  <span className={`${s.customerDropdownItemNameBase} ${isSelected ? s.customerDropdownItemNameSelected : s.customerDropdownItemNameUnselected}`}>
+                                    {c.customerName}
+                                  </span>
+                                  {c.customerAddress && (
+                                    <span className={s.customerDropdownItemAddress}>
+                                      {c.customerAddress}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
                   )}
                 </div>
               )}
@@ -680,6 +723,62 @@ export default function Dashboard() {
                 className={s.popupConfirmBtn}
               >
                 Setup Customer Profile
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Switch Customer Modal ── */}
+      {pendingCustomerSwitch && (
+        <div className={s.popupOverlay}>
+          <div
+            className={s.popupBackdrop}
+            onClick={() => setPendingCustomerSwitch(null)}
+          />
+          <div className={s.popupCard}>
+            <div className={s.popupHeader}>
+              <div className={s.switchHeaderRow}>
+                <div className={s.switchIconWrap}>
+                  <MdApartment className={s.switchIcon} />
+                </div>
+                <h2 className={s.popupTitle}>Switch Customer?</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPendingCustomerSwitch(null)}
+                className={s.switchCloseBtn}
+              >
+                <FaTimes className={s.switchCloseIcon} />
+              </button>
+            </div>
+            
+            <p className={s.switchDesc}>
+              You are about to switch to <span className={s.switchDescHighlight}>{pendingCustomerSwitch.name}</span>. All
+              displayed data will change accordingly.
+            </p>
+            
+            <div className={s.switchWarningBox}>
+              <FaExclamationCircle className={s.switchWarningIcon} />
+              <p className={s.switchWarningText}>
+                Any unsaved changes will be lost. Please save your work before proceeding.
+              </p>
+            </div>
+            
+            <div className={s.switchBtnGroup}>
+              <button
+                type="button"
+                onClick={() => setPendingCustomerSwitch(null)}
+                className={s.switchCancelBtn}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmCustomerSwitch}
+                className={s.switchConfirmBtn}
+              >
+                Switch Customer
               </button>
             </div>
           </div>

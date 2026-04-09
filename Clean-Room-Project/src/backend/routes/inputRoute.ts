@@ -25,7 +25,7 @@ export const inputRoute: ServerRoute[] = [
 		},
 		handler: async (request, h) => {
 			try {
-				const { room_id } = request.query as { room_id: number };
+				const { room_id } = request.query as unknown as { room_id: number };
 				const roomdetails = await inputRepository.getAllInputs({ room_id });
 				return h.response({ roomdetails }).code(200);
 			} catch {

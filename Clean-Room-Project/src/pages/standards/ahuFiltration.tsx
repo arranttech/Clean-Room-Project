@@ -788,8 +788,10 @@ const AHUFiltration = () => {
     // Sync calculated values to Redux
     useEffect(() => {
         dispatch(updateMultipleStandardsFields({
-            totalFiltrationStages: numStages,
-            staticPressure: staticPressureMmWg
+            totalFiltrationStagesSupply: numStages,
+            totalFiltrationStagesExhaust: numStages,
+            staticPressureSupply: staticPressureMmWg,
+            staticPressureExhaust: staticPressureMmWg
         }));
     }, [numStages, staticPressureMmWg, dispatch]);
 

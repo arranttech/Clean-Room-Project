@@ -159,7 +159,7 @@ export const projectRepository = {
         project_required_inside_temp, project_required_inside_humid,
         project_max_temp, project_min_temp, project_relative_min_humid,
         project_relative_max_humid, flow_velocity, pipe_configuration,
-        total_filtration_stages, static_pressure, heating_flow_velocity,
+        static_Pressure_Supply, static_Pressure_Exhaust, number_of_Filtrations_Supply, number_of_Filtrations_Exhaust, heating_flow_velocity,
         cooling_flow_velocity
       FROM tRoomStandards
       WHERE project_id = ?

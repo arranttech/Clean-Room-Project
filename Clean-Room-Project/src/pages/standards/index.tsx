@@ -750,30 +750,38 @@ export default function Standard() {
           <p className={s.subtitle}>{t.page.subtitle}</p>
         </div>
 
-        <div className={s.field}>
-          <label className={s.label}>
-            Zone Name <span className={s.required}>*</span>
-          </label>
-          <input
-            className={s.input}
-             style={{ width: "500px" }}
-            value={zoneName || ""}
-            placeholder="Enter Zone Name"
-            maxLength={30}
-            onChange={(e) =>
-              dispatch(
-                updateStandardsField({
-                  field: "zoneName",
-                  value: e.target.value.trimStart(),
-                })
-              )
-            }
-          />
-          {!zoneName && (
-            <div className="text-red-500 text-xs mt-1">
-              Zone Name is required
+        <div className={s.card}>
+          <div className={s.cardHeader}>
+            <div className={s.cardHeaderTitle}>Zone Information</div>
+          </div>
+          <div className={s.divider} />
+        <div className={s.body}>
+            <div className={s.field}>
+              <label className={s.label}>
+                Zone Name <span className={s.required}>*</span>
+              </label>
+              <input
+                className={s.input}
+                 style={{ width: "500px" }}
+                value={zoneName || ""}
+                placeholder="Enter Zone Name"
+                maxLength={30}
+                onChange={(e) =>
+                  dispatch(
+                    updateStandardsField({
+                      field: "zoneName",
+                      value: e.target.value.trimStart(),
+                    })
+                  )
+                }
+              />
+              {!zoneName && (
+                <div className="text-red-500 text-xs mt-1">
+                  Zone Name is required
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
 
         <div className={s.cardWrap + " space-y-8"}>

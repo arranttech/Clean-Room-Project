@@ -112,6 +112,7 @@ export default function Standard() {
 
   const standards = useAppSelector((state: any) => state.standards);
   const {
+    zoneName,
     zoneId: zoneIdFromRedux,
     projectStandardId: projectStandardIdFromRedux,
     standard,
@@ -137,7 +138,7 @@ export default function Standard() {
   } = standards;
 
 
-const ahuPayload = ahupayload(standards);
+  const ahuPayload = ahupayload(standards);
 
   const minTempC = useAppSelector((state: any) => state.projectInfo.minTemp);
   const maxTempC = useAppSelector((state: any) => state.projectInfo.maxTemp);
@@ -337,26 +338,26 @@ const ahuPayload = ahupayload(standards);
   const systemTypeLabel = isHeatingCooling
     ? t.labels.systemTypeGeneric
     : isHeatingVent
-    ? t.labels.systemTypeHeating
-    : isCoolingVent
-    ? t.labels.systemTypeCooling
-    : isHeating
-    ? t.labels.systemTypeHeating
-    : isCooling
-    ? t.labels.systemTypeCooling
-    : t.labels.systemTypeVentilation;
+      ? t.labels.systemTypeHeating
+      : isCoolingVent
+        ? t.labels.systemTypeCooling
+        : isHeating
+          ? t.labels.systemTypeHeating
+          : isCooling
+            ? t.labels.systemTypeCooling
+            : t.labels.systemTypeVentilation;
 
   const systemTypePlaceholder = isHeatingCooling
     ? t.placeholders.systemTypeGeneric
     : isHeatingVent
-    ? t.placeholders.systemTypeHeating
-    : isCoolingVent
-    ? t.placeholders.systemTypeCooling
-    : isHeating
-    ? t.placeholders.systemTypeHeating
-    : isCooling
-    ? t.placeholders.systemTypeCooling
-    : t.placeholders.systemTypeVentilation;
+      ? t.placeholders.systemTypeHeating
+      : isCoolingVent
+        ? t.placeholders.systemTypeCooling
+        : isHeating
+          ? t.placeholders.systemTypeHeating
+          : isCooling
+            ? t.placeholders.systemTypeCooling
+            : t.placeholders.systemTypeVentilation;
 
   const systemTypes = useMemo(() => {
     if (!system) return [];
@@ -544,6 +545,8 @@ const ahuPayload = ahupayload(standards);
   ]);
 
   const isFormValid = (() => {
+    if (!zoneName) return false;
+
     if (!standard || (errors as any).standard) return false;
     if (!classification || (errors as any).classification) return false;
     if (!acph || (errors as any).acph) return false;
@@ -573,13 +576,21 @@ const ahuPayload = ahupayload(standards);
       );
       throw new Error("Missing project_id for zone creation");
     }
+
+    if (!cleanZoneName) {
+      alert("Zone name is required");
+      throw new Error("Missing zone_name");
+    }
+
     const data = await createProjectZone({
       project_id: freshProjectId,
       user_id,
+      zone_name: cleanZoneName,
     });
     console.log("Zone created:", data);
     return data;
   };
+  const cleanZoneName = zoneName.trim();
 
   const handleNext = async (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
@@ -627,6 +638,10 @@ const ahuPayload = ahupayload(standards);
       const payload = {
         project_id: freshProjectId,
         user_id,
+
+        zone_id: finalZoneId,
+        zone_name: cleanZoneName,
+
         system,
         systemType,
         heatingMethod,
@@ -723,6 +738,32 @@ const ahuPayload = ahupayload(standards);
           <p className={s.subtitle}>{t.page.subtitle}</p>
         </div>
 
+        <div className={s.field}>
+          <label className={s.label}>
+            Zone Name <span className={s.required}>*</span>
+          </label>
+          <input
+            className={s.input}
+             style={{ width: "500px" }}
+            value={zoneName || ""}
+            placeholder="Enter Zone Name"
+            maxLength={30}
+            onChange={(e) =>
+              dispatch(
+                updateStandardsField({
+                  field: "zoneName",
+                  value: e.target.value.trimStart(),
+                })
+              )
+            }
+          />
+          {!zoneName && (
+            <div className="text-red-500 text-xs mt-1">
+              Zone Name is required
+            </div>
+          )}
+        </div>
+
         <div className={s.cardWrap + " space-y-8"}>
           {/* Card 1: Standards and Classification */}
           <div className={s.card}>
@@ -730,6 +771,8 @@ const ahuPayload = ahupayload(standards);
               <div className={s.cardHeaderTitle}>{t.page.cardTitle}</div>
             </div>
             <div className={s.divider} />
+
+
             <div className={s.body}>
               <div className={s.grid2}>
                 <div className={s.field}>
@@ -787,10 +830,10 @@ const ahuPayload = ahupayload(standards);
                           systemTypeLabel === t.labels.systemTypeGeneric
                             ? constants.Tooltip.heatingSystemTypeTooltip
                             : systemTypeLabel === t.labels.systemTypeHeating
-                            ? constants.Tooltip.heatingSystemTypeTooltip
-                            : systemTypeLabel === t.labels.systemTypeCooling
-                            ? constants.Tooltip.coolingSystemTypeTooltip
-                            : constants.Tooltip.ventilationSystemTypeTooltip
+                              ? constants.Tooltip.heatingSystemTypeTooltip
+                              : systemTypeLabel === t.labels.systemTypeCooling
+                                ? constants.Tooltip.coolingSystemTypeTooltip
+                                : constants.Tooltip.ventilationSystemTypeTooltip
                         }
                       />
                     </label>

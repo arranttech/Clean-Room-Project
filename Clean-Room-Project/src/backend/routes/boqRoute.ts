@@ -120,8 +120,10 @@ export const boqRoute: ServerRoute[] = [
 					zoneCfmACLoadTR: Joi.number().required(),
 					zoneRoomHeatLoadTR: Joi.number().required(),
 					zoneCfmHeatLoadTRValue: Joi.number().required(),
-					totalFiltrationStages: Joi.number().required(),
-					staticPressure: Joi.number().required(),
+					totalFiltrationStagesSupply: Joi.number().required(),
+					totalFiltrationStagesExhaust: Joi.number().required(),
+					staticPressureSupply: Joi.number().required(),
+					staticPressureExhaust: Joi.number().required(),
 				}).unknown(true),
 			},
 			response: {

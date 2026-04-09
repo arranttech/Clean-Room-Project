@@ -288,8 +288,10 @@ export default function Dashboard() {
             flowVelocity: std.flow_velocity ?? 1.5,
             heatingFlowVelocity: std.heating_flow_velocity ?? 1.5,
             coolingFlowVelocity: std.cooling_flow_velocity ?? 1.5,
-            staticPressure: std.static_pressure ?? 0,
-            totalFiltrationStages: std.total_filtration_stages ?? 0,
+            staticPressureSupply: std.static_Pressure_Supply ?? 0,
+            staticPressureExhaust: std.static_Pressure_Exhaust ?? 0,
+            totalFiltrationStagesSupply: std.number_of_Filtrations_Supply ?? 0,
+            totalFiltrationStagesExhaust: std.number_of_Filtrations_Exhaust ?? 0,
             pipeConfiguration: std.pipe_configuration ?? "",
           })
         );

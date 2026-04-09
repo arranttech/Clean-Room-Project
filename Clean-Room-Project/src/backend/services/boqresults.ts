@@ -17,8 +17,10 @@ export function boqresults(zone: BOQPayload, room?: RoomBOQPayload) {
         const flowVelocity = zone.flowVelocity ?? 0;
         const heatingFlowVelocity = zone.heatingFlowVelocity ?? 0;
         const coolingFlowVelocity = zone.coolingFlowVelocity ?? 0;
-        const totalFiltrationStages = zone.totalFiltrationStages ?? 0;
-        const StaticPressure = zone.staticPressure ?? 0;
+        const totalFiltrationStagesSupply = zone.totalFiltrationStagesSupply ?? 0;
+        const totalFiltrationStagesExhaust = zone.totalFiltrationStagesExhaust ?? 0;
+        const staticPressureSupply = zone.staticPressureSupply ?? 0;
+        const staticPressureExhaust = zone.staticPressureExhaust ?? 0;
         const pipeConfiguration = zone.pipeConfiguration ?? "";
 
         const currentZoneSystem = zone.zoneSystem ?? "";

@@ -41,8 +41,10 @@ export type CalculatedZoneResults = {
   flowVelocity?: number;
   heatingFlowVelocity?: number;
   coolingFlowVelocity?: number;
-  totalFiltrationStages?: number;
-  staticPressure?: number;
+  totalFiltrationStagesSupply?: number;
+  totalFiltrationStagesExhaust?: number;
+  staticPressureSupply?: number;
+  staticPressureExhaust?: number;
   pipeConfiguration?: string;
 };
 
@@ -133,8 +135,10 @@ export default function Standard() {
     additionalDpValueExhaust,
     filterTypeSelection,
     selectedFilters,
-    totalFiltrationStages,
-    staticPressure,
+    totalFiltrationStagesSupply,
+    totalFiltrationStagesExhaust,
+    staticPressureSupply,
+    staticPressureExhaust,
   } = standards;
 
 
@@ -234,8 +238,10 @@ export default function Standard() {
                 : "",
               flowVelocity: std.flow_velocity || 1.5,
               pipeConfiguration: std.pipe_configuration || "",
-              totalFiltrationStages: std.total_filtration_stages || 0,
-              staticPressure: std.static_pressure || 0,
+              staticPressureSupply: std.static_Pressure_Supply || 0,
+              staticPressureExhaust: std.static_Pressure_Exhaust || 0,
+              totalFiltrationStagesSupply: std.number_of_Filtrations_Supply || 0,
+              totalFiltrationStagesExhaust: std.number_of_Filtrations_Exhaust || 0,
               heatingFlowVelocity: std.heating_flow_velocity || 1.5,
               coolingFlowVelocity: std.cooling_flow_velocity || 1.5,
               ahufiltrationData: std.ahu_filtration_data ? JSON.parse(std.ahu_filtration_data) : [],
@@ -614,7 +620,7 @@ export default function Standard() {
       );
       return;
     }
-    if (!selectedFilters || totalFiltrationStages === 0) {
+    if (!selectedFilters || totalFiltrationStagesSupply === 0 || totalFiltrationStagesExhaust === 0) {
       setModalMessage("Please select at least one filter before proceeding.");
       return;
     }
@@ -656,8 +662,10 @@ export default function Standard() {
         minTempC,
         rhMin,
         rhMax,
-        totalFiltrationStages,
-        staticPressure,
+        totalFiltrationStagesSupply,
+        totalFiltrationStagesExhaust,
+        staticPressureSupply,
+        staticPressureExhaust,
         flowVelocity,
         heatingFlowVelocity,
         coolingFlowVelocity,
@@ -682,8 +690,10 @@ export default function Standard() {
                 ...roomPayload,
                 zoneId: finalZoneId,
                 projectStandardId: finalProjectStandardId,
-                totalFiltrationStages,
-                staticPressure,
+                totalFiltrationStagesSupply,
+                totalFiltrationStagesExhaust,
+                staticPressureSupply,
+                staticPressureExhaust,
               },
             }),
           autoClose: 1500,
@@ -716,8 +726,10 @@ export default function Standard() {
                 ...roomPayload,
                 zoneId: finalZoneId,
                 projectStandardId: finalProjectStandardId,
-                totalFiltrationStages,
-                staticPressure,
+                totalFiltrationStagesSupply,
+                totalFiltrationStagesExhaust,
+                staticPressureSupply,
+                staticPressureExhaust,
               },
             }),
           autoClose: 1500,

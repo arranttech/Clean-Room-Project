@@ -2,7 +2,7 @@ const resetPasswordStyles = {
   page: "min-h-screen flex items-center justify-center px-4",
   pageBackground:
     "fixed inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,_#134e4a_0%,_#0f3330_50%,_#071a18_100%)]",
-  card: "bg-white rounded-md px-6 py-8 shadow-lg shadow-gray-300/70 min-w-[400px]",
+  card: "bg-white rounded-md px-6 py-8  min-w-[400px]",
   iconWrap:
     "w-16 h-16 bg-teal-50 rounded-2xl flex items-center justify-center mb-6 mx-auto",
   title: "text-3xl font-bold text-center text-black mb-2",
@@ -24,7 +24,7 @@ const resetPasswordStyles = {
   label: "text-base font-medium text-gray-500",
   inputWrapper: "relative",
   input:
-    "border border-gray-200 w-full p-3 pl-10 rounded-sm focus:outline-none focus:ring-2 focus:ring-teal-300",
+    "border border-gray-200 w-full p-3 pl-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-300",
   inputPr: "pr-10",
   inputIcon: "absolute left-3 top-1/2 -translate-y-1/2 text-gray-300",
   eyeBtn:
@@ -33,7 +33,7 @@ const resetPasswordStyles = {
   rulesList: "mt-1 flex flex-col gap-0.5",
   ruleItem: "text-red-500 text-xs",
   submitBtn:
-    "bg-teal-600 text-white px-4 py-2 rounded-sm hover:bg-teal-700 h-10 shadow-lg w-full mt-4 font-semibold disabled:opacity-60",
+    "bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 h-10 shadow-lg w-full mt-4 font-semibold disabled:opacity-60",
   backBtn:
     "inline-flex items-center gap-1.5 text-black px-2 py-2 rounded-sm hover:text-gray-500 font-medium mx-auto mt-6",
 };

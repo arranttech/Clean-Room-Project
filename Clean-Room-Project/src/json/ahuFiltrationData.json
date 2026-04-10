@@ -151,6 +151,7 @@
             "Flame Arrestor Filter",
             "PCO VOC Oxidation Filter",
             "HEPA + Carbon Combo Filter",
+            "Radioiodine (I-131) Charcoal Filtration Filter",
             "Exhaust Air filter",
             "Fresh Air filter",
             "Terminal filters - Exhaust"
@@ -1179,6 +1180,19 @@
             "rating": "H13 / H14",
             "depth": "292 mm",
             "efficiency": "99.95-99.995%",
+            "initRange": [
+                25,
+                35
+            ],
+            "finalRange": [
+                65,
+                65
+            ]
+        },
+        "Radioiodine (I-131) Charcoal Filtration Filter": {
+            "rating": "H13 / H14",
+            "depth": "20-30 mm",
+            "efficiency": "99-99.9%",
             "initRange": [
                 25,
                 35

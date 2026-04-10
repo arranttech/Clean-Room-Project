@@ -775,11 +775,11 @@ export default function Standard() {
                   )
                 }
               />
-              {!zoneName && (
+              {/* {!zoneName && (
                 <div className="text-red-500 text-xs mt-1">
                   Zone Name is required
                 </div>
-              )}
+              )} */}
             </div>
           </div>
         </div>

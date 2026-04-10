@@ -37,7 +37,7 @@ const loginDesign = {
   // Sign in button — blue gradient
   loginButton: `w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold text-sm py-3 sm:py-3.5 rounded-xl shadow-md hover:shadow-lg transition-all mb-3`,
 
-  googleButton: `w-full flex items-center justify-center gap-3 border border-blue-400 hover:bg-blue-600 text-black font-medium text-sm py-3 sm:py-3.5 rounded-xl shadow-sm hover:shadow transition-all`,
+  googleButton: `w-full flex items-center justify-center gap-3 border border-blue-400 hover:bg-blue-200 hover:border-blue-100 text-black font-medium text-sm py-3 sm:py-3.5 rounded-xl shadow-sm transition-all`,
   nextLink: `inline-flex items-center justify-center gap-1.5 text-gray-500 text-sm hover:text-gray-700 font-medium mx-auto mt-2`,
 };
 

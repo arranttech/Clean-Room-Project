@@ -1,8 +1,15 @@
 import { ServerRoute } from "@hapi/hapi";
 import Joi from "joi";
 import { userRepository } from "../repositories";
+import { RateLimiterMemory } from "rate-limiter-flexible";
 
 const errorSchema = Joi.object({ error: Joi.string().required() });
+
+// Rate limiter — 10 attempts per 5 minutes per IP
+const rateLimiter = new RateLimiterMemory({
+  points: 10,
+  duration: 60 * 5,
+});
 
 export const userRoute: ServerRoute[] = [
   {
@@ -36,16 +43,6 @@ export const userRoute: ServerRoute[] = [
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },
-    // Inside your GET /v1/users handler
-    // handler: async (request, h) => {
-    //   try {
-    //     // INTENTIONAL BUG: misspell the repository function
-    //     const users = await userRepositor.getUsers(); // <-- typo here (should be userRepository)
-    //     return h.response({ users }).code(200);
-    //   } catch {
-    //     return h.response({ error: "Internal Server Error" }).code(500);
-    //   }
-    // }
   },
 
   {
@@ -172,13 +169,11 @@ export const userRoute: ServerRoute[] = [
     handler: async (request, h) => {
       try {
         const { id, current_password, new_password } = request.payload as any;
-        console.log("PASSWORD UPDATE REQUEST — id:", id);
         const success = await userRepository.updatePassword(
           Number(id),
           current_password,
           new_password
         );
-        console.log("updatePassword result:", success);
         if (!success) {
           return h
             .response({ error: "Current password is incorrect" })
@@ -194,7 +189,139 @@ export const userRoute: ServerRoute[] = [
     },
   },
 
-  // GET single user by user_login_id — used by edit modal to prefill form
+  // POST /v1/auth/forgot-password
+  // Checks tUsers for email — returns 404 if not found
+  // Returns 429 if rate limited
+  // Returns 200 and sends email if found
+  {
+    method: "POST",
+    path: "/v1/auth/forgot-password",
+    options: {
+      description: "Send password reset link via Gmail",
+      tags: ["api", "auth"],
+      validate: {
+        payload: Joi.object({
+          email: Joi.string().email().required(),
+        }).required(),
+      },
+      response: {
+        status: {
+          200: Joi.object({ message: Joi.string().required() }),
+          404: Joi.object({ error: Joi.string().required() }),
+          429: Joi.object({ error: Joi.string().required() }),
+          500: errorSchema,
+        },
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const clientIp = request.info.remoteAddress;
+        try {
+          await rateLimiter.consume(clientIp);
+        } catch {
+          return h
+            .response({
+              error: "Too many requests. Please try again after 15 minutes.",
+            })
+            .code(429);
+        }
+
+        const { email } = request.payload as any;
+
+        // sendPasswordResetLink checks tUsers — returns false if not found
+        const result = await userRepository.sendPasswordResetLink(email);
+
+        // Email not found in tUsers — frontend shows notFound box
+        if (!result) {
+          return h
+            .response({ error: "No account found with this email address." })
+            .code(404);
+        }
+
+        return h
+          .response({ message: "Reset link sent successfully." })
+          .code(200);
+      } catch (err) {
+        console.error("FORGOT PASSWORD ERROR:", err);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
+  // GET /v1/auth/verify-reset-token/:token
+  // Called when /reset-password page loads
+  // Hashes token and looks up in tPasswordResetTokens
+  {
+    method: "GET",
+    path: "/v1/auth/verify-reset-token/{token}",
+    options: {
+      description: "Verify reset token",
+      tags: ["api", "auth"],
+      validate: {
+        params: Joi.object({
+          token: Joi.string().required(),
+        }),
+      },
+      response: {
+        status: {
+          200: Joi.object({
+            valid: Joi.boolean().required(),
+            message: Joi.string().optional(),
+          }),
+          500: errorSchema,
+        },
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const { token } = request.params;
+        const result = await userRepository.verifyResetToken(token);
+        return h.response(result).code(200);
+      } catch (err) {
+        console.error("VERIFY TOKEN ERROR:", err);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
+  // POST /v1/auth/reset-password
+  // Verifies token, hashes new password, updates tUserPassword
+  // Deletes token after use
+  {
+    method: "POST",
+    path: "/v1/auth/reset-password",
+    options: {
+      description: "Reset password using token",
+      tags: ["api", "auth"],
+      validate: {
+        payload: Joi.object({
+          token: Joi.string().required(),
+          new_password: Joi.string().min(8).required(),
+        }).required(),
+      },
+      response: {
+        status: {
+          200: Joi.object({ message: Joi.string().required() }),
+          400: Joi.object({ error: Joi.string().required() }),
+          500: errorSchema,
+        },
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const { token, new_password } = request.payload as any;
+        const result = await userRepository.resetPassword(token, new_password);
+        if (!result.success) {
+          return h.response({ error: result.message }).code(400);
+        }
+        return h.response({ message: result.message }).code(200);
+      } catch (err) {
+        console.error("RESET PASSWORD ERROR:", err);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
   {
     method: "GET",
     path: "/v1/users/{user_login_id}",

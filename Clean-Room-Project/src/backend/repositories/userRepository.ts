@@ -1,5 +1,26 @@
 import { database } from "../dbConnection/connections";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
+import nodemailer from "nodemailer";
+import { resetPasswordEmailTemplate } from "../emailTemplate/emailTemplate";
+
+// Gmail transporter using .env GMAIL_USER and GMAIL_PASS
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASS,
+  },
+});
+
+// Verify Gmail on startup
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("=== GMAIL CONNECTION ERROR ===", error);
+  } else {
+    console.log("=== GMAIL READY TO SEND EMAILS ===", success);
+  }
+});
 
 export const userRepository = {
   createUser: async (payload: any) => {
@@ -112,6 +133,8 @@ export const userRepository = {
     }
   },
 
+  // Updates tUserPassword with bcrypt hashed password
+  // Called from Header sidebar change password
   updatePassword: async (
     user_login_id: number,
     current_password: string,
@@ -127,32 +150,183 @@ export const userRepository = {
       [user_login_id]
     );
 
-    console.log("Password rows found:", rows?.length);
+    if (!rows || rows.length === 0) return false;
 
-    if (!rows || rows.length === 0) {
-      console.log("No password row found");
-      return false;
-    }
-
-    const storedHash = rows[0].user_password;
-    const passwordId = rows[0].user_password_id;
-
-    const isMatch = await bcrypt.compare(current_password, storedHash);
-    console.log("Password match:", isMatch);
-
+    // bcrypt.compare verifies current password against stored hash
+    const isMatch = await bcrypt.compare(
+      current_password,
+      rows[0].user_password
+    );
     if (!isMatch) return false;
 
+    // Hash new password before storing
     const hashedNewPassword = await bcrypt.hash(new_password, 10);
-
     await database.execute(
       `UPDATE tUserPassword
        SET user_password = ?, updated_date = NOW(), updated_by = 'user'
        WHERE user_password_id = ? AND user_login_id = ?`,
-      [hashedNewPassword, passwordId, user_login_id]
+      [hashedNewPassword, rows[0].user_password_id, user_login_id]
     );
 
-    console.log("Password updated successfully for user:", user_login_id);
     return true;
+  },
+
+  // forgot password flow
+  // Checks tUsers for email, generates token, stores hashed token in tPasswordResetTokens
+  // Sends raw token in email link via Gmail
+  sendPasswordResetLink: async (email: string) => {
+    console.log("=== sendPasswordResetLink called with:", email);
+
+    // Check if email exists in tUsers with status A (active)
+    const [rows]: any = await database.execute(
+      `SELECT user_login_id, user_first_name
+       FROM tUsers
+       WHERE user_email_id = ? AND status = 'A'
+       LIMIT 1`,
+      [email]
+    );
+
+    console.log("DB rows found:", rows?.length);
+
+    // If not found return false — route returns 404 to frontend
+    if (!rows || rows.length === 0) {
+      console.log("NO USER FOUND — email not in DB or status not A");
+      return false;
+    }
+
+    const user = rows[0];
+
+    // Generate raw token (sent in email URL)
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    // Hash token before storing in DB (security)
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
+    // Token expires in 15minutes
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+    // Store hashed token in tPasswordResetTokens
+    // ON DUPLICATE KEY UPDATE replaces old token (one token per user)
+    await database.execute(
+      `INSERT INTO tPasswordResetTokens (user_login_id, token, expires_at, created_at)
+       VALUES (?, ?, ?, NOW())
+       ON DUPLICATE KEY UPDATE token = ?, expires_at = ?`,
+      [user.user_login_id, hashedToken, expiresAt, hashedToken, expiresAt]
+    );
+
+    // Raw token goes in URL — user clicks this link
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+    console.log("Reset link:", resetLink);
+    console.log("Sending to:", email);
+
+    try {
+      // Send email using Gmail via nodemailer
+      // HTML template from emailTemplate.ts
+      await transporter.sendMail({
+        from: `"STERI Clean Air (Arrant Dynamics)" <${process.env.GMAIL_USER}>`,
+        to: email,
+        subject: "Reset Your Password — STERI Clean Air (Arrant Dynamics)",
+        html: resetPasswordEmailTemplate(user.user_first_name, resetLink),
+      });
+      console.log("=== EMAIL SENT SUCCESSFULLY to:", email);
+    } catch (emailErr) {
+      console.error("=== EMAIL SEND FAILED ===", emailErr);
+      throw emailErr;
+    }
+
+    return true;
+  },
+
+  // Step 2 of forgot password flow
+  // Called when /reset-password page loads to verify token is valid
+  // Hashes incoming raw token and looks up in tPasswordResetTokens
+  verifyResetToken: async (token: string) => {
+    // Hash incoming raw token to compare with stored hash
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    const [rows]: any = await database.execute(
+      `SELECT user_login_id, expires_at
+       FROM tPasswordResetTokens
+       WHERE token = ? LIMIT 1`,
+      [hashedToken]
+    );
+
+    // Token not found
+    if (!rows || rows.length === 0) {
+      return { valid: false, message: "Invalid reset link." };
+    }
+
+    // Token expired — delete it
+    if (new Date() > new Date(rows[0].expires_at)) {
+      await database.execute(
+        `DELETE FROM tPasswordResetTokens WHERE token = ?`,
+        [hashedToken]
+      );
+      return {
+        valid: false,
+        message: "Reset link has expired. Please request a new one.",
+      };
+    }
+
+    return { valid: true };
+  },
+
+  // Step 3 of forgot password flow
+  // Verifies token again, hashes new password, updates tUserPassword
+  // Deletes token so it cannot be reused
+  resetPassword: async (token: string, new_password: string) => {
+    // Hash incoming raw token to compare with stored hash
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    const [rows]: any = await database.execute(
+      `SELECT user_login_id, expires_at
+       FROM tPasswordResetTokens
+       WHERE token = ? LIMIT 1`,
+      [hashedToken]
+    );
+
+    // Token not found
+    if (!rows || rows.length === 0) {
+      return { success: false, message: "Invalid or expired reset link." };
+    }
+
+    // Token expired — delete it
+    if (new Date() > new Date(rows[0].expires_at)) {
+      await database.execute(
+        `DELETE FROM tPasswordResetTokens WHERE token = ?`,
+        [hashedToken]
+      );
+      return {
+        success: false,
+        message: "Reset link has expired. Please request a new one.",
+      };
+    }
+
+    const { user_login_id } = rows[0];
+
+    // Hash new password with bcrypt before storing in tUserPassword
+    const hashedPassword = await bcrypt.hash(new_password, 10);
+
+    // Update tUserPassword for this user only (WHERE user_login_id = ?)
+    await database.execute(
+      `UPDATE tUserPassword
+       SET user_password = ?,
+           updated_date = NOW(),
+           updated_by = 'user'
+       WHERE user_login_id = ?`,
+      [hashedPassword, user_login_id]
+    );
+
+    // Delete token — cannot be reused after successful reset
+    await database.execute(`DELETE FROM tPasswordResetTokens WHERE token = ?`, [
+      hashedToken,
+    ]);
+
+    return { success: true, message: "Password reset successfully." };
   },
 
   getUserById: async (user_login_id: number) => {

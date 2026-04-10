@@ -26,7 +26,7 @@ import { refreshSession } from "./backend/controller/authContoller";
 import { clearSessionTimers, scheduleSessionTimers } from "./utils/auth";
 import ErrorScreen from "./pages/ErrorHandler/ErrorScreen";
 import ForgotPassword from "./pages/forgotPassword";
-
+import ResetPassword from "./pages/resetPassword";
 const SESSION_WARNING_BEFORE_MS = 110 * 1000;
 const SESSION_WARNING_MINUTES = SESSION_WARNING_BEFORE_MS / (60 * 1000);
 
@@ -43,7 +43,7 @@ function ProtectedRoute() {
 	const token = localStorage.getItem("token");
 
 	if (!token) {
-		return <Navigate to="/login" replace />;
+		return <Navigate to="/" replace />;
 	}
 
 	return <Outlet />;
@@ -139,7 +139,7 @@ function App() {
 				<Route path="/login" element={<Login />} />
 				<Route path="/register" element={<Register />} />
 				<Route path="/forgot-password" element={<ForgotPassword />} />
-				
+				<Route path="/reset-password" element={<ResetPassword />} />
 				{/* public routes */}
 				<Route path="/customer-info" element={<CustomerInfoPage />} />
 				<Route path="/project-info" element={<ProjectInfoPage />} />

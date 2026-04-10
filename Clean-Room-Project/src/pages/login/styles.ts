@@ -1,34 +1,44 @@
 import theme from "../../styles/theme";
 
 const loginDesign = {
-  wrapper:
-    `min-h-screen p-4 flex flex-col justify-center items-center bg-gradient-to-br from-[#0c1a2e] via-[#0f2a4a] to-[#1a1a2e]`,
+  wrapper: `h-screen overflow-hidden flex flex-col justify-center items-center bg-gradient-to-br from-[#0c1a2e] via-[#0f2a4a] to-[#1a1a2e] p-4`,
+
   headerText: `text-center text-${theme.textMuted} text-sm mb-6`,
-  gridContainer: `grid grid-cols-1 gap-10 px-2 sm:px-4 md:px-10 w-full max-w-lg`,
+  gridContainer: `w-full max-w-[460px] px-2 sm:px-0`,
 
-  card: `bg-white ${theme.roundMd} px-4 sm:px-6 py-6 sm:py-8 pt-5 sm:pt-7 ${theme.shadowLg} w-full`,
-  cardTitle:
-    `text-xl sm:text-3xl text-black-800 ${theme.weightBold} mb-2 text-center`,
-  cardInfo: `text-sm sm:text-base text-black mb-4 sm:mb-6 text-center`,
-  divider: `mb-4 border-${theme.borderColor}`,
+  card: `bg-white rounded-2xl px-5 sm:px-8 md:px-10 py-7 sm:py-9 shadow-2xl w-full`,
 
-  logoImg: `h-[60px] sm:h-[80px] w-full object-contain p-[1px] mt-[-30px] sm:mt-[-40px]`,
+  logoImg: `h-[66px] sm:h-[90px] w-auto mx-auto block mb-4 object-contain`,
 
-  fieldGroup: `flex flex-col space-y-2 mt-[20px] sm:mt-[30px]`,
-  label: `text-${theme.textSecondary} text-[13px] sm:text-[15px] ${theme.weightMedium}`,
-  input:
-    `border border-${theme.borderColor} w-full p-2.5 sm:p-3 pl-9 sm:pl-10 ${theme.roundSm} focus:outline-none focus:ring-2 focus:ring-blue-300 text-sm`,
-  inputWrapper: `relative mb-2`,
+  // Darker title
+  cardTitle: `text-2xl sm:text-2xl font-bold text-[#0a1628] text-center mb-1 tracking-tight`,
 
-  mailIcon: `absolute left-3 top-1/2 -translate-y-1/2 text-${theme.textDisabled} text-sm`,
+  // Darker subtitle
+  cardInfo: `text-sm text-[#2d4a6a] text-center mb-5 font-medium`,
 
-  loginButton:
-    `bg-${theme.primary} text-white px-4 py-2 ${theme.roundSm} hover:bg-${theme.primaryHover} h-9 sm:h-10 ${theme.shadowLg} w-full text-sm sm:text-base`,
+  divider: `border-gray-200 mb-5`,
 
-  resetPwdLink:
-    `inline-flex items-center gap-1.5 ${theme.weightMedium} px-1 py-2 sm:py-3 mb-2 sm:mb-3 ${theme.roundSm} hover:text-${theme.primary} hover:font-medium ml-auto text-sm`,
-  nextLink:
-    `inline-flex items-center justify-center gap-1.5 text-black px-1 py-2 ${theme.roundSm} hover:text-${theme.textSecondary} ${theme.weightMedium} mx-auto text-sm`,
+  fieldGroup: `flex flex-col gap-1`,
+
+  // Darker labels — slightly bigger
+  label: `text-xs font-bold text-[#0a1628] uppercase tracking-wider mb-1`,
+
+  inputWrapper: `relative mb-4`,
+
+  input: `w-full bg-gray-50 border border-gray-200 text-[#0a1628] text-sm rounded-xl px-4 pl-11 pr-11 py-3 sm:py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-400 transition`,
+
+  mailIcon: `absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm`,
+
+  eyeBtn: `absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition cursor-pointer`,
+
+  // Bigger and darker forgot password
+  resetPwdLink: `flex justify-end text-sm font-bold text-[#0f2a4a] hover:text-blue-600 hover:underline transition mb-4 -mt-2`,
+
+  // Sign in button — blue gradient
+  loginButton: `w-full bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold text-sm py-3 sm:py-3.5 rounded-xl shadow-md hover:shadow-lg transition-all mb-3`,
+
+  googleButton: `w-full flex items-center justify-center gap-3 border border-blue-400 hover:bg-blue-600 text-black font-medium text-sm py-3 sm:py-3.5 rounded-xl shadow-sm hover:shadow transition-all`,
+  nextLink: `inline-flex items-center justify-center gap-1.5 text-gray-500 text-sm hover:text-gray-700 font-medium mx-auto mt-2`,
 };
 
 export default loginDesign;

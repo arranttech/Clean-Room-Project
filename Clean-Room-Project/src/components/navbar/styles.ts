@@ -17,7 +17,7 @@ const S = {
 
   brandBlock: `hidden sm:flex flex-col leading-[1.1] flex-shrink-0`,
   brandText:
-    `text-blue-500 text-[10px] md:text-[12px] ${theme.weightSemibold} tracking-[0.28em] text-[#334155] whitespace-nowrap`,
+    `text-blue-800 text-[10px] md:text-[12px] ${theme.weightSemibold} tracking-[0.28em] text-[#334155] whitespace-nowrap`,
 
   // Vertical divider between brand block and title
   leftDivider: `hidden sm:block w-px h-8 bg-slate-900 flex-shrink-0`,

@@ -25,16 +25,25 @@ export const authRepository = {
       return { success: false, message: "Invalid credentials" };
     }
 
+    const [statusRows]: any = await database.execute(
+      "SELECT status FROM tUsers WHERE user_login_id = ?",
+      [user.user_login_id]
+    );
+    const actualStatus = statusRows && statusRows.length > 0 ? statusRows[0].status : (user?.status || "A");
+
+    if (actualStatus === "I") {
+      return { success: false, message: "Your account is currently inactive. Please contact your system administrator to restore access" };
+    }
+
     return {
       success: true,
       user: {
         user_login_id: user?.user_login_id,
         user_id: user?.user_id,
         customer_id: user?.customer_id ?? null,
-        name: `${user?.user_first_name || ""} ${
-          user?.user_last_name || ""
-        }`.trim(),
-        status: user?.status,
+        name: `${user?.user_first_name || ""} ${user?.user_last_name || ""
+          }`.trim(),
+        status: actualStatus,
       },
     };
   },

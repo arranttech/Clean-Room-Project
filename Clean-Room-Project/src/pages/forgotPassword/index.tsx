@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiMail,
@@ -6,7 +6,9 @@ import {
   FiCheckCircle,
   FiAlertCircle,
   FiKey,
+  FiX,
 } from "react-icons/fi";
+import { forgotPassword } from "../../backend/controller/userController";
 import s from "./styles";
 
 export default function ForgotPassword() {
@@ -15,6 +17,15 @@ export default function ForgotPassword() {
   const [emailError, setEmailError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [sent, setSent] = useState<boolean>(false);
+  const [notFound, setNotFound] = useState<boolean>(false);
+
+  // Auto dismiss popup after 4 seconds
+  useEffect(() => {
+    if (notFound) {
+      const timer = setTimeout(() => setNotFound(false), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [notFound]);
 
   const validateEmail = (val: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -32,12 +43,19 @@ export default function ForgotPassword() {
 
   const handleSubmit = async () => {
     if (!validateEmail(email)) return;
+    setNotFound(false);
     try {
       setLoading(true);
+      await forgotPassword({ email });
       setSent(true);
-    } catch (e) {
-      console.error("Failed to send reset email:", e);
-      setEmailError("Something went wrong. Please try again.");
+    } catch (e: any) {
+      if (e?.message?.includes("Too many requests")) {
+        setEmailError("Too many attempts. Please try again after 15 minutes.");
+      } else if (e?.message?.includes("No account found")) {
+        setNotFound(true);
+      } else {
+        setEmailError("Something went wrong. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -45,17 +63,37 @@ export default function ForgotPassword() {
 
   return (
     <div className={s.page}>
-
       <div className={s.pageBackground} />
 
-      <div className={s.card}>
+      {/* Floating popup — top center, does not expand card */}
+      {notFound && (
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex items-start gap-3 bg-white border border-red-200 shadow-xl rounded-xl px-4 py-3 w-[90%] max-w-[400px] animate-fade-in">
+          <FiAlertCircle
+            size={18}
+            className="text-red-500 flex-shrink-0 mt-0.5"
+          />
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-red-600">
+              Account Not Found
+            </p>
+            <p className="text-xs text-red-500 mt-0.5">
+              No account is registered with <strong>{email}</strong>.
+            </p>
+          </div>
+          <button
+            onClick={() => setNotFound(false)}
+            className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+          >
+            <FiX size={15} />
+          </button>
+        </div>
+      )}
 
-        {/* Key Icon */}
+      <div className={s.card}>
         <div className={s.iconWrap}>
           <FiKey size={28} className="text-teal-600" />
         </div>
 
-        {/* Title */}
         <h1 className={s.title}>Forgot Password?</h1>
         <p className={s.subtitle}>
           Enter your email and we'll send you a reset link.
@@ -65,19 +103,21 @@ export default function ForgotPassword() {
 
         {!sent ? (
           <>
-            {/* Email Input */}
             <div className={s.fieldGroup}>
               <label className={s.label}>Email Address</label>
               <div className={s.inputWrapper}>
                 <FiMail size={16} className={s.inputIcon} />
                 <input
                   type="email"
-                  className={`${s.input} ${emailError ? "border-red-400 focus:ring-red-300" : ""}`}
+                  className={`${s.input} ${
+                    emailError ? "border-red-400 focus:ring-red-300" : ""
+                  }`}
                   placeholder="Enter your email address"
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
                     setEmailError("");
+                    setNotFound(false);
                   }}
                   onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                 />
@@ -90,7 +130,6 @@ export default function ForgotPassword() {
               )}
             </div>
 
-            {/* Send Button */}
             <button
               onClick={handleSubmit}
               disabled={loading}
@@ -100,31 +139,23 @@ export default function ForgotPassword() {
             </button>
           </>
         ) : (
-          /* Success State */
           <div className={s.successWrap}>
             <div className={s.successIcon}>
               <FiCheckCircle size={28} className="text-green-500" />
             </div>
-            <p className={s.successTitle}>Reset link sent!</p>
+            <p className={s.successTitle}>Check your inbox!</p>
             <p className={s.successMsg}>
-              We've sent a reset link to{" "}
-              <span className={s.successEmail}>{email}</span>. Check your
-              inbox.
+              A reset link has been sent to your email address.
             </p>
           </div>
         )}
 
-        {/* Back to Login */}
         <div className="flex justify-center">
-          <button
-            onClick={() => navigate("/login")}
-            className={s.backBtn}
-          >
+          <button onClick={() => navigate("/login")} className={s.backBtn}>
             <FiArrowLeft size={15} />
             Back to Login
           </button>
         </div>
-
       </div>
     </div>
   );

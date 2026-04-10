@@ -1,7 +1,7 @@
 import theme from "../../styles/theme";
 
 const loginDesign = {
-  wrapper: `h-screen overflow-hidden flex flex-col justify-center items-center bg-gradient-to-br from-[#0c1a2e] via-[#0f2a4a] to-[#1a1a2e] p-4`,
+  wrapper: `min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-[#0c1a2e] via-[#0f2a4a] to-[#1a1a2e] p-4`,
 
   headerText: `text-center text-${theme.textMuted} text-sm mb-6`,
   gridContainer: `w-full max-w-[460px] px-2 sm:px-0`,

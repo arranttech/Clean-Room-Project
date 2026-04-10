@@ -519,6 +519,8 @@ const AHUFiltration = () => {
     const [filterTypeOpen, setFilterTypeOpen] = useState(false);
     const filterTypeRef = useRef<HTMLDivElement>(null);
     const appliedAutoRuleRef = useRef<string>("");
+    const appliedHandlingExhaustPreselectionRef = useRef<Record<string, boolean>>({});
+    const appliedHandlingConstructionPreselectionRef = useRef<Record<string, boolean>>({});
     const dismissedSupplyByContextRef = useRef<Record<string, Set<string>>>({});
     const dismissedRuleKeysByContextRef = useRef<Record<string, Set<string>>>({});
 
@@ -567,6 +569,58 @@ const AHUFiltration = () => {
     const handling = useAppSelector((state: any) => state.projectInfo?.handling || []);
     const specialHandlingOptions = config.handling.specialHandlingOptions;
     const hasSpecialHandling = handling.length > 0 && handling.some((h: string) => specialHandlingOptions.includes(h)); // true if any selected handling matches special handling criteria
+    const exhaustRequiredHandling = new Set<string>([
+        "Allergen-controlled",
+        "amc/molecular sensitive",
+        "volatile organics control(voc)",
+        "radiological",
+        "potent compound (hpapi)",
+        "odour/cross contamination",
+        "explosive dust",
+    ]);
+    const hasHandlingRequiringExhaust =
+        handling.length > 0 &&
+        handling.some((h: string) => exhaustRequiredHandling.has(String(h || "").trim().toLowerCase()));
+    const normalizedHandlingSelections = new Set(
+        handling.map((h: string) => String(h || "").trim().toLowerCase())
+    );
+    const handlingBasedExhaustPreselectionRules: Record<string, string[]> = {
+        "volatile organics control(voc)": [
+            "Activated Carbon V Cell Filter",
+            "Flame Arrestor Filter",
+            "EPA (H11) (pre-HEPA) filter",
+        ],
+        "amc/molecular sensitive": [
+            "EPA (H11) (pre-HEPA) filter",
+        ],
+        "potent compound (hpapi)": [
+            "Legacy (H13 ~300mm) filter",
+            "ULPA filter (U15 ~150mm)",
+        ],
+        "odour/cross contamination": [
+            "Activated Carbon V Cell Filter",
+            "HEPA + Carbon Combo Filter",
+            "Radioiodine (I-131) Charcoal Filtration Systems",
+        ],
+        "Allergen-controlled": [
+            "Chemisorbent AMC Filter",   
+        ],
+        "explosive dust": [
+            "Flame Arrestor Filter",
+            "Chemisorbent AMC Filter",
+        ]
+
+
+    };
+    const activeHandlingPreselectionRules = Object.entries(handlingBasedExhaustPreselectionRules)
+        .filter(([handlingName]) => normalizedHandlingSelections.has(handlingName));
+    const handlingBasedConstructionRequiredRules: Record<string, Record<string, string>> = {
+        "potent compound (hpapi)": {
+            virusBurner: "Required",
+        },
+    };
+    const activeHandlingConstructionRules = Object.entries(handlingBasedConstructionRequiredRules)
+        .filter(([handlingName]) => normalizedHandlingSelections.has(handlingName));
 
     const autoRulesForUi = Array.isArray(filterSelectionConfig.autoSelectionRules)
         ? filterSelectionConfig.autoSelectionRules
@@ -1006,6 +1060,123 @@ const AHUFiltration = () => {
             });
         }
     }, [filterTypeSelection, hasSpecialHandling]);
+
+    useEffect(() => {
+        if (!hasHandlingRequiringExhaust) return;
+        if (filterTypes.includes("Exhaust")) return;
+        dispatch(
+            updateStandardsField({
+                field: "filterTypeSelection",
+                value: [...filterTypes, "Exhaust"],
+            })
+        );
+    }, [hasHandlingRequiringExhaust, filterTypeSelection, filterTypes, dispatch]);
+
+    useEffect(() => {
+        const activeRuleNames = new Set(activeHandlingPreselectionRules.map(([name]) => name));
+        Object.keys(appliedHandlingExhaustPreselectionRef.current).forEach((name) => {
+            if (!activeRuleNames.has(name)) {
+                delete appliedHandlingExhaustPreselectionRef.current[name];
+            }
+        });
+    }, [activeHandlingPreselectionRules]);
+
+    useEffect(() => {
+        const activeRuleNames = new Set(activeHandlingConstructionRules.map(([name]) => name));
+        Object.keys(appliedHandlingConstructionPreselectionRef.current).forEach((name) => {
+            if (!activeRuleNames.has(name)) {
+                delete appliedHandlingConstructionPreselectionRef.current[name];
+            }
+        });
+    }, [activeHandlingConstructionRules]);
+
+    useEffect(() => {
+        if (activeHandlingConstructionRules.length === 0) return;
+        const unappliedRules = activeHandlingConstructionRules.filter(
+            ([handlingName]) => !appliedHandlingConstructionPreselectionRef.current[handlingName]
+        );
+        if (unappliedRules.length === 0) return;
+
+        unappliedRules.forEach(([, requiredFields]) => {
+            Object.entries(requiredFields).forEach(([field, requiredValue]) => {
+                if (field === "virusBurner" && virusBurner === requiredValue) return;
+                dispatch(updateStandardsField({ field, value: requiredValue }));
+
+                const prevData = Array.isArray(ahuConstructionData) ? ahuConstructionData : [];
+                const existingIndex = prevData.findIndex((item: { field?: string }) => item.field === field);
+                let newData;
+                if (existingIndex >= 0) {
+                    newData = [...prevData];
+                    newData[existingIndex] = { ...newData[existingIndex], value: requiredValue };
+                } else {
+                    newData = [...prevData, { field, value: requiredValue }];
+                }
+                dispatch(updateStandardsField({ field: "ahuConstructionData", value: newData }));
+            });
+        });
+
+        unappliedRules.forEach(([handlingName]) => {
+            appliedHandlingConstructionPreselectionRef.current[handlingName] = true;
+        });
+    }, [activeHandlingConstructionRules, virusBurner, ahuConstructionData, dispatch]);
+
+    useEffect(() => {
+        if (activeHandlingPreselectionRules.length === 0) return;
+        if (!filterTypes.includes("Exhaust")) return;
+        const unappliedRules = activeHandlingPreselectionRules.filter(
+            ([handlingName]) => !appliedHandlingExhaustPreselectionRef.current[handlingName]
+        );
+        if (unappliedRules.length === 0) return;
+
+        const requiredKeys = Array.from(
+            new Set(
+                unappliedRules.flatMap(([, filterNames]) =>
+                    filterNames.map((filterName) => `Exhaust:${filterName}`)
+                )
+            )
+        );
+        const missing = requiredKeys.filter((k) => !selectedFilters.includes(k));
+
+        if (missing.length > 0) {
+            const nextSelectedFilters = [...selectedFilters, ...missing];
+            dispatch(
+                updateStandardsField({
+                    field: "selectedFilters",
+                    value: nextSelectedFilters,
+                })
+            );
+
+            const prevData = Array.isArray(ahufiltrationData) ? ahufiltrationData : [];
+            const existingIndex = prevData.findIndex((item: { field?: string }) => item.field === "selectedFilters");
+            let newData;
+            if (existingIndex >= 0) {
+                newData = [...prevData];
+                newData[existingIndex] = { ...newData[existingIndex], value: nextSelectedFilters };
+            } else {
+                newData = [...prevData, { field: "selectedFilters", value: nextSelectedFilters }];
+            }
+            dispatch(updateStandardsField({ field: "ahufiltrationData", value: newData }));
+
+            missing.forEach((k: string) => {
+                const specs = getFilterSpecs(k.split(":")[1]);
+                if (!specs || selectedFilterDetails[k]) return;
+                dispatch(
+                    updateFilterDetail({
+                        filterName: k,
+                        details: {
+                            unit: "Pa",
+                            initialDp: specs.initRange[0] * MM_WG_TO_PA,
+                            finalDp: Math.max(...specs.finalRange) * MM_WG_TO_PA,
+                        },
+                    })
+                );
+            });
+        }
+
+        unappliedRules.forEach(([handlingName]) => {
+            appliedHandlingExhaustPreselectionRef.current[handlingName] = true;
+        });
+    }, [activeHandlingPreselectionRules, filterTypes, selectedFilters, selectedFilterDetails, ahufiltrationData, dispatch]);
 
 
 

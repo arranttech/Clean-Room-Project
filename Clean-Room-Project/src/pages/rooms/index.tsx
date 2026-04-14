@@ -18,7 +18,7 @@ import {
   removeRoom,
   openNewRoomForm,
   resetRoom,
-  updateRoom
+  updateRoom,
 } from "../../redux/slices/roomSlice";
 
 import { resetProjectInfo } from "../../redux/slices/projectInfoSlice";
@@ -35,8 +35,7 @@ import constants from "../../json/constants.json";
 import {
   addRooms,
   deleteZoneRoom,
-  updateZoneRoom
-
+  updateZoneRoom,
 } from "../../backend/controller/roomController";
 import { storeresults } from "../../backend/controller/resultsController";
 import { updateZoneTotals } from "../../backend/controller/zoneController";
@@ -67,6 +66,7 @@ type RoomForm = {
   infiltrationsPerHour: string;
   freshAirPercent: string;
   exhaustAir: string;
+  exhaustAirCfm: string;
 };
 
 type SavedRoom = RoomForm & {
@@ -104,38 +104,38 @@ export default function Room() {
 
   const form = useAppSelector((state: any) => state.room.form) as RoomForm;
   const isFormVisible = useAppSelector(
-    (state: any) => state.room.isFormVisible
+    (state: any) => state.room.isFormVisible,
   ) as boolean;
   const savedRooms = useAppSelector(
-    (state: any) => state.room.savedRooms
+    (state: any) => state.room.savedRooms,
   ) as SavedRoom[];
 
   const standard = useAppSelector((state: any) => state.standards.standard);
   const classification = useAppSelector(
-    (state: any) => state.standards.classification
+    (state: any) => state.standards.classification,
   );
   const standardsAcph = useAppSelector((state: any) => state.standards.acph);
   const system = useAppSelector((state: any) => state.standards.system);
   const systemType = useAppSelector((state: any) => state.standards.systemType);
   const coolingMethod = useAppSelector(
-    (state: any) => state.standards.coolingMethod
+    (state: any) => state.standards.coolingMethod,
   );
   const heatingMethod = useAppSelector(
-    (state: any) => state.standards.heatingMethod
+    (state: any) => state.standards.heatingMethod,
   );
   const reqInsideTempC = useAppSelector(
-    (state: any) => state.standards.reqInsideTempC
+    (state: any) => state.standards.reqInsideTempC,
   );
   const reqInsideHum = useAppSelector(
-    (state: any) => state.standards.reqInsideHum
+    (state: any) => state.standards.reqInsideHum,
   );
   const minTempC = useAppSelector((state: any) => state.projectInfo.minTemp);
   const maxTempC = useAppSelector((state: any) => state.projectInfo.maxTemp);
   const rhMin = useAppSelector(
-    (state: any) => state.projectInfo.relativeHumidityMin
+    (state: any) => state.projectInfo.relativeHumidityMin,
   );
   const rhMax = useAppSelector(
-    (state: any) => state.projectInfo.relativeHumidityMax
+    (state: any) => state.projectInfo.relativeHumidityMax,
   );
   const projectId = useAppSelector((state: any) => state.projectInfo.projectId);
 
@@ -143,16 +143,16 @@ export default function Room() {
   const projectStandardIdFromNav = location.state?.projectStandardId ?? null;
   const currentZoneIdRef = useRef<number | string | null>(zoneIdFromNav);
   const currentProjectStandardIdRef = useRef<number | string | null>(
-    projectStandardIdFromNav
+    projectStandardIdFromNav,
   );
 
   const user_id = useAppSelector((state: any) =>
-    String(state.user?.user_id || state.user?.user_login_id)
+    String(state.user?.user_id || state.user?.user_login_id),
   );
 
   const [acphDeviation, setAcphDeviation] = useState<number>(0);
   const [selectedAcph, setSelectedAcph] = useState<number | string>(
-    standardsAcph ?? ""
+    standardsAcph ?? "",
   );
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -174,12 +174,13 @@ export default function Room() {
     "width",
     "height",
     "exhaustAir",
+    "exhaustAirCfm",
   ];
 
   const updateFieldValue = (key: keyof RoomForm, value: string) => {
     if (isVentilationOnly && !ventilationAllowedFields.includes(key)) return;
     if (key === "roomName") {
-      if (value && !/^[a-zA-Z\s]+$/.test(value)) return;
+      //if (value && !/^[a-zA-Z\s]+$/.test(value)) return;
     } else {
       if (value !== "" && !/^\d*\.?\d*$/.test(value)) return;
     }
@@ -195,24 +196,24 @@ export default function Room() {
 
   const selectedStandardObj = useMemo(
     () => standardsDb.find((s) => s.title === standard) || null,
-    [standard]
+    [standard],
   );
   const selectedClassObj = useMemo(() => {
     if (!selectedStandardObj) return null;
     return (
       selectedStandardObj.classifications.find(
-        (c) => c.name === classification
+        (c) => c.name === classification,
       ) || null
     );
   }, [selectedStandardObj, classification]);
 
   const acphMin = useMemo(
     () => selectedClassObj?.minAir ?? null,
-    [selectedClassObj]
+    [selectedClassObj],
   );
   const acphMax = useMemo(
     () => selectedClassObj?.maxAir ?? null,
-    [selectedClassObj]
+    [selectedClassObj],
   );
 
   const acphOptions = useMemo(() => {
@@ -248,11 +249,9 @@ export default function Room() {
       ? ventilationAllowedFields
       : (Object.keys(form) as (keyof RoomForm)[]);
     return fieldsToCheck.every((key) =>
-      key === "roomName" ? form[key].trim() !== "" : form[key] !== ""
+      key === "roomName" ? form[key].trim() !== "" : form[key] !== "",
     );
   }, [form, isVentilationOnly]);
-
-
 
   const handleSaveRoom = async () => {
     console.log("🟢 SAVE TRIGGERED");
@@ -269,16 +268,17 @@ export default function Room() {
       return;
     }
 
-
-    const zoneId = editingRoom
-      ? editingRoom.zoneId
-      : currentZoneIdRef.current;
+    console.log("zoneid", currentZoneIdRef.current);
+    const zoneId = editingRoom ? editingRoom.zoneId : currentZoneIdRef.current;
 
     const projectStandardId = editingRoom
       ? editingRoom.projectStandardId
       : currentProjectStandardIdRef.current;
 
-    console.log("📌 Zone ID Source:", editingRoom ? "FROM EDIT ROOM" : "FROM NAV");
+    console.log(
+      "📌 Zone ID Source:",
+      editingRoom ? "FROM EDIT ROOM" : "FROM NAV",
+    );
     console.log("Zone ID:", zoneId);
     console.log("Project Standard ID:", projectStandardId);
 
@@ -309,6 +309,7 @@ export default function Room() {
           infiltrationsPerHour: form.infiltrationsPerHour || null,
           freshAirPercent: form.freshAirPercent || null,
           exhaustAir: form.exhaustAir || null,
+          exhaustAirCfm: form.exhaustAirCfm || null,
           selectedAcph: Number(selectedAcph),
           user_id,
         };
@@ -318,14 +319,15 @@ export default function Room() {
             ...editingRoom,
             ...form,
             acph: Number(selectedAcph),
-          })
+          }),
         );
         setEditingRoom(null);
         toast.success("Room updated successfully!");
       } else {
         const data = await addRooms({
           zone_id: zoneId,
-          projectStandardId,          roomName: form.roomName,
+          projectStandardId,
+          roomName: form.roomName,
           length: form.length,
           width: form.width,
           height: form.height,
@@ -335,6 +337,7 @@ export default function Room() {
           infiltrationsPerHour: form.infiltrationsPerHour,
           freshAirPercent: form.freshAirPercent,
           exhaustAir: form.exhaustAir,
+          exhaustAirCfm: form.exhaustAirCfm,
           selectedAcph: Number(selectedAcph),
           user_id,
         });
@@ -355,7 +358,7 @@ export default function Room() {
             zoneHeatingMethod: heatingMethod,
             zoneReqInsideTempC: reqInsideTempC,
             zoneReqInsideHum: reqInsideHum,
-          })
+          }),
         );
         toast.success("Room saved successfully!");
       }
@@ -374,12 +377,39 @@ export default function Room() {
     dispatch(updateRoomFormField({ field: "length", value: room.length }));
     dispatch(updateRoomFormField({ field: "width", value: room.width }));
     dispatch(updateRoomFormField({ field: "height", value: room.height }));
-    dispatch(updateRoomFormField({ field: "occupancy", value: room.occupancy }));
-    dispatch(updateRoomFormField({ field: "equipmentLoad", value: room.equipmentLoad }));
-    dispatch(updateRoomFormField({ field: "lightingLoad", value: room.lightingLoad }));
-    dispatch(updateRoomFormField({ field: "infiltrationsPerHour", value: room.infiltrationsPerHour }));
-    dispatch(updateRoomFormField({ field: "freshAirPercent", value: room.freshAirPercent }));
-    dispatch(updateRoomFormField({ field: "exhaustAir", value: room.exhaustAir }));
+    dispatch(
+      updateRoomFormField({ field: "occupancy", value: room.occupancy }),
+    );
+    dispatch(
+      updateRoomFormField({
+        field: "equipmentLoad",
+        value: room.equipmentLoad,
+      }),
+    );
+    dispatch(
+      updateRoomFormField({ field: "lightingLoad", value: room.lightingLoad }),
+    );
+    dispatch(
+      updateRoomFormField({
+        field: "infiltrationsPerHour",
+        value: room.infiltrationsPerHour,
+      }),
+    );
+    dispatch(
+      updateRoomFormField({
+        field: "freshAirPercent",
+        value: room.freshAirPercent,
+      }),
+    );
+    dispatch(
+      updateRoomFormField({ field: "exhaustAir", value: room.exhaustAir }),
+    );
+    dispatch(
+      updateRoomFormField({
+        field: "exhaustAirCfm",
+        value: room.exhaustAirCfm,
+      }),
+    );
     setSelectedAcph(room.acph);
     dispatch(openNewRoomForm());
   };
@@ -429,6 +459,7 @@ export default function Room() {
           acph: Number(room.acph),
           freshAirPercent: room.freshAirPercent,
           exhaustAir: room.exhaustAir,
+          exhaustAirCfm: room.exhaustAirCfm,
           occupancy: room.occupancy,
           equipmentLoad: room.equipmentLoad,
           lightingLoad: room.lightingLoad,
@@ -445,7 +476,7 @@ export default function Room() {
           maxTempC,
           rhMin,
           rhMax,
-        })
+        }),
       );
 
       for (let idx = 0; idx < roomsSnapshot.length; idx++) {
@@ -464,25 +495,25 @@ export default function Room() {
           project_Rem_Water_Vapour: toNullableNumber(result.removedWater),
           project_ResultCfm: toNullableNumber(result.resultantCfm),
           project_Room_Termi_Supply_Mod: toNullableNumber(
-            result.roomTermSupplyValue
+            result.roomTermSupplyValue,
           ),
           project_Room_AC_Load_TR: toNullableNumber(result.roomACValue),
           project_Cfm_AC_Load_TR: toNullableNumber(result.cfmACLoadTR),
           project_Res_Cooling_Load_TR: toNullableNumber(
-            result.resultCoolLoadTR
+            result.resultCoolLoadTR,
           ),
           project_add_Water_Vapour: toNullableNumber(result.addWaterValue),
           project_HumidCfm: toNullableNumber(result.humidValue),
           project_ResultCfm_Hot: toNullableNumber(result.resultantheatCfm),
           project_Room_Term_Supply_Mod: toNullableNumber(
-            result.roomTermSupplyHeatValue
+            result.roomTermSupplyHeatValue,
           ),
           project_Room_Heating_Load_TR: toNullableNumber(result.roomHeatLoadTR),
           project_Cfm_Heating_Load_TR: toNullableNumber(
-            result.cfmHeatLoadTRValue
+            result.cfmHeatLoadTRValue,
           ),
           project_Result_Heating_Load_TR: toNullableNumber(
-            result.resultHeatLoadTR
+            result.resultHeatLoadTR,
           ),
           user_id,
         });
@@ -498,7 +529,7 @@ export default function Room() {
 
       for (const [zoneId, zoneRooms] of zoneGroups.entries()) {
         const zoneResults = zoneRooms.map(
-          (room) => allAirflowResults[roomsSnapshot.indexOf(room)]
+          (room) => allAirflowResults[roomsSnapshot.indexOf(room)],
         );
         const sum = (key: keyof (typeof zoneResults)[0]): number =>
           zoneResults.reduce((acc, r) => acc + (Number(r[key]) || 0), 0);
@@ -542,7 +573,6 @@ export default function Room() {
     }
   };
 
-  // ── Add Another Zone ──────────────────────────────────────────────────────
   const addAnotherZone = () => {
     if (!savedRooms.length) {
       alert("Please add at least one room before adding another zone.");
@@ -571,24 +601,26 @@ export default function Room() {
               key === "roomName"
                 ? constants.Tooltip.roomNameTooltip
                 : key === "length"
-                ? constants.Tooltip.lengthTooltip
-                : key === "width"
-                ? constants.Tooltip.widthTooltip
-                : key === "height"
-                ? constants.Tooltip.heightTooltip
-                : key === "occupancy"
-                ? constants.Tooltip.occupancyTooltip
-                : key === "equipmentLoad"
-                ? constants.Tooltip.equipmentLoadTooltip
-                : key === "lightingLoad"
-                ? constants.Tooltip.lightingLoadTooltip
-                : key === "infiltrationsPerHour"
-                ? constants.Tooltip.infiltrationsTooltip
-                : key === "freshAirPercent"
-                ? constants.Tooltip.freshAirTooltip
-                : key === "exhaustAir"
-                ? constants.Tooltip.exhaustAirTooltip
-                : ""
+                  ? constants.Tooltip.lengthTooltip
+                  : key === "width"
+                    ? constants.Tooltip.widthTooltip
+                    : key === "height"
+                      ? constants.Tooltip.heightTooltip
+                      : key === "occupancy"
+                        ? constants.Tooltip.occupancyTooltip
+                        : key === "equipmentLoad"
+                          ? constants.Tooltip.equipmentLoadTooltip
+                          : key === "lightingLoad"
+                            ? constants.Tooltip.lightingLoadTooltip
+                            : key === "infiltrationsPerHour"
+                              ? constants.Tooltip.infiltrationsTooltip
+                              : key === "freshAirPercent"
+                                ? constants.Tooltip.freshAirTooltip
+                                : key === "exhaustAir"
+                                  ? constants.Tooltip.exhaustAirTooltip
+                                : key === "exhaustAirCfm"
+                                    ? constants.Tooltip.exhaustAirCfmTooltip
+                                  : ""
             }
           />
         </label>
@@ -725,10 +757,16 @@ export default function Room() {
                     <div className={s.sectionTitle}>
                       {T.sections.airflowParameters}
                     </div>
+
                     <div className={s.grid3}>
                       {renderInput("infiltrationsPerHour")}
                       {renderInput("freshAirPercent")}
                       {renderInput("exhaustAir")}
+                    </div>
+
+                    <div className={s.grid3}>
+                      {renderInput("exhaustAirCfm")}
+
                       <div>
                         <label className={s.label}>
                           ACPH Value <span className={s.required1}>*</span>
@@ -737,6 +775,7 @@ export default function Room() {
                             content={constants.Tooltip.acphValueTooltip}
                           />
                         </label>
+
                         <select
                           className={
                             acphOptions.length ? s.select : s.selectDisabled
@@ -754,6 +793,7 @@ export default function Room() {
                             </option>
                           ))}
                         </select>
+
                         {acphOptions.length > 0 && (
                           <div>
                             Range:{" "}
@@ -763,8 +803,10 @@ export default function Room() {
                           </div>
                         )}
                       </div>
+
                       <div>
                         <label className={s.label}>ACPH Deviation</label>
+
                         <div className={s.deviationBox}>
                           <button
                             type="button"
@@ -776,12 +818,14 @@ export default function Room() {
                           >
                             −
                           </button>
+
                           <input
                             type="text"
                             value={`${acphDeviation}%`}
                             readOnly
                             className={s.deviationInput}
                           />
+
                           <button
                             type="button"
                             onClick={() =>
@@ -793,6 +837,7 @@ export default function Room() {
                             +
                           </button>
                         </div>
+
                         <div className={s.rangeText}>Range: -20% to +20%</div>
                       </div>
                     </div>
@@ -807,7 +852,7 @@ export default function Room() {
                         <FaBrush className={s.clearBtnIcon} />
                         Clear
                       </button>
-                  
+
                       {editingRoom && (
                         <button
                           type="button"
@@ -861,7 +906,8 @@ export default function Room() {
                           <th className={s.tableTh}>Lighting (W/m²)</th>
                           <th className={s.tableTh}>Infiltration/hr</th>
                           <th className={s.tableTh}>Fresh Air (%)</th>
-                          <th className={s.tableTh}>Exhaust (m³/s)</th>
+                          <th className={s.tableTh}>Exhaust Air(%)</th>
+                          <th className={s.tableTh}>Exhaust Air(CFM)</th>
                           <th className={s.tableTh}>ACPH Value</th>
                           <th className={s.tableTh}>Actions</th>
                         </tr>
@@ -898,6 +944,9 @@ export default function Room() {
                           </td>
                           <td className={s.tableTd}>
                             {renderTableInput("exhaustAir")}
+                          </td>
+                          <td className={s.tableTd}>
+                            {renderTableInput("exhaustAirCfm")}
                           </td>
                           <td className={s.tableTd}>
                             <select
@@ -1021,7 +1070,8 @@ export default function Room() {
                       </div>
                       <div className={s.roomCardLine}>
                         Infil/hr: {r.infiltrationsPerHour} | Fresh Air:{" "}
-                        {r.freshAirPercent}% | Exhaust: {r.exhaustAir}
+                        {r.freshAirPercent}% | Exhaust: {r.exhaustAir}% |
+                        Exhaust CFM: {r.exhaustAirCfm}
                       </div>
                       <div className={s.roomCardLine}>
                         ACPH: {r.acph ?? "-"}
@@ -1053,8 +1103,6 @@ export default function Room() {
               >
                 {isSaving ? "Saving..." : T.buttons.saveRoom}
               </button>
-
-            
 
               <button
                 type="button"
@@ -1109,7 +1157,6 @@ export default function Room() {
           </div>
         </div>
       )}
-
 
       {/* ── Delete Confirmation Modal ── */}
       {deleteTarget && (

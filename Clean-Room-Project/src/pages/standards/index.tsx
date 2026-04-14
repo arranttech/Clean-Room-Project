@@ -222,7 +222,8 @@ export default function Standard() {
               systemType: std.project_system_type || "",
               heatingMethod: std.project_heating_method || "",
               coolingMethod: std.project_cooling_method || "",
-              additionalDpValue: std.additional_pressure_drop ?? 0,
+              additionalDpValue: std.Additional_dp_supply ?? 0,
+              additionalDpValueExhaust: std.Additional_dp_exhaust ?? 0,
               standard: std.project_standard || "",
               classification: std.project_classification_name || "",
               acph: std.project_ACPH ? String(std.project_ACPH) : "",
@@ -670,6 +671,7 @@ export default function Standard() {
         heatingFlowVelocity,
         coolingFlowVelocity,
         additionalDpValue,
+        additionalDpValueExhaust,
         ...ahuPayload,
       };
 
@@ -755,14 +757,14 @@ export default function Standard() {
             <div className={s.cardHeaderTitle}>Zone Information</div>
           </div>
           <div className={s.divider} />
-        <div className={s.body}>
+          <div className={s.body}>
             <div className={s.field}>
               <label className={s.label}>
                 Zone Name <span className={s.required}>*</span>
               </label>
               <input
                 className={s.input}
-                 style={{ width: "500px" }}
+                style={{ width: "500px" }}
                 value={zoneName || ""}
                 placeholder="Enter Zone Name"
                 maxLength={30}

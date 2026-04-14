@@ -109,7 +109,8 @@ const COLS: Col[] = [
   { label: "Lighting (W/m²)", key: "room_Lighting", sec: "cyan", src: "room" },
   { label: "Infiltrations", key: "room_Infiltrations", sec: "cyan", src: "room" },
   { label: "Fresh Air (%)", key: "room_FreshAir", sec: "cyan", src: "room" },
-  { label: "Exhaust Air (m³/s)", key: "room_ExhaustAir", sec: "cyan", src: "room" },
+  { label: "Exhaust Air (%)", key: "room_ExhaustAir", sec: "cyan", src: "room" },
+  { label: "Exhaust Air Cfm", key: "room_ExhaustAirCfm", sec: "cyan", src: "room" },
   { label: "ACPH", key: "project_ACPH", sec: "cyan", src: "room" },
   // BROWN — standards (no zoneCol)
   { label: "Standard ID", key: "project_standard_id", sec: "brown", src: "std" },
@@ -409,8 +410,8 @@ function buildZoneSheet(
       (r) => !r.room_ExhaustAir || parseFloat(r.room_ExhaustAir) === 0
     );
 
-    renderTable(`${zoneName} (With Exhaust Air)`, zoneId, roomsWithExhaust);
-    renderTable(`${zoneName} (Without Exhaust Air)`, zoneId, roomsWithoutExhaust);
+    renderTable(`${zoneName} (Exhaust)`, zoneId, roomsWithExhaust);
+    renderTable(`${zoneName} (Supply)`, zoneId, roomsWithoutExhaust);
   }
 
   const ws = buildWS(allRows);

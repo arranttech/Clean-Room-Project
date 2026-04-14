@@ -220,10 +220,11 @@ export const roomRepository = {
         room_Infiltrations,
         room_FreshAir,
         room_ExhaustAir,
+        room_ExhaustAirCfm,
         project_ACPH,
         created_by,
         updated_by
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         toNum(payload.zone_id),
         toNum(payload.projectStandardId),
@@ -237,6 +238,7 @@ export const roomRepository = {
         toStr(payload.infiltrationsPerHour),
         toStr(payload.freshAirPercent),
         toStr(payload.exhaustAir),
+        toStr(payload.exhaustAirCfm),
         toStr(payload.selectedAcph),
         payload.user_id ?? null,
         payload.user_id ?? null,
@@ -295,27 +297,29 @@ export const roomRepository = {
       room_Infiltrations=?,
       room_FreshAir=?,
       room_ExhaustAir=?,
+      room_ExhaustAirCfm=?,
       project_ACPH=?,
       updated_by=?
     WHERE project_RoomId=?`,
-      [
-        toNum(payload.zone_id),
-        toNum(payload.projectStandardId),
-        toStr(payload.roomName),
-        toStr(payload.length),
-        toStr(payload.width),
-        toStr(payload.height),
-        toStr(payload.occupancy),
-        toStr(payload.equipmentLoad),
-        toStr(payload.lightingLoad),
-        toStr(payload.infiltrationsPerHour),
-        toStr(payload.freshAirPercent),
-        toStr(payload.exhaustAir),
-        toStr(payload.selectedAcph),
-        payload.user_id,
-        roomId,
-      ]
-    );
-  },
+    [
+      toNum(payload.zone_id),
+      toNum(payload.projectStandardId),
+      toStr(payload.roomName),
+      toStr(payload.length),
+      toStr(payload.width),
+      toStr(payload.height),
+      toStr(payload.occupancy),
+      toStr(payload.equipmentLoad),
+      toStr(payload.lightingLoad),
+      toStr(payload.infiltrationsPerHour),
+      toStr(payload.freshAirPercent),
+      toStr(payload.exhaustAir),
+      toStr(payload.exhaustAirCfm),
+      toStr(payload.selectedAcph),
+      payload.user_id,
+      roomId,
+    ]
+  );
+},
 
 };

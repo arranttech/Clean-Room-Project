@@ -19,7 +19,8 @@
     "lightingLoad": { "label": "Lighting (W/m²)", "placeholder": "1.75" },
     "infiltrationsPerHour": { "label": "Infiltrations / hr", "placeholder": "2" },
     "freshAirPercent": { "label": "Fresh Air (%)", "placeholder": "10" },
-    "exhaustAir": { "label": "Exhaust Air (m³/s)", "placeholder": "10" }
+    "exhaustAir": { "label": "Exhaust Air (m³/s)", "placeholder": "10" },
+    "exhaustAirCfm": { "label": "Exhaust Air (CFM)", "placeholder": "100" }
   },
   "buttons": {
     "back": "Back",

@@ -15,7 +15,7 @@
       "label": "Fresh Air CFM"
     },
     "exhaustAir": {
-      "label": "Exhaust Air"
+      "label": "Exhaust Air CFM"
     },
     "Dehumidification": {
       "label": "Dehumidification.CFM"

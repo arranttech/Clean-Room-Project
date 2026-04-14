@@ -20,6 +20,7 @@ export const airflowRoute: ServerRoute[] = [
 					acph: Joi.number().required(),
 					freshAirPercent: Joi.number().required(),
 					exhaustAir: Joi.number().required(),
+					exhaustAirCfm: Joi.number().required(),
 
 					occupancy: Joi.number().required(),
 					equipmentLoad: Joi.number().required(),
@@ -59,7 +60,7 @@ export const airflowRoute: ServerRoute[] = [
 						roomCfm: Joi.number().required(),
 						freshAir: Joi.number().required(),
 						exhaustAir: Joi.number().required(),
-
+						exhaustAirCfm: Joi.number().required(),
 						dehumidValue: Joi.alternatives().try(
 							Joi.number(),
 							Joi.string().valid("Invalid")

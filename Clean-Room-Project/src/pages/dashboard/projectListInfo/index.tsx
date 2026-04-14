@@ -17,6 +17,7 @@ type Room = {
   room_Lighting: number;
   room_FreshAir: number;
   room_ExhaustAir: number;
+  room_ExhaustAirCfm: number;
 };
 
 type Standard = {
@@ -70,6 +71,7 @@ const RoomSection = ({ room, index }: { room: Room; index: number }) => (
       <InfoItem label="Lighting" value={room.room_Lighting} />
       <InfoItem label="Fresh Air" value={room.room_FreshAir} />
       <InfoItem label="Exhaust Air" value={room.room_ExhaustAir} />
+      <InfoItem label="Exhaust Air Cfm" value={room.room_ExhaustAirCfm} />
     </div>
   </div>
 );
@@ -212,7 +214,9 @@ export default function ProjectListInfo() {
               room_Equipment_Load: row.room_Equipment_Load,
               room_Lighting: row.room_Lighting,
               room_FreshAir: row.room_FreshAir,
-              room_ExhaustAir: row.room_ExhaustAir
+              room_ExhaustAir: row.room_ExhaustAir,
+              room_ExhaustAirCfm: row.room_ExhaustAirCfm,
+
             });
 
           } else {

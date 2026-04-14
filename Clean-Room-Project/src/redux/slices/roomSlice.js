@@ -12,6 +12,7 @@ const initialState = {
     infiltrationsPerHour: "",
     freshAirPercent: "",
     exhaustAir: "",
+    exhaustAirCfm: "",
   },
   savedRooms: [],
   isFormVisible: false,

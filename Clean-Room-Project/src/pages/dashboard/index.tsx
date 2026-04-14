@@ -313,6 +313,7 @@ export default function Dashboard() {
           infiltrationsPerHour: r.room_Infiltrations ?? "",
           freshAirPercent: r.room_FreshAir ?? "",
           exhaustAir: r.room_ExhaustAir ?? "",
+          exhaustAirCfm: r.room_ExhaustAirCfm ?? "",
           acph: r.project_ACPH ?? "",
           zoneStandard: std?.project_standard ?? "",
           zoneClassification: std?.project_classification_name ?? "",

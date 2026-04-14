@@ -8,6 +8,7 @@ export type RoomPayload = {
   acph: number;
   freshAirPercent: string;
   exhaustAir: string;
+  exhaustAirCfm: string;
   occupancy: string;
   equipmentLoad: string;
   lightingLoad: string;
@@ -57,6 +58,8 @@ export function getSystemFlags(zoneSystem: string, zoneSystemType: string, room:
     (name: string) => name.toUpperCase() === zoneSystemName
   );
 
+  const exhaustflag = Number(room.exhaustAir || 0) > 0 || Number(room.exhaustAirCfm || 0) > 0;
+
   const isVentilationSystem =
     zoneSystemName === "VENTILATION SYSTEM" ||
     zoneSystemTypeName === "VENTILATION SYSTEM";
@@ -69,6 +72,7 @@ export function getSystemFlags(zoneSystem: string, zoneSystemType: string, room:
     isVentilationSystem,
     showCooling: isCoolingSystem || isHeatingandCoolingSystem,
     showHeating: isHeatingSystem || isHeatingandCoolingSystem,
+    exhaustflag
   };
 }
 
@@ -128,7 +132,7 @@ export function airflowService(room: RoomPayload): AirflowResults {
   const roomClassi = String(room.zoneClassification ?? "").trim();
 
   // ================= SYSTEM FLAGS =================
-  const { showCooling, showHeating, isTempValid, isVentilationSystem } = getSystemFlags(room.zoneSystem || "", room.zoneSystemType || "", room);
+  const { showCooling, showHeating, isTempValid, isVentilationSystem, exhaustflag } = getSystemFlags(room.zoneSystem || "", room.zoneSystemType || "", room);
 
   const frAirCal = t.fields.remWaterVapour.FrAirCal.value;
   const c1 = t.fields.remWaterVapour.delTempConst;
@@ -151,25 +155,26 @@ export function airflowService(room: RoomPayload): AirflowResults {
   const eaRaw = Number(room.exhaustAir || 0);
   const eaFactor = eaRaw > 1 ? eaRaw / 100 : eaRaw;
   const baseFreshAir = roomCfm * faFactor;
+  const exhaustCfm = Number(room.exhaustAirCfm || 0);
 
-  const freshAir = isVentilationSystem ? (faPercent + 1.10) * roomCfm : eaFactor === 0 ? baseFreshAir : eaRaw + faPercent;
-  const exhaustAir = isVentilationSystem ? (eaFactor + 1.00) * roomCfm : roomCfm * eaFactor;
+  const freshAir = isVentilationSystem ? (faFactor + 1) : (eaFactor === 0 && exhaustCfm === 0) ? baseFreshAir : (eaFactor + faFactor) * roomCfm; 
+  const exhaustAir = isVentilationSystem ? ((eaFactor + exhaustCfm) + 1) * roomCfm : roomCfm * (eaFactor + exhaustCfm);
 
 
-  let dehumidValue: number | string;
-  let removedWater: number | string;
+  let dehumidValue: number | string = 0;
+  let removedWater: number | string = 0;
   let resultantCfm: number | string = 0;
-  let roomACValue: number | string;
+  let roomACValue: number | string = 0;
   let roomTermSupplyValue: number | string = 0;
   let cfmACLoadTR: number | string = "-";
-  let resultCoolLoadTR: number | string;
-  let addWaterValue: number | string;
-  let humidValue: number | string;
+  let resultCoolLoadTR: number | string = 0;
+  let addWaterValue: number | string = 0;
+  let humidValue: number | string = 0;
   let resultantheatCfm: number | string = 0;
   let roomTermSupplyHeatValue: number | string = 0;
   let roomHeatLoad: number | string = 0;
-  let resultHeatLoadTR: number | string;
-  let cfmHeatLoadTRValue: number | string;
+  let resultHeatLoadTR: number | string = 0;
+  let cfmHeatLoadTRValue: number | string = 0;
   let delWater1 = 0;
   let delAHUVal = 0;
   let delWaterVal = 0;
@@ -181,7 +186,7 @@ export function airflowService(room: RoomPayload): AirflowResults {
 
   function calculateDehumidCfm() {
     if (!showCooling) return 0;
-    if (exhaustAir > 0) return 0;
+    if (exhaustflag && isVentilationSystem) return 0;
     if (showCooling && isTempValid) {
       if (isVentilationSystem) {
         dehumidValue = Math.ceil((occupancy * 200 + infiltrationsPerHour * 375 + freshAir) / 25) * 25;
@@ -196,7 +201,7 @@ export function airflowService(room: RoomPayload): AirflowResults {
 
   function calculateRemovedWater() {
     if (!showCooling) return 0;
-    if (exhaustAir > 0) return 0;
+    if (exhaustflag && isVentilationSystem) return 0;
     if (showCooling && isTempValid) {
       const peakTempVP = c1.value1 * Math.pow(10, (c1.value2 * maxTemp) / (c1.value3 + maxTemp));
       const roomTempVP = c1.value1 * Math.pow(10, (c1.value2 * reqInsideTemp) / (c1.value3 + reqInsideTemp));
@@ -214,9 +219,9 @@ export function airflowService(room: RoomPayload): AirflowResults {
 
   function calculateResultantCfm() {
     if (!showCooling) return 0;
-    if (exhaustAir > 0) return 0;
+    if (exhaustflag && isVentilationSystem) return 0;
     if (showCooling && isTempValid) {
-      const baseAirflow = roomCfm + freshAir;
+      const baseAirflow = roomCfm + freshAir + exhaustAir;
       resultantCfm = Math.ceil(Math.max(baseAirflow, Number(dehumidValue || 0)) / 25) * 25;
     }
     return resultantCfm;
@@ -224,7 +229,7 @@ export function airflowService(room: RoomPayload): AirflowResults {
 
   function calculateRoomACValue() {
     if (!showCooling) return 0;
-    if (exhaustAir > 0) return 0;
+    if (exhaustflag && isVentilationSystem) return 0;
     if (showCooling && isTempValid) {
       const pc = roomACconst.PeopleConst;
       const tempdiffer = roomACconst.TempdiffConst.value * Math.abs(maxTemp - reqInsideTemp);
@@ -242,7 +247,7 @@ export function airflowService(room: RoomPayload): AirflowResults {
 
   function calculateRoomTerminalSupply() {
     if (!showCooling) return 0;
-    if (exhaustAir > 0) return 0;
+    if (exhaustflag && isVentilationSystem) return 0;
     if (showCooling && isTempValid) {
       let result = 0;
       if (V1.ISO8Cd.includes(Classifi) || V1.ISO7Cd.includes(Classifi)) result = Number(resultantCfm) / V2.ISO8VV;
@@ -262,7 +267,7 @@ export function airflowService(room: RoomPayload): AirflowResults {
 
   function calculateCfmACLoad() {
     if (!showCooling) return 0;
-    if (exhaustAir > 0) return 0;
+    if (exhaustflag && isVentilationSystem) return 0;
     if (showCooling && isTempValid) {
       let rawValue = 0;
       if (typeof resultantCfm === "number") {
@@ -281,7 +286,7 @@ export function airflowService(room: RoomPayload): AirflowResults {
 
   function calculateResultCoolLoadTR() {
     if (!showCooling) return 0;
-    if (exhaustAir > 0) return 0;
+    if (exhaustflag && isVentilationSystem) return 0;
     if (showCooling && isTempValid) {
       resultCoolLoadTR = Math.ceil(Math.max(Number(roomACValue), Number(cfmACLoadTR)) / 0.5) * 0.5;
     } else {
@@ -294,7 +299,7 @@ export function airflowService(room: RoomPayload): AirflowResults {
 
   function calculateaddWaterVapour() {
     if (!showHeating) return 0;
-    if (exhaustAir > 0) return 0;
+    if (exhaustflag && isVentilationSystem) return 0;
     if (showHeating && isTempValid) {
       const peakTempMin = c1.value1 * Math.pow(10, (c1.value2 * minTemp) / (c1.value3 + minTemp));
       const roomAWVTemp = c1.value1 * Math.pow(10, (c1.value2 * reqInsideTemp) / (c1.value3 + reqInsideTemp));
@@ -312,7 +317,7 @@ export function airflowService(room: RoomPayload): AirflowResults {
 
   function calculatehumidValue() {
     if (!showHeating) return 0;
-    if (exhaustAir > 0) return 0;
+    if (exhaustflag && isVentilationSystem) return 0;
     if (showHeating && isTempValid) {
       const peakTempAHU = c1.value1 * Math.pow(10, (c1.value2 * (reqInsideTemp - 8)) / (c1.value3 + (reqInsideTemp - 8)));
       const roomTempAHU = c1.value1 * Math.pow(10, (c1.value2 * reqInsideTemp) / (c1.value3 + reqInsideTemp));
@@ -337,17 +342,17 @@ export function airflowService(room: RoomPayload): AirflowResults {
 
   function calculateResultantHeatCfm() {
     if (!showHeating) return 0;
-    if (exhaustAir > 0) return 0;
+    if (exhaustflag && isVentilationSystem) return 0;
     if (showHeating && isTempValid) {
       const humidValNum = typeof humidValue === "number" ? humidValue : 0;
-      resultantheatCfm = Math.ceil(Math.max(roomCfm + freshAir, humidValNum) / 25) * 25;
+      resultantheatCfm = Math.ceil(Math.max((roomCfm + freshAir + exhaustAir), humidValNum) / 25) * 25;
     }
     return resultantheatCfm;
   }
 
   function calculateRoomTerminalSupplyHeat() {
     if (!showHeating) return 0;
-    if (exhaustAir > 0) return 0;
+    if (exhaustflag && isVentilationSystem) return 0;
     if (showHeating && isTempValid) {
       let heatValue = parseFloat(String(resultantheatCfm));
       let heatresult = 0;
@@ -368,7 +373,7 @@ export function airflowService(room: RoomPayload): AirflowResults {
 
   function calculateCfmHeatLoadTR() {
     if (!showHeating) return 0;
-    if (exhaustAir > 0) return 0;
+    if (exhaustflag && isVentilationSystem) return 0;
     if (showHeating && isTempValid) {
       let rawValue = 0;
       if (typeof resultantheatCfm === "number" && resultantheatCfm > 0) {
@@ -386,7 +391,7 @@ export function airflowService(room: RoomPayload): AirflowResults {
 
   function calculateRoomHeatLoadTR() {
     if (!showHeating) return 0;
-    if (exhaustAir > 0) return 0;
+    if (exhaustflag && isVentilationSystem) return 0;
     if (showHeating && isTempValid) {
       const pc = roomACconst.PeopleConst;
       const hc = roomHeatConst;
@@ -407,7 +412,7 @@ export function airflowService(room: RoomPayload): AirflowResults {
 
   function calculateResultantHeatLoadTR() {
     if (!showHeating) return 0;
-    if (exhaustAir > 0) return 0;
+    if (exhaustflag && isVentilationSystem) return 0;
     if (showHeating && isTempValid) {
       resultHeatLoadTR = Math.ceil(Math.max(Number(roomHeatLoad || 0), Number(cfmHeatLoadTRValue || 0)) / 0.5) * 0.5;
     } else {

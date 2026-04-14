@@ -132,6 +132,7 @@ export const roomRoute: ServerRoute[] = [
 					infiltrationsPerHour: strOrNull,
 					freshAirPercent: strOrNull,
 					exhaustAir: strOrNull,
+					exhaustAirCfm: strOrNull,
 					selectedAcph: numOrNull,
 				}),
 				failAction: (_request, _h, err) => {
@@ -262,6 +263,7 @@ export const roomRoute: ServerRoute[] = [
 					infiltrationsPerHour: strOrNull,
 					freshAirPercent: strOrNull,
 					exhaustAir: strOrNull,
+					exhaustAirCfm: strOrNull,
 					selectedAcph: numOrNull,
 				}),
 			},

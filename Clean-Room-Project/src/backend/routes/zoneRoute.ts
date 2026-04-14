@@ -31,7 +31,7 @@ export const zoneRoute: ServerRoute[] = [
 		handler: async (request, h) => {
 			try {
 				const payload = request.payload as any;
-				const zoneId = await zoneRepository.createProjectZone(payload, "Exhaust");
+				const zoneId = await zoneRepository.createProjectZone(payload);
 				return h.response({ zoneId }).code(201);
 			} catch {
 				return h.response({ error: "Internal Server Error" }).code(500);
@@ -51,24 +51,24 @@ export const zoneRoute: ServerRoute[] = [
 					zoneId: Joi.number().integer().required(),
 				}),
 				payload: Joi.object({
-					zone_Area:                   Joi.number().allow(null).optional(),
-					zone_Volume:                 Joi.number().allow(null).optional(),
-					zone_RoomCfm:                Joi.number().allow(null).optional(),
-					zone_FreshAir:               Joi.number().allow(null).optional(),
-					zone_ExhaustAir:             Joi.number().allow(null).optional(),
-					zone_DehumidCfm:             Joi.number().allow(null).optional(),
-					zone_Rem_Water_Vapour:       Joi.number().allow(null).optional(),
-					zone_ResultCfm:              Joi.number().allow(null).optional(),
-					zone_Room_Termi_Supply_Mod:  Joi.number().allow(null).optional(),
-					zone_Room_AC_Load_TR:        Joi.number().allow(null).optional(),
-					zone_Cfm_AC_Load_TR:         Joi.number().allow(null).optional(),
-					zone_Res_Cooling_Load_TR:    Joi.number().allow(null).optional(),
-					zone_add_Water_Vapour:       Joi.number().allow(null).optional(),
-					zone_HumidCfm:               Joi.number().allow(null).optional(),
-					zone_ResultCfm_Hot:          Joi.number().allow(null).optional(),
-					zone_Room_Term_Supply_Mod:   Joi.number().allow(null).optional(),
-					zone_Room_Heating_Load_TR:   Joi.number().allow(null).optional(),
-					zone_Cfm_Heating_Load_TR:    Joi.number().allow(null).optional(),
+					zone_Area: Joi.number().allow(null).optional(),
+					zone_Volume: Joi.number().allow(null).optional(),
+					zone_RoomCfm: Joi.number().allow(null).optional(),
+					zone_FreshAir: Joi.number().allow(null).optional(),
+					zone_ExhaustAir: Joi.number().allow(null).optional(),
+					zone_DehumidCfm: Joi.number().allow(null).optional(),
+					zone_Rem_Water_Vapour: Joi.number().allow(null).optional(),
+					zone_ResultCfm: Joi.number().allow(null).optional(),
+					zone_Room_Termi_Supply_Mod: Joi.number().allow(null).optional(),
+					zone_Room_AC_Load_TR: Joi.number().allow(null).optional(),
+					zone_Cfm_AC_Load_TR: Joi.number().allow(null).optional(),
+					zone_Res_Cooling_Load_TR: Joi.number().allow(null).optional(),
+					zone_add_Water_Vapour: Joi.number().allow(null).optional(),
+					zone_HumidCfm: Joi.number().allow(null).optional(),
+					zone_ResultCfm_Hot: Joi.number().allow(null).optional(),
+					zone_Room_Term_Supply_Mod: Joi.number().allow(null).optional(),
+					zone_Room_Heating_Load_TR: Joi.number().allow(null).optional(),
+					zone_Cfm_Heating_Load_TR: Joi.number().allow(null).optional(),
 					zone_Result_Heating_Load_TR: Joi.number().allow(null).optional(),
 				}).options({ allowUnknown: true }),
 			},
@@ -83,10 +83,13 @@ export const zoneRoute: ServerRoute[] = [
 			try {
 				const { zoneId } = request.params as any;
 				const payload = request.payload as any;
-				await zoneRepository.updateZoneTotals(zoneId, payload);
+				await zoneRepository.updateZoneTotals(zoneId, payload, "Non-Exhaust");
 				return h.response({ success: true }).code(200);
-			} catch {
-				return h.response({ error: "Internal Server Error" }).code(500);
+			} // zoneRoute.ts handler
+			catch (err) {
+				console.error(err); // This will show the EXACT SQL error in your VS Code terminal
+				const errorMessage = err instanceof Error ? err.message : "Unknown error";
+				return h.response({ error: "Internal Server Error", message: errorMessage }).code(500);
 			}
 		},
 	},

@@ -123,7 +123,7 @@ export const projectRepository = {
           c.customer_name, c.customer_address, c.customer_phone, c.customer_email_id,
           s.project_standard_id, s.project_standard, s.project_classification_name, s.project_ACPH,
           r.project_RoomName, r.room_Length, r.room_Width, r.room_Height,
-          r.room_Occupancy, r.room_Equipment_Load, r.room_Lighting, r.room_FreshAir, r.room_ExhaustAir
+          r.room_Occupancy, r.room_Equipment_Load, r.room_Lighting, r.room_FreshAir, r.room_ExhaustAir, r.room_ExhaustAirCfm
         FROM tProjects p
         JOIN tCustomers c ON c.customer_id = p.customer_id
         LEFT JOIN tRoomStandards s ON s.project_id = p.project_id
@@ -176,7 +176,7 @@ export const projectRepository = {
       `SELECT r.project_RoomId, r.zone_id, r.project_standard_id,
         r.project_RoomName, r.room_Length, r.room_Width, r.room_Height,
         r.room_Occupancy, r.room_Equipment_Load, r.room_Lighting,
-        r.room_Infiltrations, r.room_FreshAir, r.room_ExhaustAir, r.project_ACPH
+        r.room_Infiltrations, r.room_FreshAir, r.room_ExhaustAir, r.room_ExhaustAirCfm, r.project_ACPH
       FROM tZoneRooms r
       INNER JOIN tRoomStandards rs ON rs.project_standard_id = r.project_standard_id
       WHERE rs.project_id = ?`,
@@ -272,7 +272,7 @@ export const projectRepository = {
         r.project_RoomName, r.room_Length, r.room_Width,
         r.room_Height, r.room_Occupancy, r.room_Equipment_Load,
         r.room_Lighting, r.room_Infiltrations, r.room_FreshAir,
-        r.room_ExhaustAir, r.project_ACPH,
+        r.room_ExhaustAir, r.room_ExhaustAirCfm, r.project_ACPH,
         r.project_standard_id
       FROM tZoneRooms r
       INNER JOIN tRoomStandards rs ON rs.project_standard_id = r.project_standard_id

@@ -497,16 +497,43 @@ const FilterDetailCard = ({
 };
 const ConfigSelect = ({ label, field, options, value, onChange, tooltipId, tooltipContent, required }: any) => {
     const s = standardDesign;
+    const isAhuConstructionField = AHU_CONSTRUCTION_KEYS.includes(field);
+
     return (
         <div className={s.field}>
             <label className={s.label}>
                 {label} {required && <span className={s.required}>*</span>}
                 {tooltipId && <Tooltip id={tooltipId} content={tooltipContent} />}
             </label>
-            <select className={s.select} value={value} onChange={e => onChange(field, e.target.value)} required={required}>
-                <option value="">Select Option</option>
-                {options.map((val: string) => <option key={val} value={val}>{val}</option>)}
-            </select>
+            {isAhuConstructionField ? (
+                <div 
+                    className={s.checkboxGroupContainer}
+                    title={!value ? "Please select an option" : ""}
+                >
+                    {options.map((opt: string) => (
+                        <label 
+                            key={opt} 
+                            className={s.checkboxGroupLabel}
+                            title={!value ? "Please select an option" : ""}
+                        >
+                            <input 
+                                type="checkbox"
+                                checked={value === opt}
+                                onChange={(e) => {
+                                    if(e.target.checked) onChange(field, opt);
+                                }}
+                                className={s.checkboxGroupInput}
+                            />
+                            <span className={s.checkboxGroupText}>{opt}</span>
+                        </label>
+                    ))}
+                </div>
+            ) : (
+                <select className={s.select} value={value} onChange={e => onChange(field, e.target.value)} required={required}>
+                    <option value="">Select Option</option>
+                    {options.map((val: string) => <option key={val} value={val}>{val}</option>)}
+                </select>
+            )}
         </div>
     );
 };
@@ -817,6 +844,9 @@ const AHUFiltration = () => {
         return specs ? Math.max(...specs.finalRange) : 0;
     };
 
+    const numStagesSupply = activeFilters.filter((k: string) => k.startsWith("Supply:")).length;
+    const numStagesExhaust = activeFilters.filter((k: string) => k.startsWith("Exhaust:")).length;
+
     const filterDpSumMmWg = activeFilters.reduce((sum, k) => sum + getFinalDpMmWgForKey(k), 0);
     const supplyFinalPressureMmWg = activeFilters
         .filter((k: string) => k.startsWith("Supply:"))
@@ -833,21 +863,24 @@ const AHUFiltration = () => {
         supplyFinalPressureMmWg + (Number(additionalDpValue) || 0);
     const exhaustFinalPressureWithAdditionalMmWg =
         exhaustFinalPressureMmWg + (Number(additionalDpValueExhaust) || 0);
-    const supplyFinalPressureDisplay = formatPressureDisplay(supplyFinalPressureWithAdditionalMmWg);
-    const exhaustFinalPressureDisplay = formatPressureDisplay(exhaustFinalPressureWithAdditionalMmWg);
+    const distanceDpParams = (Number(plantRoomDistance) * config.calculationConstants.PLANT_ROOM_DISTANCE_FACTOR);
 
-    // Static Pressure (mmWG) = (Plant Room Distance (m) * 0.7) + Sum of Filter Δp (mmWG) + Additional Δp (mmWG)
-    const staticPressureMmWg = (Number(plantRoomDistance) * config.calculationConstants.PLANT_ROOM_DISTANCE_FACTOR) + filterDpSumMmWg + (Number(additionalDpValue) || 0);
+    // Static Pressure (mmWG) = (Plant Room Distance (m) * 0.7) + specific stream Filter Δp (mmWG) + specific stream Additional Δp (mmWG)
+    const staticPressureSupplyMmWg = distanceDpParams + supplyFinalPressureWithAdditionalMmWg;
+    const staticPressureExhaustMmWg = distanceDpParams + exhaustFinalPressureWithAdditionalMmWg;
+
+    const supplyFinalPressureDisplay = formatPressureDisplay(staticPressureSupplyMmWg);
+    const exhaustFinalPressureDisplay = formatPressureDisplay(staticPressureExhaustMmWg);
 
     // Sync calculated values to Redux
     useEffect(() => {
         dispatch(updateMultipleStandardsFields({
-            totalFiltrationStagesSupply: numStages,
-            totalFiltrationStagesExhaust: numStages,
-            staticPressureSupply: staticPressureMmWg,
-            staticPressureExhaust: staticPressureMmWg
+            totalFiltrationStagesSupply: numStagesSupply,
+            totalFiltrationStagesExhaust: numStagesExhaust,
+            staticPressureSupply: staticPressureSupplyMmWg,
+            staticPressureExhaust: staticPressureExhaustMmWg
         }));
-    }, [numStages, staticPressureMmWg, dispatch]);
+    }, [numStagesSupply, numStagesExhaust, staticPressureSupplyMmWg, staticPressureExhaustMmWg, dispatch]);
 
     const additionalDpOptions = config.additionalDpOptions;
 

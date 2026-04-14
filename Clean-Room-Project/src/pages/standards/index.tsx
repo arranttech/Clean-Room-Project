@@ -139,6 +139,7 @@ export default function Standard() {
     totalFiltrationStagesExhaust,
     staticPressureSupply,
     staticPressureExhaust,
+    exhaustImpactPercentage,
   } = standards;
 
 

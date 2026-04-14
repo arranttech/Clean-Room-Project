@@ -61,6 +61,7 @@ export const roomRepository = {
     cooling_flow_velocity,
     Additional_dp_exhaust,
     Additional_dp_supply,
+    exhaust_impact,
     ahu_construction_specifications,
     ahu_filtration_data,
     pipe_configuration,
@@ -70,7 +71,7 @@ export const roomRepository = {
     number_of_Filtrations_Exhaust,
     created_by,
     updated_by
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     const values = [
       payload.project_id,
@@ -94,6 +95,7 @@ export const roomRepository = {
       toNum(payload.coolingFlowVelocity),
       toNum(payload.additionalDpValueExhaust),
       toNum(payload.additionalDpValue),
+      payload.exhaustImpactPercentage ?? null,
       JSON.stringify(payload.ahuConstructionData || []),
       JSON.stringify(payload.ahufiltrationData || []),
       payload.pipeConfiguration ?? null,
@@ -153,6 +155,7 @@ export const roomRepository = {
       toNum(payload.coolingFlowVelocity),
       toNum(payload.additionalDpValueExhaust),
       toNum(payload.additionalDpValue),
+      payload.exhaustImpactPercentage ?? null,
       JSON.stringify(payload.ahuConstructionData || []),
       JSON.stringify(payload.ahufiltrationData || []),
       payload.pipeConfiguration ?? null,
@@ -192,6 +195,7 @@ export const roomRepository = {
         cooling_flow_velocity = ?,
         Additional_dp_exhaust = ?,
         Additional_dp_supply = ?,
+        exhaust_impact = ?,
         ahu_construction_specifications = ?,
         ahu_filtration_data = ?,
         pipe_configuration = ?,

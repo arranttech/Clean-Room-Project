@@ -1550,22 +1550,35 @@ const AHUFiltration = () => {
                                         <div className={s.typeTitle}>
                                             {type} Filters
                                         </div>
-
+// exhaust impact input only for exhaust filters
                                         {type === "Exhaust" && (
                                             <div className={s.impactBox}>
                                                 <div className={s.impactTitle}>Impact of Exhaust</div>
                                                 <div className={s.impactContent}>
-                                                    {handling.includes("Bio-safety") && (
-                                                        <ConfigSelect label="Bio-safety Level" field="bioSafetyLevel" options={ahuData.filtrationSelection.bioSafetyLevels} value={bioSafetyLevel} onChange={handleChange} required={true} />
-                                                    )}
-
-                                                    <ConfigSelect
-                                                        label={`Exhaust Impact ${handling.includes("Bio-safety") ? "(0-100%)" : "(0-50%)"}`}
-                                                        field="exhaustImpactPercentage"
-                                                        options={handling.includes("Bio-safety") ? ahuData.filtrationSelection.exhaustImpactBioSafety : ahuData.filtrationSelection.exhaustImpact}
-                                                        value={exhaustImpactPercentage}
-                                                        onChange={handleChange}
-                                                    />
+                                                    <div className={s.field}>
+                                                        <label className={s.label}>
+                                                            Exhaust Impact (0-120%) <span className={s.required}>*</span>
+                                                        </label>
+                                                        <input
+                                                            type="number"
+                                                            className={s.input}
+                                                            placeholder="Enter percentage (0-120)"
+                                                            value={exhaustImpactPercentage ? exhaustImpactPercentage.replace(/[^0-9.-]/g, '') : ''}
+                                                            onChange={(e) => {
+                                                                const val = e.target.value;
+                                                                if (val === '') {
+                                                                    handleChange("exhaustImpactPercentage", "");
+                                                                    return;
+                                                                }
+                                                                handleChange("exhaustImpactPercentage", `${val}%`);
+                                                            }}
+                                                        />
+                                                        {exhaustImpactPercentage && (Number(exhaustImpactPercentage.replace(/[^0-9.-]/g, '')) < 0 || Number(exhaustImpactPercentage.replace(/[^0-9.-]/g, '')) > 120) && (
+                                                            <div className="text-red-500 text-xs mt-1">
+                                                                Value must be between 0 and 120%
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
                                         )}

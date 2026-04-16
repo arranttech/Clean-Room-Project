@@ -304,7 +304,7 @@ const ruleMatchesSelectionContext = (
                         ? ["Air-Heating System", system]
                         : system === "Air-Heating System"
                             ? ["Air Heating and Ventilation System", system]
-            : [system];
+                            : [system];
 
     const combinedSystemTypeMap: Record<string, string[]> = {
         "Cleanroom Air System (Heating & Cooling)": [
@@ -358,7 +358,7 @@ export const ahupayload = (standards: any) => {
     AHU_CONSTRUCTION_FIELDS.forEach(field => {
         payload[field] = standards[field];
     });
-    
+
     const filterData = [...(standards.ahufiltrationData || [])];
     const pushFilterState = (field: string) => {
         const existingIndex = filterData.findIndex((item: any) => item.field === field);
@@ -506,21 +506,22 @@ const ConfigSelect = ({ label, field, options, value, onChange, tooltipId, toolt
                 {tooltipId && <Tooltip id={tooltipId} content={tooltipContent} />}
             </label>
             {isAhuConstructionField ? (
-                <div 
+                <div
                     className={s.checkboxGroupContainer}
                     title={!value ? "Please select an option" : ""}
                 >
                     {options.map((opt: string) => (
-                        <label 
-                            key={opt} 
+                        <label
+                            key={opt}
                             className={s.checkboxGroupLabel}
                             title={!value ? "Please select an option" : ""}
                         >
-                            <input 
-                                type="checkbox"
+                            <input
+                                type="radio"
+                                name={field}
                                 checked={value === opt}
                                 onChange={(e) => {
-                                    if(e.target.checked) onChange(field, opt);
+                                    if (e.target.checked) onChange(field, opt);
                                 }}
                                 className={s.checkboxGroupInput}
                             />
@@ -630,7 +631,7 @@ const AHUFiltration = () => {
             "Radioiodine (I-131) Charcoal Filtration Systems",
         ],
         "Allergen-controlled": [
-            "Chemisorbent AMC Filter",   
+            "Chemisorbent AMC Filter",
         ],
         "explosive dust": [
             "Flame Arrestor Filter",
@@ -718,7 +719,7 @@ const AHUFiltration = () => {
 
     const handleChange = (field: string, value: any) => {
         dispatch(updateStandardsField({ field, value }));
-        
+
         const SEPARATE_COLUMNS = ["flowVelocity", "heatingFlowVelocity", "coolingFlowVelocity", "selectedFilters", "filterTypeSelection", "plantRoomDistance", "additionalDpValue"];
         if (SEPARATE_COLUMNS.includes(field)) return;
 
@@ -1550,7 +1551,7 @@ const AHUFiltration = () => {
                                         <div className={s.typeTitle}>
                                             {type} Filters
                                         </div>
-// exhaust impact input only for exhaust filters
+
                                         {type === "Exhaust" && (
                                             <div className={s.impactBox}>
                                                 <div className={s.impactTitle}>Impact of Exhaust</div>

@@ -238,28 +238,29 @@ export const projectRepository = {
     // Fetch ALL 19 zone_* total columns 
     const [zones]: any = await database.execute(
       `SELECT
-        zone_id,
-        zone_name,
-        zone_Area,
-        zone_Volume,
-        zone_RoomCfm,
-        zone_FreshAir,
-        zone_ExhaustAir,
-        zone_DehumidCfm,
-        zone_Rem_Water_Vapour,
-        zone_ResultCfm,
-        zone_Room_Termi_Supply_Mod,
-        zone_Room_AC_Load_TR,
-        zone_Cfm_AC_Load_TR,
-        zone_Res_Cooling_Load_TR,
-        zone_add_Water_Vapour,
-        zone_HumidCfm,
-        zone_ResultCfm_Hot,
-        zone_Room_Term_Supply_Mod,
-        zone_Room_Heating_Load_TR,
-        zone_Cfm_Heating_Load_TR,
-        zone_Result_Heating_Load_TR
-      FROM tProjectZones
+        t.zone_id,
+        t.zone_name,
+        t.zone_Area,
+        t.zone_Volume,
+        t.zone_RoomCfm,
+        t.zone_FreshAir,
+        t.zone_ExhaustAir,
+        t.zone_DehumidCfm,
+        t.zone_Rem_Water_Vapour,
+        t.zone_ResultCfm,
+        t.zone_Room_Termi_Supply_Mod,
+        t.zone_Room_AC_Load_TR,
+        t.zone_Cfm_AC_Load_TR,
+        t.zone_Res_Cooling_Load_TR,
+        t.zone_add_Water_Vapour,
+        t.zone_HumidCfm,
+        t.zone_ResultCfm_Hot,
+        t.zone_Room_Term_Supply_Mod,
+        t.zone_Room_Heating_Load_TR,
+        t.zone_Cfm_Heating_Load_TR,
+        t.zone_Result_Heating_Load_TR
+      FROM tZonesTotal t
+      INNER JOIN tProjectZones z ON z.zone_id = t.zone_id
       WHERE project_id = ?
       ORDER BY zone_id ASC`,
       [projectId]

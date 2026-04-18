@@ -39,57 +39,84 @@ export const zoneRoute: ServerRoute[] = [
 		},
 	},
 
-	// PUT /v1/projectzones/{zoneId}/totals
 	{
-		method: "PUT",
-		path: "/v1/projectzones/{zoneId}/totals",
+		method: "POST",
+		path: "/v1/zonestotal/{zoneId}/totals",
 		options: {
-			description: "Save zone aggregate totals into tProjectZones",
-			tags: ["api", "project", "zones"],
+			description: "Save or Update zone totals",
+			tags: ["api", "zones"],
 			validate: {
 				params: Joi.object({
-					zoneId: Joi.number().integer().required(),
+					zoneId: Joi.number().required(),
 				}),
 				payload: Joi.object({
-					zone_Area: Joi.number().allow(null).optional(),
-					zone_Volume: Joi.number().allow(null).optional(),
-					zone_RoomCfm: Joi.number().allow(null).optional(),
-					zone_FreshAir: Joi.number().allow(null).optional(),
-					zone_ExhaustAir: Joi.number().allow(null).optional(),
-					zone_DehumidCfm: Joi.number().allow(null).optional(),
-					zone_Rem_Water_Vapour: Joi.number().allow(null).optional(),
-					zone_ResultCfm: Joi.number().allow(null).optional(),
-					zone_Room_Termi_Supply_Mod: Joi.number().allow(null).optional(),
-					zone_Room_AC_Load_TR: Joi.number().allow(null).optional(),
-					zone_Cfm_AC_Load_TR: Joi.number().allow(null).optional(),
-					zone_Res_Cooling_Load_TR: Joi.number().allow(null).optional(),
-					zone_add_Water_Vapour: Joi.number().allow(null).optional(),
-					zone_HumidCfm: Joi.number().allow(null).optional(),
-					zone_ResultCfm_Hot: Joi.number().allow(null).optional(),
-					zone_Room_Term_Supply_Mod: Joi.number().allow(null).optional(),
-					zone_Room_Heating_Load_TR: Joi.number().allow(null).optional(),
-					zone_Cfm_Heating_Load_TR: Joi.number().allow(null).optional(),
-					zone_Result_Heating_Load_TR: Joi.number().allow(null).optional(),
+					zone_name: Joi.string().optional(),
+					ExhaustFlag: Joi.string().optional(),
+
+					zone_Area: Joi.number().allow(null),
+					zone_Volume: Joi.number().allow(null),
+					zone_RoomCfm: Joi.number().allow(null),
+					zone_FreshAir: Joi.number().allow(null),
+					zone_ExhaustAir: Joi.number().allow(null),
+
+					zone_DehumidCfm: Joi.number().allow(null),
+					zone_Rem_Water_Vapour: Joi.number().allow(null),
+					zone_HumidCfm: Joi.number().allow(null),
+					zone_add_Water_Vapour: Joi.number().allow(null),
+
+					zone_ResultCfm_Hot: Joi.number().allow(null),
+					zone_Room_Term_Supply_Mod: Joi.number().allow(null),
+					zone_Room_Heating_Load_TR: Joi.number().allow(null),
+					zone_Cfm_Heating_Load_TR: Joi.number().allow(null),
+					zone_Result_Heating_Load_TR: Joi.number().allow(null),
+
+					zone_ResultCfm: Joi.number().allow(null),
+					zone_Room_Termi_Supply_Mod: Joi.number().allow(null),
+					zone_Room_AC_Load_TR: Joi.number().allow(null),
+					zone_Cfm_AC_Load_TR: Joi.number().allow(null),
+					zone_Res_Cooling_Load_TR: Joi.number().allow(null),
 				}).options({ allowUnknown: true }),
-			},
-			response: {
-				status: {
-					200: Joi.object({ success: Joi.boolean().required() }).label("UpdateZoneTotalsResponse"),
-					500: Joi.object({ error: Joi.string().required() }).label("ServerError"),
-				},
 			},
 		},
 		handler: async (request, h) => {
 			try {
 				const { zoneId } = request.params as any;
 				const payload = request.payload as any;
-				await zoneRepository.updateZoneTotals(zoneId, payload, "Non-Exhaust");
+
+				await zoneRepository.createZoneTotals(zoneId, payload);
+
 				return h.response({ success: true }).code(200);
-			} // zoneRoute.ts handler
-			catch (err) {
-				console.error(err); // This will show the EXACT SQL error in your VS Code terminal
-				const errorMessage = err instanceof Error ? err.message : "Unknown error";
-				return h.response({ error: "Internal Server Error", message: errorMessage }).code(500);
+			} catch (err) {
+				console.error("Zone total error:", err);
+				return h.response({ error: "Internal Server Error" }).code(500);
+			}
+		},
+	},
+
+	{
+		method: "GET",
+		path: "/v1/zonestotal/{zoneId}/totals",
+		options: {
+			description: "Get aggregate totals for a specific zone",
+			tags: ["api", "zones"],
+			validate: {
+				params: Joi.object({
+					zoneId: Joi.number().integer().required(),
+				}),
+			},
+		},
+		handler: async (request, h) => {
+			try {
+				const { zoneId } = request.params as any;
+				const data = await zoneRepository.getZoneTotals(zoneId);
+
+				if (!data) {
+					return h.response({ message: "No totals found for this zone" }).code(404);
+				}
+
+				return h.response(data).code(200);
+			} catch (err) {
+				return h.response({ error: "Internal Server Error" }).code(500);
 			}
 		},
 	},

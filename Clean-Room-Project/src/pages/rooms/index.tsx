@@ -38,7 +38,7 @@ import {
   updateZoneRoom,
 } from "../../backend/controller/roomController";
 import { storeresults } from "../../backend/controller/resultsController";
-import { updateZoneTotals } from "../../backend/controller/zoneController";
+import { createZoneTotals } from "../../backend/controller/zoneController";
 import { airflowService } from "../../backend/services/service";
 import Header from "../../components/header";
 import { FaPencil } from "react-icons/fa6";
@@ -138,7 +138,6 @@ export default function Room() {
     (state: any) => state.projectInfo.relativeHumidityMax,
   );
   const projectId = useAppSelector((state: any) => state.projectInfo.projectId);
-
   const zoneIdFromNav = location.state?.zoneId ?? null;
   const projectStandardIdFromNav = location.state?.projectStandardId ?? null;
   const currentZoneIdRef = useRef<number | string | null>(zoneIdFromNav);
@@ -479,6 +478,8 @@ export default function Room() {
         }),
       );
 
+      console.log("Airflow results for all rooms:", allAirflowResults);
+
       for (let idx = 0; idx < roomsSnapshot.length; idx++) {
         const room = roomsSnapshot[idx];
         const result = allAirflowResults[idx];
@@ -519,23 +520,41 @@ export default function Room() {
         });
       }
 
-      // ── Write zone totals to tProjectZones — ALL 19 columns ───────────────
-      const zoneGroups = new Map<number | string, typeof roomsSnapshot>();
-      for (const room of roomsSnapshot) {
-        const zid = room.zoneId;
-        if (!zoneGroups.has(zid)) zoneGroups.set(zid, []);
-        zoneGroups.get(zid)!.push(room);
-      }
+      // ── Group rooms by Zone AND Exhaust Status ──
+      // We use a string key like "101-S" or "101-E" to separate them
+      const zoneGroups = new Map<
+        string,
+        { rooms: any[]; flag: "S" | "E"; zoneId: number | string }
+      >();
 
-      for (const [zoneId, zoneRooms] of zoneGroups.entries()) {
-        const zoneResults = zoneRooms.map(
+      roomsSnapshot.forEach((room, idx) => {
+        const result = allAirflowResults[idx];
+        const zid = room.zoneId;
+        // If exhaust is 0, it's Supply (S), otherwise Exhaust (E)
+        const flag = Number(result.exhaustAir) === 0 ? "S" : "E";
+        const groupKey = `${zid}-${flag}`;
+
+        if (!zoneGroups.has(groupKey)) {
+          zoneGroups.set(groupKey, { rooms: [], flag: flag, zoneId: zid });
+        }
+        zoneGroups.get(groupKey)!.rooms.push(room);
+      });
+
+      // ── Save each group to tZoneTotal ──
+      for (const [groupKey, data] of zoneGroups.entries()) {
+        const { rooms: zoneRooms, flag, zoneId } = data;
+
+        // Get results only for the rooms in this specific S or E group
+        const groupResults = zoneRooms.map(
           (room) => allAirflowResults[roomsSnapshot.indexOf(room)],
         );
-        const sum = (key: keyof (typeof zoneResults)[0]): number =>
-          zoneResults.reduce((acc, r) => acc + (Number(r[key]) || 0), 0);
 
-        await updateZoneTotals(zoneId, {
-          // Shared
+        const sum = (key: string): number =>
+          groupResults.reduce((acc, r) => acc + (Number(r[key]) || 0), 0);
+
+        await createZoneTotals(zoneId, {
+          ExhaustFlag: flag, // Sending 'S' or 'E'
+          user_id: user_id,
           zone_Area: r2(sum("areaFt2")),
           zone_Volume: r2(sum("volumeFt3")),
           zone_RoomCfm: r2(sum("roomCfm")),
@@ -543,14 +562,12 @@ export default function Room() {
           zone_ExhaustAir: r2(sum("exhaustAir")),
           zone_DehumidCfm: r2(sum("dehumidValue")),
           zone_Rem_Water_Vapour: r3(sum("removedWater")),
-          // Cooling (new columns)
           zone_ResultCfm: r2(sum("resultantCfm")),
           zone_Room_Termi_Supply_Mod: r2(sum("roomTermSupplyValue")),
           zone_Room_AC_Load_TR: r2(sum("roomACValue")),
           zone_Cfm_AC_Load_TR: r2(sum("cfmACLoadTR")),
           zone_Res_Cooling_Load_TR: r2(sum("resultCoolLoadTR")),
           zone_add_Water_Vapour: r2(sum("addWaterValue")),
-          // Heating
           zone_HumidCfm: r2(sum("humidValue")),
           zone_ResultCfm_Hot: r2(sum("resultantheatCfm")),
           zone_Room_Term_Supply_Mod: r2(sum("roomTermSupplyHeatValue")),
@@ -559,7 +576,6 @@ export default function Room() {
           zone_Result_Heating_Load_TR: r2(sum("resultHeatLoadTR")),
         });
       }
-
       navigate(`/results/${projectId}`);
       dispatch(resetRoom());
       dispatch(resetStandards());
@@ -618,9 +634,9 @@ export default function Room() {
                                 ? constants.Tooltip.freshAirTooltip
                                 : key === "exhaustAir"
                                   ? constants.Tooltip.exhaustAirTooltip
-                                : key === "exhaustAirCfm"
+                                  : key === "exhaustAirCfm"
                                     ? constants.Tooltip.exhaustAirCfmTooltip
-                                  : ""
+                                    : ""
             }
           />
         </label>

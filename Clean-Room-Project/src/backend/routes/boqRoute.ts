@@ -70,11 +70,11 @@ export const boqRoute: ServerRoute[] = [
 
 				const result = await cumulativeZoneService(zoneName, rooms);
 
-				const exhaustId = await zoneRepository.createProjectZone(payload, 'Exhaust');
-				await zoneRepository.updateZoneTotals(exhaustId, result.exhaustTotals);
+				const exhaustId = await zoneRepository.createProjectZone(payload);
+				await zoneRepository.createZoneTotals(exhaustId, result.exhaustTotals);
 
-				const nonExhaustId = await zoneRepository.createProjectZone(payload, 'Non-Exhaust');
-				await zoneRepository.updateZoneTotals(nonExhaustId, result.nonExhaustTotals);
+				const nonExhaustId = await zoneRepository.createProjectZone(payload);
+				await zoneRepository.createZoneTotals(nonExhaustId, result.nonExhaustTotals);
 				
 				return h.response(result).code(200);
 			} catch (err: any) {

@@ -22,10 +22,7 @@ import {
 } from "../../redux/slices/roomSlice";
 
 import { resetProjectInfo } from "../../redux/slices/projectInfoSlice";
-import {
-  updateInProgressProject,
-  removeInProgressProject,
-} from "../../redux/slices/dashboardSlice";
+import { removeInProgressProject } from "../../redux/slices/dashboardSlice";
 import { toast } from "react-toastify";
 import s from "./styles";
 import T from "../../json/room.json";
@@ -52,6 +49,7 @@ type StandardItem = {
     maxAir: number | null;
   }[];
 };
+
 type StandardJson = { standards: StandardItem[]; text: any };
 const standardsDb = (standardDataJson as unknown as StandardJson).standards;
 
@@ -138,12 +136,34 @@ export default function Room() {
     (state: any) => state.projectInfo.relativeHumidityMax,
   );
   const projectId = useAppSelector((state: any) => state.projectInfo.projectId);
+
+  const exhaustImpactFromRedux = useAppSelector(
+    (state: any) => state.standards.exhaustImpactPercentage,
+  );
+
   const zoneIdFromNav = location.state?.zoneId ?? null;
   const projectStandardIdFromNav = location.state?.projectStandardId ?? null;
+  const exhaustImpactFromNav = location.state?.exhaustImpactPercentage ?? "";
+
+  const exhaustImpactSource =
+    exhaustImpactFromNav !== "" && exhaustImpactFromNav != null
+      ? exhaustImpactFromNav
+      : (exhaustImpactFromRedux ?? "");
+
+  const showAlertFromNav = location.state?.showExhaustImpactAlert ?? false;
+
   const currentZoneIdRef = useRef<number | string | null>(zoneIdFromNav);
   const currentProjectStandardIdRef = useRef<number | string | null>(
     projectStandardIdFromNav,
   );
+
+  const alertShownRef = useRef(false);
+  const exhaustPrefilledRef = useRef(false);
+  const exhaustEditedRef = useRef(false);
+
+  const [editingRoom, setEditingRoom] = useState<SavedRoom | null>(null);
+  const [roomFormSessionKey, setRoomFormSessionKey] = useState(0);
+  const [exhaustImpactMessage, setExhaustImpactMessage] = useState("");
 
   const user_id = useAppSelector((state: any) =>
     String(state.user?.user_id || state.user?.user_login_id),
@@ -161,12 +181,54 @@ export default function Room() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [viewMode, setViewMode] = useState<"form" | "table">("form");
 
+  const resetExhaustPrefillState = () => {
+    alertShownRef.current = false;
+    exhaustPrefilledRef.current = false;
+    exhaustEditedRef.current = false;
+    setExhaustImpactMessage("");
+  };
+
   useEffect(() => {
     setSelectedAcph(standardsAcph ?? "");
   }, [standardsAcph]);
 
+  useEffect(() => {
+    if (editingRoom) return;
+    if (exhaustEditedRef.current) return;
+    if (exhaustPrefilledRef.current) return;
+    if (exhaustImpactSource === "" || exhaustImpactSource == null) return;
+
+    const numericValue = String(exhaustImpactSource).replace(/[^0-9.-]/g, "");
+
+    dispatch(
+      updateRoomFormField({
+        field: "exhaustAir",
+        value: numericValue,
+      }),
+    );
+
+    exhaustPrefilledRef.current = true;
+  }, [dispatch, exhaustImpactSource, editingRoom, roomFormSessionKey]);
+
+  useEffect(() => {
+    if (editingRoom) return;
+
+    if (
+      showAlertFromNav &&
+      exhaustImpactSource !== "" &&
+      exhaustImpactSource != null &&
+      !alertShownRef.current
+    ) {
+      setExhaustImpactMessage(
+        `You entered ${exhaustImpactSource}% in Exhaust Impact`,
+      );
+      alertShownRef.current = true;
+    }
+  }, [showAlertFromNav, exhaustImpactSource, editingRoom, roomFormSessionKey]);
+
   const isVentilationOnly =
     system === "Ventilation System" || systemType === "Ventilation System";
+
   const ventilationAllowedFields: (keyof RoomForm)[] = [
     "roomName",
     "length",
@@ -178,25 +240,42 @@ export default function Room() {
 
   const updateFieldValue = (key: keyof RoomForm, value: string) => {
     if (isVentilationOnly && !ventilationAllowedFields.includes(key)) return;
+
+    if (key === "exhaustAir") {
+      const previousValue = form.exhaustAir || "";
+      const defaultValue = String(exhaustImpactSource ?? "");
+
+      if (!exhaustEditedRef.current && previousValue === defaultValue) {
+        setExhaustImpactMessage(
+          `You entered ${exhaustImpactSource}% in Exhaust Impact`,
+        );
+      }
+
+      exhaustEditedRef.current = true;
+    }
+
     if (key === "roomName") {
-      //if (value && !/^[a-zA-Z\s]+$/.test(value)) return;
+      // if (value && !/^[a-zA-Z\s]+$/.test(value)) return;
     } else {
       if (value !== "" && !/^\d*\.?\d*$/.test(value)) return;
     }
+
     dispatch(updateRoomFormField({ field: key, value }));
   };
 
   const handleFreshAirBlur = () => {
     const value = form.freshAirPercent;
     if (value === "") return;
-    if (!isNaN(Number(value)) && Number(value) < 10)
+    if (!isNaN(Number(value)) && Number(value) < 10) {
       dispatch(updateRoomFormField({ field: "freshAirPercent", value: "10" }));
+    }
   };
 
   const selectedStandardObj = useMemo(
     () => standardsDb.find((s) => s.title === standard) || null,
     [standard],
   );
+
   const selectedClassObj = useMemo(() => {
     if (!selectedStandardObj) return null;
     return (
@@ -222,41 +301,45 @@ export default function Room() {
       let v = Math.min(acphMin, acphMax);
       v <= Math.max(acphMin, acphMax);
       v++
-    )
+    ) {
       opts.push(v);
+    }
     return opts;
   }, [acphMin, acphMax]);
 
   useEffect(() => {
     if (!acphOptions.length) return;
+
     const standardsVal =
       standardsAcph !== "" && standardsAcph != null
         ? Number(standardsAcph)
         : null;
+
     const current =
       selectedAcph === "" || selectedAcph == null ? null : Number(selectedAcph);
+
     const isCurrentValid = current != null && acphOptions.includes(current);
+
     if (!isCurrentValid) {
-      if (standardsVal != null && acphOptions.includes(standardsVal))
+      if (standardsVal != null && acphOptions.includes(standardsVal)) {
         setSelectedAcph(standardsVal);
-      else setSelectedAcph(acphOptions[acphOptions.length - 1]);
+      } else {
+        setSelectedAcph(acphOptions[acphOptions.length - 1]);
+      }
     }
-  }, [acphOptions, standardsAcph]);
+  }, [acphOptions, standardsAcph, selectedAcph]);
 
   const isRoomReadyToSave = useMemo(() => {
     const fieldsToCheck = isVentilationOnly
       ? ventilationAllowedFields
       : (Object.keys(form) as (keyof RoomForm)[]);
+
     return fieldsToCheck.every((key) =>
       key === "roomName" ? form[key].trim() !== "" : form[key] !== "",
     );
   }, [form, isVentilationOnly]);
 
   const handleSaveRoom = async () => {
-    console.log("🟢 SAVE TRIGGERED");
-    console.log("Form:", form);
-    console.log("Selected ACPH:", selectedAcph);
-    console.log("Editing Room:", editingRoom);
     if (!isRoomReadyToSave) {
       alert("Please fill all fields.");
       return;
@@ -267,19 +350,10 @@ export default function Room() {
       return;
     }
 
-    console.log("zoneid", currentZoneIdRef.current);
     const zoneId = editingRoom ? editingRoom.zoneId : currentZoneIdRef.current;
-
     const projectStandardId = editingRoom
       ? editingRoom.projectStandardId
       : currentProjectStandardIdRef.current;
-
-    console.log(
-      "📌 Zone ID Source:",
-      editingRoom ? "FROM EDIT ROOM" : "FROM NAV",
-    );
-    console.log("Zone ID:", zoneId);
-    console.log("Project Standard ID:", projectStandardId);
 
     if (!zoneId) {
       alert("Zone ID is missing.");
@@ -294,6 +368,7 @@ export default function Room() {
           toast.error("Invalid room ID for update");
           return;
         }
+
         const payload = {
           zone_id: Number(zoneId),
           projectStandardId:
@@ -312,7 +387,9 @@ export default function Room() {
           selectedAcph: Number(selectedAcph),
           user_id,
         };
+
         await updateZoneRoom(editingRoom.backendRoomId, payload);
+
         dispatch(
           updateRoom({
             ...editingRoom,
@@ -320,6 +397,7 @@ export default function Room() {
             acph: Number(selectedAcph),
           }),
         );
+
         setEditingRoom(null);
         toast.success("Room updated successfully!");
       } else {
@@ -340,7 +418,9 @@ export default function Room() {
           selectedAcph: Number(selectedAcph),
           user_id,
         });
+
         const backendRoomId = data?.zoneRoomsId ?? null;
+
         dispatch(
           saveRoom({
             ...form,
@@ -359,19 +439,27 @@ export default function Room() {
             zoneReqInsideHum: reqInsideHum,
           }),
         );
+
         toast.success("Room saved successfully!");
       }
+
       dispatch(resetRoomForm());
+      resetExhaustPrefillState();
+      setRoomFormSessionKey((prev) => prev + 1);
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Operation failed.");
     } finally {
       setIsSaving(false);
     }
   };
-  //edit functionality
-  const [editingRoom, setEditingRoom] = useState<SavedRoom | null>(null);
+
   const handleEditRoom = (room: SavedRoom) => {
     setEditingRoom(room);
+    exhaustEditedRef.current = true;
+    exhaustPrefilledRef.current = true;
+    alertShownRef.current = false;
+    setExhaustImpactMessage("");
+
     dispatch(updateRoomFormField({ field: "roomName", value: room.roomName }));
     dispatch(updateRoomFormField({ field: "length", value: room.length }));
     dispatch(updateRoomFormField({ field: "width", value: room.width }));
@@ -409,16 +497,21 @@ export default function Room() {
         value: room.exhaustAirCfm,
       }),
     );
+
     setSelectedAcph(room.acph);
     dispatch(openNewRoomForm());
   };
+
   const confirmDeleteRoom = (room: SavedRoom) => setDeleteTarget(room);
+
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
+
     try {
-      if (deleteTarget.backendRoomId)
+      if (deleteTarget.backendRoomId) {
         await deleteZoneRoom(deleteTarget.backendRoomId, deleteTarget.zoneId);
+      }
       dispatch(removeRoom(deleteTarget.id));
       toast.success("Room deleted successfully!");
     } catch (error) {
@@ -430,15 +523,19 @@ export default function Room() {
     }
   };
 
-  // ── Generate results ──────────────────────────────────────────────────────
   const goToResultsPage = async () => {
     const missing: string[] = [];
-    if (!projectId)
+
+    if (!projectId) {
       missing.push("Project Information (Project details not saved)");
-    if (!currentZoneIdRef.current)
+    }
+    if (!currentZoneIdRef.current) {
       missing.push("Classification & Standards (Zone not configured)");
-    if (!savedRooms.length)
+    }
+    if (!savedRooms.length) {
       missing.push("Room Details (At least one room must be added)");
+    }
+
     if (missing.length > 0) {
       setMissingItems(missing);
       setShowMissingPopup(true);
@@ -446,6 +543,7 @@ export default function Room() {
     }
 
     setIsGenerating(true);
+
     try {
       const roomsSnapshot = [...savedRooms];
 
@@ -478,11 +576,10 @@ export default function Room() {
         }),
       );
 
-      console.log("Airflow results for all rooms:", allAirflowResults);
-
       for (let idx = 0; idx < roomsSnapshot.length; idx++) {
         const room = roomsSnapshot[idx];
         const result = allAirflowResults[idx];
+
         await storeresults({
           project_RoomId: toNullableNumber(room.backendRoomId),
           project_id: projectId,
@@ -520,8 +617,6 @@ export default function Room() {
         });
       }
 
-      // ── Group rooms by Zone AND Exhaust Status ──
-      // We use a string key like "101-S" or "101-E" to separate them
       const zoneGroups = new Map<
         string,
         { rooms: any[]; flag: "S" | "E"; zoneId: number | string }
@@ -530,31 +625,31 @@ export default function Room() {
       roomsSnapshot.forEach((room, idx) => {
         const result = allAirflowResults[idx];
         const zid = room.zoneId;
-        // If exhaust is 0, it's Supply (S), otherwise Exhaust (E)
         const flag = Number(result.exhaustAir) === 0 ? "S" : "E";
         const groupKey = `${zid}-${flag}`;
 
         if (!zoneGroups.has(groupKey)) {
-          zoneGroups.set(groupKey, { rooms: [], flag: flag, zoneId: zid });
+          zoneGroups.set(groupKey, { rooms: [], flag, zoneId: zid });
         }
         zoneGroups.get(groupKey)!.rooms.push(room);
       });
 
-      // ── Save each group to tZoneTotal ──
-      for (const [groupKey, data] of zoneGroups.entries()) {
+      for (const [, data] of zoneGroups.entries()) {
         const { rooms: zoneRooms, flag, zoneId } = data;
 
-        // Get results only for the rooms in this specific S or E group
         const groupResults = zoneRooms.map(
           (room) => allAirflowResults[roomsSnapshot.indexOf(room)],
         );
 
         const sum = (key: string): number =>
-          groupResults.reduce((acc, r) => acc + (Number(r[key]) || 0), 0);
+          groupResults.reduce(
+            (acc, r) => acc + (Number((r as any)[key]) || 0),
+            0,
+          );
 
         await createZoneTotals(zoneId, {
-          ExhaustFlag: flag, // Sending 'S' or 'E'
-          user_id: user_id,
+          ExhaustFlag: flag,
+          user_id,
           zone_Area: r2(sum("areaFt2")),
           zone_Volume: r2(sum("volumeFt3")),
           zone_RoomCfm: r2(sum("roomCfm")),
@@ -576,6 +671,7 @@ export default function Room() {
           zone_Result_Heating_Load_TR: r2(sum("resultHeatLoadTR")),
         });
       }
+
       navigate(`/results/${projectId}`);
       dispatch(resetRoom());
       dispatch(resetStandards());
@@ -594,10 +690,12 @@ export default function Room() {
       alert("Please add at least one room before adding another zone.");
       return;
     }
+
     currentZoneIdRef.current = null;
     currentProjectStandardIdRef.current = null;
     dispatch(resetStandards());
     dispatch(resetRoomForm());
+
     navigate("/standards", {
       replace: true,
       state: { resetKey: Date.now() },
@@ -607,6 +705,7 @@ export default function Room() {
   const renderInput = (key: keyof RoomForm) => {
     const disabled =
       isVentilationOnly && !ventilationAllowedFields.includes(key);
+
     return (
       <div className={s.field} key={key}>
         <label className={s.label}>
@@ -640,6 +739,7 @@ export default function Room() {
             }
           />
         </label>
+
         <input
           className={disabled ? s.inputDisabled : s.input}
           inputMode={key === "roomName" ? "text" : "decimal"}
@@ -653,9 +753,16 @@ export default function Room() {
           onChange={(e) => updateFieldValue(key, e.target.value)}
           onBlur={key === "freshAirPercent" ? handleFreshAirBlur : undefined}
         />
+
         {key === "freshAirPercent" && (
           <div className={s.rangeText}>
             Please enter a value of 10 or higher.
+          </div>
+        )}
+
+        {key === "exhaustAir" && exhaustImpactMessage && (
+          <div className="text-red-500 text-xs mt-1">
+            {exhaustImpactMessage}
           </div>
         )}
       </div>
@@ -665,6 +772,7 @@ export default function Room() {
   const renderTableInput = (key: keyof RoomForm) => {
     const disabled =
       isVentilationOnly && !ventilationAllowedFields.includes(key);
+
     return (
       <input
         className={disabled ? s.inputDisabled : s.tableInput}
@@ -688,6 +796,7 @@ export default function Room() {
           </div>
           <h1 className={s.headerTitle}>{T.header.title}</h1>
           <p className={s.headerSubtitle}>{T.header.subtitle}</p>
+
           <div className={s.toggleContainer}>
             <button
               type="button"
@@ -729,7 +838,11 @@ export default function Room() {
                   <div className="mt-8">
                     <button
                       type="button"
-                      onClick={() => dispatch(openNewRoomForm())}
+                      onClick={() => {
+                        resetExhaustPrefillState();
+                        setRoomFormSessionKey((prev) => prev + 1);
+                        dispatch(openNewRoomForm());
+                      }}
                       className={s.saveBtn}
                     >
                       <FaPlus /> {T.buttons.addRoom}
@@ -749,7 +862,9 @@ export default function Room() {
                       {T.sections.roomDetails}
                     </div>
                     <div className={s.grid2}>{renderInput("roomName")}</div>
+
                     <div className={s.sectionDivider} />
+
                     <div className={s.sectionTitle}>
                       {T.sections.roomDimensions}
                       <Tooltip
@@ -757,19 +872,23 @@ export default function Room() {
                         content={constants.Tooltip.roomDimensionsTooltip}
                       />
                     </div>
+
                     <div className={s.grid3}>
                       {renderInput("length")}
                       {renderInput("width")}
                       {renderInput("height")}
                     </div>
+
                     <div className={s.sectionTitle}>
                       {T.sections.occupancyLoad}
                     </div>
+
                     <div className={s.grid3}>
                       {renderInput("occupancy")}
                       {renderInput("equipmentLoad")}
                       {renderInput("lightingLoad")}
                     </div>
+
                     <div className={s.sectionTitle}>
                       {T.sections.airflowParameters}
                     </div>
@@ -858,11 +977,14 @@ export default function Room() {
                       </div>
                     </div>
 
-                    {/* BOTTOM ACTIONS: Clear , Save Room */}
                     <div className={s.bottomActionsRow}>
                       <button
                         type="button"
-                        onClick={() => dispatch(resetRoomForm())}
+                        onClick={() => {
+                          dispatch(resetRoomForm());
+                          resetExhaustPrefillState();
+                          setRoomFormSessionKey((prev) => prev + 1);
+                        }}
                         className={s.clearBtn}
                       >
                         <FaBrush className={s.clearBtnIcon} />
@@ -875,6 +997,8 @@ export default function Room() {
                           onClick={() => {
                             setEditingRoom(null);
                             dispatch(resetRoomForm());
+                            resetExhaustPrefillState();
+                            setRoomFormSessionKey((prev) => prev + 1);
                           }}
                           className={s.clearBtn}
                         >
@@ -909,6 +1033,7 @@ export default function Room() {
                         </div>
                       </div>
                     </div>
+
                     <table className={s.entryTable}>
                       <thead className={s.tableHead}>
                         <tr>
@@ -997,7 +1122,11 @@ export default function Room() {
                               </button>
                               <button
                                 type="button"
-                                onClick={() => dispatch(resetRoomForm())}
+                                onClick={() => {
+                                  dispatch(resetRoomForm());
+                                  resetExhaustPrefillState();
+                                  setRoomFormSessionKey((prev) => prev + 1);
+                                }}
                                 className={s.deleteBtn}
                               >
                                 Clear
@@ -1007,15 +1136,23 @@ export default function Room() {
                         </tr>
                       </tbody>
                     </table>
+
                     <div className={s.tableFooterNoteRow}>
                       <div className={s.tableFooterNoteText}>
                         * All fields required for save. Volume is calculated
                         automatically.
                       </div>
                     </div>
+
+                    {exhaustImpactMessage && (
+                      <div className="text-red-500 text-xs mt-2">
+                        {exhaustImpactMessage}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
+
               {viewMode === "form" && (
                 <div className={s.acphBanner}>
                   <div className={s.acphBannerStyle}>
@@ -1103,6 +1240,7 @@ export default function Room() {
             <Link to="/standards" className={s.backBtn}>
               <FaArrowLeft /> {T.buttons.back}
             </Link>
+
             <button
               type="button"
               onClick={addAnotherZone}
@@ -1110,6 +1248,7 @@ export default function Room() {
             >
               <FaPlus /> Add Another Zone
             </button>
+
             <div className={s.footerActions}>
               <button
                 type="button"
@@ -1174,7 +1313,6 @@ export default function Room() {
         </div>
       )}
 
-      {/* ── Delete Confirmation Modal ── */}
       {deleteTarget && (
         <div className={s.popupOverlay}>
           <div className={s.popupCard}>

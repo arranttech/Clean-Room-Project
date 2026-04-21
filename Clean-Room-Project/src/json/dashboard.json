@@ -1,6 +1,6 @@
 {
   "dashboard": {
-    "welcomeTitle": "Welcome back, {{name}}!",
+    "welcomeTitle": "Welcome, {{name}}!",
     "welcomeSubtitle": "Manage your HVAC projects efficiently.",
     "metric": {
       "totalProjects": "Total Projects"

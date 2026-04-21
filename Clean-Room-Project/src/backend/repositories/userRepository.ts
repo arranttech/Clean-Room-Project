@@ -308,6 +308,22 @@ export const userRepository = {
 
     const { user_login_id } = rows[0];
 
+    // Fetch current password to check if new password is the same
+    const [pwdRows]: any = await database.execute(
+      `SELECT user_password
+       FROM tUserPassword
+       WHERE user_login_id = ?
+       ORDER BY created_date DESC LIMIT 1`,
+      [user_login_id]
+    );
+
+    if (pwdRows && pwdRows.length > 0) {
+      const isSamePassword = await bcrypt.compare(new_password, pwdRows[0].user_password);
+      if (isSamePassword) {
+        return { success: false, message: "New password cannot be the same as your current password." };
+      }
+    }
+
     // Hash new password with bcrypt before storing in tUserPassword
     const hashedPassword = await bcrypt.hash(new_password, 10);
 

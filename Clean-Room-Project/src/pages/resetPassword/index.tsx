@@ -100,10 +100,13 @@ export default function ResetPassword() {
       // Redirect to login after 3 seconds
       setTimeout(() => navigate("/login"), 3000);
     } catch (e: any) {
-      setTokenValid(false);
-      setTokenError(
-        e?.message || "Failed to reset password. Please request a new link."
-      );
+      const errMsg = e?.message || "Failed to reset password. Please request a new link.";
+      if (errMsg === "New password cannot be the same as your current password.") {
+        setConfirmError(errMsg);
+      } else {
+        setTokenValid(false);
+        setTokenError(errMsg);
+      }
     } finally {
       setLoading(false);
     }

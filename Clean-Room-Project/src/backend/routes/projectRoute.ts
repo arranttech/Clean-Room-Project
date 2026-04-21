@@ -128,6 +128,33 @@ export const projectRoute: ServerRoute[] = [
   },
 
   {
+    method: "DELETE",
+    path: "/v1/projectinfo/{projectId}",
+    options: {
+      description: "Delete existing project",
+      tags: ["api", "project"],
+      validate: {
+        params: Joi.object({ projectId: Joi.number().integer().required() }),
+      },
+      response: {
+        status: {
+          200: Joi.object({ success: Joi.boolean().required() }),
+          500: errorSchema,
+        },
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const { projectId } = request.params as any;
+        await projectRepository.deleteProject(parseInt(projectId));
+        return h.response({ success: true }).code(200);
+      } catch (err) {
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
+  {
     method: "GET",
     path: "/v1/projects/inprogress",
     options: {

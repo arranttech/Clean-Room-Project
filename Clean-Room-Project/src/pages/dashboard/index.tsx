@@ -13,6 +13,7 @@ import {
   getProjectCounts,
   getInProgressProjects,
   getProjectDetails,
+  deleteProject,
 } from "../../backend/controller/projectController";
 import {
   FaFolderOpen,
@@ -24,6 +25,7 @@ import {
   FaArrowRight,
   FaExclamationCircle,
   FaChevronDown,
+  FaTrash,
 } from "react-icons/fa";
 import { MdApartment } from "react-icons/md";
 import { FaTimes } from "react-icons/fa";
@@ -334,6 +336,29 @@ export default function Dashboard() {
     }
   };
 
+  const handleDeleteProject = async (projectId: number) => {
+    if (!window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) return;
+    try {
+      await deleteProject(projectId);
+      if (loggedInUser?.user_login_id) {
+        // Refresh counts and lists
+        const data = await getProjectCounts(loggedInUser.user_login_id, loggedInUser.customer_id);
+        dispatch(
+          setProjectCounts({
+            total: data.total ?? 0,
+            inProgress: data.inProgress ?? 0,
+            completed: data.completed ?? 0,
+          })
+        );
+        const res = await getInProgressProjects(loggedInUser.user_login_id, loggedInUser.customer_id);
+        dispatch(setInProgressProjects(res.projects ?? []));
+      }
+    } catch (e) {
+      console.error("Failed to delete project:", e);
+      alert("Failed to delete project. Please try again.");
+    }
+  };
+
   const features = text.dashboard.features;
 
   return (
@@ -550,7 +575,15 @@ export default function Dashboard() {
                         </div>
                       </div>
                     </div>
-                    <div className={s.buttonStyle}>
+                    <div className={`${s.buttonStyle} flex gap-2 items-center`}>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteProject(proj.project_id)}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-md transition-colors"
+                        title="Delete Project"
+                      >
+                        <FaTrash />
+                      </button>
                       <button
                         type="button"
                         disabled={continuingId === proj.project_id}

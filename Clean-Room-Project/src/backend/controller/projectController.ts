@@ -11,6 +11,9 @@ export const updateProjectInfo = (projectId: number, payload: object) =>
 export const updateProjectStatus = (projectId: number, status: string) =>
   request(`/v1/projectinfo/${projectId}/status`, "PATCH", { status });
 
+export const deleteProject = (projectId: number) =>
+  request(`/v1/projectinfo/${projectId}`, "DELETE");
+
 export const getProjectDetails = (projectId: number) =>
   request(`/v1/projects/${projectId}/details`, "GET");
 

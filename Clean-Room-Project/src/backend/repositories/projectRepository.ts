@@ -40,8 +40,8 @@ export const projectRepository = {
         JSON.stringify(payload.handling || []),
         payload.subIndustry || null,
         payload.selectedLocation?.display_name ||
-          payload.selectedLocation ||
-          "",
+        payload.selectedLocation ||
+        "",
         toFloat(payload.maxTemp),
         toFloat(payload.minTemp),
         toFloat(payload.relativeHumidityMin),
@@ -68,8 +68,8 @@ export const projectRepository = {
         JSON.stringify(payload.handling || []),
         payload.subIndustry || null,
         payload.selectedLocation?.display_name ||
-          payload.selectedLocation ||
-          "",
+        payload.selectedLocation ||
+        "",
         toFloat(payload.maxTemp),
         toFloat(payload.minTemp),
         toFloat(payload.relativeHumidityMin),
@@ -85,6 +85,17 @@ export const projectRepository = {
       `UPDATE tProjects SET project_status = ? WHERE project_id = ?`,
       [status, projectId]
     );
+  },
+
+  deleteProject: async (projectId: number) => {
+    // Manually delete from related tables first to avoid FK constraint errors
+
+    await database.execute(`DELETE FROM tProjectResults WHERE project_id = ?`, [projectId]);
+    await database.execute(`DELETE FROM tZoneRooms WHERE zone_id IN (SELECT zone_id FROM tProjectZones WHERE project_id = ?)`, [projectId]);
+    await database.execute(`DELETE FROM tZonesTotal WHERE zone_id IN (SELECT zone_id FROM tProjectZones WHERE project_id = ?)`, [projectId]);
+    await database.execute(`DELETE FROM tProjectZones WHERE project_id = ?`, [projectId]);
+    await database.execute(`DELETE FROM tRoomStandards WHERE project_id = ?`, [projectId]);
+    await database.execute(`DELETE FROM tProjects WHERE project_id = ?`, [projectId]);
   },
 
   getProjectCountsByUserId: async (user_id: string, customer_id: number) => {
@@ -134,7 +145,7 @@ export const projectRepository = {
       );
       return rows;
     } catch (err) {
-     
+
       throw err;
     }
   },

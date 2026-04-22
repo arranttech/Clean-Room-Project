@@ -140,6 +140,10 @@ export default function Room() {
   const exhaustImpactFromRedux = useAppSelector(
     (state: any) => state.standards.exhaustImpactPercentage,
   );
+  const zoneIdFromRedux = useAppSelector((state: any) => state.standards.zoneId);
+  const projectStandardIdFromRedux = useAppSelector(
+    (state: any) => state.standards.projectStandardId,
+  );
 
   const zoneIdFromNav = location.state?.zoneId ?? null;
   const projectStandardIdFromNav = location.state?.projectStandardId ?? null;
@@ -152,10 +156,21 @@ export default function Room() {
 
   const showAlertFromNav = location.state?.showExhaustImpactAlert ?? false;
 
-  const currentZoneIdRef = useRef<number | string | null>(zoneIdFromNav);
-  const currentProjectStandardIdRef = useRef<number | string | null>(
-    projectStandardIdFromNav,
+  const currentZoneIdRef = useRef<number | string | null>(
+    zoneIdFromNav ?? zoneIdFromRedux ?? null,
   );
+  const currentProjectStandardIdRef = useRef<number | string | null>(
+    projectStandardIdFromNav ?? projectStandardIdFromRedux ?? null,
+  );
+
+  useEffect(() => {
+    if (!currentZoneIdRef.current && zoneIdFromRedux) {
+      currentZoneIdRef.current = zoneIdFromRedux;
+    }
+    if (!currentProjectStandardIdRef.current && projectStandardIdFromRedux) {
+      currentProjectStandardIdRef.current = projectStandardIdFromRedux;
+    }
+  }, [zoneIdFromRedux, projectStandardIdFromRedux]);
 
   const alertShownRef = useRef(false);
   const exhaustPrefilledRef = useRef(false);

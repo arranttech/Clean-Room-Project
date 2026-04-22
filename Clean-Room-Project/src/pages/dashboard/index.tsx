@@ -340,6 +340,11 @@ export default function Dashboard() {
     if (!window.confirm("Are you sure you want to delete this project? This action cannot be undone.")) return;
     try {
       await deleteProject(projectId);
+      if (currentProjectId === projectId) {
+        dispatch(resetProjectInfo());
+        dispatch(resetStandards());
+        dispatch(resetRoom());
+      }
       if (loggedInUser?.user_login_id) {
         // Refresh counts and lists
         const data = await getProjectCounts(loggedInUser.user_login_id, loggedInUser.customer_id);
@@ -618,6 +623,8 @@ export default function Dashboard() {
                   if (!customerId) setShowProfileAlert(true);
                   else {
                     dispatch(resetProjectInfo());
+                    dispatch(resetStandards());
+                    dispatch(resetRoom());
                     navigate("/project-info");
                   }
                 }}

@@ -683,6 +683,9 @@ const AHUFiltration = () => {
     ? filterTypeSelection
     : [filterTypeSelection].filter(Boolean);
 
+  const showSupplyFields = filterTypes.includes("Supply");
+  const showExhaustFields = filterTypes.includes("Exhaust");
+
   const handling = useAppSelector(
     (state: any) => state.projectInfo?.handling || [],
   );
@@ -2347,119 +2350,140 @@ const AHUFiltration = () => {
 
               <div className={s.finalSection}>
                 <div className={s.finalGrid}>
-                  <div className={s.field}>
-                    <label className={s.label}>
-                      Number of filtration stages in Supply{" "}
-                      <span className={s.autoCalcNote}>(Auto-calculated)</span>
-                    </label>
-                    <input
-                      type="text"
-                      className={s.inputDisabled}
-                      value={numSupplyStages}
-                      readOnly
-                    />
-                  </div>
+                  {showSupplyFields && (
+                    <div className={s.field}>
+                      <label className={s.label}>
+                        Number of filtration stages in Supply{" "}
+                        <span className={s.autoCalcNote}>
+                          (Auto-calculated)
+                        </span>
+                      </label>
+                      <input
+                        type="text"
+                        className={s.inputDisabled}
+                        value={numSupplyStages}
+                        readOnly
+                      />
+                    </div>
+                  )}
 
-                  <div className={s.field}>
-                    <label className={s.label}>
-                      Number of filtration stages in Exhaust{" "}
-                      <span className={s.autoCalcNote}>(Auto-calculated)</span>
-                    </label>
-                    <input
-                      type="text"
-                      className={s.inputDisabled}
-                      value={numExhaustStages}
-                      readOnly
-                    />
-                  </div>
+                  {showExhaustFields && (
+                    <div className={s.field}>
+                      <label className={s.label}>
+                        Number of filtration stages in Exhaust{" "}
+                        <span className={s.autoCalcNote}>
+                          (Auto-calculated)
+                        </span>
+                      </label>
+                      <input
+                        type="text"
+                        className={s.inputDisabled}
+                        value={numExhaustStages}
+                        readOnly
+                      />
+                    </div>
+                  )}
 
-                  <div className={s.field}>
-                    <label className={s.label}>
-                      Include any additional pressure drop allowance for supply
-                      filters <span className={s.required}>*</span>
-                    </label>
-                    <select
-                      className={s.select + " py-4"}
-                      value={additionalDpValue}
-                      onChange={(e) =>
-                        handleChange(
-                          "additionalDpValue",
-                          e.target.value === "" ? "" : Number(e.target.value),
-                        )
-                      }
-                      required={true}
-                    >
-                      <option value="" disabled>
-                        Select Option
-                      </option>
-                      <option value={0}>None</option>
-                      {additionalDpOptions.map((mmwg: number) => {
-                        const pa = Math.round(mmwg * MM_WG_TO_PA);
-                        return (
-                          <option key={mmwg} value={mmwg}>
-                            {mmwg} mmWG / {pa} Pa
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </div>
+                  {showSupplyFields && (
+                    <div className={s.field}>
+                      <label className={s.label}>
+                        Include any additional pressure drop allowance for
+                        supply filters <span className={s.required}>*</span>
+                      </label>
+                      <select
+                        className={s.select + " py-4"}
+                        value={additionalDpValue}
+                        onChange={(e) =>
+                          handleChange(
+                            "additionalDpValue",
+                            e.target.value === "" ? "" : Number(e.target.value),
+                          )
+                        }
+                        required={showSupplyFields}
+                      >
+                        <option value="" disabled>
+                          Select Option
+                        </option>
+                        <option value={0}>None</option>
+                        {additionalDpOptions.map((mmwg: number) => {
+                          const pa = Math.round(mmwg * MM_WG_TO_PA);
+                          return (
+                            <option key={mmwg} value={mmwg}>
+                              {mmwg} mmWG / {pa} Pa
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+                  )}
 
-                  <div className={s.field}>
-                    <label className={s.label}>
-                      Include any additional pressure drop allowance for exhaust
-                      filters <span className={s.required}>*</span>
-                    </label>
-                    <select
-                      className={s.select + " py-4"}
-                      value={additionalDpValueExhaust}
-                      onChange={(e) =>
-                        handleChange(
-                          "additionalDpValueExhaust",
-                          e.target.value === "" ? "" : Number(e.target.value),
-                        )
-                      }
-                      required={true}
-                    >
-                      <option value="" disabled>
-                        Select Option
-                      </option>
-                      <option value={0}>None</option>
-                      {additionalDpOptions.map((mmwg: number) => {
-                        const pa = Math.round(mmwg * MM_WG_TO_PA);
-                        return (
-                          <option key={mmwg} value={mmwg}>
-                            {mmwg} mmWG / {pa} Pa
-                          </option>
-                        );
-                      })}
-                    </select>
-                  </div>
+                  {showExhaustFields && (
+                    <div className={s.field}>
+                      <label className={s.label}>
+                        Include any additional pressure drop allowance for
+                        exhaust filters <span className={s.required}>*</span>
+                      </label>
+                      <select
+                        className={s.select + " py-4"}
+                        value={additionalDpValueExhaust}
+                        onChange={(e) =>
+                          handleChange(
+                            "additionalDpValueExhaust",
+                            e.target.value === "" ? "" : Number(e.target.value),
+                          )
+                        }
+                        required={showExhaustFields}
+                      >
+                        <option value="" disabled>
+                          Select Option
+                        </option>
+                        <option value={0}>None</option>
+                        {additionalDpOptions.map((mmwg: number) => {
+                          const pa = Math.round(mmwg * MM_WG_TO_PA);
+                          return (
+                            <option key={mmwg} value={mmwg}>
+                              {mmwg} mmWG / {pa} Pa
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+                  )}
 
-                  <div className={s.field}>
-                    <label className={s.label}>
-                      Static pressure requirement for blower in Supply filters{" "}
-                      <span className={s.autoCalcNote}>(Auto-calculated)</span>
-                    </label>
-                    <input
-                      type="text"
-                      className={s.inputDisabled}
-                      value={supplyFinalPressureDisplay}
-                      readOnly
-                    />
-                  </div>
+                  {showSupplyFields && (
+                    <div className={s.field}>
+                      <label className={s.label}>
+                        Static pressure requirement for blower in Supply filters{" "}
+                        <span className={s.autoCalcNote}>
+                          (Auto-calculated)
+                        </span>
+                      </label>
+                      <input
+                        type="text"
+                        className={s.inputDisabled}
+                        value={supplyFinalPressureDisplay}
+                        readOnly
+                      />
+                    </div>
+                  )}
 
-                  <div className={s.field}>
-                    <label className={s.label}>
-                      Static pressure requirement for blower in Exhaust filters{" "}
-                      <span className={s.autoCalcNote}>(Auto-calculated)</span>
-                    </label>
-                    <input
-                      type="text"
-                      className={s.inputDisabled}
-                      value={exhaustFinalPressureDisplay}
-                      readOnly
-                    />
-                  </div>
+                  {showExhaustFields && (
+                    <div className={s.field}>
+                      <label className={s.label}>
+                        Static pressure requirement for blower in Exhaust
+                        filters{" "}
+                        <span className={s.autoCalcNote}>
+                          (Auto-calculated)
+                        </span>
+                      </label>
+                      <input
+                        type="text"
+                        className={s.inputDisabled}
+                        value={exhaustFinalPressureDisplay}
+                        readOnly
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

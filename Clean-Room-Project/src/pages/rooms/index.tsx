@@ -39,6 +39,7 @@ import { createZoneTotals } from "../../backend/controller/zoneController";
 import { airflowService } from "../../backend/services/service";
 import Header from "../../components/header";
 import { FaPencil } from "react-icons/fa6";
+import st from "../../json/standardData.json";
 
 type StandardItem = {
   id: number;
@@ -576,14 +577,43 @@ export default function Room() {
         }),
       );
 
+      const flatResults: Array<{
+        room: SavedRoom;
+        result: any;
+        resultLabel: "PRIMARY" | "VENTILATION";
+      }> = [];
+
       for (let idx = 0; idx < roomsSnapshot.length; idx++) {
         const room = roomsSnapshot[idx];
         const result = allAirflowResults[idx];
 
+        if (Array.isArray(result)) {
+          result.forEach((item, index) => {
+            flatResults.push({
+              room,
+              result: item,
+              resultLabel: index === 0 ? "PRIMARY" : "VENTILATION",
+            });
+          });
+        } else {
+          flatResults.push({
+            room,
+            result,
+            resultLabel: "PRIMARY",
+          });
+        }
+      }
+
+      for (const entry of flatResults) {
+        const { room, result, resultLabel } = entry;
+
         await storeresults({
           project_RoomId: toNullableNumber(room.backendRoomId),
           project_id: projectId,
-          roomName: room.roomName,
+          roomName:
+            resultLabel === "VENTILATION"
+              ? `${room.roomName} - Ventilation`
+              : room.roomName,
           project_Area: toNullableNumber(result.areaFt2),
           project_Volume: toNullableNumber(result.volumeFt3),
           project_RoomCfm: toNullableNumber(result.roomCfm),
@@ -617,35 +647,94 @@ export default function Room() {
         });
       }
 
+      type ZoneFlag = "S" | "E" | "VS" | "VE";
+
+      const normalizeSystemName = (value: any) =>
+        String(value || "")
+          .trim()
+          .replace(/\s+/g, " ")
+          .toUpperCase();
+
+      const systemCond = st.text.options.systems;
+
+      const isSystemMatch = (
+        zoneSystem: string,
+        values: string | string[] = [],
+      ) => {
+        const valueArray = typeof values === "string" ? [values] : values;
+        return valueArray.some(
+          (item) =>
+            normalizeSystemName(item) === normalizeSystemName(zoneSystem),
+        );
+      };
+
+      const isVentilationSupplyByRoomInputs = (room: SavedRoom) =>
+        Number(room.exhaustAir || 0) === 0 &&
+        Number(room.exhaustAirCfm || 0) === 0;
+
+      const getZoneFlag = (
+        room: SavedRoom,
+        result: any,
+        resultLabel: "PRIMARY" | "VENTILATION",
+      ): ZoneFlag => {
+        const zoneSystem = String(room.zoneSystem || "").trim();
+        const isExhaustByResult = Number(result.exhaustAir || 0) !== 0;
+
+        // Ventilation only
+        if (isSystemMatch(zoneSystem, systemCond.ventilation)) {
+          return isVentilationSupplyByRoomInputs(room) ? "VS" : "VE";
+        }
+
+        // Cooling + Ventilation
+        if (isSystemMatch(zoneSystem, systemCond.coolingVentilation)) {
+          if (resultLabel === "VENTILATION") {
+            return isVentilationSupplyByRoomInputs(room) ? "VS" : "VE";
+          }
+          return isExhaustByResult ? "E" : "S";
+        }
+
+        // Heating + Ventilation
+        if (isSystemMatch(zoneSystem, systemCond.heatingVentilation)) {
+          if (resultLabel === "VENTILATION") {
+            return isVentilationSupplyByRoomInputs(room) ? "VS" : "VE";
+          }
+          return isExhaustByResult ? "E" : "S";
+        }
+
+        // Cooling / Heating / Cooling+Heating
+        return isExhaustByResult ? "E" : "S";
+      };
+
       const zoneGroups = new Map<
         string,
-        { rooms: any[]; flag: "S" | "E"; zoneId: number | string }
+        { results: any[]; flag: ZoneFlag; zoneId: number | string }
       >();
 
-      roomsSnapshot.forEach((room, idx) => {
-        const result = allAirflowResults[idx];
-        const zid = room.zoneId;
-        const flag = Number(result.exhaustAir) === 0 ? "S" : "E";
-        const groupKey = `${zid}-${flag}`;
+      const addToZoneGroup = (
+        zoneId: number | string,
+        flag: ZoneFlag,
+        result: any,
+      ) => {
+        const groupKey = `${zoneId}-${flag}`;
 
         if (!zoneGroups.has(groupKey)) {
-          zoneGroups.set(groupKey, { rooms: [], flag, zoneId: zid });
+          zoneGroups.set(groupKey, { results: [], flag, zoneId });
         }
-        zoneGroups.get(groupKey)!.rooms.push(room);
+
+        zoneGroups.get(groupKey)!.results.push(result);
+      };
+
+      flatResults.forEach(({ room, result, resultLabel }) => {
+        const zid = room.zoneId;
+        const flag = getZoneFlag(room, result, resultLabel);
+        addToZoneGroup(zid, flag, result);
       });
 
       for (const [, data] of zoneGroups.entries()) {
-        const { rooms: zoneRooms, flag, zoneId } = data;
-
-        const groupResults = zoneRooms.map(
-          (room) => allAirflowResults[roomsSnapshot.indexOf(room)],
-        );
+        const { results, flag, zoneId } = data;
 
         const sum = (key: string): number =>
-          groupResults.reduce(
-            (acc, r) => acc + (Number((r as any)[key]) || 0),
-            0,
-          );
+          results.reduce((acc, r) => acc + (Number((r as any)[key]) || 0), 0);
 
         await createZoneTotals(zoneId, {
           ExhaustFlag: flag,

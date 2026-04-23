@@ -12,7 +12,7 @@ export const boqRoute: ServerRoute[] = [
 		path: "/v1/cummulativecalculation",
 		options: {
 			description: "Calculate cumulative values for a zone containing multiple rooms",
-			tags: ["api", "calculations", "cumulative"],
+			tags: ["api", "calculations"],
 			validate: {
 				payload: Joi.object({
 					zoneName: Joi.string().required(),

@@ -187,11 +187,15 @@
     },
     "SystemCond":{
       "cooling":[
-        "AIR-COOLING SYSTEM",
+        "AIR-COOLING SYSTEM"
+      ],
+      "coolandvent":[
         "AIR COOLING AND VENTILATION SYSTEM"
       ],
       "heating":[
-        "AIR-HEATING SYSTEM",
+        "AIR-HEATING SYSTEM"
+      ],
+      "heatandvent":[
         "AIR HEATING AND VENTILATION SYSTEM"
       ],
       "heatandcold":[

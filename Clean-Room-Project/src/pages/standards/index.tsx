@@ -153,6 +153,8 @@ export default function Standard() {
   const rhMax = useAppSelector(
     (state: any) => state.projectInfo.relativeHumidityMax
   );
+  const industry = useAppSelector((state: any) => state.projectInfo.industry);
+  const subIndustry = useAppSelector((state: any) => state.projectInfo.subIndustry);
 
   const [errors, setErrors] = useState({
     standard: "",
@@ -264,7 +266,8 @@ export default function Standard() {
 
   const isNonClassifiedSystem = useMemo(() => {
     if (!systemType) return false;
-    return systemType.toLowerCase().includes("non-classified");
+    const lower = systemType.toLowerCase();
+    return lower.includes("non-classified") || lower.includes("comfort") || lower.includes("ventilation");
   }, [systemType]);
 
   const filteredStandardsData = useMemo(() => {
@@ -277,17 +280,49 @@ export default function Standard() {
 
   const classList = useMemo(() => {
     if (!selectedStandard) return [];
-    if (SPECIAL_STANDARDS.includes(selectedStandard.title)) {
-      return selectedStandard.classifications || [];
+
+    let classifications = selectedStandard.classifications || [];
+
+    const industryFilters = (data as any).industryFilters || [];
+    const activeFilter = industryFilters.find(
+      (f: any) => f.industry === industry && f.subIndustry === subIndustry
+    );
+
+    if (activeFilter && activeFilter.allowedClassifications) {
+      const allowedMap = activeFilter.allowedClassifications;
+      const title = selectedStandard.title;
+      if (allowedMap[title]) {
+        classifications = classifications.filter((c) =>
+          allowedMap[title].includes(c.name)
+        );
+      }
     }
-    return (selectedStandard.classifications || []).filter((c) => {
+
+    if (isNonClassifiedSystem) {
+      if (SPECIAL_STANDARDS.includes(selectedStandard.title)) {
+        return classifications;
+      }
+      return classifications.filter((c) => {
+        const name = c.name || "";
+        return (
+          name.toLowerCase().includes("non classified") ||
+          name.toLowerCase().includes("non-classified")
+        );
+      });
+    }
+
+    if (SPECIAL_STANDARDS.includes(selectedStandard.title)) {
+      return classifications;
+    }
+
+    return classifications.filter((c) => {
       const name = c.name || "";
-      const isNCClass =
+      return !(
         name.toLowerCase().includes("non classified") ||
-        name.toLowerCase().includes("non-classified");
-      return isNonClassifiedSystem ? isNCClass : !isNCClass;
+        name.toLowerCase().includes("non-classified")
+      );
     });
-  }, [selectedStandard, isNonClassifiedSystem]);
+  }, [selectedStandard, isNonClassifiedSystem, industry, subIndustry]);
 
   const selectedClass = classList.find((c) => c.name === classification);
 
@@ -623,10 +658,7 @@ export default function Standard() {
       );
       return;
     }
-    if (!selectedFilters || totalFiltrationStagesSupply === 0 || totalFiltrationStagesExhaust === 0) {
-      setModalMessage("Please select at least one filter before proceeding.");
-      return;
-    }
+
 
     try {
       let finalZoneId = zoneIdFromRedux;

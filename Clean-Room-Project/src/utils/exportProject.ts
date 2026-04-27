@@ -308,6 +308,30 @@ function getVentilationResultForRoom(room: any, resByName: Map<string, any[]>): 
   );
 }
 
+function hasCoolingValues(result: any): boolean {
+  return (
+    Number(result.project_DehumidCfm || 0) > 0 ||
+    Number(result.project_Rem_Water_Vapour || 0) > 0 ||
+    Number(result.project_ResultCfm || 0) > 0 ||
+    Number(result.project_Room_Termi_Supply_Mod || 0) > 0 ||
+    Number(result.project_Room_AC_Load_TR || 0) > 0 ||
+    Number(result.project_Cfm_AC_Load_TR || 0) > 0 ||
+    Number(result.project_Res_Cooling_Load_TR || 0) > 0
+  );
+}
+
+function hasHeatingValues(result: any): boolean {
+  return (
+    Number(result.project_add_Water_Vapour || 0) > 0 ||
+    Number(result.project_HumidCfm || 0) > 0 ||
+    Number(result.project_ResultCfm_Hot || 0) > 0 ||
+    Number(result.project_Room_Term_Supply_Mod || 0) > 0 ||
+    Number(result.project_Room_Heating_Load_TR || 0) > 0 ||
+    Number(result.project_Cfm_Heating_Load_TR || 0) > 0 ||
+    Number(result.project_Result_Heating_Load_TR || 0) > 0
+  );
+}
+
 function getResultForRoom(
   room: any,
   resByName: Map<string, any[]>,
@@ -319,9 +343,50 @@ function getResultForRoom(
     return getVentilationResultForRoom(room, resByName);
   }
 
+  const roomExhaustPercent = Number(room.room_ExhaustAir ?? 0);
+  const roomExhaustCfm = Number(room.room_ExhaustAirCfm ?? 0);
+
+  const roomHasNoExhaustInput =
+    (isNaN(roomExhaustPercent) || roomExhaustPercent === 0) &&
+    (isNaN(roomExhaustCfm) || roomExhaustCfm === 0);
+
+  // ✅ Important fix:
+  // Supply table rooms should pick DB rows where project_ExhaustAir = 0
+  // Exhaust table rooms should pick DB rows where project_ExhaustAir > 0
+  const exhaustMatchedRows = allRows.filter((r) => {
+    const dbExhaustAir = Number(r.project_ExhaustAir || 0);
+
+    if (roomHasNoExhaustInput) {
+      return dbExhaustAir === 0;
+    }
+
+    return dbExhaustAir > 0;
+  });
+
+  const rowsToSearch = exhaustMatchedRows.length ? exhaustMatchedRows : allRows;
+
+  const systemRaw = normalizeSystemText(room.project_system);
+
+  if (systemRaw.includes("cooling") && !systemRaw.includes("heating")) {
+    return (
+      rowsToSearch.find((r) => hasCoolingValues(r)) ||
+      rowsToSearch[0] ||
+      {}
+    );
+  }
+
+  if (systemRaw.includes("heating") && !systemRaw.includes("cooling")) {
+    return (
+      rowsToSearch.find((r) => hasHeatingValues(r)) ||
+      rowsToSearch[0] ||
+      {}
+    );
+  }
+
+  // ✅ For Air Cooling and Heating System
   return (
-    allRows.find((r) => hasThermalValues(r)) ||
-    allRows[0] ||
+    rowsToSearch.find((r) => hasThermalValues(r)) ||
+    rowsToSearch[0] ||
     {}
   );
 }

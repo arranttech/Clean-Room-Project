@@ -4,35 +4,103 @@
       "id": 1,
       "title": "ISO 14644-4",
       "classifications": [
-        { "name": "ISO 9 (Non-Classified)", "minAir": 5, "maxAir": 15 },
-        { "name": "ISO 8", "minAir": 20, "maxAir": 60 },
-        { "name": "ISO 7", "minAir": 60, "maxAir": 150 },
-        { "name": "ISO 6", "minAir": 150, "maxAir": 240 },
-        { "name": "ISO 5", "minAir": 240, "maxAir": 500 },
-        { "name": "ISO 4", "minAir": 300, "maxAir": 600 },
-        { "name": "ISO 3", "minAir": 400, "maxAir": 750 },
-        { "name": "ISO 2", "minAir": 500, "maxAir": 750 },
-        { "name": "ISO 1", "minAir": 500, "maxAir": 750 }
+        {
+          "name": "ISO 9 (Non-Classified)",
+          "minAir": 5,
+          "maxAir": 15
+        },
+        {
+          "name": "ISO 8",
+          "minAir": 20,
+          "maxAir": 60
+        },
+        {
+          "name": "ISO 7",
+          "minAir": 60,
+          "maxAir": 150
+        },
+        {
+          "name": "ISO 6",
+          "minAir": 150,
+          "maxAir": 240
+        },
+        {
+          "name": "ISO 5",
+          "minAir": 240,
+          "maxAir": 500
+        },
+        {
+          "name": "ISO 4",
+          "minAir": 300,
+          "maxAir": 600
+        },
+        {
+          "name": "ISO 3",
+          "minAir": 400,
+          "maxAir": 750
+        },
+        {
+          "name": "ISO 2",
+          "minAir": 500,
+          "maxAir": 750
+        },
+        {
+          "name": "ISO 1",
+          "minAir": 500,
+          "maxAir": 750
+        }
       ]
     },
     {
       "id": 2,
       "title": "FDA 209E",
       "classifications": [
-        {"name":"Non-Classified","minAir":5,"maxAir":10},
-        { "name": "Class100K", "minAir": 12, "maxAir": 25 },
-        { "name": "Class10K", "minAir": 30, "maxAir": 60 },
-        { "name": "Class1K", "minAir": 80, "maxAir": 130 },
-        { "name": "Class 100", "minAir": 150, "maxAir": 300 },
-        { "name": "Class 10", "minAir": 180, "maxAir": 400 },
-        { "name": "Class 1", "minAir": 240, "maxAir": 500 }
+        {
+          "name": "Non-Classified",
+          "minAir": 5,
+          "maxAir": 10
+        },
+        {
+          "name": "Class100K",
+          "minAir": 12,
+          "maxAir": 25
+        },
+        {
+          "name": "Class10K",
+          "minAir": 30,
+          "maxAir": 60
+        },
+        {
+          "name": "Class1K",
+          "minAir": 80,
+          "maxAir": 130
+        },
+        {
+          "name": "Class 100",
+          "minAir": 150,
+          "maxAir": 300
+        },
+        {
+          "name": "Class 10",
+          "minAir": 180,
+          "maxAir": 400
+        },
+        {
+          "name": "Class 1",
+          "minAir": 240,
+          "maxAir": 500
+        }
       ]
     },
     {
       "id": 3,
       "title": "GMP",
       "classifications": [
-        {"name":"Non-Classified","minAir":8,"maxAir":15},
+        {
+          "name": "Non-Classified",
+          "minAir": 8,
+          "maxAir": 15
+        },
         {
           "name": "Grade D (ISO 8 at Rest & Not Defined)",
           "minAir": 20,
@@ -59,22 +127,62 @@
       "id": 4,
       "title": "JIS B 9920",
       "classifications": [
-        { "name": "JIS Class 9 (Non-Classified)", "minAir": 10, "maxAir": 20 },
-        { "name": "JIS Class 8", "minAir": 20, "maxAir": 60 },
-        { "name": "JIS Class 7", "minAir": 60, "maxAir": 120 },
-        { "name": "JIS Class 6", "minAir": 120, "maxAir": 180 },
-        { "name": "JIS Class 5", "minAir": 180, "maxAir": 240 },
-        { "name": "JIS Class 4", "minAir": 240, "maxAir": 350 },
-        { "name": "JIS Class 3", "minAir": 350, "maxAir": 500 },
-        { "name": "JIS Class 2", "minAir": 400, "maxAir": 600 },
-        { "name": "JIS Class 1", "minAir": 400, "maxAir": 600 }
+        {
+          "name": "JIS Class 9 (Non-Classified)",
+          "minAir": 10,
+          "maxAir": 20
+        },
+        {
+          "name": "JIS Class 8",
+          "minAir": 20,
+          "maxAir": 60
+        },
+        {
+          "name": "JIS Class 7",
+          "minAir": 60,
+          "maxAir": 120
+        },
+        {
+          "name": "JIS Class 6",
+          "minAir": 120,
+          "maxAir": 180
+        },
+        {
+          "name": "JIS Class 5",
+          "minAir": 180,
+          "maxAir": 240
+        },
+        {
+          "name": "JIS Class 4",
+          "minAir": 240,
+          "maxAir": 350
+        },
+        {
+          "name": "JIS Class 3",
+          "minAir": 350,
+          "maxAir": 500
+        },
+        {
+          "name": "JIS Class 2",
+          "minAir": 400,
+          "maxAir": 600
+        },
+        {
+          "name": "JIS Class 1",
+          "minAir": 400,
+          "maxAir": 600
+        }
       ]
     },
     {
       "id": 5,
       "title": "EU GMP",
       "classifications": [
-        {"name":"Non-Classified","minAir":4,"maxAir":10},
+        {
+          "name": "Non-Classified",
+          "minAir": 4,
+          "maxAir": 10
+        },
         {
           "name": "Grade D (ISO 7 at Rest & ISO 8 in Oper.)",
           "minAir": 40,
@@ -101,85 +209,2562 @@
       "id": 6,
       "title": "TGA",
       "classifications": [
-        {"name":"Non-Classified","minAir":6,"maxAir":12},
-        { "name": "3500", "minAir": 15, "maxAir": 40 },
-        { "name": "350", "minAir": 40, "maxAir": 80 },
-        { "name": "35", "minAir": 80, "maxAir": 130 },
-        { "name": "3.5", "minAir": 130, "maxAir": 300 },
-        { "name": "0.35", "minAir": 180, "maxAir": 400 },
-        { "name": "0.035", "minAir": 240, "maxAir": 500 }
+        {
+          "name": "Non-Classified",
+          "minAir": 6,
+          "maxAir": 12
+        },
+        {
+          "name": "3500",
+          "minAir": 15,
+          "maxAir": 40
+        },
+        {
+          "name": "350",
+          "minAir": 40,
+          "maxAir": 80
+        },
+        {
+          "name": "35",
+          "minAir": 80,
+          "maxAir": 130
+        },
+        {
+          "name": "3.5",
+          "minAir": 130,
+          "maxAir": 300
+        },
+        {
+          "name": "0.35",
+          "minAir": 180,
+          "maxAir": 400
+        },
+        {
+          "name": "0.035",
+          "minAir": 240,
+          "maxAir": 500
+        }
       ]
     },
     {
       "id": 7,
       "title": "BS 5295",
       "classifications": [
-        {"name":"Non-Classified","minAir":5,"maxAir":10},
-        { "name": "K", "minAir": 12, "maxAir": 25 },
-        { "name": "J", "minAir": 30, "maxAir": 80 },
-        { "name": "G or H", "minAir": 120, "maxAir": 180 },
-        { "name": "E or F", "minAir": 240, "maxAir": 350 },
-        { "name": "D", "minAir": 350, "maxAir": 600 },
-        { "name": "C", "minAir": 400, "maxAir": 600 }
+        {
+          "name": "Non-Classified",
+          "minAir": 5,
+          "maxAir": 10
+        },
+        {
+          "name": "K",
+          "minAir": 12,
+          "maxAir": 25
+        },
+        {
+          "name": "J",
+          "minAir": 30,
+          "maxAir": 80
+        },
+        {
+          "name": "G or H",
+          "minAir": 120,
+          "maxAir": 180
+        },
+        {
+          "name": "E or F",
+          "minAir": 240,
+          "maxAir": 350
+        },
+        {
+          "name": "D",
+          "minAir": 350,
+          "maxAir": 600
+        },
+        {
+          "name": "C",
+          "minAir": 400,
+          "maxAir": 600
+        }
       ]
     },
     {
       "id": 8,
       "title": "GERMANY VD",
       "classifications": [
-        {"name":"Non-Classified","minAir":6,"maxAir":12},
-        { "name": "6", "minAir": 20, "maxAir": 60 },
-        { "name": "5", "minAir": 60, "maxAir": 120 },
-        { "name": "4", "minAir": 120, "maxAir": 180 },
-        { "name": "3", "minAir": 180, "maxAir": 240 },
-        { "name": "2", "minAir": 240, "maxAir": 360 },
-        { "name": "1", "minAir": 360, "maxAir": 550 },
-        { "name": "0", "minAir": 400, "maxAir": 600 }
+        {
+          "name": "Non-Classified",
+          "minAir": 6,
+          "maxAir": 12
+        },
+        {
+          "name": "6",
+          "minAir": 20,
+          "maxAir": 60
+        },
+        {
+          "name": "5",
+          "minAir": 60,
+          "maxAir": 120
+        },
+        {
+          "name": "4",
+          "minAir": 120,
+          "maxAir": 180
+        },
+        {
+          "name": "3",
+          "minAir": 180,
+          "maxAir": 240
+        },
+        {
+          "name": "2",
+          "minAir": 240,
+          "maxAir": 360
+        },
+        {
+          "name": "1",
+          "minAir": 360,
+          "maxAir": 550
+        },
+        {
+          "name": "0",
+          "minAir": 400,
+          "maxAir": 600
+        }
       ]
     },
     {
       "id": 9,
       "title": "AFNOR X44101",
       "classifications": [
-        {"name":"Non-Classified","minAir":4,"maxAir":12},
-        { "name": "4000000", "minAir": 20, "maxAir": 50 },
-        { "name": "400000", "minAir": 60, "maxAir": 120 },
-        { "name": "4000", "minAir": 120, "maxAir": 240 }
+        {
+          "name": "Non-Classified",
+          "minAir": 4,
+          "maxAir": 12
+        },
+        {
+          "name": "4000000",
+          "minAir": 20,
+          "maxAir": 50
+        },
+        {
+          "name": "400000",
+          "minAir": 60,
+          "maxAir": 120
+        },
+        {
+          "name": "4000",
+          "minAir": 120,
+          "maxAir": 240
+        }
       ]
     },
     {
       "id": 10,
       "title": "NC-Non Classified",
       "classifications": [
-        { "name": "20", "minAir": 5, "maxAir": 15 },
-        { "name": "15u", "minAir": 5, "maxAir": 20 },
-        { "name": "10u", "minAir": 10, "maxAir": 25 },
-        { "name": "5u", "minAir": 15, "maxAir": 25 },
-        { "name": "1u", "minAir": 15, "maxAir": 25 },
-        { "name": "No-Filtration", "minAir": 5, "maxAir": 10 },
-        { "name": "Positive Pressure", "minAir": 5, "maxAir": 10 },
-        { "name": "Exhaust", "minAir": "0", "maxAir": "0"}
+        {
+          "name": "20",
+          "minAir": 5,
+          "maxAir": 15
+        },
+        {
+          "name": "15u",
+          "minAir": 5,
+          "maxAir": 20
+        },
+        {
+          "name": "10u",
+          "minAir": 10,
+          "maxAir": 25
+        },
+        {
+          "name": "5u",
+          "minAir": 15,
+          "maxAir": 25
+        },
+        {
+          "name": "1u",
+          "minAir": 15,
+          "maxAir": 25
+        },
+        {
+          "name": "No-Filtration",
+          "minAir": 5,
+          "maxAir": 10
+        },
+        {
+          "name": "Positive Pressure",
+          "minAir": 5,
+          "maxAir": 10
+        },
+        {
+          "name": "Exhaust",
+          "minAir": "0",
+          "maxAir": "0"
+        }
       ]
     },
     {
       "id": 11,
       "title": "ISO 14698",
       "classifications": [
-        { "name": "BSL - 1", "minAir": 6, "maxAir": 12 },
-        { "name": "BSL - 2", "minAir": 10, "maxAir": 15 },
-        { "name": "BSL - 3", "minAir": 15, "maxAir": 20 },
-        { "name": "BSL - 4", "minAir": 20, "maxAir": 30 }
+        {
+          "name": "BSL - 1",
+          "minAir": 6,
+          "maxAir": 12
+        },
+        {
+          "name": "BSL - 2",
+          "minAir": 10,
+          "maxAir": 15
+        },
+        {
+          "name": "BSL - 3",
+          "minAir": 15,
+          "maxAir": 20
+        },
+        {
+          "name": "BSL - 4",
+          "minAir": 20,
+          "maxAir": 30
+        }
       ]
     },
     {
       "id": 12,
       "title": "SCHEDULE M",
       "classifications": [
-        { "name": "GRADE CLASS A", "minAir": 80, "maxAir": 100 },
-        { "name": "GRADE CLASS B", "minAir": 60, "maxAir": 80 },
-        { "name": "GRADE CLASS C", "minAir": 40, "maxAir": 60 },
-        { "name": "GRADE CLASS D", "minAir": 20, "maxAir": 40 }
+        {
+          "name": "GRADE CLASS A",
+          "minAir": 80,
+          "maxAir": 100
+        },
+        {
+          "name": "GRADE CLASS B",
+          "minAir": 60,
+          "maxAir": 80
+        },
+        {
+          "name": "GRADE CLASS C",
+          "minAir": 40,
+          "maxAir": 60
+        },
+        {
+          "name": "GRADE CLASS D",
+          "minAir": 20,
+          "maxAir": 40
+        }
       ]
+    }
+  ],
+  "industryFilters": [
+    {
+      "industry": "Hospitals and healthcare Facilities",
+      "subIndustry": "Operating Theatre - Ultra Clean (Ortho)",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 5",
+          "ISO 6"
+        ],
+        "FDA 209E": [
+          "Class 100",
+          "Class1K"
+        ],
+        "GMP": [
+          "Grade A (ISO 5 at Rest & ISO 5 in Oper.)",
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 5",
+          "JIS Class 6"
+        ],
+        "EU GMP": [
+          "Grade A (ISO 5 at Rest & ISO 5 in Oper.)",
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "3.5",
+          "35"
+        ],
+        "BS 5295": [
+          "E or F",
+          "G or H"
+        ],
+        "GERMANY VD": [
+          "3",
+          "4"
+        ],
+        "AFNOR X44101": [
+          "4000"
+        ],
+        "NC-Non Classified": [
+          "1u",
+          "5u"
+        ]
+      }
+    },
+    {
+      "industry": "Hospitals and healthcare Facilities",
+      "subIndustry": "Operating Theatre Conventional",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 7"
+        ],
+        "FDA 209E": [
+          "Class10K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "350"
+        ],
+        "BS 5295": [
+          "J"
+        ],
+        "GERMANY VD": [
+          "5"
+        ],
+        "AFNOR X44101": [
+          "400000"
+        ],
+        "NC-Non Classified": [
+          "10u"
+        ]
+      }
+    },
+    {
+      "industry": "Hospitals and healthcare Facilities",
+      "subIndustry": "AIIR Isolation (TB/COVID)",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "3500"
+        ],
+        "BS 5295": [
+          "J",
+          "K"
+        ],
+        "GERMANY VD": [
+          "5",
+          "6"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "15u"
+        ]
+      }
+    },
+    {
+      "industry": "Hospitals and healthcare Facilities",
+      "subIndustry": "Protective Environment (Transplant, Hem-Onc)",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 6",
+          "ISO 7"
+        ],
+        "FDA 209E": [
+          "Class1K",
+          "Class10K"
+        ],
+        "GMP": [
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)",
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 6",
+          "JIS Class 7"
+        ],
+        "EU GMP": [
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)",
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "35",
+          "350"
+        ],
+        "BS 5295": [
+          "G or H",
+          "J"
+        ],
+        "GERMANY VD": [
+          "4",
+          "5"
+        ],
+        "AFNOR X44101": [
+          "4000",
+          "400000"
+        ],
+        "NC-Non Classified": [
+          "5u",
+          "10u"
+        ]
+      }
+    },
+    {
+      "industry": "Hospitals and healthcare Facilities",
+      "subIndustry": "ICU/NICU",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "3500"
+        ],
+        "BS 5295": [
+          "J",
+          "K"
+        ],
+        "GERMANY VD": [
+          "5",
+          "6"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "15u"
+        ]
+      }
+    },
+    {
+      "industry": "Hospitals and healthcare Facilities",
+      "subIndustry": "CSSD - Decon/Wash",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 8",
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Class100K",
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Grade D (ISO 8 at Rest & Not Defined)",
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 8",
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Non-Classified"
+        ],
+        "TGA": [
+          "3500",
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "K",
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "6",
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "4000000",
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "15u",
+          "20u"
+        ]
+      }
+    },
+    {
+      "industry": "Hospitals and healthcare Facilities",
+      "subIndustry": "CSSD - Prep/Pack",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 7"
+        ],
+        "FDA 209E": [
+          "Class10K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "350"
+        ],
+        "BS 5295": [
+          "J"
+        ],
+        "GERMANY VD": [
+          "5"
+        ],
+        "AFNOR X44101": [
+          "400000"
+        ],
+        "NC-Non Classified": [
+          "10u"
+        ]
+      }
+    },
+    {
+      "industry": "Hospitals and healthcare Facilities",
+      "subIndustry": "CSSD - Sterile storage",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 7"
+        ],
+        "FDA 209E": [
+          "Class10K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "350"
+        ],
+        "BS 5295": [
+          "J"
+        ],
+        "GERMANY VD": [
+          "5"
+        ],
+        "AFNOR X44101": [
+          "400000"
+        ],
+        "NC-Non Classified": [
+          "10u"
+        ]
+      }
+    },
+    {
+      "industry": "Hospitals and healthcare Facilities",
+      "subIndustry": "Pharmacy Compounding - Non-hazardous (USP <797>)",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 6",
+          "ISO 7"
+        ],
+        "FDA 209E": [
+          "Class1K",
+          "Class10K"
+        ],
+        "GMP": [
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)",
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 6",
+          "JIS Class 7"
+        ],
+        "EU GMP": [
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)",
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "35",
+          "350"
+        ],
+        "BS 5295": [
+          "G or H",
+          "J"
+        ],
+        "GERMANY VD": [
+          "4",
+          "5"
+        ],
+        "AFNOR X44101": [
+          "4000",
+          "400000"
+        ],
+        "NC-Non Classified": [
+          "5u",
+          "10u"
+        ]
+      }
+    },
+    {
+      "industry": "Hospitals and healthcare Facilities",
+      "subIndustry": "Pharmacy Compounding - Hazardous (USP <800>)",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 6",
+          "ISO 7"
+        ],
+        "FDA 209E": [
+          "Class1K",
+          "Class10K"
+        ],
+        "GMP": [
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)",
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 6",
+          "JIS Class 7"
+        ],
+        "EU GMP": [
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)",
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "35",
+          "350"
+        ],
+        "BS 5295": [
+          "G or H",
+          "J"
+        ],
+        "GERMANY VD": [
+          "4",
+          "5"
+        ],
+        "AFNOR X44101": [
+          "4000",
+          "400000"
+        ],
+        "NC-Non Classified": [
+          "5u",
+          "10u"
+        ]
+      }
+    },
+    {
+      "industry": "Hospitals and healthcare Facilities",
+      "subIndustry": "Radiopharmacy / Nuclear Med",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 7"
+        ],
+        "FDA 209E": [
+          "Class10K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "350"
+        ],
+        "BS 5295": [
+          "J"
+        ],
+        "GERMANY VD": [
+          "5"
+        ],
+        "AFNOR X44101": [
+          "400000"
+        ],
+        "NC-Non Classified": [
+          "10u"
+        ]
+      }
+    },
+    {
+      "industry": "Hospitals and healthcare Facilities",
+      "subIndustry": "IVF labs",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 5",
+          "ISO 6"
+        ],
+        "FDA 209E": [
+          "Class 100",
+          "Class1K"
+        ],
+        "GMP": [
+          "Grade A (ISO 5 at Rest & ISO 5 in Oper.)",
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 5",
+          "JIS Class 6"
+        ],
+        "EU GMP": [
+          "Grade A (ISO 5 at Rest & ISO 5 in Oper.)",
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "3.5",
+          "35"
+        ],
+        "BS 5295": [
+          "E or F",
+          "G or H"
+        ],
+        "GERMANY VD": [
+          "3",
+          "4"
+        ],
+        "AFNOR X44101": [
+          "4000"
+        ],
+        "NC-Non Classified": [
+          "1u",
+          "5u"
+        ]
+      }
+    },
+    {
+      "industry": "Hospitals and healthcare Facilities",
+      "subIndustry": "Endoscopy Reprocessing",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 8",
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Class100K",
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Grade D (ISO 8 at Rest & Not Defined)",
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 8",
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Non-Classified"
+        ],
+        "TGA": [
+          "3500",
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "K",
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "6",
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "4000000",
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "15u",
+          "20u"
+        ]
+      }
+    },
+    {
+      "industry": "Hospitals and healthcare Facilities",
+      "subIndustry": "Blood Blank Clean Areas",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 7"
+        ],
+        "FDA 209E": [
+          "Class10K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "350"
+        ],
+        "BS 5295": [
+          "J"
+        ],
+        "GERMANY VD": [
+          "5"
+        ],
+        "AFNOR X44101": [
+          "400000"
+        ],
+        "NC-Non Classified": [
+          "10u"
+        ]
+      }
+    },
+    {
+      "industry": "Life Sciences",
+      "subIndustry": "QC, microbiology, R&D labs",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 7"
+        ],
+        "FDA 209E": [
+          "Class10K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "350"
+        ],
+        "BS 5295": [
+          "J"
+        ],
+        "GERMANY VD": [
+          "5"
+        ],
+        "AFNOR X44101": [
+          "400000"
+        ],
+        "NC-Non Classified": [
+          "10u"
+        ]
+      }
+    },
+    {
+      "industry": "Life Sciences",
+      "subIndustry": "Sterility test rooms",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 6"
+        ],
+        "FDA 209E": [
+          "Class1K"
+        ],
+        "GMP": [
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 6"
+        ],
+        "EU GMP": [
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "35"
+        ],
+        "BS 5295": [
+          "G or H"
+        ],
+        "GERMANY VD": [
+          "4"
+        ],
+        "AFNOR X44101": [
+          "4000"
+        ],
+        "NC-Non Classified": [
+          "5u"
+        ]
+      }
+    },
+    {
+      "industry": "Life Sciences",
+      "subIndustry": "General R&D Chemistry",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "3500"
+        ],
+        "BS 5295": [
+          "K"
+        ],
+        "GERMANY VD": [
+          "6"
+        ],
+        "AFNOR X44101": [
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "15u"
+        ]
+      }
+    },
+    {
+      "industry": "Life Sciences",
+      "subIndustry": "Tissue culture lab",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 6"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class1K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 6"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "35"
+        ],
+        "BS 5295": [
+          "J",
+          "G or H"
+        ],
+        "GERMANY VD": [
+          "5",
+          "4"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "5u"
+        ]
+      }
+    },
+    {
+      "industry": "Life Sciences",
+      "subIndustry": "BSL-2 Lab",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 6"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class1K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 6"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "35"
+        ],
+        "BS 5295": [
+          "J",
+          "G or H"
+        ],
+        "GERMANY VD": [
+          "5",
+          "4"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "5u"
+        ]
+      }
+    },
+    {
+      "industry": "Life Sciences",
+      "subIndustry": "BSL-3 Lab/Suite",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 6"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class1K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 6"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "35"
+        ],
+        "BS 5295": [
+          "J",
+          "G or H"
+        ],
+        "GERMANY VD": [
+          "5",
+          "4"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "5u"
+        ]
+      }
+    },
+    {
+      "industry": "Life Sciences",
+      "subIndustry": "BSL-4 Lab",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 6"
+        ],
+        "FDA 209E": [
+          "Class1K"
+        ],
+        "GMP": [
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 6"
+        ],
+        "EU GMP": [
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "35"
+        ],
+        "BS 5295": [
+          "G or H"
+        ],
+        "GERMANY VD": [
+          "4"
+        ],
+        "AFNOR X44101": [
+          "4000"
+        ],
+        "NC-Non Classified": [
+          "5u"
+        ]
+      }
+    },
+    {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Surgical instruments manufacturing",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Orthopedics and implants manufacturing",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Disposable medical devices",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Dialysis consumables",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Diagnostic equipment labs",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Food, Agriculture & Consumer Products",
+      "subIndustry": "Dairy processing clean zones",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Food, Agriculture & Consumer Products",
+      "subIndustry": "Chocolate and confectionary temperaturecontrolled lines",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Food, Agriculture & Consumer Products",
+      "subIndustry": "Bottling plants",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Food, Agriculture & Consumer Products",
+      "subIndustry": "Cold storage logistics",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Food, Agriculture & Consumer Products",
+      "subIndustry": "Fresh-cut & packaged food clean zones",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Automotive & Mobility",
+      "subIndustry": "Advanced automotive electronics",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Automotive & Mobility",
+      "subIndustry": "ADAS/LiDAR manufacturing",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Automotive & Mobility",
+      "subIndustry": "Precision painting & coating shops",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Automotive & Mobility",
+      "subIndustry": "Engine test labs, NVH labs",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Automotive & Mobility",
+      "subIndustry": "Ship Building Industry",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Automotive & Mobility",
+      "subIndustry": "Aviation Industry",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Satellite assembly clean rooms",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "3500"
+        ],
+        "BS 5295": [
+          "J",
+          "K"
+        ],
+        "GERMANY VD": [
+          "5",
+          "6"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "15u"
+        ]
+      }
+    },
+    {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Spacecraft component manufacturing",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Rocket engine precision assembly areas",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "3500"
+        ],
+        "BS 5295": [
+          "J",
+          "K"
+        ],
+        "GERMANY VD": [
+          "5",
+          "6"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "15u"
+        ]
+      }
+    },
+    {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Composite and carbon fiber manufacturing",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Electronics & Precision Engineering",
+      "subIndustry": "LED & OLED manufacturing",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Electronics & Precision Engineering",
+      "subIndustry": "Solar PV cell/module manufacturing",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Electronics & Precision Engineering",
+      "subIndustry": "Sensors & micro-electromechanical systems (MEMS)",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Electronics & Precision Engineering",
+      "subIndustry": "Nano-Electromechanical Systems (NEMS)",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Electronics & Precision Engineering",
+      "subIndustry": "Optoelectronics & laser component manufacturing",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20",
+          "15u",
+          "10u",
+          "5u",
+          "1u",
+          "No-Filtration",
+          "Positive Pressure",
+          "Exhaust"
+        ]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "API Synthesis (Non‑Potent)",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 7", "ISO 8"],
+        "FDA 209E": ["Class10K", "Class100K"],
+        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
+        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
+        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "TGA": ["350", "3500"],
+        "BS 5295": ["J", "K"],
+        "GERMANY VD": ["5", "6"],
+        "AFNOR X44101": ["400000", "4000000"],
+        "NC-Non Classified": ["10u", "15u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "HPAPI / OEB 4–6 API Manufacturing",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 6", "ISO 7"],
+        "FDA 209E": ["Class1K", "Class10K"],
+        "GMP": ["Grade B (ISO 5 at Rest & ISO 7 in Oper.)", "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "JIS B 9920": ["JIS Class 6", "JIS Class 7"],
+        "EU GMP": ["Grade B (ISO 5 at Rest & ISO 7 in Oper.)", "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"],
+        "TGA": ["35", "350"],
+        "BS 5295": ["G or H", "J"],
+        "GERMANY VD": ["4", "5"],
+        "AFNOR X44101": ["4000", "400000"],
+        "NC-Non Classified": ["5u", "10u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Fermentation (Small Molecules)",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 7", "ISO 8"],
+        "FDA 209E": ["Class10K", "Class100K"],
+        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
+        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
+        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "TGA": ["350", "3500"],
+        "BS 5295": ["J", "K"],
+        "GERMANY VD": ["5", "6"],
+        "AFNOR X44101": ["400000", "4000000"],
+        "NC-Non Classified": ["10u", "15u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Solid Oral Dosage (Granulation)",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 7", "ISO 8"],
+        "FDA 209E": ["Class10K", "Class100K"],
+        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
+        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
+        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "TGA": ["350", "3500"],
+        "BS 5295": ["J", "K"],
+        "GERMANY VD": ["5", "6"],
+        "AFNOR X44101": ["400000", "4000000"],
+        "NC-Non Classified": ["10u", "15u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Tablet Compression & Coating",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 7", "ISO 8"],
+        "FDA 209E": ["Class10K", "Class100K"],
+        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
+        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
+        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "TGA": ["350", "3500"],
+        "BS 5295": ["J", "K"],
+        "GERMANY VD": ["5", "6"],
+        "AFNOR X44101": ["400000", "4000000"],
+        "NC-Non Classified": ["10u", "15u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Capsule Filling",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 7"],
+        "FDA 209E": ["Class10K"],
+        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "JIS B 9920": ["JIS Class 7"],
+        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)"],
+        "TGA": ["350"],
+        "BS 5295": ["J"],
+        "GERMANY VD": ["5"],
+        "AFNOR X44101": ["400000"],
+        "NC-Non Classified": ["10u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Liquid Oral Manufacturing",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 7", "ISO 8"],
+        "FDA 209E": ["Class10K", "Class100K"],
+        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
+        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
+        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "TGA": ["350", "3500"],
+        "BS 5295": ["J", "K"],
+        "GERMANY VD": ["5", "6"],
+        "AFNOR X44101": ["400000", "4000000"],
+        "NC-Non Classified": ["10u", "15u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Ointments / Creams (Semi‑Solids)",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 7", "ISO 8"],
+        "FDA 209E": ["Class10K", "Class100K"],
+        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
+        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
+        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "TGA": ["350", "3500"],
+        "BS 5295": ["J", "K"],
+        "GERMANY VD": ["5", "6"],
+        "AFNOR X44101": ["400000", "4000000"],
+        "NC-Non Classified": ["10u", "15u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Sterile Injectable – Filling (SVP/LVP)",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 5", "ISO 7"],
+        "FDA 209E": ["Class 100", "Class10K"],
+        "GMP": ["Grade A (ISO 5 at Rest & ISO 5 in Oper.)", "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "JIS B 9920": ["JIS Class 5", "JIS Class 7"],
+        "EU GMP": ["Grade A (ISO 5 at Rest & ISO 5 in Oper.)", "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"],
+        "TGA": ["3.5", "350"],
+        "BS 5295": ["E or F", "J"],
+        "GERMANY VD": ["3", "5"],
+        "AFNOR X44101": ["4000", "400000"],
+        "NC-Non Classified": ["1u", "10u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Lyophilization Suites",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 6", "ISO 7"],
+        "FDA 209E": ["Class1K", "Class10K"],
+        "GMP": ["Grade B (ISO 5 at Rest & ISO 7 in Oper.)", "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "JIS B 9920": ["JIS Class 6", "JIS Class 7"],
+        "EU GMP": ["Grade B (ISO 5 at Rest & ISO 7 in Oper.)", "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"],
+        "TGA": ["35", "350"],
+        "BS 5295": ["G or H", "J"],
+        "GERMANY VD": ["4", "5"],
+        "AFNOR X44101": ["4000", "400000"],
+        "NC-Non Classified": ["5u", "10u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Biologics – Upstream (Cell Culture)",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 7"],
+        "FDA 209E": ["Class10K"],
+        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "JIS B 9920": ["JIS Class 7"],
+        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)"],
+        "TGA": ["350"],
+        "BS 5295": ["J"],
+        "GERMANY VD": ["5"],
+        "AFNOR X44101": ["400000"],
+        "NC-Non Classified": ["10u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Biologics – Downstream (Purification)",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 7", "ISO 8"],
+        "FDA 209E": ["Class10K", "Class100K"],
+        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
+        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
+        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "TGA": ["350", "3500"],
+        "BS 5295": ["J", "K"],
+        "GERMANY VD": ["5", "6"],
+        "AFNOR X44101": ["400000", "4000000"],
+        "NC-Non Classified": ["10u", "15u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Vaccine Filling (Biological)",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 5", "ISO 7"],
+        "FDA 209E": ["Class 100", "Class10K"],
+        "GMP": ["Grade A (ISO 5 at Rest & ISO 5 in Oper.)", "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "JIS B 9920": ["JIS Class 5", "JIS Class 7"],
+        "EU GMP": ["Grade A (ISO 5 at Rest & ISO 5 in Oper.)", "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"],
+        "TGA": ["3.5", "350"],
+        "BS 5295": ["E or F", "J"],
+        "GERMANY VD": ["3", "5"],
+        "AFNOR X44101": ["4000", "400000"],
+        "NC-Non Classified": ["1u", "10u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "ADC Manufacturing (Conjugation)",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 6", "ISO 7"],
+        "FDA 209E": ["Class1K", "Class10K"],
+        "GMP": ["Grade B (ISO 5 at Rest & ISO 7 in Oper.)", "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "JIS B 9920": ["JIS Class 6", "JIS Class 7"],
+        "EU GMP": ["Grade B (ISO 5 at Rest & ISO 7 in Oper.)", "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"],
+        "TGA": ["35", "350"],
+        "BS 5295": ["G or H", "J"],
+        "GERMANY VD": ["4", "5"],
+        "AFNOR X44101": ["4000", "400000"],
+        "NC-Non Classified": ["5u", "10u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Clinical Trial Material (CTM)",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 7", "ISO 8"],
+        "FDA 209E": ["Class10K", "Class100K"],
+        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
+        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
+        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "TGA": ["350", "3500"],
+        "BS 5295": ["J", "K"],
+        "GERMANY VD": ["5", "6"],
+        "AFNOR X44101": ["400000", "4000000"],
+        "NC-Non Classified": ["10u", "15u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Primary Packaging (Vials, Stoppers)",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 7", "ISO 8"],
+        "FDA 209E": ["Class10K", "Class100K"],
+        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
+        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
+        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "TGA": ["350", "3500"],
+        "BS 5295": ["J", "K"],
+        "GERMANY VD": ["5", "6"],
+        "AFNOR X44101": ["400000", "4000000"],
+        "NC-Non Classified": ["10u", "15u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Secondary & Tertiary Packaging",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 8"],
+        "FDA 209E": ["Class100K"],
+        "GMP": ["Grade D (ISO 8 at Rest & Not Defined)"],
+        "JIS B 9920": ["JIS Class 8"],
+        "EU GMP": ["Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "TGA": ["3500"],
+        "BS 5295": ["K"],
+        "GERMANY VD": ["6"],
+        "AFNOR X44101": ["4000000"],
+        "NC-Non Classified": ["15u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "QC Microbiology Labs",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 7"],
+        "FDA 209E": ["Class10K"],
+        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "JIS B 9920": ["JIS Class 7"],
+        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)"],
+        "TGA": ["350"],
+        "BS 5295": ["J"],
+        "GERMANY VD": ["5"],
+        "AFNOR X44101": ["400000"],
+        "NC-Non Classified": ["10u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Analytical / Chemical QC Labs",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 7", "ISO 8"],
+        "FDA 209E": ["Class10K", "Class100K"],
+        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
+        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
+        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "TGA": ["350", "3500"],
+        "BS 5295": ["J", "K"],
+        "GERMANY VD": ["5", "6"],
+        "AFNOR X44101": ["400000", "4000000"],
+        "NC-Non Classified": ["10u", "15u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "GMP Warehouses (Controlled)",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 8"],
+        "FDA 209E": ["Class100K"],
+        "GMP": ["Grade D (ISO 8 at Rest & Not Defined)"],
+        "JIS B 9920": ["JIS Class 8"],
+        "EU GMP": ["Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "TGA": ["3500"],
+        "BS 5295": ["K"],
+        "GERMANY VD": ["6"],
+        "AFNOR X44101": ["4000000"],
+        "NC-Non Classified": ["15u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Cold Rooms / Stability Chambers",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 8"],
+        "FDA 209E": ["Class100K"],
+        "GMP": ["Grade D (ISO 8 at Rest & Not Defined)"],
+        "JIS B 9920": ["JIS Class 8"],
+        "EU GMP": ["Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "TGA": ["3500"],
+        "BS 5295": ["K"],
+        "GERMANY VD": ["6"],
+        "AFNOR X44101": ["4000000"],
+        "NC-Non Classified": ["15u"]
+      }
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Utilities (PW/WFI, Clean Steam)",
+      "allowedClassifications": {
+        "ISO 14644-4": ["ISO 8"],
+        "FDA 209E": ["Class100K"],
+        "GMP": ["Grade D (ISO 8 at Rest & Not Defined)"],
+        "JIS B 9920": ["JIS Class 8"],
+        "EU GMP": ["Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
+        "TGA": ["3500"],
+        "BS 5295": ["K"],
+        "GERMANY VD": ["6"],
+        "AFNOR X44101": ["4000000"],
+        "NC-Non Classified": ["15u"]
+      }
     }
   ],
   "text": {
@@ -188,7 +2773,9 @@
       "subtitle": "Select cleanroom classification and air change requirements",
       "cardTitle": "Standards and Classification"
     },
-    "sections": { "tempHumTitle": "Temperature and Humidity" },
+    "sections": {
+      "tempHumTitle": "Temperature and Humidity"
+    },
     "labels": {
       "standard": "Standard",
       "classification": "Classification",
@@ -225,7 +2812,10 @@
       "reqHumidity": "eg: 55"
     },
     "options": {
-      "units": { "c": "°C", "f": "°F" },
+      "units": {
+        "c": "°C",
+        "f": "°F"
+      },
       "systems": {
         "heating": "Air-Heating System",
         "cooling": "Air-Cooling System",
@@ -254,13 +2844,13 @@
           "Comfort Air System (Heating & Cooling)",
           "Non-Classified Air System (Heating & Cooling)"
         ],
-        "heatingVent":[
+        "heatingVent": [
           "Cleanroom Air-Heating System",
           "Comfort Air-Heating System",
           "Non-Classified Air-Heating System",
           "Ventilation System"
         ],
-        "coolingVent":[
+        "coolingVent": [
           "Cleanroom Air-Cooling System",
           "Comfort Air-Cooling System",
           "Non-Classified Air-Cooling System",
@@ -268,11 +2858,21 @@
         ]
       },
       "methods": {
-        "heating": ["Hot Water", "Steam"],
-        "cooling": ["Chilled Water", "Brine", "DX"]
+        "heating": [
+          "Hot Water",
+          "Steam"
+        ],
+        "cooling": [
+          "Chilled Water",
+          "Brine",
+          "DX"
+        ]
       }
     },
-    "buttons": { "back": "Back to Project-Info", "next": "Next Step" },
+    "buttons": {
+      "back": "Back to Project-Info",
+      "next": "Next Step"
+    },
     "misc": {
       "ambient": "Ambient",
       "rangeLabel": "Range:",

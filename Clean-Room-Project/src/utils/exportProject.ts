@@ -3,13 +3,13 @@ import { buildBOQSheet } from "./boqResult";
 
 const C = {
   yellow: "FFFF00",
-  cyan: "00B0F0",
-  brown: "7F4F00",
-  orange: "FF8C00",
+  cyan: "00B5F1",
+  brown: "7D5D00",
+  orange: "FFC000",
   red: "FF0000",
   white: "FFFFFF",
   black: "000000",
-  lightGray: "D9D9D9",
+  lightGray: "595959",
 };
 
 const thin = { style: "thin", color: { rgb: C.black } };
@@ -91,6 +91,11 @@ function label(v: any): any {
 function num(v: any): any {
   const n = parseFloat(v);
   return isNaN(n) ? "" : n;
+}
+
+function toNum(v: any): number {
+  const n = parseFloat(String(v ?? "0").replace(/[^0-9.-]/g, ""));
+  return isNaN(n) ? 0 : n;
 }
 
 function mg(rs: number, re: number, cs: number, ce: number) {
@@ -265,47 +270,30 @@ function hasThermalValues(result: any): boolean {
   );
 }
 
+function sameZone(room: any, result: any): boolean {
+  const roomZoneId = String(room.zone_id ?? room.project_zone_id ?? "").trim();
+  const resultZoneId = String(result.zone_id ?? result.project_zone_id ?? result.project_ZoneId ?? "").trim();
+
+  if (!roomZoneId || !resultZoneId) return true;
+
+  return roomZoneId === resultZoneId;
+}
+
 function getAllResultRowsForRoom(room: any, resByName: Map<string, any[]>): any[] {
   const rName = String(room.project_RoomName ?? "").trim();
 
-  return [
+  const rows = [
     ...(resByName.get(rName) || []),
     ...(resByName.get(`${rName} - Ventilation`) || []),
     ...(resByName.get(`${rName}-Ventilation`) || []),
   ];
+  return rows.filter((r) => sameZone(room, r));
 }
 
 function getVentilationResultForRoom(room: any, resByName: Map<string, any[]>): any {
   const allRows = getAllResultRowsForRoom(room, resByName);
 
-  const roomExhaustPercent = Number(room.room_ExhaustAir ?? 0);
-  const roomExhaustCfm = Number(room.room_ExhaustAirCfm ?? 0);
-
-  const roomHasNoExhaustInput =
-    (isNaN(roomExhaustPercent) || roomExhaustPercent === 0) &&
-    (isNaN(roomExhaustCfm) || roomExhaustCfm === 0);
-
-  if (roomHasNoExhaustInput) {
-    return (
-      allRows.find(
-        (r) =>
-          !hasThermalValues(r) &&
-          Number(r.project_ExhaustAir || 0) === 0
-      ) ||
-      allRows.find((r) => !hasThermalValues(r)) ||
-      {}
-    );
-  }
-
-  return (
-    allRows.find(
-      (r) =>
-        !hasThermalValues(r) &&
-        Number(r.project_ExhaustAir || 0) > 0
-    ) ||
-    allRows.find((r) => !hasThermalValues(r)) ||
-    {}
-  );
+  return allRows.find((r) => !hasThermalValues(r)) || {};
 }
 
 function hasCoolingValues(result: any): boolean {
@@ -332,77 +320,54 @@ function hasHeatingValues(result: any): boolean {
   );
 }
 
+type TableKind = "normal" | "cooling" | "heating" | "ventilation";
+type TableSide = "supply" | "exhaust";
+
 function getResultForRoom(
   room: any,
   resByName: Map<string, any[]>,
-  isVentilationTable: boolean
+  tableKind: TableKind,
+  tableSide: TableSide
 ): any {
   const allRows = getAllResultRowsForRoom(room, resByName);
 
-  if (isVentilationTable) {
+  if (tableKind === "ventilation") {
     return getVentilationResultForRoom(room, resByName);
   }
 
-  const roomExhaustPercent = Number(room.room_ExhaustAir ?? 0);
-  const roomExhaustCfm = Number(room.room_ExhaustAirCfm ?? 0);
-
-  const roomHasNoExhaustInput =
-    (isNaN(roomExhaustPercent) || roomExhaustPercent === 0) &&
-    (isNaN(roomExhaustCfm) || roomExhaustCfm === 0);
-
-  // ✅ Important fix:
-  // Supply table rooms should pick DB rows where project_ExhaustAir = 0
-  // Exhaust table rooms should pick DB rows where project_ExhaustAir > 0
-  const exhaustMatchedRows = allRows.filter((r) => {
+  const sideMatchedRows = allRows.filter((r) => {
     const dbExhaustAir = Number(r.project_ExhaustAir || 0);
 
-    if (roomHasNoExhaustInput) {
-      return dbExhaustAir === 0;
-    }
-
+    if (tableSide === "supply") return dbExhaustAir === 0;
     return dbExhaustAir > 0;
   });
 
-  const rowsToSearch = exhaustMatchedRows.length ? exhaustMatchedRows : allRows;
+  if (!sideMatchedRows.length) return {};
 
-  const systemRaw = normalizeSystemText(room.project_system);
-
-  if (systemRaw.includes("cooling") && !systemRaw.includes("heating")) {
-    return (
-      rowsToSearch.find((r) => hasCoolingValues(r)) ||
-      rowsToSearch[0] ||
-      {}
-    );
+  if (tableKind === "cooling") {
+    return sideMatchedRows.find((r) => hasCoolingValues(r)) || {};
   }
 
-  if (systemRaw.includes("heating") && !systemRaw.includes("cooling")) {
-    return (
-      rowsToSearch.find((r) => hasHeatingValues(r)) ||
-      rowsToSearch[0] ||
-      {}
-    );
+  if (tableKind === "heating") {
+    return sideMatchedRows.find((r) => hasHeatingValues(r)) || {};
   }
 
-  // ✅ For Air Cooling and Heating System
-  return (
-    rowsToSearch.find((r) => hasThermalValues(r)) ||
-    rowsToSearch[0] ||
-    {}
-  );
+  return sideMatchedRows.find((r) => hasThermalValues(r)) || sideMatchedRows[0] || {};
 }
 
 function calculateDbFilteredTotals(
   zoneRooms: any[],
   resByName: Map<string, any[]>,
   col: Col,
-  isVentilationTable: boolean
+  tableKind: TableKind,
+  tableSide: TableSide
 ): number {
   if (!col.zoneCol) return 0;
 
   let sum = 0;
 
   for (const room of zoneRooms) {
-    const res = getResultForRoom(room, resByName, isVentilationTable);
+    const res = getResultForRoom(room, resByName, tableKind, tableSide);
     const val = parseFloat(res[col.key]);
 
     if (!isNaN(val)) sum += val;
@@ -603,11 +568,100 @@ function buildZoneSheet(
     ri++;
   }
 
-  function renderTable(zoneName: string, zoneId: string, zoneRooms: any[]) {
+  function renderTable(
+    zoneName: string,
+    zoneId: string,
+    zoneRooms: any[],
+    tableKind: TableKind,
+    tableSide: TableSide
+  ) {
     if (!zoneRooms.length) return;
 
-    const isVentilationTable = zoneName.toLowerCase().includes("ventilation");
-    const tableVisibleCols = getTableVisibleCols(zoneName, zoneRooms);
+    const getRoomByResult = (result: any) => {
+      const resultName = String(result.project_RoomName ?? "")
+        .replace(" - Ventilation", "")
+        .replace("-Ventilation", "")
+        .trim();
+
+      return zoneRooms.find((room) => {
+        const roomName = String(room.project_RoomName ?? "").trim();
+        return roomName === resultName && sameZone(room, result);
+      });
+    };
+
+    const tableRows: { room: any; res: any }[] = [];
+
+    if (tableKind === "ventilation") {
+      for (const room of zoneRooms) {
+        const roomExhaustAir = toNum(room.room_ExhaustAir);
+        const roomExhaustAirCfm = toNum(room.room_ExhaustAirCfm);
+
+        const isVentilationSupply =
+          roomExhaustAir === 0 && roomExhaustAirCfm === 0;
+
+        if (tableSide === "supply" && !isVentilationSupply) continue;
+        if (tableSide === "exhaust" && isVentilationSupply) continue;
+
+        const res = getVentilationResultForRoom(room, resByName);
+
+        if (Object.keys(res).length > 0) {
+          tableRows.push({ room, res });
+        }
+      }
+    } else {
+      
+      for (const resultRows of resByName.values()) {
+        for (const res of resultRows) {
+          const room = getRoomByResult(res);
+          if (!room) continue;
+
+          const dbExhaustAir = Number(res.project_ExhaustAir || 0);
+
+          
+          if (tableSide === "supply" && dbExhaustAir !== 0) continue;
+          if (tableSide === "exhaust" && dbExhaustAir <= 0) continue;
+
+          if (tableKind === "cooling") {
+           
+            const coolingDataSum =
+              toNum(res.project_DehumidCfm) +
+              toNum(res.project_Rem_Water_Vapour) +
+              toNum(res.project_ResultCfm) +
+              toNum(res.project_Room_AC_Load_TR) +
+              toNum(res.project_Cfm_AC_Load_TR) +
+              toNum(res.project_Res_Cooling_Load_TR);
+
+            if (coolingDataSum === 0) continue;
+          }
+
+          if (tableKind === "heating") {
+            const heatingDataSum =
+              toNum(res.project_add_Water_Vapour) +
+              toNum(res.project_HumidCfm) +
+              toNum(res.project_ResultCfm_Hot) +
+              toNum(res.project_Room_Heating_Load_TR) +
+              toNum(res.project_Cfm_Heating_Load_TR) +
+              toNum(res.project_Result_Heating_Load_TR);
+
+           
+            if (heatingDataSum === 0) continue;
+          }
+
+          
+          if (tableKind === "normal" && !hasThermalValues(res)) continue;
+
+          tableRows.push({ room, res });
+        }
+      }
+    }
+
+    if (!tableRows.length) return;
+
+    const tableVisibleCols = getTableVisibleCols(
+      zoneName,
+      tableRows.map((x) => x.room)
+    );
+
     maxCols = Math.max(maxCols, tableVisibleCols.length);
 
     renderTitleRow(zoneName, tableVisibleCols);
@@ -620,9 +674,7 @@ function buildZoneSheet(
     rowHeights.push({ hpt: 80 });
     ri++;
 
-    for (const room of zoneRooms) {
-      const rName = String(room.project_RoomName ?? "").trim();
-      const res = getResultForRoom(room, resByName, isVentilationTable);
+    for (const { room, res } of tableRows) {
       const std = stdById.get(String(room.project_standard_id ?? "")) ?? firstStd;
 
       const dataRow: CO[] = tableVisibleCols.map((col, i) => {
@@ -652,12 +704,11 @@ function buildZoneSheet(
       if (i === 0) return rdD("TOTAL", bl);
       if (!col.zoneCol) return rdD("", bl);
 
-      const total = calculateDbFilteredTotals(
-        zoneRooms,
-        resByName,
-        col,
-        isVentilationTable
-      );
+      const total = tableRows.reduce((sum, row) => {
+        const val = parseFloat(row.res[col.key]);
+        return isNaN(val) ? sum : sum + val;
+      }, 0);
+
       return rdD(total, bl);
     });
 
@@ -670,12 +721,10 @@ function buildZoneSheet(
     ri++;
   }
 
-  // REPLACE THIS BLOCK AT THE END OF buildZoneSheet
   for (const [zoneId, { name: zoneName, rooms: zoneRooms }] of zoneMap.entries()) {
     const firstRoom = zoneRooms[0] ?? {};
     const std = stdById.get(String(firstRoom.project_standard_id ?? "")) ?? firstStd;
 
-    // Dynamically fetch system type to avoid static string dependency 
     const systemTypeRaw =
       firstRoom.project_system ||
       std.project_system ||
@@ -684,20 +733,19 @@ function buildZoneSheet(
       "";
 
     const flags = getSystemFlags(systemTypeRaw);
-    const roomsWithExhaust = zoneRooms.filter((r) => !isSupplyRoom(r));
-    const roomsWithoutExhaust = zoneRooms.filter((r) => isSupplyRoom(r));
 
     if (flags.isCoolingVentilation || flags.isHeatingVentilation) {
       const typeLabel = flags.isCoolingVentilation ? "Cooling" : "Heating";
+      const mainKind: TableKind = flags.isCoolingVentilation ? "cooling" : "heating";
 
-      renderTable(`${zoneName} ${typeLabel} (Exhaust)`, zoneId, roomsWithExhaust);
-      renderTable(`${zoneName} ${typeLabel} (Supply)`, zoneId, roomsWithoutExhaust);
+      renderTable(`${zoneName} ${typeLabel} (Exhaust)`, zoneId, zoneRooms, mainKind, "exhaust");
+      renderTable(`${zoneName} ${typeLabel} (Supply)`, zoneId, zoneRooms, mainKind, "supply");
 
-      renderTable(`${zoneName} Ventilation (Exhaust)`, zoneId, roomsWithExhaust);
-      renderTable(`${zoneName} Ventilation (Supply)`, zoneId, roomsWithoutExhaust);
+      renderTable(`${zoneName} Ventilation (Exhaust)`, zoneId, zoneRooms, "ventilation", "exhaust");
+      renderTable(`${zoneName} Ventilation (Supply)`, zoneId, zoneRooms, "ventilation", "supply");
     } else {
-      renderTable(`${zoneName} (Exhaust)`, zoneId, roomsWithExhaust);
-      renderTable(`${zoneName} (Supply)`, zoneId, roomsWithoutExhaust);
+      renderTable(`${zoneName} (Exhaust)`, zoneId, zoneRooms, "normal", "exhaust");
+      renderTable(`${zoneName} (Supply)`, zoneId, zoneRooms, "normal", "supply");
     }
   }
 

@@ -28,4 +28,4 @@ export const getProjectCounts = (user_id: string, customer_id: number) =>
   
 //EXCEL export
 export const getProjectExportData = (projectId: number) =>
-  request(`/v1/projects/${projectId}/export`, "GET");
+  request(`/v1/exceloutput/${projectId}`, "GET");

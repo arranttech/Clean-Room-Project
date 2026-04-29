@@ -103,6 +103,10 @@ function mg(rs: number, re: number, cs: number, ce: number) {
 }
 
 function buildWS(rows: CO[][]): XLSXStyle.WorkSheet {
+  if (!rows.length) {
+    rows = [[mc("No export data found.", C.yellow, C.black, true, false, "center")]];
+  }
+
   const ws: XLSXStyle.WorkSheet = {};
   const range = { s: { r: 0, c: 0 }, e: { r: rows.length - 1, c: 0 } };
 
@@ -116,7 +120,6 @@ function buildWS(rows: CO[][]): XLSXStyle.WorkSheet {
   ws["!ref"] = XLSXStyle.utils.encode_range(range);
   return ws;
 }
-
 type Sec = "cyan" | "brown" | "airflow" | "cooling" | "heating";
 
 type Col = {
@@ -279,15 +282,35 @@ function sameZone(room: any, result: any): boolean {
   return roomZoneId === resultZoneId;
 }
 
-function getAllResultRowsForRoom(room: any, resByName: Map<string, any[]>): any[] {
-  const rName = String(room.project_RoomName ?? "").trim();
+function getZoneId(obj: any): string {
+  return String(
+    obj.zone_id ??
+    obj.project_zone_id ??
+    obj.project_ZoneId ??
+    obj.zoneId ??
+    ""
+  ).trim();
+}
 
-  const rows = [
-    ...(resByName.get(rName) || []),
-    ...(resByName.get(`${rName} - Ventilation`) || []),
-    ...(resByName.get(`${rName}-Ventilation`) || []),
-  ];
-  return rows.filter((r) => sameZone(room, r));
+function resultMapKey(projectId: any, zoneId: any, roomName: any): string {
+  return `${String(projectId ?? "").trim()}__${String(zoneId ?? "").trim()}__${normalizeResultRoomName(roomName).toLowerCase()}`;
+}
+
+function normalizeResultRoomName(name: any): string {
+  return String(name ?? "")
+    .replace(" - Ventilation", "")
+    .replace("-Ventilation", "")
+    .trim();
+}
+
+function getAllResultRowsForRoom(room: any, resByName: Map<string, any[]>): any[] {
+  const key = resultMapKey(
+    room.project_id,
+    room.zone_id,
+    room.project_RoomName
+  );
+
+  return resByName.get(key) || [];
 }
 
 function getVentilationResultForRoom(room: any, resByName: Map<string, any[]>): any {
@@ -470,13 +493,17 @@ function buildZoneSheet(
   const resByName = new Map<string, any[]>();
 
   for (const r of results ?? []) {
-    const name = String(r.project_RoomName ?? "").trim();
+    const key = resultMapKey(
+      r.project_id,
+      r.zone_id,
+      r.project_RoomName
+    );
 
-    if (!resByName.has(name)) {
-      resByName.set(name, []);
+    if (!resByName.has(key)) {
+      resByName.set(key, []);
     }
 
-    resByName.get(name)!.push(r);
+    resByName.get(key)!.push(r);
   }
 
   const stdById = new Map<string, any>();
@@ -609,24 +636,23 @@ function buildZoneSheet(
         }
       }
     } else {
-      
-      for (const resultRows of resByName.values()) {
+      const addedRows = new Set<string>();
+
+      for (const room of zoneRooms) {
+        const resultRows = getAllResultRowsForRoom(room, resByName);
+
         for (const res of resultRows) {
-          const room = getRoomByResult(res);
-          if (!room) continue;
+          const dbExhaustAir = toNum(res.project_ExhaustAir);
 
-          const dbExhaustAir = Number(res.project_ExhaustAir || 0);
-
-          
           if (tableSide === "supply" && dbExhaustAir !== 0) continue;
           if (tableSide === "exhaust" && dbExhaustAir <= 0) continue;
 
           if (tableKind === "cooling") {
-           
             const coolingDataSum =
               toNum(res.project_DehumidCfm) +
               toNum(res.project_Rem_Water_Vapour) +
               toNum(res.project_ResultCfm) +
+              toNum(res.project_Room_Termi_Supply_Mod) +
               toNum(res.project_Room_AC_Load_TR) +
               toNum(res.project_Cfm_AC_Load_TR) +
               toNum(res.project_Res_Cooling_Load_TR);
@@ -639,17 +665,64 @@ function buildZoneSheet(
               toNum(res.project_add_Water_Vapour) +
               toNum(res.project_HumidCfm) +
               toNum(res.project_ResultCfm_Hot) +
+              toNum(res.project_Room_Term_Supply_Mod) +
               toNum(res.project_Room_Heating_Load_TR) +
               toNum(res.project_Cfm_Heating_Load_TR) +
               toNum(res.project_Result_Heating_Load_TR);
 
-           
             if (heatingDataSum === 0) continue;
           }
 
-          
-          if (tableKind === "normal" && !hasThermalValues(res)) continue;
+          if (tableKind === "normal") {
+            const coolingDataSum =
+              toNum(res.project_DehumidCfm) +
+              toNum(res.project_Rem_Water_Vapour) +
+              toNum(res.project_ResultCfm) +
+              toNum(res.project_Room_Termi_Supply_Mod) +
+              toNum(res.project_Room_AC_Load_TR) +
+              toNum(res.project_Cfm_AC_Load_TR) +
+              toNum(res.project_Res_Cooling_Load_TR);
 
+            const heatingDataSum =
+              toNum(res.project_add_Water_Vapour) +
+              toNum(res.project_HumidCfm) +
+              toNum(res.project_ResultCfm_Hot) +
+              toNum(res.project_Room_Term_Supply_Mod) +
+              toNum(res.project_Room_Heating_Load_TR) +
+              toNum(res.project_Cfm_Heating_Load_TR) +
+              toNum(res.project_Result_Heating_Load_TR);
+
+            // For Air Cooling and Heating System:
+            // remove row if cooling section OR heating section is fully zero
+            if (coolingDataSum === 0 || heatingDataSum === 0) continue;
+          }
+
+          const uniqueKey = [
+            getZoneId(room),
+            String(room.project_RoomName ?? "").trim(),
+            tableKind,
+            tableSide,
+            normalizeResultRoomName(res.project_RoomName),
+            toNum(res.project_ExhaustAir),
+            toNum(res.project_DehumidCfm),
+            toNum(res.project_Rem_Water_Vapour),
+            toNum(res.project_ResultCfm),
+            toNum(res.project_Room_Termi_Supply_Mod),
+            toNum(res.project_Room_AC_Load_TR),
+            toNum(res.project_Cfm_AC_Load_TR),
+            toNum(res.project_Res_Cooling_Load_TR),
+            toNum(res.project_add_Water_Vapour),
+            toNum(res.project_HumidCfm),
+            toNum(res.project_ResultCfm_Hot),
+            toNum(res.project_Room_Term_Supply_Mod),
+            toNum(res.project_Room_Heating_Load_TR),
+            toNum(res.project_Cfm_Heating_Load_TR),
+            toNum(res.project_Result_Heating_Load_TR),
+          ].join("__");
+
+          if (addedRows.has(uniqueKey)) continue;
+
+          addedRows.add(uniqueKey);
           tableRows.push({ room, res });
         }
       }
@@ -743,6 +816,12 @@ function buildZoneSheet(
 
       renderTable(`${zoneName} Ventilation (Exhaust)`, zoneId, zoneRooms, "ventilation", "exhaust");
       renderTable(`${zoneName} Ventilation (Supply)`, zoneId, zoneRooms, "ventilation", "supply");
+    } else if (flags.isHeatingSystem) {
+      renderTable(`${zoneName} Heating (Exhaust)`, zoneId, zoneRooms, "heating", "exhaust");
+      renderTable(`${zoneName} Heating (Supply)`, zoneId, zoneRooms, "heating", "supply");
+    } else if (flags.isCoolingSystem) {
+      renderTable(`${zoneName} Cooling (Exhaust)`, zoneId, zoneRooms, "cooling", "exhaust");
+      renderTable(`${zoneName} Cooling (Supply)`, zoneId, zoneRooms, "cooling", "supply");
     } else {
       renderTable(`${zoneName} (Exhaust)`, zoneId, zoneRooms, "normal", "exhaust");
       renderTable(`${zoneName} (Supply)`, zoneId, zoneRooms, "normal", "supply");
@@ -757,12 +836,87 @@ function buildZoneSheet(
   return ws;
 }
 
+function normalizeExcelOutputData(data: any) {
+  const spRows = Array.isArray(data?.data)
+    ? data.data
+    : Array.isArray(data)
+      ? data
+      : [];
+
+  // If API already returns old structure, keep it as-is
+  if (data?.project || data?.rooms || data?.results || data?.zones || data?.standards) {
+    return data;
+  }
+
+  const zoneMap = new Map<string, any>();
+  const roomMap = new Map<string, any>();
+  const resultRows: any[] = [];
+  const standardMap = new Map<string, any>();
+
+  for (const row of spRows) {
+    const zoneId = String(row.zone_id ?? "");
+    const roomName = String(row.project_RoomName ?? "").trim();
+    const roomId = String(row.project_RoomId ?? "");
+    const standardId = String(row.project_standard_id ?? "");
+
+    if (zoneId && !zoneMap.has(zoneId)) {
+      zoneMap.set(zoneId, {
+        zone_id: row.zone_id,
+        project_id: row.project_id,
+        zone_name: row.zone_name,
+      });
+    }
+
+    const roomKey = `${row.project_id}__${zoneId}__${roomId}__${normalizeResultRoomName(roomName)}`;
+
+    if (!roomMap.has(roomKey)) {
+      roomMap.set(roomKey, {
+        ...row,
+        zone_id: row.zone_id,
+        zone_name: row.zone_name,
+        project_RoomId: row.project_RoomId,
+        project_RoomName: normalizeResultRoomName(row.project_RoomName),
+        room_Length: row.room_Length,
+        room_Width: row.room_Width,
+        room_Height: row.room_Height,
+        room_ExhaustAir: row.room_ExhaustAir,
+        room_ExhaustAirCfm: row.room_ExhaustAirCfm,
+        project_standard_id: row.project_standard_id,
+      });
+    }
+
+    if (standardId && !standardMap.has(standardId)) {
+      standardMap.set(standardId, {
+        ...row,
+        project_standard_id: row.project_standard_id,
+      });
+    }
+
+    resultRows.push({
+      ...row,
+      zone_id: row.zone_id,
+      project_id: row.project_id,
+      project_RoomName: normalizeResultRoomName(row.project_RoomName),
+    });
+  }
+
+  return {
+    project: spRows[0] ?? {},
+    standards: Array.from(standardMap.values()),
+    rooms: Array.from(roomMap.values()),
+    results: resultRows,
+    zones: Array.from(zoneMap.values()),
+  };
+}
+
 export async function downloadProjectXLSX(
   projectId: number,
   projectUniqueId: string,
   fetchFn: (id: number) => Promise<any>
 ) {
-  const data = await fetchFn(projectId);
+  const rawData = await fetchFn(projectId);
+  const data = normalizeExcelOutputData(rawData);
+
   const { project, standards, rooms, results, zones } = data;
 
   const wb = XLSXStyle.utils.book_new();

@@ -8,3 +8,4 @@ export * from "./resultRepository";
 export * from "./inputRepository";
 export * from "./screenRespository";
 export * from "./profileRepository";
+export * from "./excelRepository";

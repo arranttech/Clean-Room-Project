@@ -1,5 +1,5 @@
 import { database } from "../dbConnection/connections";
-
+const dbName = process.env.DB_NAME;
 export const customerRepository = {
   getCustomerDetails: async () => {
     const [result] = await database.execute(`
@@ -117,7 +117,7 @@ export const customerRepository = {
     console.log("getCustomerInfo called with:", user_login_id);
 
     const [resultSets]: any = await database.execute(
-      "CALL new_cleanroom_db.CustomerInfoDetail(?)",
+      `CALL ${dbName}.CustomerInfoDetail(?)`,
       [user_login_id]
     );
 

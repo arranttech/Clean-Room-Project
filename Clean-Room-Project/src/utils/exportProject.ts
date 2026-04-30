@@ -808,23 +808,23 @@ function buildZoneSheet(
     const flags = getSystemFlags(systemTypeRaw);
 
     if (flags.isCoolingVentilation || flags.isHeatingVentilation) {
-      const typeLabel = flags.isCoolingVentilation ? "Cooling" : "Heating";
+      const typeLabel = flags.isCoolingVentilation ? "Air Cooling System" : "Air Heating System";
       const mainKind: TableKind = flags.isCoolingVentilation ? "cooling" : "heating";
 
       renderTable(`${zoneName} ${typeLabel} (Exhaust)`, zoneId, zoneRooms, mainKind, "exhaust");
       renderTable(`${zoneName} ${typeLabel} (Supply)`, zoneId, zoneRooms, mainKind, "supply");
 
-      renderTable(`${zoneName} Ventilation (Exhaust)`, zoneId, zoneRooms, "ventilation", "exhaust");
-      renderTable(`${zoneName} Ventilation (Supply)`, zoneId, zoneRooms, "ventilation", "supply");
+      renderTable(`${zoneName} Ventilation System (Exhaust)`, zoneId, zoneRooms, "ventilation", "exhaust");
+      renderTable(`${zoneName} Ventilation System (Supply)`, zoneId, zoneRooms, "ventilation", "supply");
     } else if (flags.isHeatingSystem) {
-      renderTable(`${zoneName} Heating (Exhaust)`, zoneId, zoneRooms, "heating", "exhaust");
-      renderTable(`${zoneName} Heating (Supply)`, zoneId, zoneRooms, "heating", "supply");
+      renderTable(`${zoneName} Air Heating System (Exhaust)`, zoneId, zoneRooms, "heating", "exhaust");
+      renderTable(`${zoneName} Air Heating System (Supply)`, zoneId, zoneRooms, "heating", "supply");
     } else if (flags.isCoolingSystem) {
-      renderTable(`${zoneName} Cooling (Exhaust)`, zoneId, zoneRooms, "cooling", "exhaust");
-      renderTable(`${zoneName} Cooling (Supply)`, zoneId, zoneRooms, "cooling", "supply");
+      renderTable(`${zoneName} Air Cooling System (Exhaust)`, zoneId, zoneRooms, "cooling", "exhaust");
+      renderTable(`${zoneName} Air Cooling System (Supply)`, zoneId, zoneRooms, "cooling", "supply");
     } else {
-      renderTable(`${zoneName} (Exhaust)`, zoneId, zoneRooms, "normal", "exhaust");
-      renderTable(`${zoneName} (Supply)`, zoneId, zoneRooms, "normal", "supply");
+      renderTable(`${zoneName} Air Cooling and Heating System (Exhaust)`, zoneId, zoneRooms, "normal", "exhaust");
+      renderTable(`${zoneName} Air Cooling and Heating System (Supply)`, zoneId, zoneRooms, "normal", "supply");
     }
   }
 

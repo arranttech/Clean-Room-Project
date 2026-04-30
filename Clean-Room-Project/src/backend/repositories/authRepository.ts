@@ -1,10 +1,11 @@
 import { database } from "../dbConnection/connections";
 import bcrypt from "bcrypt";
+const dbName = process.env.DB_NAME;
 
 export const authRepository = {
   loginUser: async (identifier: string, password: string) => {
     const [resultSets]: any = await database.execute(
-      "CALL new_cleanroom_db.UserLoginDetail(?)",
+      `CALL ${dbName}.UserLoginDetail(?)`,
       [identifier]
     );
 

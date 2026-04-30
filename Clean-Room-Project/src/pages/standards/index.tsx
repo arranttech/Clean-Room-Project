@@ -262,26 +262,54 @@ export default function Standard() {
   }, [projectId, zoneIdFromRedux, location.state?.resetKey]);
 
   const selectedStandard = standardsData.find((x) => x.title === standard);
-  const SPECIAL_STANDARDS = ["NC-Non Classified", "ISO 14698", "SCHEDULE M"];
+  const SPECIAL_STANDARDS = ["ISO 14644-4", "NC-Non Classified", "ISO 14698", "SCHEDULE M"];
 
   const isNonClassifiedSystem = useMemo(() => {
     if (!systemType) return false;
     const lower = systemType.toLowerCase();
-    return lower.includes("non-classified") || lower.includes("comfort") || lower.includes("ventilation");
+    return lower.includes("non-classified") || lower.includes("comfort");
   }, [systemType]);
 
   const filteredStandardsData = useMemo(() => {
-    if (systemType !== "" && !isNonClassifiedSystem)
-      return standardsData.filter(
-        (item) => !SPECIAL_STANDARDS.includes(item.title)
+    if (systemType === "") return standardsData;
+    if (isNonClassifiedSystem) {
+      return standardsData.filter((item) =>
+        SPECIAL_STANDARDS.includes(item.title)
       );
-    return standardsData;
+    } else {
+      return standardsData.filter(
+        (item) =>
+          !SPECIAL_STANDARDS.includes(item.title) ||
+          item.title === "ISO 14644-4"
+      );
+    }
   }, [systemType, isNonClassifiedSystem]);
 
   const classList = useMemo(() => {
     if (!selectedStandard) return [];
 
     let classifications = selectedStandard.classifications || [];
+
+    if (isNonClassifiedSystem) {
+      classifications = classifications.filter((c) => {
+        const name = c.name || "";
+        return (
+          name.toLowerCase().includes("non classified") ||
+          name.toLowerCase().includes("non-classified")
+        );
+      });
+      return classifications;
+    } else {
+      if (!SPECIAL_STANDARDS.includes(selectedStandard.title)) {
+        classifications = classifications.filter((c) => {
+          const name = c.name || "";
+          return !(
+            name.toLowerCase().includes("non classified") ||
+            name.toLowerCase().includes("non-classified")
+          );
+        });
+      }
+    }
 
     const industryFilters = (data as any).industryFilters || [];
     const activeFilter = industryFilters.find(
@@ -298,30 +326,7 @@ export default function Standard() {
       }
     }
 
-    if (isNonClassifiedSystem) {
-      if (SPECIAL_STANDARDS.includes(selectedStandard.title)) {
-        return classifications;
-      }
-      return classifications.filter((c) => {
-        const name = c.name || "";
-        return (
-          name.toLowerCase().includes("non classified") ||
-          name.toLowerCase().includes("non-classified")
-        );
-      });
-    }
-
-    if (SPECIAL_STANDARDS.includes(selectedStandard.title)) {
-      return classifications;
-    }
-
-    return classifications.filter((c) => {
-      const name = c.name || "";
-      return !(
-        name.toLowerCase().includes("non classified") ||
-        name.toLowerCase().includes("non-classified")
-      );
-    });
+    return classifications;
   }, [selectedStandard, isNonClassifiedSystem, industry, subIndustry]);
 
   const selectedClass = classList.find((c) => c.name === classification);

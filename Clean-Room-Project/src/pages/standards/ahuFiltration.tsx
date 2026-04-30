@@ -26,6 +26,108 @@ const FILTER_SPEC_ALIASES: Record<string, string> = {
   "Upper HEPA (H15 ~300mm) filter": "Upper HEPA (H15 ~300) filter",
 };
 
+const getIsoEquivalent = (standard: string, classification: string) => {
+  const mapping: Record<string, Record<string, string>> = {
+    "FDA 209E": {
+      "NC": "ISO 9 (Non-Classified)",
+      "Non-Classified": "ISO 9 (Non-Classified)",
+      "Class100K": "ISO 8",
+      "Class10K": "ISO 7",
+      "Class1K": "ISO 6",
+      "Class 100": "ISO 5",
+      "Class 10": "ISO 4",
+      "Class 1": "ISO 3",
+    },
+    "GMP": {
+      "NC": "ISO 9 (Non-Classified)",
+      "Non-Classified": "ISO 9 (Non-Classified)",
+      "Grade D (ISO 8 at Rest & Not Defined)": "ISO 8",
+      "Grade C (ISO 7 at Rest & ISO 8 in Oper.)": "ISO 7",
+      "Grade B (ISO 5 at Rest & ISO 7 in Oper.)": "ISO 6",
+      "Grade A (ISO 5 at Rest & ISO 5 in Oper.)": "ISO 5",
+    },
+    "JIS B 9920": {
+      "JIS Class 9": "ISO 9 (Non-Classified)",
+      "JIS Class 9 (Non-Classified)": "ISO 9 (Non-Classified)",
+      "JIS Class 8": "ISO 8",
+      "JIS Class 7": "ISO 7",
+      "JIS Class 6": "ISO 6",
+      "JIS Class 5": "ISO 5",
+      "JIS Class 4": "ISO 4",
+      "JIS Class 3": "ISO 3",
+      "JIS Class 2": "ISO 2",
+      "JIS Class 1": "ISO 1",
+    },
+    "EU GMP": {
+      "NC": "ISO 9 (Non-Classified)",
+      "Non-Classified": "ISO 9 (Non-Classified)",
+      "Grade D (ISO 7 at Rest & ISO 8 in Oper.)": "ISO 8",
+      "Grade C (ISO 7 at Rest & ISO 7 in Oper.)": "ISO 7",
+      "Grade B (ISO 5 at Rest & ISO 7 in Oper.)": "ISO 6",
+      "Grade A (ISO 5 at Rest & ISO 5 in Oper.)": "ISO 5",
+    },
+    "TGA": {
+      "NC": "ISO 9 (Non-Classified)",
+      "Non-Classified": "ISO 9 (Non-Classified)",
+      "3500": "ISO 8",
+      "350": "ISO 7",
+      "35": "ISO 6",
+      "3.5": "ISO 5",
+      "0.35": "ISO 4",
+      "0.035": "ISO 3",
+    },
+    "BS 5295": {
+      "NC": "ISO 9 (Non-Classified)",
+      "Non-Classified": "ISO 9 (Non-Classified)",
+      "K": "ISO 8",
+      "J": "ISO 7",
+      "G or H": "ISO 6",
+      "E or F": "ISO 5",
+      "D": "ISO 4",
+      "C": "ISO 3",
+    },
+    "GERMANY VD": {
+      "NC": "ISO 9 (Non-Classified)",
+      "Non-Classified": "ISO 9 (Non-Classified)",
+      "6": "ISO 8",
+      "5": "ISO 7",
+      "4": "ISO 6",
+      "3": "ISO 5",
+      "2": "ISO 4",
+      "1": "ISO 3",
+      "0": "ISO 2",
+    },
+    "AFNOR X44101": {
+      "NC": "ISO 9 (Non-Classified)",
+      "Non-Classified": "ISO 9 (Non-Classified)",
+      "4000000": "ISO 8",
+      "400000": "ISO 7",
+      "4000": "ISO 5",
+    },
+    "NC-Non Classified": {
+      "20μ": "ISO 9 (Non-Classified)",
+      "15μ": "ISO 8",
+      "10μ": "ISO 7",
+      "5μ": "ISO 6",
+      "1μ": "ISO 5",
+      "No-Filtration": "ISO 4",
+      "Positive Pressure": "ISO 3",
+      "Exhaust": "ISO 2",
+    }
+  };
+
+  if (standard === "ISO 14644-4") {
+    return { isoStandard: standard, isoClassification: classification };
+  }
+  
+  const isoClass = mapping[standard]?.[classification];
+  if (isoClass) {
+    return { isoStandard: "ISO 14644-4", isoClassification: isoClass };
+  }
+  
+  return { isoStandard: standard, isoClassification: classification };
+};
+
 const getFilterSpecs = (filterName: string) => {
   if (!filterName) return null;
   if (filterSpecsMap[filterName]) return filterSpecsMap[filterName];
@@ -42,65 +144,6 @@ export const AHU_CONSTRUCTION_KEYS = [
   ...Object.keys((ahuData as any).additionalSpecifications || {}),
 ];
 const MM_WG_TO_PA = config.calculationConstants.MM_WG_TO_PA;
-const ISO9_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
-  "Supply:Pre-HEPA Super fine filter",
-  "Supply:High Fine filter",
-]);
-const ISO8_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
-  "Supply:Pre-HEPA Super fine filter",
-  "Supply:High Fine filter",
-  "Supply:Fine pre-filter",
-]);
-const ISO7_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
-  "Supply:Leagcy (H14 ~300mm) filter",
-  "Supply:Leagcy (H14 ~150mm) filter",
-  "Supply:Leagcy (H13 ~300mm) filter",
-  "Supply:ULPA filter (U15 ~150mm)",
-  "Supply:Pre-HEPA Super fine filter",
-  "Supply:High Fine filter",
-  "Supply:Fine pre-filter",
-]);
-const ISO6_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
-  "Supply:ULPA filter (U15 ~150mm)",
-  "Supply:Leagcy (H14 ~150mm) filter",
-  "Supply:Pre-HEPA Super fine filter",
-  "Supply:High Fine filter",
-  "Supply:Fine pre-filter",
-]);
-const ISO5_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
-  "Supply:ULPA filter (U15 ~150mm)",
-  "Supply:Leagcy (H14 ~150mm) filter",
-  "Supply:Pre-HEPA Super fine filter",
-  "Supply:High Fine filter",
-  "Supply:Fine pre-filter",
-]);
-const ISO4_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
-  "Supply:ULPA filter (U17 ~150mm)",
-  "Supply:Pre-HEPA Super fine filter",
-  "Supply:High Fine filter",
-  "Supply:Fine pre-filter",
-]);
-const ISO3_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
-  "Supply:Pre-HEPA Super fine filter",
-  "Supply:High Fine filter",
-  "Supply:Fine pre-filter",
-]);
-const ISO2_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
-  "Supply:Pre-HEPA Super fine filter",
-  "Supply:High Fine filter",
-  "Supply:Fine pre-filter",
-]);
-const ISO1_VENTILATION_SUGGESTED_SUPPLY_KEYS = new Set<string>([
-  "Supply:Pre-HEPA Super fine filter",
-  "Supply:High Fine filter",
-  "Supply:Fine pre-filter",
-]);
-const ISO9_TO_ISO1_VENTILATION_SUGGESTED_EXHAUST_KEYS = new Set<string>([
-  "Exhaust:High Fine filter",
-  "Exhaust:Pre-HEPA Super fine filter",
-  "Exhaust:Leagcy (H13 ~300mm) filter",
-  "Exhaust:Leagcy (H14 ~300mm) filter",
-]);
 const ISO9_TO_ISO1_THERMAL_SUGGESTED_SUPPLY_KEYS = new Set<string>([
   "Supply:Legacy (H13 ~300mm) filter",
   "Supply:EPA (H11) (pre-HEPA) filter",
@@ -130,28 +173,6 @@ const getIsoVentilationSuggestedSupplyKeys = (
   systemType: string,
   classification: string,
 ) => {
-  const isIsoVentilationContext =
-    standard === "ISO 14644-4" &&
-    system === "Ventilation System" &&
-    (systemType === "Cleanroom Ventilation System" ||
-      systemType === "Non-Classified Ventilation System" ||
-      systemType === "Non Cleanroom Ventilation System");
-
-  if (!isIsoVentilationContext) return new Set<string>();
-  if (
-    classification === "ISO 9" ||
-    classification === "ISO 9 (Non-Classified)"
-  ) {
-    return ISO9_VENTILATION_SUGGESTED_SUPPLY_KEYS;
-  }
-  if (classification === "ISO 8") return ISO8_VENTILATION_SUGGESTED_SUPPLY_KEYS;
-  if (classification === "ISO 7") return ISO7_VENTILATION_SUGGESTED_SUPPLY_KEYS;
-  if (classification === "ISO 6") return ISO6_VENTILATION_SUGGESTED_SUPPLY_KEYS;
-  if (classification === "ISO 5") return ISO5_VENTILATION_SUGGESTED_SUPPLY_KEYS;
-  if (classification === "ISO 4") return ISO4_VENTILATION_SUGGESTED_SUPPLY_KEYS;
-  if (classification === "ISO 3") return ISO3_VENTILATION_SUGGESTED_SUPPLY_KEYS;
-  if (classification === "ISO 2") return ISO2_VENTILATION_SUGGESTED_SUPPLY_KEYS;
-  if (classification === "ISO 1") return ISO1_VENTILATION_SUGGESTED_SUPPLY_KEYS;
   return new Set<string>();
 };
 
@@ -161,30 +182,6 @@ const getIsoVentilationSuggestedExhaustKeys = (
   systemType: string,
   classification: string,
 ) => {
-  const isIsoVentilationContext =
-    standard === "ISO 14644-4" &&
-    system === "Ventilation System" &&
-    (systemType === "Cleanroom Ventilation System" ||
-      systemType === "Non-Classified Ventilation System" ||
-      systemType === "Non Cleanroom Ventilation System");
-
-  if (!isIsoVentilationContext) return new Set<string>();
-  if (
-    [
-      "ISO 9",
-      "ISO 9 (Non-Classified)",
-      "ISO 8",
-      "ISO 7",
-      "ISO 6",
-      "ISO 5",
-      "ISO 4",
-      "ISO 3",
-      "ISO 2",
-      "ISO 1",
-    ].includes(classification)
-  ) {
-    return ISO9_TO_ISO1_VENTILATION_SUGGESTED_EXHAUST_KEYS;
-  }
   return new Set<string>();
 };
 
@@ -443,123 +440,26 @@ export const validateAhuConstruction = (standards: any) => {
   return null;
 };
 
-const FilterDetailCard = ({
-  filterName,
-  specs,
-  data,
-  onUpdate,
-}: {
-  filterName: string;
-  specs: any;
-  data: any;
-  onUpdate: (details: any) => void;
-}) => {
-  // mmWG TO PA conversion factor
-  const s = standardDesign;
-
-  const generateMmwgSteps = (minMmwg: number, maxMmwg: number) => {
-    const steps = [];
-    const start = Math.floor(minMmwg);
-    const end = Math.ceil(maxMmwg);
-    for (let i = start; i <= end; i++) {
-      if (i >= minMmwg && i <= maxMmwg) {
-        steps.push(i);
-      }
+// FilterDetailCard removed, inline row rendering is used instead.
+const generateMmwgSteps = (minMmwg: number, maxMmwg: number) => {
+  const steps = [];
+  const start = Math.floor(minMmwg);
+  const end = Math.ceil(maxMmwg);
+  for (let i = start; i <= end; i++) {
+    if (i >= minMmwg && i <= maxMmwg) {
+      steps.push(i);
     }
-    if (!steps.includes(minMmwg)) steps.push(minMmwg);
-    if (!steps.includes(maxMmwg)) steps.push(maxMmwg);
-    return Array.from(new Set(steps)).sort((a, b) => a - b);
-  };
-
-  const initMmwgSteps = generateMmwgSteps(
-    specs.initRange[0],
-    specs.initRange[1],
-  );
-  const finalMmwgSteps = generateMmwgSteps(
-    specs.finalRange[0],
-    specs.finalRange[1],
-  );
-
-  const formatPressure = (mmwg: number) => {
-    const pa = Math.round(mmwg * MM_WG_TO_PA);
-    return `${mmwg} mmWG / ${pa} Pa`;
-  };
-
-  const currentInitMmwg =
-    data?.initialDp !== undefined
-      ? Math.round((data.initialDp / MM_WG_TO_PA) * 10) / 10
-      : specs.initRange[0];
-  const currentFinalMmwg =
-    data?.finalDp !== undefined
-      ? Math.round((data.finalDp / MM_WG_TO_PA) * 10) / 10
-      : specs.finalRange[1];
-
-  return (
-    <div className={s.filterCard + " mt-3"}>
-      <div className={s.filterHeader}>
-        <div className={s.filterTitle}>{filterName}</div>
-      </div>
-
-      <div className={s.filterStats}>
-        <div className={s.filterStatRow}>
-          <span className={s.filterStatLabel}>Filter Rating:</span>
-          <span className={s.filterStatValue}>{specs.rating}</span>
-        </div>
-        <div className={s.filterStatRow}>
-          <span className={s.filterStatLabel}>Depth:</span>
-          <span className={s.filterStatValue}>{specs.depth}</span>
-        </div>
-        <div className={s.filterStatRow}>
-          <span className={s.filterStatLabel}>Min. Efficiency:</span>
-          <span className={s.filterStatValue}>{specs.efficiency}</span>
-        </div>
-      </div>
-
-      <div className={s.filterDpGrid}>
-        <div>
-          <div className={s.filterDpLabel}>Initial Δp:</div>
-          <select
-            className={s.select + " py-2 text-xs"}
-            value={currentInitMmwg}
-            onChange={(e) =>
-              onUpdate({ initialDp: Number(e.target.value) * MM_WG_TO_PA })
-            }
-          >
-            {initMmwgSteps.map((mmwg) => (
-              <option key={mmwg} value={mmwg}>
-                {formatPressure(mmwg)}
-              </option>
-            ))}
-          </select>
-          <div className={s.filterDpRange}>
-            Range: {formatPressure(specs.initRange[0])} -{" "}
-            {formatPressure(specs.initRange[1])}
-          </div>
-        </div>
-        <div>
-          <div className={s.filterDpLabel}>Final Δp:</div>
-          <select
-            className={s.select + " py-2 text-xs"}
-            value={currentFinalMmwg}
-            onChange={(e) =>
-              onUpdate({ finalDp: Number(e.target.value) * MM_WG_TO_PA })
-            }
-          >
-            {finalMmwgSteps.map((mmwg) => (
-              <option key={mmwg} value={mmwg}>
-                {formatPressure(mmwg)}
-              </option>
-            ))}
-          </select>
-          <div className={s.filterDpRange}>
-            Range: {formatPressure(specs.finalRange[0])} -{" "}
-            {formatPressure(specs.finalRange[1])}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  }
+  if (!steps.includes(minMmwg)) steps.push(minMmwg);
+  if (!steps.includes(maxMmwg)) steps.push(maxMmwg);
+  return Array.from(new Set(steps)).sort((a, b) => a - b);
 };
+
+const formatPressure = (mmwg: number) => {
+  const pa = Math.round(mmwg * MM_WG_TO_PA);
+  return `${mmwg} mmWG / ${pa} Pa`;
+};
+
 const ConfigSelect = ({
   label,
   field,
@@ -752,13 +652,18 @@ const AHUFiltration = () => {
     handlingBasedConstructionRequiredRules,
   ).filter(([handlingName]) => normalizedHandlingSelections.has(handlingName));
 
+  const { isoStandard, isoClassification } = getIsoEquivalent(
+    standard,
+    classification,
+  );
+
   const autoRulesForUi = Array.isArray(filterSelectionConfig.autoSelectionRules)
     ? filterSelectionConfig.autoSelectionRules
     : [];
   const matchedAutoRuleForUi = autoRulesForUi.find((rule: any) =>
     ruleMatchesSelectionContext(
       rule,
-      standard,
+      isoStandard,
       system,
       systemType,
       coolingMethod,
@@ -767,22 +672,24 @@ const AHUFiltration = () => {
   );
   const matchedAutoClassForUi = (
     matchedAutoRuleForUi?.classifications || []
-  ).find((entry: any) => entry.name === classification);
-  const autoRuleContextKey = `${standard || ""}||${system || ""}||${systemType || ""}||${classification || ""}||${coolingMethod || ""}||${heatingMethod || ""}`;
+  ).find((entry: any) => entry.name === isoClassification);
+  const autoRuleContextKey = `${isoStandard || ""}||${system || ""}||${systemType || ""}||${isoClassification || ""}||${coolingMethod || ""}||${heatingMethod || ""}`;
   const contextSuggestedSupplyKeys = getContextSuggestedSupplyKeys(
-    standard,
+    isoStandard,
     system,
     systemType,
-    classification,
+    isoClassification,
     coolingMethod,
     heatingMethod,
   );
   const hasSuggestedSupplyMode = contextSuggestedSupplyKeys.size > 0;
   const contextSuggestedExhaustKeys = getContextSuggestedExhaustKeys(
-    standard,
+    isoStandard,
     system,
     systemType,
-    classification,
+    isoClassification,
+    coolingMethod,
+    heatingMethod,
   );
   const hasSuggestedExhaustMode = contextSuggestedExhaustKeys.size > 0;
   const currentRuleSupplyKeys = (
@@ -801,15 +708,7 @@ const AHUFiltration = () => {
       )
         ? matchedAutoClassForUi.filters[type]
         : [];
-      return filtersForType
-        .map((filterName: string) => `${type}:${filterName}`)
-        .filter(
-          (key: string) =>
-            !(
-              (hasSuggestedSupplyMode && contextSuggestedSupplyKeys.has(key)) ||
-              (hasSuggestedExhaustMode && contextSuggestedExhaustKeys.has(key))
-            ),
-        );
+      return filtersForType.map((filterName: string) => `${type}:${filterName}`);
     }),
   );
   const dismissedRuleKeysForUi =
@@ -1191,20 +1090,22 @@ const AHUFiltration = () => {
   // Auto-select filters from JSON rules for ISO cleanroom ventilation flow.
   useEffect(() => {
     const contextSuggestedSupplyKeysForEffect = getContextSuggestedSupplyKeys(
-      standard,
+      isoStandard,
       system,
       systemType,
-      classification,
+      isoClassification,
       coolingMethod,
       heatingMethod,
     );
     const hasSuggestedSupplyModeForEffect =
       contextSuggestedSupplyKeysForEffect.size > 0;
     const contextSuggestedExhaustKeysForEffect = getContextSuggestedExhaustKeys(
-      standard,
+      isoStandard,
       system,
       systemType,
-      classification,
+      isoClassification,
+      coolingMethod,
+      heatingMethod,
     );
     const hasSuggestedExhaustModeForEffect =
       contextSuggestedExhaustKeysForEffect.size > 0;
@@ -1216,7 +1117,7 @@ const AHUFiltration = () => {
     const matchedRule = autoRules.find((rule: any) =>
       ruleMatchesSelectionContext(
         rule,
-        standard,
+        isoStandard,
         system,
         systemType,
         coolingMethod,
@@ -1226,7 +1127,7 @@ const AHUFiltration = () => {
     if (!matchedRule) return;
 
     const classRule = (matchedRule.classifications || []).find(
-      (entry: any) => entry.name === classification,
+      (entry: any) => entry.name === isoClassification,
     );
     if (!classRule) return;
 
@@ -1265,16 +1166,6 @@ const AHUFiltration = () => {
 
       configuredFilters.forEach((filterName: string) => {
         const key = `${type}:${filterName}`;
-        if (
-          hasSuggestedSupplyModeForEffect &&
-          contextSuggestedSupplyKeysForEffect.has(key)
-        )
-          return;
-        if (
-          hasSuggestedExhaustModeForEffect &&
-          contextSuggestedExhaustKeysForEffect.has(key)
-        )
-          return;
         if (type === "Supply" && dismissedSupplySet.has(key)) return;
         if (nextSelected.includes(key)) return;
         nextSelected.push(key);
@@ -1344,16 +1235,18 @@ const AHUFiltration = () => {
     }
   }, [filterTypeSelection, hasSpecialHandling]);
 
+
+
+
   useEffect(() => {
-    if (!hasHandlingRequiringExhaust) return;
-    if (filterTypes.includes("Exhaust")) return;
-    dispatch(
-      updateStandardsField({
-        field: "filterTypeSelection",
-        value: [...filterTypes, "Exhaust"],
-      }),
-    );
-  }, [hasHandlingRequiringExhaust, filterTypeSelection, filterTypes, dispatch]);
+    if (system === "Ventilation System") {
+      const currentTypes = Array.isArray(filterTypeSelection) ? filterTypeSelection : [];
+      if (!currentTypes.includes("Supply") || !currentTypes.includes("Exhaust")) {
+        const updated = Array.from(new Set([...currentTypes, "Supply", "Exhaust"]));
+        handleChange("filterTypeSelection", updated);
+      }
+    }
+  }, [system, filterTypeSelection]);
 
   useEffect(() => {
     const activeRuleNames = new Set(
@@ -2023,9 +1916,7 @@ const AHUFiltration = () => {
                       className={`${s.input} cursor-pointer flex items-center justify-between min-h-[48px] px-4 py-2 bg-white border-2 ${
                         filterTypeOpen
                           ? "border-blue-500 ring-4 ring-blue-50"
-                          : filterTypes.length === 0
-                            ? "border-red-300 bg-red-50/10"
-                            : "border-slate-200"
+                          : "border-slate-200"
                       }`}
                     >
                       <div className={s.selectedTags}>
@@ -2145,207 +2036,232 @@ const AHUFiltration = () => {
                 </div>
               </div>
 
-              <div
-                className={`${s.filterGridMain} ${filterTypes.length > 1 ? s.filterGridLg2 : ""}`}
-              >
-                {filterTypes.map((type) => (
-                  <div key={type} className={s.typeGroup}>
-                    <div className={s.typeTitle}>{type} Filters</div>
+              <div className="flex flex-col gap-8 mt-6">
+                {filterTypes.map((type) => {
+                  const baseFilters =
+                    type === "Exhaust"
+                      ? ahuData.filtrationSelection.exhaustFilters
+                      : ahuData.filtrationSelection.supplyFilters;
 
-                    {type === "Exhaust" && (
-                      <div className={s.impactBox}>
-                        <div className={s.impactTitle}>Impact of Exhaust</div>
-                        <div className={s.impactContent}>
-                          <div className={s.field}>
-                            <label className={s.label}>
-                              Exhaust Impact (0-120%){" "}
-                              <span className={s.required}>*</span>
-                            </label>
-                            <input
-                              type="number"
-                              className={s.input}
-                              placeholder="Enter percentage (0-120)"
-                              value={
-                                exhaustImpactPercentage
-                                  ? exhaustImpactPercentage.replace(
-                                      /[^0-9.-]/g,
-                                      "",
-                                    )
-                                  : ""
-                              }
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                if (val === "") {
-                                  handleChange("exhaustImpactPercentage", "");
-                                  return;
+                  const specialExhaustFilters =
+                    type === "Exhaust" && hasSpecialHandling
+                      ? filterSelectionConfig.specialExhaustFilters
+                      : [];
+
+                  let currentFilters =
+                    type === "Exhaust" && hasSpecialHandling
+                      ? [
+                          ...specialExhaustFilters,
+                          ...baseFilters.filter(
+                            (f: string) => !specialExhaustFilters.includes(f),
+                          ),
+                        ]
+                      : baseFilters;
+
+                  currentFilters = currentFilters.filter((filter: string) => {
+                    const k = `${type}:${filter}`;
+                    const isSelected = (selectedFilters || []).includes(k);
+                    const isPreselectedAndDisabled = specialExhaustFilters.includes(filter);
+                    const isUserChoice = matchedAutoClassForUi?.userChoiceFilters?.[type]?.includes(filter) || false;
+                    const isAutoPreselected = matchedAutoClassForUi?.filters?.[type]?.includes(filter) || false;
+                    return isSelected || isPreselectedAndDisabled || isUserChoice || isAutoPreselected;
+                  }).sort((a: string, b: string) => {
+                    const isPreA = specialExhaustFilters.includes(a) || (matchedAutoClassForUi?.filters?.[type]?.includes(a) || false);
+                    const isPreB = specialExhaustFilters.includes(b) || (matchedAutoClassForUi?.filters?.[type]?.includes(b) || false);
+                    if (isPreA && !isPreB) return -1;
+                    if (!isPreA && isPreB) return 1;
+                    return 0;
+                  });
+
+                  const selectedCount = currentFilters.filter((filter: string) => {
+                    const k = `${type}:${filter}`;
+                    return (selectedFilters || []).includes(k) || specialExhaustFilters.includes(filter);
+                  }).length;
+
+                  const titleBarClass = type === "Supply" ? s.titleBarSupply : s.titleBarExhaust;
+                  const thClass = type === "Supply" ? s.thSupply : s.thExhaust;
+
+                  return (
+                    <div key={type} className="flex flex-col gap-4">
+                      <div className={`flex items-center gap-2 ${titleBarClass}`}>
+                        <h3 className="text-sm font-bold text-slate-800">{type} Filters</h3>
+                        <span className="text-xs font-semibold text-slate-400">({selectedCount} selected)</span>
+                      </div>
+
+                      {type === "Exhaust" && (
+                        <div className={s.impactBox}>
+                          <div className={s.impactTitle}>Impact of Exhaust</div>
+                          <div className={s.impactContent}>
+                            <div className={s.field}>
+                              <label className={s.label}>
+                                Exhaust Impact (0-120%){" "}
+                                <span className={s.required}>*</span>
+                              </label>
+                              <input
+                                type="number"
+                                className={s.input}
+                                placeholder="Enter percentage (0-120)"
+                                value={
+                                  exhaustImpactPercentage
+                                    ? exhaustImpactPercentage.replace(
+                                        /[^0-9.-]/g,
+                                        "",
+                                      )
+                                    : ""
                                 }
-                                dispatch(
-                                  updateStandardsField({
-                                    field: "exhaustImpactPercentage",
-                                    value: val,
-                                  }),
-                                );
-                              }}
-                            />
-                            {exhaustImpactPercentage &&
-                              (Number(
-                                exhaustImpactPercentage.replace(
-                                  /[^0-9.-]/g,
-                                  "",
-                                ),
-                              ) < 0 ||
-                                Number(
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  if (val === "") {
+                                    handleChange("exhaustImpactPercentage", "");
+                                    return;
+                                  }
+                                  dispatch(
+                                    updateStandardsField({
+                                      field: "exhaustImpactPercentage",
+                                      value: val,
+                                    }),
+                                  );
+                                }}
+                              />
+                              {exhaustImpactPercentage &&
+                                (Number(
                                   exhaustImpactPercentage.replace(
                                     /[^0-9.-]/g,
                                     "",
                                   ),
-                                ) > 120) && (
-                                <div className="text-red-500 text-xs mt-1">
-                                  Value must be between 0 and 120%
-                                </div>
-                              )}
+                                ) < 0 ||
+                                  Number(
+                                    exhaustImpactPercentage.replace(
+                                      /[^0-9.-]/g,
+                                      "",
+                                    ),
+                                  ) > 120) && (
+                                  <div className="text-red-500 text-xs mt-1">
+                                    Value must be between 0 and 120%
+                                  </div>
+                                )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
-                    <div
-                      className={`grid grid-cols-1 ${filterTypes.length > 1 ? s.subGridGap : s.subGridMd2}`}
-                    >
-                      {/* Sub-grid for filters - use two columns only if single type is selected */}
-                      {(filterTypes.length > 1 ? [0] : [0, 1]).map(
-                        (colIndex) => {
-                          const baseFilters =
-                            type === "Exhaust"
-                              ? ahuData.filtrationSelection.exhaustFilters
-                              : ahuData.filtrationSelection.supplyFilters;
-
-                          const specialExhaustFilters =
-                            type === "Exhaust" && hasSpecialHandling
-                              ? filterSelectionConfig.specialExhaustFilters
-                              : [];
-
-                          const currentFilters =
-                            type === "Exhaust" && hasSpecialHandling
-                              ? [
-                                  ...specialExhaustFilters,
-                                  ...baseFilters.filter(
-                                    (f) => !specialExhaustFilters.includes(f),
-                                  ),
-                                ]
-                              : baseFilters;
-
-                          return (
-                            <div key={colIndex} className={s.typeGroup}>
-                              {currentFilters
-                                .filter((_, i) =>
-                                  filterTypes.length > 1
-                                    ? true
-                                    : i % 2 === colIndex,
-                                )
-                                .map((filter) => {
-                                  const k = `${type}:${filter}`;
-                                  const isSelected = (
-                                    selectedFilters || []
-                                  ).includes(k);
-                                  const isPreselectedAndDisabled =
-                                    specialExhaustFilters.includes(filter);
-                                  const isRulePreselectedButManuallyRemoved =
-                                    !isSelected &&
-                                    autoRulePreselectedKeys.has(k) &&
-                                    dismissedRuleKeysForUi.has(k);
-                                  const isSuggestedNotSelected =
-                                    !isSelected &&
-                                    ((hasSuggestedSupplyMode &&
-                                      contextSuggestedSupplyKeys.has(k)) ||
-                                      (hasSuggestedExhaustMode &&
-                                        contextSuggestedExhaustKeys.has(k)));
-                                  const showOrangeForNonSelected =
-                                    hasPreselectedModeActive &&
-                                    !isPreselectedAndDisabled &&
-                                    !isRulePreselectedButManuallyRemoved &&
-                                    !isSuggestedNotSelected &&
-                                    !isSelected;
-                                  const checkboxStyle:
-                                    | CSSProperties
-                                    | undefined =
-                                    isRulePreselectedButManuallyRemoved ||
-                                    isSuggestedNotSelected
-                                      ? {
-                                          appearance: "none",
-                                          WebkitAppearance: "none",
-                                          MozAppearance: "none",
-                                          width: "18px",
-                                          height: "18px",
-                                          border: "2px solid #22c55e",
-                                          borderRadius: "4px",
-                                          backgroundColor: "#dcfce7",
-                                        }
-                                      : showOrangeForNonSelected
-                                        ? {
-                                            appearance: "none",
-                                            WebkitAppearance: "none",
-                                            MozAppearance: "none",
-                                            width: "18px",
-                                            height: "18px",
-                                            border: "2px solid #fc8314",
-                                            borderRadius: "4px",
-                                            backgroundColor: "#ffe7d1",
-                                          }
-                                        : undefined;
-                                  const specs = getFilterSpecs(filter);
-                                  return (
-                                    <div key={k} className={s.inputGroup}>
-                                      <label
-                                        className={`${s.filterLabelBase} ${isPreselectedAndDisabled ? s.filterLabelDisabled : s.filterLabelEnabled}`}
-                                      >
-                                        <div className={s.relativeFlex}>
-                                          <input
-                                            type="checkbox"
-                                            className={`${s.checkboxBase} ${isPreselectedAndDisabled ? s.checkboxDisabled : s.checkboxEnabled}`}
-                                            checked={
-                                              isSelected ||
-                                              isPreselectedAndDisabled
-                                            }
-                                            style={checkboxStyle}
-                                            disabled={isPreselectedAndDisabled}
-                                            onChange={() =>
-                                              handleFilterToggle(type, filter)
-                                            }
-                                          />
-                                        </div>
-                                        <span
-                                          className={`${s.filterTextBase} ${isPreselectedAndDisabled ? s.filterTextDisabled : s.filterTextEnabled}`}
-                                        >
-                                          {filter}
-                                        </span>
-                                      </label>
-                                      {(isSelected ||
-                                        isPreselectedAndDisabled) &&
-                                        specs && (
-                                          <FilterDetailCard
-                                            filterName={filter}
-                                            specs={specs}
-                                            data={selectedFilterDetails[k]}
-                                            onUpdate={(details) =>
-                                              dispatch(
-                                                updateFilterDetail({
-                                                  filterName: k,
-                                                  details,
-                                                }),
-                                              )
-                                            }
-                                          />
-                                        )}
-                                    </div>
-                                  );
-                                })}
-                            </div>
-                          );
-                        },
                       )}
+
+                      <div className={s.tableWrapper}>
+                        <table className={s.table}>
+                          <thead>
+                            <tr className={thClass}>
+                              <th className={s.th}>Select</th>
+                              <th className={s.th}>Filter Name</th>
+                              <th className={s.th}>Rating</th>
+                              <th className={s.th}>Depth</th>
+                              <th className={s.th}>Efficiency</th>
+                              <th className={s.th}>Initial Δp</th>
+                              <th className={s.th}>Final Δp</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {currentFilters.map((filter: string) => {
+                              const k = `${type}:${filter}`;
+                              const isSelected = (selectedFilters || []).includes(k);
+                              const isPreselectedAndDisabled = specialExhaustFilters.includes(filter);
+                              
+                              const specs = getFilterSpecs(filter);
+                              const isActive = isSelected || isPreselectedAndDisabled;
+                              const rowClass = isActive ? s.rowSelected : s.rowUnselected;
+
+                              const data = selectedFilterDetails[k];
+                              const currentInitMmwg = data?.initialDp !== undefined && data?.initialDp !== null
+                                ? Math.round((data.initialDp / MM_WG_TO_PA) * 10) / 10
+                                : specs ? specs.initRange[0] : 0;
+                              const currentFinalMmwg = data?.finalDp !== undefined && data?.finalDp !== null
+                                ? Math.round((data.finalDp / MM_WG_TO_PA) * 10) / 10
+                                : specs ? specs.finalRange[1] : 0;
+
+                              const initMmwgSteps = specs ? generateMmwgSteps(specs.initRange[0], specs.initRange[1]) : [];
+                              const finalMmwgSteps = specs ? generateMmwgSteps(specs.finalRange[0], specs.finalRange[1]) : [];
+
+                              return (
+                                <tr key={k} className={rowClass}>
+                                  <td className={s.td}>
+                                    <div className={s.tableCheckboxWrapper}>
+                                      <input
+                                        type="checkbox"
+                                        className={`${s.checkboxBase} ${isPreselectedAndDisabled ? s.checkboxDisabled : s.checkboxEnabled}`}
+                                        checked={isActive}
+                                        disabled={isPreselectedAndDisabled}
+                                        onChange={() => handleFilterToggle(type, filter)}
+                                      />
+                                    </div>
+                                  </td>
+                                  <td className={s.td}>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <span className={`${s.filterTextBase} ${isPreselectedAndDisabled ? s.filterTextDisabled : "text-slate-700"}`}>
+                                        {filter}
+                                      </span>
+                                      {isPreselectedAndDisabled && (
+                                        <span className={s.pillPreselected}>Preselected</span>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td className={s.td}>{specs?.rating || <span className={s.emptyDash}>—</span>}</td>
+                                  <td className={s.td}>{specs?.depth || <span className={s.emptyDash}>—</span>}</td>
+                                  <td className={s.td}>{specs?.efficiency || <span className={s.emptyDash}>—</span>}</td>
+                                  <td className={s.td}>
+                                    {isActive && specs ? (
+                                      <select
+                                        className={s.tableSelectInput}
+                                        value={currentInitMmwg}
+                                        onChange={(e) =>
+                                          dispatch(
+                                            updateFilterDetail({
+                                              filterName: k,
+                                              details: { initialDp: Number(e.target.value) * MM_WG_TO_PA },
+                                            })
+                                          )
+                                        }
+                                      >
+                                        {initMmwgSteps.map((mmwg) => (
+                                          <option key={mmwg} value={mmwg}>
+                                            {formatPressure(mmwg)}
+                                          </option>
+                                        ))}
+                                      </select>
+                                    ) : (
+                                      <span className={s.emptyDash}>—</span>
+                                    )}
+                                  </td>
+                                  <td className={s.td}>
+                                    {isActive && specs ? (
+                                      <select
+                                        className={s.tableSelectInput}
+                                        value={currentFinalMmwg}
+                                        onChange={(e) =>
+                                          dispatch(
+                                            updateFilterDetail({
+                                              filterName: k,
+                                              details: { finalDp: Number(e.target.value) * MM_WG_TO_PA },
+                                            })
+                                          )
+                                        }
+                                      >
+                                        {finalMmwgSteps.map((mmwg) => (
+                                          <option key={mmwg} value={mmwg}>
+                                            {formatPressure(mmwg)}
+                                          </option>
+                                        ))}
+                                      </select>
+                                    ) : (
+                                      <span className={s.emptyDash}>—</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div className={s.finalSection}>

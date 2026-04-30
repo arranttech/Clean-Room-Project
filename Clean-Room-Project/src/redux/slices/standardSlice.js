@@ -45,7 +45,7 @@ const initialState = {
 	purgeWall: "",
 	pipeConfiguration: "",
 	treatedFreshAirUnit: "",
-	filterTypeSelection: [],
+	filterTypeSelection: ["Supply"],
 	selectedFilters: [],
 	selectedFilterDetails: {},
 	exhaustImpactPercentage: "",

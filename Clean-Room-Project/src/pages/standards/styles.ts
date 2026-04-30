@@ -177,6 +177,28 @@ const standardDesign = {
 	toggleThumbOn: `translate-x-5`,
 	toggleThumbOff: `translate-x-0`,
 	toggleLabel: `text-xs ${theme.weightBold} text-${theme.primaryText} uppercase ${theme.trackingWidest}`,
+
+	// Table Layout for Filters
+	tableWrapper:
+		`w-full border border-${theme.borderColor} ${theme.roundLg} overflow-x-auto overflow-y-scroll max-h-[400px] mb-6 sm:mb-8 ` +
+		`[&::-webkit-scrollbar]:w-[10px] [&::-webkit-scrollbar]:h-[10px] [&::-webkit-scrollbar]:block ` +
+		`[&::-webkit-scrollbar-track]:bg-slate-50 [&::-webkit-scrollbar-track]:rounded-xl [&::-webkit-scrollbar-track]:border [&::-webkit-scrollbar-track]:border-slate-200 ` +
+		`[&::-webkit-scrollbar-thumb]:bg-slate-500 [&::-webkit-scrollbar-thumb]:rounded-xl [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-slate-50 ` +
+		`[&::-webkit-scrollbar-thumb:hover]:bg-slate-700 [scrollbar-width:thin] [scrollbar-color:#64748b_#f8fafc]`,
+	table: `w-full text-left border-collapse text-xs sm:text-sm`,
+	th: `sticky top-0 z-20 px-4 py-3 sm:py-4 ${theme.weightBold} text-${theme.textPrimary} border-b border-${theme.borderColor} bg-slate-100`,
+	thSupply: ``, // Background moved to th
+	thExhaust: ``, // Background moved to th
+	td: `px-4 py-3 sm:py-4 text-${theme.textSecondary} border-b border-${theme.borderColor} align-middle`,
+	rowSelected: `bg-white hover:bg-slate-50 ${theme.transitionColors}`, // Neutral background
+	rowUnselected: `bg-white hover:bg-slate-50 ${theme.transitionColors}`,
+	pillPreselected: `hidden`, // Hidden
+	titleBarSupply: `border-l-[6px] border-slate-400 pl-3`,
+	titleBarExhaust: `border-l-[6px] border-slate-400 pl-3`,
+	// Increase the width of the select input pressure differential to fit the values
+	tableSelectInput: `w-36 sm:w-44 ${theme.roundSm} border border-${theme.borderColor} bg-white px-2 py-1 text-xs focus:border-${theme.primary} focus:ring-1 focus:ring-${theme.primaryLight} focus:outline-none`,
+	emptyDash: `text-slate-300`,
+	tableCheckboxWrapper: `flex items-center justify-center`,
 };
 
 export default standardDesign;

@@ -40,6 +40,8 @@ import { airflowService } from "../../backend/services/service";
 import Header from "../../components/header";
 import { FaPencil } from "react-icons/fa6";
 import st from "../../json/standardData.json";
+import * as XLSX from "xlsx-js-style";
+import { FaDownload, FaUpload } from "react-icons/fa";
 
 type StandardItem = {
   id: number;
@@ -97,6 +99,7 @@ const r2 = (v: number) => Math.round(v * 100) / 100;
 const r3 = (v: number) => Math.round(v * 1000) / 1000;
 
 export default function Room() {
+  const buttonStyles = (T as any).excelTemplate.buttonStyles;
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -141,7 +144,9 @@ export default function Room() {
   const exhaustImpactFromRedux = useAppSelector(
     (state: any) => state.standards.exhaustImpactPercentage,
   );
-  const zoneIdFromRedux = useAppSelector((state: any) => state.standards.zoneId);
+  const zoneIdFromRedux = useAppSelector(
+    (state: any) => state.standards.zoneId,
+  );
   const projectStandardIdFromRedux = useAppSelector(
     (state: any) => state.standards.projectStandardId,
   );
@@ -163,6 +168,9 @@ export default function Room() {
   const currentProjectStandardIdRef = useRef<number | string | null>(
     projectStandardIdFromNav ?? projectStandardIdFromRedux ?? null,
   );
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isUploadingRooms, setIsUploadingRooms] = useState(false);
 
   useEffect(() => {
     if (!currentZoneIdRef.current && zoneIdFromRedux) {
@@ -789,6 +797,266 @@ export default function Room() {
     }
   };
 
+  const downloadRoomTemplate = () => {
+    const excelTemplate = (T as any).excelTemplate;
+
+    const headers = excelTemplate.columns.map((col: any) => col.header);
+
+    const ws = XLSX.utils.aoa_to_sheet([headers]);
+
+    // column widths
+    ws["!cols"] = excelTemplate.columns.map((col: any) => ({
+      wch: col.width || 20,
+    }));
+
+    ws["!rows"] = [{ hpt: 28 }];
+
+    headers.forEach((header: string, index: number) => {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: index });
+
+      if (!ws[cellAddress]) return;
+
+      const headerStyle = excelTemplate.headerStyle;
+
+      ws[cellAddress].s = {
+        font: {
+          bold: headerStyle.font.bold,
+          color: { rgb: headerStyle.font.color },
+        },
+        fill: {
+          patternType: "solid",
+          fgColor: { rgb: headerStyle.fill.color },
+        },
+        alignment: {
+          horizontal: headerStyle.alignment.horizontal,
+          vertical: headerStyle.alignment.vertical,
+          wrapText: headerStyle.alignment.wrapText,
+        },
+        border: {
+          top: {
+            style: headerStyle.border.style,
+            color: { rgb: headerStyle.border.color },
+          },
+          bottom: {
+            style: headerStyle.border.style,
+            color: { rgb: headerStyle.border.color },
+          },
+          left: {
+            style: headerStyle.border.style,
+            color: { rgb: headerStyle.border.color },
+          },
+          right: {
+            style: headerStyle.border.style,
+            color: { rgb: headerStyle.border.color },
+          },
+        },
+      };
+
+      ws[cellAddress].c = [
+        {
+          a: "Help",
+          t: excelTemplate.columns[index].helpText,
+        },
+      ];
+    });
+
+    // freeze header row
+    ws["!freeze"] = { xSplit: 0, ySplit: 1 };
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, excelTemplate.sheetName);
+
+    XLSX.writeFile(wb, excelTemplate.fileName);
+  };
+
+  const getExcelValue = (row: any, key: string) => {
+    const value = row[key];
+    return value === undefined || value === null ? "" : String(value).trim();
+  };
+
+  const isPositiveOrZeroNumber = (value: string) => {
+    if (value === "") return false;
+    const num = Number(value);
+    return Number.isFinite(num) && num >= 0;
+  };
+
+  const handleRoomTemplateUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) return;
+
+    if (!currentZoneIdRef.current) {
+      toast.error("Zone ID is missing.");
+      return;
+    }
+
+    if (!projectStandardIdFromRedux && !currentProjectStandardIdRef.current) {
+      toast.error("Project Standard ID is missing.");
+      return;
+    }
+
+    setIsUploadingRooms(true);
+
+    try {
+      const buffer = await file.arrayBuffer();
+      const workbook = XLSX.read(buffer, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+
+      if (!sheetName) {
+        toast.error("Uploaded file has no sheet.");
+        return;
+      }
+
+      const worksheet = workbook.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json<any>(worksheet, { defval: "" });
+
+      if (!rows.length) {
+        toast.error("Template is empty.");
+        return;
+      }
+
+      const uploadedRoomNames = new Set<string>();
+      const existingRoomNames = new Set(
+        savedRooms.map((r) => r.roomName.trim().toLowerCase()),
+      );
+
+      const roomsToSave = rows.map((row, index) => {
+        const roomName = getExcelValue(row, "Room Name");
+
+        const roomData: RoomForm = {
+          roomName,
+          length: getExcelValue(row, "Length"),
+          width: getExcelValue(row, "Width"),
+          height: getExcelValue(row, "Height"),
+          occupancy: isVentilationOnly ? "0" : getExcelValue(row, "Occupancy"),
+          equipmentLoad: isVentilationOnly
+            ? "0"
+            : getExcelValue(row, "Equipment Load"),
+          lightingLoad: isVentilationOnly
+            ? "0"
+            : getExcelValue(row, "Lighting Load"),
+          infiltrationsPerHour: isVentilationOnly
+            ? "0"
+            : getExcelValue(row, "Infiltrations Per Hour"),
+          freshAirPercent: isVentilationOnly
+            ? "0"
+            : getExcelValue(row, "Fresh Air Percent"),
+          exhaustAir: getExcelValue(row, "Exhaust Air"),
+          exhaustAirCfm: getExcelValue(row, "Exhaust Air CFM"),
+        };
+
+        const acphValue =
+          getExcelValue(row, "ACPH") || String(selectedAcph || "");
+
+        if (!roomData.roomName) {
+          throw new Error(`Row ${index + 2}: Room Name is required.`);
+        }
+
+        const lowerName = roomData.roomName.toLowerCase();
+
+        if (existingRoomNames.has(lowerName)) {
+          throw new Error(
+            `Row ${index + 2}: Room name "${roomData.roomName}" already exists.`,
+          );
+        }
+
+        if (uploadedRoomNames.has(lowerName)) {
+          throw new Error(
+            `Row ${index + 2}: Duplicate room name "${roomData.roomName}" in uploaded file.`,
+          );
+        }
+
+        uploadedRoomNames.add(lowerName);
+
+        const requiredFields = isVentilationOnly
+          ? ["length", "width", "height", "exhaustAir", "exhaustAirCfm"]
+          : [
+              "length",
+              "width",
+              "height",
+              "occupancy",
+              "equipmentLoad",
+              "lightingLoad",
+              "infiltrationsPerHour",
+              "freshAirPercent",
+              "exhaustAir",
+              "exhaustAirCfm",
+            ];
+
+        for (const field of requiredFields) {
+          if (!isPositiveOrZeroNumber((roomData as any)[field])) {
+            throw new Error(
+              `Row ${index + 2}: ${field} is required and must be a valid number.`,
+            );
+          }
+        }
+
+        if (!isPositiveOrZeroNumber(acphValue)) {
+          throw new Error(`Row ${index + 2}: ACPH is required.`);
+        }
+
+        return {
+          roomData,
+          acphValue: Number(acphValue),
+        };
+      });
+
+      for (const item of roomsToSave) {
+        const data = await addRooms({
+          zone_id: currentZoneIdRef.current,
+          projectStandardId: currentProjectStandardIdRef.current,
+          roomName: item.roomData.roomName,
+          length: item.roomData.length,
+          width: item.roomData.width,
+          height: item.roomData.height,
+          occupancy: item.roomData.occupancy,
+          equipmentLoad: item.roomData.equipmentLoad,
+          lightingLoad: item.roomData.lightingLoad,
+          infiltrationsPerHour: item.roomData.infiltrationsPerHour,
+          freshAirPercent: item.roomData.freshAirPercent,
+          exhaustAir: item.roomData.exhaustAir,
+          exhaustAirCfm: item.roomData.exhaustAirCfm,
+          selectedAcph: item.acphValue,
+          user_id,
+        });
+
+        dispatch(
+          saveRoom({
+            ...item.roomData,
+            id: generateId(),
+            acph: item.acphValue,
+            backendRoomId: data?.zoneRoomsId ?? null,
+            zoneId: currentZoneIdRef.current!,
+            projectStandardId: currentProjectStandardIdRef.current,
+            zoneStandard: standard,
+            zoneClassification: classification,
+            zoneSystem: system,
+            zoneSystemType: systemType,
+            zoneCoolingMethod: coolingMethod,
+            zoneHeatingMethod: heatingMethod,
+            zoneReqInsideTempC: reqInsideTempC,
+            zoneReqInsideHum: reqInsideHum,
+          }),
+        );
+      }
+
+      dispatch(resetRoomForm());
+      resetExhaustPrefillState();
+      setRoomFormSessionKey((prev) => prev + 1);
+
+      toast.success(
+        `${roomsToSave.length} rooms uploaded and saved successfully!`,
+      );
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to upload room template.");
+    } finally {
+      setIsUploadingRooms(false);
+    }
+  };
+
   const addAnotherZone = () => {
     if (!savedRooms.length) {
       alert("Please add at least one room before adding another zone.");
@@ -809,6 +1077,7 @@ export default function Room() {
   const renderInput = (key: keyof RoomForm) => {
     const disabled =
       isVentilationOnly && !ventilationAllowedFields.includes(key);
+   
 
     return (
       <div className={s.field} key={key}>
@@ -901,7 +1170,7 @@ export default function Room() {
           <h1 className={s.headerTitle}>{T.header.title}</h1>
           <p className={s.headerSubtitle}>{T.header.subtitle}</p>
 
-          <div className={s.toggleContainer}>
+          <div className={s.toggleContainer} style={buttonStyles.buttonGroup}>
             <button
               type="button"
               onClick={() => setViewMode("form")}
@@ -911,6 +1180,7 @@ export default function Room() {
             >
               Form View
             </button>
+
             <button
               type="button"
               onClick={() => setViewMode("table")}
@@ -920,6 +1190,33 @@ export default function Room() {
             >
               Table View
             </button>
+
+            <button
+              type="button"
+              onClick={downloadRoomTemplate}
+              style={buttonStyles.actionButton}
+            >
+              <FaDownload style={buttonStyles.iconStyle} />
+              <span>Download Template</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploadingRooms}
+              style={buttonStyles.actionButton}
+            >
+              <FaUpload style={buttonStyles.iconStyle} />
+              <span>{isUploadingRooms ? "Uploading..." : "Upload File"}</span>
+            </button>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              style={{ display: "none" }}
+              onChange={handleRoomTemplateUpload}
+            />
           </div>
         </div>
 

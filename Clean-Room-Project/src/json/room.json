@@ -10,17 +10,51 @@
     "airflowParameters": "AIRFLOW PARAMETERS"
   },
   "fields": {
-    "roomName": { "label": "Room Name", "placeholder": "Enter your Room Name", "required": true },
-    "length": { "label": "Length (m)", "placeholder": "1" },
-    "width": { "label": "Width (m)", "placeholder": "1" },
-    "height": { "label": "Height (m)", "placeholder": "2" },
-    "occupancy": { "label": "Occupancy", "placeholder": "1" },
-    "equipmentLoad": { "label": "Equipment Load (kW)", "placeholder": "2" },
-    "lightingLoad": { "label": "Lighting (W/m²)", "placeholder": "1.75" },
-    "infiltrationsPerHour": { "label": "Infiltrations / hr", "placeholder": "2" },
-    "freshAirPercent": { "label": "Fresh Air (%)", "placeholder": "10" },
-    "exhaustAir": { "label": "Exhaust Air (%)", "placeholder": "10" },
-    "exhaustAirCfm": { "label": "Exhaust Air (CFM)", "placeholder": "100" }
+    "roomName": {
+      "label": "Room Name",
+      "placeholder": "Enter your Room Name",
+      "required": true
+    },
+    "length": {
+      "label": "Length (m)",
+      "placeholder": "1"
+    },
+    "width": {
+      "label": "Width (m)",
+      "placeholder": "1"
+    },
+    "height": {
+      "label": "Height (m)",
+      "placeholder": "2"
+    },
+    "occupancy": {
+      "label": "Occupancy",
+      "placeholder": "1"
+    },
+    "equipmentLoad": {
+      "label": "Equipment Load (kW)",
+      "placeholder": "2"
+    },
+    "lightingLoad": {
+      "label": "Lighting (W/m²)",
+      "placeholder": "1.75"
+    },
+    "infiltrationsPerHour": {
+      "label": "Infiltrations / hr",
+      "placeholder": "2"
+    },
+    "freshAirPercent": {
+      "label": "Fresh Air (%)",
+      "placeholder": "10"
+    },
+    "exhaustAir": {
+      "label": "Exhaust Air (%)",
+      "placeholder": "10"
+    },
+    "exhaustAirCfm": {
+      "label": "Exhaust Air (CFM)",
+      "placeholder": "100"
+    }
   },
   "buttons": {
     "back": "Back",
@@ -28,5 +62,131 @@
     "saveRoom": "Save Room",
     "generate": "Submit",
     "deleteRoom": "Delete"
+  },
+  "excelTemplate": {
+    "fileName": "Room_Details_Template.xlsx",
+    "sheetName": "Room Template",
+    "headerStyle": {
+      "font": {
+        "bold": true,
+        "color": "000000"
+      },
+      "fill": {
+        "color": "FFC000"
+      },
+      "alignment": {
+        "horizontal": "center",
+        "vertical": "center",
+        "wrapText": true
+      },
+      "border": {
+        "style": "thin",
+        "color": "000000"
+      }
+    },
+    "columns": [
+      {
+        "header": "Room Name",
+        "key": "roomName",
+        "width": 24,
+        "helpText": "Enter the room name."
+      },
+      {
+        "header": "Length",
+        "key": "length",
+        "width": 18,
+        "helpText": "Enter room length in meters."
+      },
+      {
+        "header": "Width",
+        "key": "width",
+        "width": 18,
+        "helpText": "Enter room width in meters."
+      },
+      {
+        "header": "Height",
+        "key": "height",
+        "width": 18,
+        "helpText": "Enter room height in meters."
+      },
+      {
+        "header": "Occupancy",
+        "key": "occupancy",
+        "width": 18,
+        "helpText": "Enter number of people occupying the room."
+      },
+      {
+        "header": "Equipment Load",
+        "key": "equipmentLoad",
+        "width": 22,
+        "helpText": "Enter equipment load in kW."
+      },
+      {
+        "header": "Lighting Load",
+        "key": "lightingLoad",
+        "width": 22,
+        "helpText": "Enter lighting load in W/m²."
+      },
+      {
+        "header": "Infiltrations Per Hour",
+        "key": "infiltrationsPerHour",
+        "width": 28,
+        "helpText": "Enter infiltration value per hour."
+      },
+      {
+        "header": "Fresh Air Percent",
+        "key": "freshAirPercent",
+        "width": 24,
+        "helpText": "Enter fresh air percentage. Minimum allowed value is 10."
+      },
+      {
+        "header": "Exhaust Air",
+        "key": "exhaustAir",
+        "width": 20,
+        "helpText": "Enter exhaust air percentage."
+      },
+      {
+        "header": "Exhaust Air CFM",
+        "key": "exhaustAirCfm",
+        "width": 24,
+        "helpText": "Enter exhaust air CFM value."
+      },
+      {
+        "header": "ACPH",
+        "key": "acph",
+        "width": 16,
+        "helpText": "Enter ACPH value based on selected classification range."
+      }
+    ],
+    "buttonStyles": {
+      "buttonGroup": {
+        "display": "flex",
+        "gap": "14px",
+        "alignItems": "center",
+        "justifyContent": "center",
+        "flexWrap": "wrap"
+      },
+      "actionButton": {
+        "display": "inline-flex",
+        "flexDirection": "row",
+        "alignItems": "center",
+        "justifyContent": "center",
+        "gap": "8px",
+        "padding": "8px 18px",
+        "borderRadius": "22px",
+        "border": "1px solid #e5e7eb",
+        "backgroundColor": "#ffffff",
+        "cursor": "pointer",
+        "fontSize": "14px",
+        "fontWeight": "600",
+        "whiteSpace": "nowrap",
+        "lineHeight": "1"
+      },
+      "iconStyle": {
+        "fontSize": "14px",
+        "display": "inline-block",
+        "flexShrink": 0
+      }
+    }
   }
 }

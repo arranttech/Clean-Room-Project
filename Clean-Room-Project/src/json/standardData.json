@@ -2418,352 +2418,942 @@
       "industry": "Pharmaceutical Industry",
       "subIndustry": "API Synthesis (Non‑Potent)",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 7", "ISO 8"],
-        "FDA 209E": ["Class10K", "Class100K"],
-        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
-        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
-        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "TGA": ["350", "3500"],
-        "BS 5295": ["J", "K"],
-        "GERMANY VD": ["5", "6"],
-        "AFNOR X44101": ["400000", "4000000"],
-        "NC-Non Classified": ["10u", "15u"]
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "3500"
+        ],
+        "BS 5295": [
+          "J",
+          "K"
+        ],
+        "GERMANY VD": [
+          "5",
+          "6"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "15u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "HPAPI / OEB 4–6 API Manufacturing",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 6", "ISO 7"],
-        "FDA 209E": ["Class1K", "Class10K"],
-        "GMP": ["Grade B (ISO 5 at Rest & ISO 7 in Oper.)", "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "JIS B 9920": ["JIS Class 6", "JIS Class 7"],
-        "EU GMP": ["Grade B (ISO 5 at Rest & ISO 7 in Oper.)", "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"],
-        "TGA": ["35", "350"],
-        "BS 5295": ["G or H", "J"],
-        "GERMANY VD": ["4", "5"],
-        "AFNOR X44101": ["4000", "400000"],
-        "NC-Non Classified": ["5u", "10u"]
+        "ISO 14644-4": [
+          "ISO 6",
+          "ISO 7"
+        ],
+        "FDA 209E": [
+          "Class1K",
+          "Class10K"
+        ],
+        "GMP": [
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)",
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 6",
+          "JIS Class 7"
+        ],
+        "EU GMP": [
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)",
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "35",
+          "350"
+        ],
+        "BS 5295": [
+          "G or H",
+          "J"
+        ],
+        "GERMANY VD": [
+          "4",
+          "5"
+        ],
+        "AFNOR X44101": [
+          "4000",
+          "400000"
+        ],
+        "NC-Non Classified": [
+          "5u",
+          "10u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "Fermentation (Small Molecules)",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 7", "ISO 8"],
-        "FDA 209E": ["Class10K", "Class100K"],
-        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
-        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
-        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "TGA": ["350", "3500"],
-        "BS 5295": ["J", "K"],
-        "GERMANY VD": ["5", "6"],
-        "AFNOR X44101": ["400000", "4000000"],
-        "NC-Non Classified": ["10u", "15u"]
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "3500"
+        ],
+        "BS 5295": [
+          "J",
+          "K"
+        ],
+        "GERMANY VD": [
+          "5",
+          "6"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "15u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "Solid Oral Dosage (Granulation)",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 7", "ISO 8"],
-        "FDA 209E": ["Class10K", "Class100K"],
-        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
-        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
-        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "TGA": ["350", "3500"],
-        "BS 5295": ["J", "K"],
-        "GERMANY VD": ["5", "6"],
-        "AFNOR X44101": ["400000", "4000000"],
-        "NC-Non Classified": ["10u", "15u"]
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "3500"
+        ],
+        "BS 5295": [
+          "J",
+          "K"
+        ],
+        "GERMANY VD": [
+          "5",
+          "6"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "15u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "Tablet Compression & Coating",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 7", "ISO 8"],
-        "FDA 209E": ["Class10K", "Class100K"],
-        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
-        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
-        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "TGA": ["350", "3500"],
-        "BS 5295": ["J", "K"],
-        "GERMANY VD": ["5", "6"],
-        "AFNOR X44101": ["400000", "4000000"],
-        "NC-Non Classified": ["10u", "15u"]
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "3500"
+        ],
+        "BS 5295": [
+          "J",
+          "K"
+        ],
+        "GERMANY VD": [
+          "5",
+          "6"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "15u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "Capsule Filling",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 7"],
-        "FDA 209E": ["Class10K"],
-        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "JIS B 9920": ["JIS Class 7"],
-        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)"],
-        "TGA": ["350"],
-        "BS 5295": ["J"],
-        "GERMANY VD": ["5"],
-        "AFNOR X44101": ["400000"],
-        "NC-Non Classified": ["10u"]
+        "ISO 14644-4": [
+          "ISO 7"
+        ],
+        "FDA 209E": [
+          "Class10K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "350"
+        ],
+        "BS 5295": [
+          "J"
+        ],
+        "GERMANY VD": [
+          "5"
+        ],
+        "AFNOR X44101": [
+          "400000"
+        ],
+        "NC-Non Classified": [
+          "10u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "Liquid Oral Manufacturing",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 7", "ISO 8"],
-        "FDA 209E": ["Class10K", "Class100K"],
-        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
-        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
-        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "TGA": ["350", "3500"],
-        "BS 5295": ["J", "K"],
-        "GERMANY VD": ["5", "6"],
-        "AFNOR X44101": ["400000", "4000000"],
-        "NC-Non Classified": ["10u", "15u"]
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "3500"
+        ],
+        "BS 5295": [
+          "J",
+          "K"
+        ],
+        "GERMANY VD": [
+          "5",
+          "6"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "15u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "Ointments / Creams (Semi‑Solids)",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 7", "ISO 8"],
-        "FDA 209E": ["Class10K", "Class100K"],
-        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
-        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
-        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "TGA": ["350", "3500"],
-        "BS 5295": ["J", "K"],
-        "GERMANY VD": ["5", "6"],
-        "AFNOR X44101": ["400000", "4000000"],
-        "NC-Non Classified": ["10u", "15u"]
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "3500"
+        ],
+        "BS 5295": [
+          "J",
+          "K"
+        ],
+        "GERMANY VD": [
+          "5",
+          "6"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "15u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "Sterile Injectable – Filling (SVP/LVP)",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 5", "ISO 7"],
-        "FDA 209E": ["Class 100", "Class10K"],
-        "GMP": ["Grade A (ISO 5 at Rest & ISO 5 in Oper.)", "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "JIS B 9920": ["JIS Class 5", "JIS Class 7"],
-        "EU GMP": ["Grade A (ISO 5 at Rest & ISO 5 in Oper.)", "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"],
-        "TGA": ["3.5", "350"],
-        "BS 5295": ["E or F", "J"],
-        "GERMANY VD": ["3", "5"],
-        "AFNOR X44101": ["4000", "400000"],
-        "NC-Non Classified": ["1u", "10u"]
+        "ISO 14644-4": [
+          "ISO 5",
+          "ISO 7"
+        ],
+        "FDA 209E": [
+          "Class 100",
+          "Class10K"
+        ],
+        "GMP": [
+          "Grade A (ISO 5 at Rest & ISO 5 in Oper.)",
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 5",
+          "JIS Class 7"
+        ],
+        "EU GMP": [
+          "Grade A (ISO 5 at Rest & ISO 5 in Oper.)",
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "3.5",
+          "350"
+        ],
+        "BS 5295": [
+          "E or F",
+          "J"
+        ],
+        "GERMANY VD": [
+          "3",
+          "5"
+        ],
+        "AFNOR X44101": [
+          "4000",
+          "400000"
+        ],
+        "NC-Non Classified": [
+          "1u",
+          "10u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "Lyophilization Suites",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 6", "ISO 7"],
-        "FDA 209E": ["Class1K", "Class10K"],
-        "GMP": ["Grade B (ISO 5 at Rest & ISO 7 in Oper.)", "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "JIS B 9920": ["JIS Class 6", "JIS Class 7"],
-        "EU GMP": ["Grade B (ISO 5 at Rest & ISO 7 in Oper.)", "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"],
-        "TGA": ["35", "350"],
-        "BS 5295": ["G or H", "J"],
-        "GERMANY VD": ["4", "5"],
-        "AFNOR X44101": ["4000", "400000"],
-        "NC-Non Classified": ["5u", "10u"]
+        "ISO 14644-4": [
+          "ISO 6",
+          "ISO 7"
+        ],
+        "FDA 209E": [
+          "Class1K",
+          "Class10K"
+        ],
+        "GMP": [
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)",
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 6",
+          "JIS Class 7"
+        ],
+        "EU GMP": [
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)",
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "35",
+          "350"
+        ],
+        "BS 5295": [
+          "G or H",
+          "J"
+        ],
+        "GERMANY VD": [
+          "4",
+          "5"
+        ],
+        "AFNOR X44101": [
+          "4000",
+          "400000"
+        ],
+        "NC-Non Classified": [
+          "5u",
+          "10u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "Biologics – Upstream (Cell Culture)",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 7"],
-        "FDA 209E": ["Class10K"],
-        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "JIS B 9920": ["JIS Class 7"],
-        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)"],
-        "TGA": ["350"],
-        "BS 5295": ["J"],
-        "GERMANY VD": ["5"],
-        "AFNOR X44101": ["400000"],
-        "NC-Non Classified": ["10u"]
+        "ISO 14644-4": [
+          "ISO 7"
+        ],
+        "FDA 209E": [
+          "Class10K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "350"
+        ],
+        "BS 5295": [
+          "J"
+        ],
+        "GERMANY VD": [
+          "5"
+        ],
+        "AFNOR X44101": [
+          "400000"
+        ],
+        "NC-Non Classified": [
+          "10u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "Biologics – Downstream (Purification)",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 7", "ISO 8"],
-        "FDA 209E": ["Class10K", "Class100K"],
-        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
-        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
-        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "TGA": ["350", "3500"],
-        "BS 5295": ["J", "K"],
-        "GERMANY VD": ["5", "6"],
-        "AFNOR X44101": ["400000", "4000000"],
-        "NC-Non Classified": ["10u", "15u"]
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "3500"
+        ],
+        "BS 5295": [
+          "J",
+          "K"
+        ],
+        "GERMANY VD": [
+          "5",
+          "6"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "15u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "Vaccine Filling (Biological)",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 5", "ISO 7"],
-        "FDA 209E": ["Class 100", "Class10K"],
-        "GMP": ["Grade A (ISO 5 at Rest & ISO 5 in Oper.)", "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "JIS B 9920": ["JIS Class 5", "JIS Class 7"],
-        "EU GMP": ["Grade A (ISO 5 at Rest & ISO 5 in Oper.)", "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"],
-        "TGA": ["3.5", "350"],
-        "BS 5295": ["E or F", "J"],
-        "GERMANY VD": ["3", "5"],
-        "AFNOR X44101": ["4000", "400000"],
-        "NC-Non Classified": ["1u", "10u"]
+        "ISO 14644-4": [
+          "ISO 5",
+          "ISO 7"
+        ],
+        "FDA 209E": [
+          "Class 100",
+          "Class10K"
+        ],
+        "GMP": [
+          "Grade A (ISO 5 at Rest & ISO 5 in Oper.)",
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 5",
+          "JIS Class 7"
+        ],
+        "EU GMP": [
+          "Grade A (ISO 5 at Rest & ISO 5 in Oper.)",
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "3.5",
+          "350"
+        ],
+        "BS 5295": [
+          "E or F",
+          "J"
+        ],
+        "GERMANY VD": [
+          "3",
+          "5"
+        ],
+        "AFNOR X44101": [
+          "4000",
+          "400000"
+        ],
+        "NC-Non Classified": [
+          "1u",
+          "10u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "ADC Manufacturing (Conjugation)",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 6", "ISO 7"],
-        "FDA 209E": ["Class1K", "Class10K"],
-        "GMP": ["Grade B (ISO 5 at Rest & ISO 7 in Oper.)", "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "JIS B 9920": ["JIS Class 6", "JIS Class 7"],
-        "EU GMP": ["Grade B (ISO 5 at Rest & ISO 7 in Oper.)", "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"],
-        "TGA": ["35", "350"],
-        "BS 5295": ["G or H", "J"],
-        "GERMANY VD": ["4", "5"],
-        "AFNOR X44101": ["4000", "400000"],
-        "NC-Non Classified": ["5u", "10u"]
+        "ISO 14644-4": [
+          "ISO 6",
+          "ISO 7"
+        ],
+        "FDA 209E": [
+          "Class1K",
+          "Class10K"
+        ],
+        "GMP": [
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)",
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 6",
+          "JIS Class 7"
+        ],
+        "EU GMP": [
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)",
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "35",
+          "350"
+        ],
+        "BS 5295": [
+          "G or H",
+          "J"
+        ],
+        "GERMANY VD": [
+          "4",
+          "5"
+        ],
+        "AFNOR X44101": [
+          "4000",
+          "400000"
+        ],
+        "NC-Non Classified": [
+          "5u",
+          "10u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "Clinical Trial Material (CTM)",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 7", "ISO 8"],
-        "FDA 209E": ["Class10K", "Class100K"],
-        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
-        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
-        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "TGA": ["350", "3500"],
-        "BS 5295": ["J", "K"],
-        "GERMANY VD": ["5", "6"],
-        "AFNOR X44101": ["400000", "4000000"],
-        "NC-Non Classified": ["10u", "15u"]
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "3500"
+        ],
+        "BS 5295": [
+          "J",
+          "K"
+        ],
+        "GERMANY VD": [
+          "5",
+          "6"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "15u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "Primary Packaging (Vials, Stoppers)",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 7", "ISO 8"],
-        "FDA 209E": ["Class10K", "Class100K"],
-        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
-        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
-        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "TGA": ["350", "3500"],
-        "BS 5295": ["J", "K"],
-        "GERMANY VD": ["5", "6"],
-        "AFNOR X44101": ["400000", "4000000"],
-        "NC-Non Classified": ["10u", "15u"]
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "3500"
+        ],
+        "BS 5295": [
+          "J",
+          "K"
+        ],
+        "GERMANY VD": [
+          "5",
+          "6"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "15u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "Secondary & Tertiary Packaging",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 8"],
-        "FDA 209E": ["Class100K"],
-        "GMP": ["Grade D (ISO 8 at Rest & Not Defined)"],
-        "JIS B 9920": ["JIS Class 8"],
-        "EU GMP": ["Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "TGA": ["3500"],
-        "BS 5295": ["K"],
-        "GERMANY VD": ["6"],
-        "AFNOR X44101": ["4000000"],
-        "NC-Non Classified": ["15u"]
+        "ISO 14644-4": [
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "3500"
+        ],
+        "BS 5295": [
+          "K"
+        ],
+        "GERMANY VD": [
+          "6"
+        ],
+        "AFNOR X44101": [
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "15u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "QC Microbiology Labs",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 7"],
-        "FDA 209E": ["Class10K"],
-        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "JIS B 9920": ["JIS Class 7"],
-        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)"],
-        "TGA": ["350"],
-        "BS 5295": ["J"],
-        "GERMANY VD": ["5"],
-        "AFNOR X44101": ["400000"],
-        "NC-Non Classified": ["10u"]
+        "ISO 14644-4": [
+          "ISO 7"
+        ],
+        "FDA 209E": [
+          "Class10K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "350"
+        ],
+        "BS 5295": [
+          "J"
+        ],
+        "GERMANY VD": [
+          "5"
+        ],
+        "AFNOR X44101": [
+          "400000"
+        ],
+        "NC-Non Classified": [
+          "10u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "Analytical / Chemical QC Labs",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 7", "ISO 8"],
-        "FDA 209E": ["Class10K", "Class100K"],
-        "GMP": ["Grade C (ISO 7 at Rest & ISO 8 in Oper.)", "Grade D (ISO 8 at Rest & Not Defined)"],
-        "JIS B 9920": ["JIS Class 7", "JIS Class 8"],
-        "EU GMP": ["Grade C (ISO 7 at Rest & ISO 7 in Oper.)", "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "TGA": ["350", "3500"],
-        "BS 5295": ["J", "K"],
-        "GERMANY VD": ["5", "6"],
-        "AFNOR X44101": ["400000", "4000000"],
-        "NC-Non Classified": ["10u", "15u"]
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "3500"
+        ],
+        "BS 5295": [
+          "J",
+          "K"
+        ],
+        "GERMANY VD": [
+          "5",
+          "6"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "15u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "GMP Warehouses (Controlled)",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 8"],
-        "FDA 209E": ["Class100K"],
-        "GMP": ["Grade D (ISO 8 at Rest & Not Defined)"],
-        "JIS B 9920": ["JIS Class 8"],
-        "EU GMP": ["Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "TGA": ["3500"],
-        "BS 5295": ["K"],
-        "GERMANY VD": ["6"],
-        "AFNOR X44101": ["4000000"],
-        "NC-Non Classified": ["15u"]
+        "ISO 14644-4": [
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "3500"
+        ],
+        "BS 5295": [
+          "K"
+        ],
+        "GERMANY VD": [
+          "6"
+        ],
+        "AFNOR X44101": [
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "15u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "Cold Rooms / Stability Chambers",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 8"],
-        "FDA 209E": ["Class100K"],
-        "GMP": ["Grade D (ISO 8 at Rest & Not Defined)"],
-        "JIS B 9920": ["JIS Class 8"],
-        "EU GMP": ["Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "TGA": ["3500"],
-        "BS 5295": ["K"],
-        "GERMANY VD": ["6"],
-        "AFNOR X44101": ["4000000"],
-        "NC-Non Classified": ["15u"]
+        "ISO 14644-4": [
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "3500"
+        ],
+        "BS 5295": [
+          "K"
+        ],
+        "GERMANY VD": [
+          "6"
+        ],
+        "AFNOR X44101": [
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "15u"
+        ]
       }
     },
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "Utilities (PW/WFI, Clean Steam)",
       "allowedClassifications": {
-        "ISO 14644-4": ["ISO 8"],
-        "FDA 209E": ["Class100K"],
-        "GMP": ["Grade D (ISO 8 at Rest & Not Defined)"],
-        "JIS B 9920": ["JIS Class 8"],
-        "EU GMP": ["Grade D (ISO 7 at Rest & ISO 8 in Oper.)"],
-        "TGA": ["3500"],
-        "BS 5295": ["K"],
-        "GERMANY VD": ["6"],
-        "AFNOR X44101": ["4000000"],
-        "NC-Non Classified": ["15u"]
+        "ISO 14644-4": [
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "3500"
+        ],
+        "BS 5295": [
+          "K"
+        ],
+        "GERMANY VD": [
+          "6"
+        ],
+        "AFNOR X44101": [
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "15u"
+        ]
       }
     }
   ],
@@ -2878,6 +3468,26 @@
       "rangeLabel": "Range:",
       "storedInternally": "Stored internally as:",
       "ventilationUnitHint": "Unit is fixed for Ventilation (Ambient)."
+    },
+    "zoneNameStyles": {
+      "wrapper": {
+        "display": "flex",
+        "alignItems": "center",
+        "width": "500px"
+      },
+      "prefix": {
+        "backgroundColor": "#e5e7eb",
+        "color": "#6b7280",
+        "padding": "10px 12px",
+        "border": "1px solid #d1d5db",
+        "borderRight": "none",
+        "borderRadius": "6px 0 0 6px",
+        "fontWeight": 600
+      },
+      "input": {
+        "width": "100%",
+        "borderRadius": "0 6px 6px 0"
+      }
     }
   }
 }

@@ -17,6 +17,7 @@ import {
   updateRoomStandards,
 } from "../../backend/controller/roomController";
 import { createProjectZone } from "../../backend/controller/zoneController";
+import { getProjectDetails } from "../../backend/controller/projectController";
 import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
 import Header from "../../components/header";
@@ -51,6 +52,7 @@ export type CalculatedZoneResults = {
 const data = standardDataJson as unknown as StandardJson;
 const standardsData = data.standards;
 const t = data.text;
+const zoneNameStyles = t.zoneNameStyles;
 
 function celsiusToFahrenheit(c: number): number {
   return (c * 9) / 5 + 32;
@@ -81,7 +83,7 @@ const humidity_range = { min: 0, max: 100 };
 function allowNumericInput(
   setter: (v: string) => void,
   value: string,
-  range = humidity_range
+  range = humidity_range,
 ) {
   if (value === "" || isNumericLike(value)) setter(value);
   if (!/^[\d*\.?\d*]{0,3}$/.test(value)) return;
@@ -98,6 +100,19 @@ function validateHumidity(value: string): string {
   return "";
 }
 
+const ZONE_PREFIX = "Z_";
+
+function getZoneSuffix(value: string): string {
+  return String(value || "")
+    .replace(/^z_/i, "")
+    .trimStart();
+}
+
+function formatZoneName(value: string): string {
+  const suffix = getZoneSuffix(value);
+  return suffix ? `${ZONE_PREFIX}${suffix}` : "";
+}
+
 export default function Standard() {
   const s = standardDesign;
   const dispatch = useAppDispatch();
@@ -105,11 +120,11 @@ export default function Standard() {
   const location = useLocation();
 
   const projectIdFromRedux = useAppSelector(
-    (state: any) => state.projectInfo.projectId
+    (state: any) => state.projectInfo.projectId,
   );
   const projectId = location.state?.projectId ?? projectIdFromRedux;
   const user_id = useAppSelector((state: any) =>
-    String(state.user?.user_id || state.user?.user_login_id)
+    String(state.user?.user_id || state.user?.user_login_id),
   );
 
   const standards = useAppSelector((state: any) => state.standards);
@@ -142,21 +157,23 @@ export default function Standard() {
     exhaustImpactPercentage,
   } = standards;
 
-
   const ahuPayload = ahupayload(standards);
 
   const minTempC = useAppSelector((state: any) => state.projectInfo.minTemp);
   const maxTempC = useAppSelector((state: any) => state.projectInfo.maxTemp);
   const rhMin = useAppSelector(
-    (state: any) => state.projectInfo.relativeHumidityMin
+    (state: any) => state.projectInfo.relativeHumidityMin,
   );
   const rhMax = useAppSelector(
-    (state: any) => state.projectInfo.relativeHumidityMax
+    (state: any) => state.projectInfo.relativeHumidityMax,
   );
   const industry = useAppSelector((state: any) => state.projectInfo.industry);
-  const subIndustry = useAppSelector((state: any) => state.projectInfo.subIndustry);
+  const subIndustry = useAppSelector(
+    (state: any) => state.projectInfo.subIndustry,
+  );
 
   const [errors, setErrors] = useState({
+    zoneName: "",
     standard: "",
     classification: "",
     acph: "",
@@ -169,17 +186,20 @@ export default function Standard() {
   });
 
   const [modalMessage, setModalMessage] = useState("");
+  const [existingZoneNames, setExistingZoneNames] = useState<string[]>([]);
 
   const clearSupplyFilters = () => {
-    const currentFilters = Array.isArray(selectedFilters) ? selectedFilters : [];
+    const currentFilters = Array.isArray(selectedFilters)
+      ? selectedFilters
+      : [];
     const nextFilters = currentFilters.filter(
-      (key: string) => !key.startsWith("Supply:")
+      (key: string) => !key.startsWith("Supply:"),
     );
     const currentDetails = standards.selectedFilterDetails || {};
     const nextDetails = Object.fromEntries(
       Object.entries(currentDetails).filter(
-        ([key]) => !String(key).startsWith("Supply:")
-      )
+        ([key]) => !String(key).startsWith("Supply:"),
+      ),
     );
 
     const filtersChanged = nextFilters.length !== currentFilters.length;
@@ -191,7 +211,7 @@ export default function Standard() {
         updateMultipleStandardsFields({
           selectedFilters: nextFilters,
           selectedFilterDetails: nextDetails,
-        })
+        }),
       );
     }
   };
@@ -245,13 +265,19 @@ export default function Standard() {
               staticPressureSupply: std.static_Pressure_Supply || 0,
               staticPressureExhaust: std.static_Pressure_Exhaust || 0,
               exhaustImpactPercentage: std.exhaust_impact || "",
-              totalFiltrationStagesSupply: std.number_of_Filtrations_Supply || 0,
-              totalFiltrationStagesExhaust: std.number_of_Filtrations_Exhaust || 0,
+              totalFiltrationStagesSupply:
+                std.number_of_Filtrations_Supply || 0,
+              totalFiltrationStagesExhaust:
+                std.number_of_Filtrations_Exhaust || 0,
               heatingFlowVelocity: std.heating_flow_velocity || 1.5,
               coolingFlowVelocity: std.cooling_flow_velocity || 1.5,
-              ahufiltrationData: std.ahu_filtration_data ? JSON.parse(std.ahu_filtration_data) : [],
-              ahuConstructionData: std.ahu_construction_specifications ? JSON.parse(std.ahu_construction_specifications) : [],
-            })
+              ahufiltrationData: std.ahu_filtration_data
+                ? JSON.parse(std.ahu_filtration_data)
+                : [],
+              ahuConstructionData: std.ahu_construction_specifications
+                ? JSON.parse(std.ahu_construction_specifications)
+                : [],
+            }),
           );
         }
       } catch (error) {
@@ -261,8 +287,33 @@ export default function Standard() {
     fetchStandards();
   }, [projectId, zoneIdFromRedux, location.state?.resetKey]);
 
+  useEffect(() => {
+    if (!projectId) return;
+
+    const fetchProjectDetails = async () => {
+      try {
+        const data = await getProjectDetails(projectId);
+
+        const dbZoneNames = Array.isArray(data?.zones)
+          ? data.zones.map((z: any) => String(z.zone_name || "").trim())
+          : [];
+
+        setExistingZoneNames(dbZoneNames);
+      } catch (error) {
+        console.error("Failed to fetch existing zone names:", error);
+      }
+    };
+
+    fetchProjectDetails();
+  }, [projectId]);
+
   const selectedStandard = standardsData.find((x) => x.title === standard);
-  const SPECIAL_STANDARDS = ["ISO 14644-4", "NC-Non Classified", "ISO 14698", "SCHEDULE M"];
+  const SPECIAL_STANDARDS = [
+    "ISO 14644-4",
+    "NC-Non Classified",
+    "ISO 14698",
+    "SCHEDULE M",
+  ];
 
   const isNonClassifiedSystem = useMemo(() => {
     if (!systemType) return false;
@@ -274,13 +325,13 @@ export default function Standard() {
     if (systemType === "") return standardsData;
     if (isNonClassifiedSystem) {
       return standardsData.filter((item) =>
-        SPECIAL_STANDARDS.includes(item.title)
+        SPECIAL_STANDARDS.includes(item.title),
       );
     } else {
       return standardsData.filter(
         (item) =>
           !SPECIAL_STANDARDS.includes(item.title) ||
-          item.title === "ISO 14644-4"
+          item.title === "ISO 14644-4",
       );
     }
   }, [systemType, isNonClassifiedSystem]);
@@ -313,7 +364,7 @@ export default function Standard() {
 
     const industryFilters = (data as any).industryFilters || [];
     const activeFilter = industryFilters.find(
-      (f: any) => f.industry === industry && f.subIndustry === subIndustry
+      (f: any) => f.industry === industry && f.subIndustry === subIndustry,
     );
 
     if (activeFilter && activeFilter.allowedClassifications) {
@@ -321,7 +372,7 @@ export default function Standard() {
       const title = selectedStandard.title;
       if (allowedMap[title]) {
         classifications = classifications.filter((c) =>
-          allowedMap[title].includes(c.name)
+          allowedMap[title].includes(c.name),
         );
       }
     }
@@ -445,14 +496,14 @@ export default function Standard() {
           reqInsideTempC: t.misc.ambient,
           reqInsideTempDisplay: t.misc.ambient,
           reqInsideHum: t.misc.ambient,
-        })
+        }),
       );
     } else {
       if (reqInsideTempC === t.misc.ambient)
         dispatch(updateStandardsField({ field: "reqInsideTempC", value: "" }));
       if (reqInsideTempDisplay === t.misc.ambient)
         dispatch(
-          updateStandardsField({ field: "reqInsideTempDisplay", value: "" })
+          updateStandardsField({ field: "reqInsideTempDisplay", value: "" }),
         );
       if (reqInsideHum === t.misc.ambient)
         dispatch(updateStandardsField({ field: "reqInsideHum", value: "" }));
@@ -473,7 +524,7 @@ export default function Standard() {
     if (ventilationOnly) return;
     if (!reqInsideTempC) {
       dispatch(
-        updateStandardsField({ field: "reqInsideTempDisplay", value: "" })
+        updateStandardsField({ field: "reqInsideTempDisplay", value: "" }),
       );
       return;
     }
@@ -482,7 +533,7 @@ export default function Standard() {
         updateStandardsField({
           field: "reqInsideTempDisplay",
           value: t.misc.ambient,
-        })
+        }),
       );
       return;
     }
@@ -491,7 +542,7 @@ export default function Standard() {
         updateStandardsField({
           field: "reqInsideTempDisplay",
           value: reqInsideTempC,
-        })
+        }),
       );
       return;
     }
@@ -501,7 +552,7 @@ export default function Standard() {
         ? String(roundTo(c, 2))
         : String(roundTo(celsiusToFahrenheit(c), 2));
     dispatch(
-      updateStandardsField({ field: "reqInsideTempDisplay", value: display })
+      updateStandardsField({ field: "reqInsideTempDisplay", value: display }),
     );
   }, [tempUnit, reqInsideTempC, ventilationOnly]);
 
@@ -512,13 +563,13 @@ export default function Standard() {
         updateMultipleStandardsFields({
           reqInsideTempDisplay: "",
           reqInsideTempC: "",
-        })
+        }),
       );
       return;
     }
     if (!isNumericLike(val)) return;
     dispatch(
-      updateStandardsField({ field: "reqInsideTempDisplay", value: val })
+      updateStandardsField({ field: "reqInsideTempDisplay", value: val }),
     );
     if (!isRealNumberString(val)) return;
     const n = parseFloat(val);
@@ -528,14 +579,14 @@ export default function Standard() {
         updateStandardsField({
           field: "reqInsideTempC",
           value: String(roundTo(n, 2)),
-        })
+        }),
       );
     else
       dispatch(
         updateStandardsField({
           field: "reqInsideTempC",
           value: String(roundTo(fahrenheitToCelsius(n), 4)),
-        })
+        }),
       );
   };
 
@@ -593,8 +644,25 @@ export default function Standard() {
     ahuPayload,
   ]);
 
+  const zoneSuffix = getZoneSuffix(zoneName || "");
+  const cleanZoneName = formatZoneName(zoneSuffix);
+
+  const validateZoneName = (value: string): string => {
+    const enteredZoneName = formatZoneName(value);
+
+    if (!getZoneSuffix(value)) return "Zone name is required";
+
+    const isDuplicate = existingZoneNames.some(
+      (name) => name.toLowerCase() === enteredZoneName.toLowerCase(),
+    );
+
+    if (isDuplicate) return "Zone already exist, please enter unique name";
+
+    return "";
+  };
+
   const isFormValid = (() => {
-    if (!zoneName) return false;
+    if (!cleanZoneName || errors.zoneName) return false;
 
     if (!standard || (errors as any).standard) return false;
     if (!classification || (errors as any).classification) return false;
@@ -621,7 +689,7 @@ export default function Standard() {
     const freshProjectId = getFreshProjectId();
     if (!freshProjectId) {
       alert(
-        "Project ID is missing. Please go back to Project Info and try again."
+        "Project ID is missing. Please go back to Project Info and try again.",
       );
       throw new Error("Missing project_id for zone creation");
     }
@@ -639,13 +707,19 @@ export default function Standard() {
     console.log("Zone created:", data);
     return data;
   };
-  const cleanZoneName = zoneName.trim();
 
   const handleNext = async (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
+    const zoneError = validateZoneName(zoneSuffix);
+
+    if (zoneError) {
+      setErrors((p) => ({ ...p, zoneName: zoneError }));
+      setModalMessage(zoneError);
+      return;
+    }
     if (!isFormValid) {
       setModalMessage(
-        "Please fill all required fields correctly before proceeding."
+        "Please fill all required fields correctly before proceeding.",
       );
       return;
     }
@@ -659,11 +733,10 @@ export default function Standard() {
       : [filterTypeSelection].filter(Boolean);
     if (types.length === 0) {
       setModalMessage(
-        "Please select a Filter Type (Supply or Exhaust) before proceeding."
+        "Please select a Filter Type (Supply or Exhaust) before proceeding.",
       );
       return;
     }
-
 
     try {
       let finalZoneId = zoneIdFromRedux;
@@ -723,7 +796,7 @@ export default function Standard() {
             project_id: freshProjectId,
             has_standard: true,
             last_modified: new Date().toISOString(),
-          })
+          }),
         );
         toast.success("Details updated successfully!", {
           onClose: () =>
@@ -751,14 +824,14 @@ export default function Standard() {
           updateStandardsField({
             field: "projectStandardId",
             value: finalProjectStandardId,
-          })
+          }),
         );
         dispatch(
           updateInProgressProject({
             project_id: freshProjectId,
             has_standard: true,
             last_modified: new Date().toISOString(),
-          })
+          }),
         );
         console.log("Standard created, ID:", finalProjectStandardId);
         toast.success("Details saved successfully!", {
@@ -802,26 +875,41 @@ export default function Standard() {
               <label className={s.label}>
                 Zone Name <span className={s.required}>*</span>
               </label>
-              <input
-                className={s.input}
-                style={{ width: "500px" }}
-                value={zoneName || ""}
-                placeholder="Enter Zone Name"
-                maxLength={30}
-                onChange={(e) =>
-                  dispatch(
-                    updateStandardsField({
-                      field: "zoneName",
-                      value: e.target.value.trimStart(),
-                    })
-                  )
-                }
-              />
-              {/* {!zoneName && (
+
+              <div style={zoneNameStyles.wrapper}>
+                <span style={zoneNameStyles.prefix}>Z_</span>
+
+                <input
+                  className={s.input}
+                  style={zoneNameStyles.input}
+                  value={zoneSuffix}
+                  placeholder="Enter Zone Name"
+                  maxLength={28}
+                  onChange={(e) => {
+                    const suffix = getZoneSuffix(e.target.value);
+                    const finalName = formatZoneName(suffix);
+                    const zoneError = validateZoneName(suffix);
+
+                    dispatch(
+                      updateStandardsField({
+                        field: "zoneName",
+                        value: finalName,
+                      }),
+                    );
+
+                    setErrors((p) => ({
+                      ...p,
+                      zoneName: zoneError,
+                    }));
+                  }}
+                />
+              </div>
+
+              {errors.zoneName && (
                 <div className="text-red-500 text-xs mt-1">
-                  Zone Name is required
+                  {errors.zoneName}
                 </div>
-              )} */}
+              )}
             </div>
           </div>
         </div>
@@ -833,7 +921,6 @@ export default function Standard() {
               <div className={s.cardHeaderTitle}>{t.page.cardTitle}</div>
             </div>
             <div className={s.divider} />
-
 
             <div className={s.body}>
               <div className={s.grid2}>
@@ -853,10 +940,13 @@ export default function Standard() {
                         updateStandardsField({
                           field: "system",
                           value: e.target.value,
-                        })
+                        }),
                       );
                       dispatch(
-                        updateStandardsField({ field: "systemType", value: "" })
+                        updateStandardsField({
+                          field: "systemType",
+                          value: "",
+                        }),
                       );
                     }}
                     required
@@ -907,16 +997,16 @@ export default function Standard() {
                           updateStandardsField({
                             field: "systemType",
                             value: e.target.value,
-                          })
+                          }),
                         );
                         dispatch(
                           updateStandardsField({
                             field: "classification",
                             value: "",
-                          })
+                          }),
                         );
                         dispatch(
-                          updateStandardsField({ field: "acph", value: "" })
+                          updateStandardsField({ field: "acph", value: "" }),
                         );
                       }}
                       required
@@ -952,7 +1042,7 @@ export default function Standard() {
                             updateStandardsField({
                               field: "heatingMethod",
                               value: e.target.value,
-                            })
+                            }),
                           )
                         }
                         required
@@ -984,7 +1074,7 @@ export default function Standard() {
                             updateStandardsField({
                               field: "coolingMethod",
                               value: e.target.value,
-                            })
+                            }),
                           )
                         }
                         required
@@ -1020,16 +1110,16 @@ export default function Standard() {
                           updateStandardsField({
                             field: "standard",
                             value: e.target.value,
-                          })
+                          }),
                         );
                         dispatch(
                           updateStandardsField({
                             field: "classification",
                             value: "",
-                          })
+                          }),
                         );
                         dispatch(
-                          updateStandardsField({ field: "acph", value: "" })
+                          updateStandardsField({ field: "acph", value: "" }),
                         );
                       }}
                       required
@@ -1061,7 +1151,7 @@ export default function Standard() {
                           updateStandardsField({
                             field: "classification",
                             value: e.target.value,
-                          })
+                          }),
                         );
                       }}
                       required
@@ -1095,7 +1185,7 @@ export default function Standard() {
                           updateStandardsField({
                             field: "acph",
                             value: e.target.value,
-                          })
+                          }),
                         )
                       }
                       required
@@ -1147,7 +1237,7 @@ export default function Standard() {
                           updateStandardsField({
                             field: "tempUnit",
                             value: "C",
-                          })
+                          }),
                         )
                       }
                       disabled={ventilationOnly}
@@ -1166,7 +1256,7 @@ export default function Standard() {
                           updateStandardsField({
                             field: "tempUnit",
                             value: "F",
-                          })
+                          }),
                         )
                       }
                       disabled={ventilationOnly}
@@ -1241,9 +1331,9 @@ export default function Standard() {
                             updateStandardsField({
                               field: "reqInsideHum",
                               value: v,
-                            })
+                            }),
                           ),
-                        e.target.value
+                        e.target.value,
                       );
                       setErrors((p) => ({
                         ...p,

@@ -3,10 +3,17 @@ import { database } from "../dbConnection/connections";
 export const zoneRepository = {
     createProjectZone: async (payload: any) => {
         const [result] = await database.execute(
-            `INSERT INTO tProjectZones (project_id, created_by, updated_by)
-             VALUES (?, ?, ?)`,
-            [payload.project_id, payload.user_id ?? null, payload.user_id ?? null]
+            `INSERT INTO tProjectZones 
+      (project_id, zone_name, created_by, updated_by)
+     VALUES (?, ?, ?, ?)`,
+            [
+                payload.project_id,
+                payload.zone_name,
+                payload.user_id ?? null,
+                payload.user_id ?? null,
+            ],
         );
+
         return (result as any).insertId;
     },
 
@@ -66,12 +73,12 @@ export const zoneRepository = {
         } finally {
             connection.release();
         }
-    }, 
+    },
     getZoneTotals: async (zoneId: number | string) => {
         const [rows] = await database.execute(
             `SELECT * FROM tZonesTotal WHERE zone_id = ?`,
             [zoneId]
         );
-        return rows as any[]; 
+        return rows as any[];
     }
 };

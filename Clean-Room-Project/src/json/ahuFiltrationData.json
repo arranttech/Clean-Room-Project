@@ -209,14 +209,264 @@
                 "system": "Air-Heating System",
                 "systemType": "Cleanroom Air-Heating System",
                 "classifications": [
-                    {"name":"ISO 8","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","EPA (H11) (pre-HEPA) filter"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 7","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 6","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","EPA (H11) (pre-HEPA) filter","Legacy (H13 ~150mm) filter"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","Legacy (H14 ~150mm) filter"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 5","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","EPA (H11) (pre-HEPA) filter","Legacy (H14 ~150mm) filter"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","Legacy (H13 ~150mm) filter","ULPA filter (U15 ~150mm)","ULPA filter (U16 ~150mm)"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 4","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","Legacy (H14 ~300mm) filter","ULPA filter (U15 ~150mm)"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","Legacy (H14 ~150mm) filter","ULPA filter (U16 ~150mm)"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 3","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","Legacy (H14 ~300mm) filter","ULPA filter (U16 ~150mm)"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","ULPA filter (U17 ~150mm)"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 2","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","Legacy (H14 ~300mm) filter","ULPA filter (U16 ~150mm)"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","ULPA filter (U17 ~150mm)"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 1","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","Legacy (H14 ~300mm) filter","ULPA filter (U16 ~150mm)"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","ULPA filter (U17 ~150mm)"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}}
+                    {
+                        "name": "ISO 8",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "EPA (H11) (pre-HEPA) filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 7",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 6",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "EPA (H11) (pre-HEPA) filter",
+                                "Legacy (H13 ~150mm) filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "Legacy (H14 ~150mm) filter"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 5",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "EPA (H11) (pre-HEPA) filter",
+                                "Legacy (H14 ~150mm) filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "Legacy (H13 ~150mm) filter",
+                                "ULPA filter (U15 ~150mm)",
+                                "ULPA filter (U16 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 4",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H14 ~300mm) filter",
+                                "ULPA filter (U15 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "Legacy (H14 ~150mm) filter",
+                                "ULPA filter (U16 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 3",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H14 ~300mm) filter",
+                                "ULPA filter (U16 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "ULPA filter (U17 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 2",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H14 ~300mm) filter",
+                                "ULPA filter (U16 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "ULPA filter (U17 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 1",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H14 ~300mm) filter",
+                                "ULPA filter (U16 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "ULPA filter (U17 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    }
                 ]
             },
             {
@@ -224,7 +474,35 @@
                 "system": "Air-Heating System",
                 "systemType": "Non-Classified Air-Heating System",
                 "classifications": [
-                    {"name":"ISO 9 (Non-Classified)","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Coarse-to-medium filter","Fine pre-filter"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","Pre-HEPA Super fine filter"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}}
+                    {
+                        "name": "ISO 9 (Non-Classified)",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    }
                 ]
             },
             {
@@ -232,14 +510,264 @@
                 "system": "Air-Cooling System",
                 "systemType": "Cleanroom Air-Cooling System",
                 "classifications": [
-                    {"name":"ISO 8","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","EPA (H11) (pre-HEPA) filter"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 7","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 6","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","EPA (H11) (pre-HEPA) filter","Legacy (H13 ~150mm) filter"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","Legacy (H14 ~150mm) filter"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 5","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","EPA (H11) (pre-HEPA) filter","Legacy (H14 ~150mm) filter"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","Legacy (H13 ~150mm) filter","ULPA filter (U15 ~150mm)","ULPA filter (U16 ~150mm)"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 4","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","Legacy (H14 ~300mm) filter","ULPA filter (U15 ~150mm)"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","Legacy (H14 ~150mm) filter","ULPA filter (U16 ~150mm)"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 3","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","Legacy (H14 ~300mm) filter","ULPA filter (U16 ~150mm)"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","ULPA filter (U17 ~150mm)"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 2","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","Legacy (H14 ~300mm) filter","ULPA filter (U16 ~150mm)"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","ULPA filter (U17 ~150mm)"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 1","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","Legacy (H14 ~300mm) filter","ULPA filter (U16 ~150mm)"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","ULPA filter (U17 ~150mm)"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}}
+                    {
+                        "name": "ISO 8",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "EPA (H11) (pre-HEPA) filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 7",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 6",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "EPA (H11) (pre-HEPA) filter",
+                                "Legacy (H13 ~150mm) filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "Legacy (H14 ~150mm) filter"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 5",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "EPA (H11) (pre-HEPA) filter",
+                                "Legacy (H14 ~150mm) filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "Legacy (H13 ~150mm) filter",
+                                "ULPA filter (U15 ~150mm)",
+                                "ULPA filter (U16 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 4",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H14 ~300mm) filter",
+                                "ULPA filter (U15 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "Legacy (H14 ~150mm) filter",
+                                "ULPA filter (U16 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 3",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H14 ~300mm) filter",
+                                "ULPA filter (U16 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "ULPA filter (U17 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 2",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H14 ~300mm) filter",
+                                "ULPA filter (U16 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "ULPA filter (U17 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 1",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H14 ~300mm) filter",
+                                "ULPA filter (U16 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "ULPA filter (U17 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    }
                 ]
             },
             {
@@ -247,7 +775,35 @@
                 "system": "Air-Cooling System",
                 "systemType": "Non-Classified Air-Cooling System",
                 "classifications": [
-                    {"name":"ISO 9 (Non-Classified)","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Coarse-to-medium filter","Fine pre-filter"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","Pre-HEPA Super fine filter"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}}
+                    {
+                        "name": "ISO 9 (Non-Classified)",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    }
                 ]
             },
             {
@@ -255,19 +811,887 @@
                 "system": "Ventilation System",
                 "systemType": "Cleanroom Ventilation System",
                 "classifications": [
-                    {"name":"ISO 8","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Fresh Air filter","Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","EPA (H11) (pre-HEPA) filter"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 7","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Fresh Air filter","Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 6","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Fresh Air filter","Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","EPA (H11) (pre-HEPA) filter","Legacy (H13 ~150mm) filter"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","Legacy (H14 ~150mm) filter"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 5","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Fresh Air filter","Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","EPA (H11) (pre-HEPA) filter","Legacy (H14 ~150mm) filter"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","Legacy (H13 ~150mm) filter","ULPA filter (U15 ~150mm)","ULPA filter (U16 ~150mm)"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 4","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Fresh Air filter","Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","Legacy (H14 ~300mm) filter","ULPA filter (U15 ~150mm)"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","Legacy (H14 ~150mm) filter","ULPA filter (U16 ~150mm)"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 3","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Fresh Air filter","Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","Legacy (H14 ~300mm) filter","ULPA filter (U16 ~150mm)"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","ULPA filter (U17 ~150mm)"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 2","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Fresh Air filter","Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","Legacy (H14 ~300mm) filter","ULPA filter (U16 ~150mm)"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","ULPA filter (U17 ~150mm)"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}},
-                    {"name":"ISO 1","filterTypeSelection":["Supply","Exhaust"],"filters":{"Supply":["Fresh Air filter","Coarse-to-medium filter","Fine pre-filter","Pre-HEPA Super fine filter","Legacy (H14 ~300mm) filter","ULPA filter (U16 ~150mm)"],"Exhaust":["Coarse-to-medium filter","Fine pre-filter"]},"userChoiceFilters":{"Supply":["High Fine filter","ULPA filter (U17 ~150mm)"],"Exhaust":["High Fine filter","Pre-HEPA Super fine filter","Legacy (H13 ~300mm) filter","Legacy (H14 ~300mm) filter"]}}
+                    {
+                        "name": "ISO 8",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Fresh Air filter",
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "EPA (H11) (pre-HEPA) filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 7",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Fresh Air filter",
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 6",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Fresh Air filter",
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "EPA (H11) (pre-HEPA) filter",
+                                "Legacy (H13 ~150mm) filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "Legacy (H14 ~150mm) filter"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 5",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Fresh Air filter",
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "EPA (H11) (pre-HEPA) filter",
+                                "Legacy (H14 ~150mm) filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "Legacy (H13 ~150mm) filter",
+                                "ULPA filter (U15 ~150mm)",
+                                "ULPA filter (U16 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 4",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Fresh Air filter",
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H14 ~300mm) filter",
+                                "ULPA filter (U15 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "Legacy (H14 ~150mm) filter",
+                                "ULPA filter (U16 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 3",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Fresh Air filter",
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H14 ~300mm) filter",
+                                "ULPA filter (U15 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "ULPA filter (U17 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 2",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Fresh Air filter",
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H14 ~300mm) filter",
+                                "ULPA filter (U16 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "ULPA filter (U17 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ISO 1",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Fresh Air filter",
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H14 ~300mm) filter",
+                                "ULPA filter (U16 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "ULPA filter (U17 ~150mm)"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "standard": "ISO 14644-4",
+                "system": "Ventilation System",
+                "systemType": "Non-Classified Ventilation System",
+                "classifications": [
+                    {
+                        "name": "ISO 9 (Non-Classified)",
+                        "filterTypeSelection": [
+                            "Supply",
+                            "Exhaust"
+                        ],
+                        "filters": {
+                            "Supply": [
+                                "Fresh Air filter",
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ],
+                            "Exhaust": [
+                                "Coarse-to-medium filter",
+                                "Fine pre-filter"
+                            ]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ],
+                            "Exhaust": [
+                                "High Fine filter",
+                                "Pre-HEPA Super fine filter",
+                                "Legacy (H13 ~300mm) filter",
+                                "Legacy (H14 ~300mm) filter"
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "standard": "ISO 14644-4",
+                "system": "Air Cooling and Ventilation System",
+                "systemType": "Cleanroom Air-Cooling System",
+                "classifications": [
+                    {
+                        "name": "ISO 8",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "EPA (pre-HEPA) filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~150) filter"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 7",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~150) filter"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 6",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "EPA (pre-HEPA) filter", "Legacy (H13 ~150) filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H14 ~150) filter"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 5",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "EPA (pre-HEPA) filter", "Legacy (H14 ~300) filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H13 ~150) filter", "ULPA filter (U15 ~150mm)", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 4",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U15 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H14 ~150) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 3",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "ULPA filter (U17 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 2",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "ULPA filter (U17 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 1",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "ULPA filter (U17 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    }
+                ]
+            },
+            {
+                "standard": "ISO 14644-4",
+                "system": "Air Cooling and Ventilation System",
+                "systemType": "Non-Classified Air-Cooling System",
+                "classifications": [
+                    {
+                        "name": "ISO 9 (Non-Classified)",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Pre-HEPA Super fine filter"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    }
+                ]
+            },
+            {
+                "standard": "ISO 14644-4",
+                "system": "Air Cooling and Ventilation System",
+                "systemType": "Ventilation System",
+                "classifications": [
+                    {
+                        "name": "ISO 8",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Fresh Air filter", "Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "EPA (pre-HEPA) filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 7",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Fresh Air filter", "Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 6",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Fresh Air filter", "Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "EPA (pre-HEPA) filter", "Legacy (H13 ~150) filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H14 ~150) filter"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 5",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Fresh Air filter", "Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "EPA (pre-HEPA) filter", "Legacy (H14 ~150) filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H13 ~300) filter", "ULPA filter (U15 ~150mm)", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 4",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Fresh Air filter", "Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U15 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H14 ~150) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 3",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Fresh Air filter", "Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "ULPA filter (U17 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 2",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Fresh Air filter", "Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "ULPA filter (U17 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 1",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Fresh Air filter", "Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "ULPA filter (U17 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    }
+                ]
+            },
+            {
+                "standard": "ISO 14644-4",
+                "system": "Air Heating and Ventilation System",
+                "systemType": "Cleanroom Air-Heating System",
+                "classifications": [
+                    {
+                        "name": "ISO 8",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "EPA (pre-HEPA) filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 7",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 6",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "EPA (pre-HEPA) filter", "Legacy (H13 ~150) filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H14 ~150) filter"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 5",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "EPA (pre-HEPA) filter", "Legacy (H14 ~150) filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H13 ~300) filter", "ULPA filter (U15 ~150mm)", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 4",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U15 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H14 ~150) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 3",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "ULPA filter (U17 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 2",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "ULPA filter (U17 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 1",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "ULPA filter (U17 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    }
+                ]
+            },
+            {
+                "standard": "ISO 14644-4",
+                "system": "Air Heating and Ventilation System",
+                "systemType": "Non-Classified Air-Heating System",
+                "classifications": [
+                    {
+                        "name": "ISO 9 (Non-Classified)",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Pre-HEPA Super fine filter"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    }
+                ]
+            },
+            {
+                "standard": "ISO 14644-4",
+                "system": "Air Heating and Ventilation System",
+                "systemType": "Ventilation System",
+                "classifications": [
+                    {
+                        "name": "ISO 8",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Fresh Air filter", "Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "EPA (pre-HEPA) filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 7",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Fresh Air filter", "Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 6",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Fresh Air filter", "Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "EPA (pre-HEPA) filter", "Legacy (H13 ~150) filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H14 ~150) filter"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 5",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Fresh Air filter", "Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "EPA (pre-HEPA) filter", "Legacy (H14 ~150) filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H13 ~300) filter", "ULPA filter (U15 ~150mm)", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 4",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Fresh Air filter", "Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U15 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H14 ~150) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 3",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Fresh Air filter", "Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "ULPA filter (U17 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 2",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Fresh Air filter", "Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "ULPA filter (U17 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 1",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Fresh Air filter", "Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "ULPA filter (U17 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    }
+                ]
+            },
+            {
+                "standard": "ISO 14644-4",
+                "system": "Air Cooling and Air Heating System",
+                "systemType": "Cleanroom Air System (Heating & Cooling)",
+                "classifications": [
+                    {
+                        "name": "ISO 8",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "EPA (pre-HEPA) filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 7",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 6",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "EPA (pre-HEPA) filter", "Legacy (H13 ~150) filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H14 ~150) filter"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 5",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "EPA (pre-HEPA) filter", "Legacy (H14 ~150) filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H13 ~300) filter", "ULPA filter (U15 ~150mm)", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 4",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U15 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Legacy (H14 ~150) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 3",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "ULPA filter (U17 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 2",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "ULPA filter (U17 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    },
+                    {
+                        "name": "ISO 1",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter", "Pre-HEPA Super fine filter", "Legacy (H14 ~300) filter", "ULPA filter (U16 ~150mm)"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "ULPA filter (U17 ~150mm)"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    }
+                ]
+            },
+            {
+                "standard": "ISO 14644-4",
+                "system": "Air Cooling and Air Heating System",
+                "systemType": "Non-Classified Air System (Heating & Cooling)",
+                "classifications": [
+                    {
+                        "name": "ISO 9 (Non-Classified)",
+                        "filterTypeSelection": ["Supply", "Exhaust"],
+                        "filters": {
+                            "Supply": ["Coarse-to-medium filter", "Fine pre-filter"],
+                            "Exhaust": ["Terminal filters - Exhaust", "Fine pre-filter"]
+                        },
+                        "userChoiceFilters": {
+                            "Supply": ["High Fine filter", "Pre-HEPA Super fine filter"],
+                            "Exhaust": ["High Fine filter", "Pre-HEPA Super fine filter", "Legacy (H13 ~300) filter", "Legacy (H14 ~300) filter"]
+                        }
+                    }
                 ]
             }
         ]
     },
-
     "filterSpecs": {
         "ULPA filter (U15 ~50mm)": {
             "rating": "0.12 µm (U15)",
@@ -428,7 +1852,7 @@
         "ULPA filter (U17 ~90mm)": {
             "rating": "0.12 µm",
             "depth": "~90 mm",
-            "efficiency": "99.999995%",
+            "efficiency": "99.99995%",
             "initRange": [
                 35,
                 50

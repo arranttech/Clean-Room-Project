@@ -21,6 +21,7 @@ import {
   FiAlertCircle,
 } from "react-icons/fi";
 import s from "./styles";
+import { isBooleanObject } from "util/types";
 
 // Types
 interface ToastProps {
@@ -177,7 +178,7 @@ export default function Header() {
 
   const getInitials = (name: string): string => {
     if (!name?.trim()) return "?";
-    const parts = name.trim().split(" ");
+    const parts = name.trim().split(" ").filter(Boolean);
     if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
     return name.slice(0, 2).toUpperCase();
   };

@@ -28,7 +28,13 @@ export const forgotPassword = (payload: { email: string }) =>
 // Verify reset token — GET 
 export const verifyResetToken = (token: string) =>
   request(`/v1/auth/verify-reset-token/${token}`, "GET");
-
+//Verify if user exists in the database
+export const checkUserIdExists = (user_id: string) =>
+  request(
+    `/v1/users/check-user-id?user_id=${encodeURIComponent(user_id)}`,
+    "GET"
+  );
+  
 // Reset password — POST /v1/auth/reset-password
 // Updates tUserPassword with bcrypt hashed password
 export const resetPassword = (payload: {

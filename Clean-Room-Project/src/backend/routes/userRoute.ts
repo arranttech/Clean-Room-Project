@@ -2,6 +2,7 @@ import { ServerRoute } from "@hapi/hapi";
 import Joi from "joi";
 import { userRepository } from "../repositories";
 import { RateLimiterMemory } from "rate-limiter-flexible";
+import { checkUserIdExists } from "../controller";
 
 const errorSchema = Joi.object({ error: Joi.string().required() });
 
@@ -99,6 +100,21 @@ export const userRoute: ServerRoute[] = [
       }
     },
   },
+  {
+  method: "GET",
+  path: "/v1/users/check-user-id",
+  handler: async (request, h) => {
+    try {
+      const { user_id } = request.query as { user_id: string };
+
+      const exists = await userRepository.checkUserIdExists(user_id);
+      return h.response({ exists }).code(200);
+    } catch (err) {
+      console.error("Error checking user id:", err);
+      return h.response({ exists: false }).code(500);
+    }
+  },
+},
 
   {
     method: "PUT",

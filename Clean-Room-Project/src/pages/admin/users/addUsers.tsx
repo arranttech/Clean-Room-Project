@@ -10,6 +10,7 @@ import s from "./styles";
 import {
   createUsers,
   updateUser,
+  checkUserIdExists,
 } from "../../../backend/controller/userController";
 import { createUserPassword } from "../../../backend/controller/authContoller";
 import { customerDetails } from "../../../backend/controller/customerController";
@@ -84,7 +85,8 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
       });
     }
   }, [user]);
-
+  const [isCheckingUserIdInDB, setIsCheckingUserIdInDB] = useState(false);
+  const [userIdExistsInDB, setUserIdExistsInDB] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -149,6 +151,43 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
     if (v !== pwd) return "Passwords do not match";
     return "";
   };
+
+  useEffect(() => {
+  if (isEditMode) return;
+
+  const error = validateUserId(form.user_id);
+
+  if (!form.user_id || error) {
+    setUserIdExistsInDB(false);
+    return;
+  }
+
+  const timer = setTimeout(async () => {
+   try {
+  setIsCheckingUserIdInDB(true);
+
+  const data = await checkUserIdExists(form.user_id);
+
+  const exists = data?.exists === true;
+
+  setUserIdExistsInDB(exists);
+
+  setErrors((prev) => ({
+    ...prev,
+    user_id: exists
+      ? "User ID already exists. Please choose another."
+      : "",
+  }));
+} catch (err) {
+  console.error("Error checking user ID", err); // ✅ KEEP THIS
+} finally {
+  setIsCheckingUserIdInDB(false); // ✅ KEEP THIS
+}
+  }, 500);
+
+  return () => clearTimeout(timer);
+}, [form.user_id, isEditMode]);
+
 
   const handleChange = (field: string, value: any) =>
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -460,15 +499,20 @@ export default function AddUser({ user, onCancel, onSaved }: AddUserProps) {
               disabled={isEditMode}
               onChange={(e) => {
                 handleChange("user_id", e.target.value);
+                setUserIdExistsInDB(false)
                 setErrors((p) => ({
                   ...p,
                   user_id: validateUserId(e.target.value),
                 }));
               }}
             />
-            {errors.user_id && form.user_id.length !== 0 && (
-              <p className={s.formError}>{errors.user_id}</p>
-            )}
+            {isCheckingUserIdInDB && form.user_id.length !== 0 && (
+  <p className={s.formError}>Checking User ID...</p>
+)}
+
+{errors.user_id && form.user_id.length !== 0 && (
+  <p className={s.formError}>{errors.user_id}</p>
+)}
           </div>
         </div>
 

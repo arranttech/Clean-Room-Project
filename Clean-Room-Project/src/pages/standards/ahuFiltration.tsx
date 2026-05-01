@@ -144,177 +144,7 @@ export const AHU_CONSTRUCTION_KEYS = [
   ...Object.keys((ahuData as any).additionalSpecifications || {}),
 ];
 const MM_WG_TO_PA = config.calculationConstants.MM_WG_TO_PA;
-const ISO9_TO_ISO1_THERMAL_SUGGESTED_SUPPLY_KEYS = new Set<string>([
-  "Supply:Legacy (H13 ~300mm) filter",
-  "Supply:EPA (H11) (pre-HEPA) filter",
-  "Supply:High Fine filter",
-]);
-const ISO9_TO_ISO1_THERMAL_SUGGESTED_EXHAUST_KEYS = new Set<string>([
-  "Exhaust:Legacy (H13 ~300mm) filter",
-  "Exhaust:EPA (H11) (pre-HEPA) filter",
-  "Exhaust:High Fine filter",
-]);
-const ISO8_COOLING_SUGGESTED_SUPPLY_KEYS = new Set<string>([
-  "Supply:High Fine filter",
-  "Supply:Leagcy (H13 ~150mm) filter",
-  "Supply:Leagcy (H13 ~300mm) filter",
-  "Supply:Leagcy (H14 ~150mm) filter",
-  "Supply:Leagcy (H14 ~300mm) filter",
-]);
-const ISO7_COOLING_SUGGESTED_SUPPLY_KEYS = new Set<string>([
-  "Supply:High Fine filter",
-  "Supply:Leagcy (H13 ~150mm) filter",
-  "Supply:Leagcy (H14 ~150mm) filter",
-  "Supply:Leagcy (H14 ~300mm) filter",
-]);
-const getIsoVentilationSuggestedSupplyKeys = (
-  standard: string,
-  system: string,
-  systemType: string,
-  classification: string,
-) => {
-  return new Set<string>();
-};
 
-const getIsoVentilationSuggestedExhaustKeys = (
-  standard: string,
-  system: string,
-  systemType: string,
-  classification: string,
-) => {
-  return new Set<string>();
-};
-
-const getContextSuggestedSupplyKeys = (
-  standard: string,
-  system: string,
-  systemType: string,
-  classification: string,
-  coolingMethod: string,
-  heatingMethod: string,
-) => {
-  const ventilationSuggested = getIsoVentilationSuggestedSupplyKeys(
-    standard,
-    system,
-    systemType,
-    classification,
-  );
-  if (ventilationSuggested.size > 0) return ventilationSuggested;
-
-  const isIso9ToIso1ThermalContext =
-    standard === "ISO 14644-4" &&
-    [
-      "Air-Cooling System",
-      "Air Cooling and Ventilation System",
-      "Air-Heating System",
-      "Air Heating and Ventilation System",
-      "Air Cooling and Air Heating System",
-    ].includes(system) &&
-    [
-      "Cleanroom Air-Cooling System",
-      "Non-Classified Air-Cooling System",
-      "Comfort Air-Cooling System",
-      "Cleanroom Air-Heating System",
-      "Non-Classified Air-Heating System",
-      "Comfort Air-Heating System",
-      "Cleanroom Air System (Heating & Cooling)",
-      "Comfort Air System (Heating & Cooling)",
-      "Non-Classified Air System (Heating & Cooling)",
-    ].includes(systemType) &&
-    [
-      "ISO 9",
-      "ISO 9 (Non-Classified)",
-      "ISO 8",
-      "ISO 7",
-      "ISO 6",
-      "ISO 5",
-      "ISO 4",
-      "ISO 3",
-      "ISO 2",
-      "ISO 1",
-    ].includes(classification);
-
-  if (isIso9ToIso1ThermalContext) {
-    return ISO9_TO_ISO1_THERMAL_SUGGESTED_SUPPLY_KEYS;
-  }
-
-  const isIsoCoolingContext =
-    standard === "ISO 14644-4" &&
-    ["Air-Cooling System", "Air Cooling and Ventilation System"].includes(
-      system,
-    ) &&
-    systemType === "Cleanroom Air-Cooling System" &&
-    ["ISO 8", "ISO 7"].includes(classification) &&
-    ["Chilled Water", "Brine", "DX"].includes(coolingMethod);
-
-  const isIsoHeatingContext =
-    standard === "ISO 14644-4" &&
-    ["Air-Heating System", "Air Heating and Ventilation System"].includes(
-      system,
-    ) &&
-    systemType === "Cleanroom Air-Heating System" &&
-    ["ISO 8", "ISO 7"].includes(classification) &&
-    ["Hot Water", "Steam"].includes(heatingMethod);
-
-  if (!isIsoCoolingContext && !isIsoHeatingContext) return new Set<string>();
-  if (classification === "ISO 8") return ISO8_COOLING_SUGGESTED_SUPPLY_KEYS;
-  if (classification === "ISO 7") return ISO7_COOLING_SUGGESTED_SUPPLY_KEYS;
-  return new Set<string>();
-};
-
-const getContextSuggestedExhaustKeys = (
-  standard: string,
-  system: string,
-  systemType: string,
-  classification: string,
-) => {
-  const ventilationSuggested = getIsoVentilationSuggestedExhaustKeys(
-    standard,
-    system,
-    systemType,
-    classification,
-  );
-  if (ventilationSuggested.size > 0) return ventilationSuggested;
-
-  const isIso9ToIso1ThermalContext =
-    standard === "ISO 14644-4" &&
-    [
-      "Air-Cooling System",
-      "Air Cooling and Ventilation System",
-      "Air-Heating System",
-      "Air Heating and Ventilation System",
-      "Air Cooling and Air Heating System",
-    ].includes(system) &&
-    [
-      "Cleanroom Air-Cooling System",
-      "Non-Classified Air-Cooling System",
-      "Comfort Air-Cooling System",
-      "Cleanroom Air-Heating System",
-      "Non-Classified Air-Heating System",
-      "Comfort Air-Heating System",
-      "Cleanroom Air System (Heating & Cooling)",
-      "Comfort Air System (Heating & Cooling)",
-      "Non-Classified Air System (Heating & Cooling)",
-    ].includes(systemType) &&
-    [
-      "ISO 9",
-      "ISO 9 (Non-Classified)",
-      "ISO 8",
-      "ISO 7",
-      "ISO 6",
-      "ISO 5",
-      "ISO 4",
-      "ISO 3",
-      "ISO 2",
-      "ISO 1",
-    ].includes(classification);
-
-  if (isIso9ToIso1ThermalContext) {
-    return ISO9_TO_ISO1_THERMAL_SUGGESTED_EXHAUST_KEYS;
-  }
-
-  return new Set<string>();
-};
 
 const ruleMatchesSelectionContext = (
   rule: any,
@@ -673,25 +503,9 @@ const AHUFiltration = () => {
   const matchedAutoClassForUi = (
     matchedAutoRuleForUi?.classifications || []
   ).find((entry: any) => entry.name === isoClassification);
+
   const autoRuleContextKey = `${isoStandard || ""}||${system || ""}||${systemType || ""}||${isoClassification || ""}||${coolingMethod || ""}||${heatingMethod || ""}`;
-  const contextSuggestedSupplyKeys = getContextSuggestedSupplyKeys(
-    isoStandard,
-    system,
-    systemType,
-    isoClassification,
-    coolingMethod,
-    heatingMethod,
-  );
-  const hasSuggestedSupplyMode = contextSuggestedSupplyKeys.size > 0;
-  const contextSuggestedExhaustKeys = getContextSuggestedExhaustKeys(
-    isoStandard,
-    system,
-    systemType,
-    isoClassification,
-    coolingMethod,
-    heatingMethod,
-  );
-  const hasSuggestedExhaustMode = contextSuggestedExhaustKeys.size > 0;
+
   const currentRuleSupplyKeys = (
     Array.isArray(matchedAutoClassForUi?.filters?.Supply)
       ? matchedAutoClassForUi.filters.Supply
@@ -711,20 +525,6 @@ const AHUFiltration = () => {
       return filtersForType.map((filterName: string) => `${type}:${filterName}`);
     }),
   );
-  const dismissedRuleKeysForUi =
-    dismissedRuleKeysByContextRef.current[autoRuleContextKey] ||
-    new Set<string>();
-
-  const hasRuleBasedPreselected = [...autoRulePreselectedKeys].some(
-    (k: string) => selectedFilters.includes(k),
-  );
-
-  const hasPreselectedModeActive =
-    hasRuleBasedPreselected ||
-    (hasSpecialHandling &&
-      filterTypes.includes("Exhaust") &&
-      (filterSelectionConfig.specialExhaustFilters?.length ?? 0) > 0);
-
   const systems = (standardDataJson as any).text.options.systems;
   const isHeating = [
     systems.heating,
@@ -890,15 +690,9 @@ const AHUFiltration = () => {
   }, [system, pipeConfiguration, dispatch, systems]);
 
   // DERIVED VALUES: Count stages and calculate total pressure drop
-  const kExhaust =
-    filterTypes.includes("Exhaust") && hasSpecialHandling
-      ? filterSelectionConfig.specialExhaustFilters.map(
-          (f: string) => `Exhaust:${f}`,
-        )
-      : [];
-  const activeFilters = [
-    ...new Set([...(selectedFilters || []), ...kExhaust]),
-  ].filter((k) => k && filterTypes.some((t) => k.startsWith(`${t}:`)));
+  const activeFilters = (selectedFilters || []).filter((k: string) =>
+    k && filterTypes.some((t: string) => k.startsWith(`${t}:`))
+  );
   const numStages = activeFilters.length;
   const numSupplyStages = activeFilters.filter((k: string) =>
     k.startsWith("Supply:"),
@@ -1006,6 +800,7 @@ const AHUFiltration = () => {
         dismissedSupplyByContextRef.current[autoRuleContextKey]?.delete(k);
       }
 
+
       // Initialize filter detail if not present
       if (!selectedFilterDetails[k]) {
         const specs = getFilterSpecs(filter);
@@ -1089,27 +884,6 @@ const AHUFiltration = () => {
 
   // Auto-select filters from JSON rules for ISO cleanroom ventilation flow.
   useEffect(() => {
-    const contextSuggestedSupplyKeysForEffect = getContextSuggestedSupplyKeys(
-      isoStandard,
-      system,
-      systemType,
-      isoClassification,
-      coolingMethod,
-      heatingMethod,
-    );
-    const hasSuggestedSupplyModeForEffect =
-      contextSuggestedSupplyKeysForEffect.size > 0;
-    const contextSuggestedExhaustKeysForEffect = getContextSuggestedExhaustKeys(
-      isoStandard,
-      system,
-      systemType,
-      isoClassification,
-      coolingMethod,
-      heatingMethod,
-    );
-    const hasSuggestedExhaustModeForEffect =
-      contextSuggestedExhaustKeysForEffect.size > 0;
-
     const autoRules = Array.isArray(filterSelectionConfig.autoSelectionRules)
       ? filterSelectionConfig.autoSelectionRules
       : [];
@@ -1146,17 +920,7 @@ const AHUFiltration = () => {
     const dismissedSupplySet =
       dismissedSupplyByContextRef.current[autoRuleContextKey] || new Set();
 
-    const nextSelected = hasSuggestedSupplyModeForEffect
-      ? [...(selectedFilters || [])].filter(
-          (k: string) =>
-            !contextSuggestedSupplyKeysForEffect.has(k) &&
-            !contextSuggestedExhaustKeysForEffect.has(k),
-        )
-      : hasSuggestedExhaustModeForEffect
-        ? [...(selectedFilters || [])].filter(
-            (k: string) => !contextSuggestedExhaustKeysForEffect.has(k),
-          )
-        : [...(selectedFilters || [])];
+    const nextSelected = [...(selectedFilters || [])];
     const detailsToAdd: Array<{ filterName: string; details: any }> = [];
 
     selectedTypesForRule.forEach((type: string) => {
@@ -1209,44 +973,88 @@ const AHUFiltration = () => {
     autoRuleContextKey,
   ]);
 
-  // Auto-select special exhaust filters
+  // Clear stale selected filters when classification or system type changes.
   useEffect(() => {
-    if (!filterTypes.includes("Exhaust") || !hasSpecialHandling) return;
-    const kEx = filterSelectionConfig.specialExhaustFilters.map(
-      (f: string) => `Exhaust:${f}`,
+    const autoRules = Array.isArray(filterSelectionConfig.autoSelectionRules)
+      ? filterSelectionConfig.autoSelectionRules
+      : [];
+    const matchedRule = autoRules.find((rule: any) =>
+      ruleMatchesSelectionContext(
+        rule,
+        isoStandard,
+        system,
+        systemType,
+        coolingMethod,
+        heatingMethod,
+      ),
     );
-    const missing = kEx.filter((k: string) => !selectedFilters.includes(k));
-    if (missing.length > 0) {
-      handleChange("selectedFilters", [...selectedFilters, ...missing]);
-      missing.forEach((k: string) => {
-        const specs = getFilterSpecs(k.split(":")[1]);
-        if (specs)
-          dispatch(
-            updateFilterDetail({
-              filterName: k,
-              details: {
-                unit: "Pa",
-                initialDp: specs.initRange[0] * MM_WG_TO_PA,
-                finalDp: Math.max(...specs.finalRange) * MM_WG_TO_PA,
-              },
-            }),
-          );
+    if (!matchedRule) return;
+
+    const classRule = (matchedRule.classifications || []).find(
+      (entry: any) => entry.name === isoClassification,
+    );
+
+    // Build the full set of allowed keys for this context
+    const allowedKeys = new Set<string>();
+    if (classRule) {
+      (["Supply", "Exhaust"] as const).forEach((type) => {
+        const preselected = Array.isArray(classRule.filters?.[type]) ? classRule.filters[type] : [];
+        const userChoice = Array.isArray(classRule.userChoiceFilters?.[type]) ? classRule.userChoiceFilters[type] : [];
+        [...preselected, ...userChoice].forEach((f: string) => allowedKeys.add(`${type}:${f}`));
       });
     }
-  }, [filterTypeSelection, hasSpecialHandling]);
+
+    const cleaned = (selectedFilters || []).filter((k: string) => allowedKeys.has(k));
+    if (cleaned.length !== (selectedFilters || []).length) {
+      handleChange("selectedFilters", cleaned);
+    }
+  }, [isoStandard, system, systemType, isoClassification, coolingMethod, heatingMethod]);
 
 
 
+
+
+
+  // Track context to set default filter type selection (Supply vs Supply+Exhaust)
+  const lastSystemTypeContextRef = useRef("");
 
   useEffect(() => {
-    if (system === "Ventilation System") {
-      const currentTypes = Array.isArray(filterTypeSelection) ? filterTypeSelection : [];
-      if (!currentTypes.includes("Supply") || !currentTypes.includes("Exhaust")) {
-        const updated = Array.from(new Set([...currentTypes, "Supply", "Exhaust"]));
+    if (!system || !systemType) return;
+    const context = `${system}||${systemType}`;
+    if (lastSystemTypeContextRef.current === context) return;
+    lastSystemTypeContextRef.current = context;
+
+    const isVentilationSystem = system === "Ventilation System";
+    const isCoolingVentilationVent =
+      system === "Air Cooling and Ventilation System" &&
+      systemType === "Ventilation System";
+    const isHeatingVentilationVent =
+      system === "Air Heating and Ventilation System" &&
+      systemType === "Ventilation System";
+
+    const shouldDefaultBoth =
+      isVentilationSystem ||
+      isCoolingVentilationVent ||
+      isHeatingVentilationVent;
+
+    if (shouldDefaultBoth) {
+      const currentTypes = Array.isArray(filterTypeSelection)
+        ? filterTypeSelection
+        : [];
+      if (
+        !currentTypes.includes("Supply") ||
+        !currentTypes.includes("Exhaust")
+      ) {
+        const updated = Array.from(
+          new Set([...currentTypes, "Supply", "Exhaust"]),
+        );
         handleChange("filterTypeSelection", updated);
       }
+    } else {
+      // For all other systems, default to Supply only when the system changes
+      handleChange("filterTypeSelection", ["Supply"]);
     }
-  }, [system, filterTypeSelection]);
+  }, [system, systemType]);
 
   useEffect(() => {
     const activeRuleNames = new Set(
@@ -1322,83 +1130,6 @@ const AHUFiltration = () => {
     dispatch,
   ]);
 
-  useEffect(() => {
-    if (activeHandlingPreselectionRules.length === 0) return;
-    if (!filterTypes.includes("Exhaust")) return;
-    const unappliedRules = activeHandlingPreselectionRules.filter(
-      ([handlingName]) =>
-        !appliedHandlingExhaustPreselectionRef.current[handlingName],
-    );
-    if (unappliedRules.length === 0) return;
-
-    const requiredKeys = Array.from(
-      new Set(
-        unappliedRules.flatMap(([, filterNames]) =>
-          filterNames.map((filterName) => `Exhaust:${filterName}`),
-        ),
-      ),
-    );
-    const missing = requiredKeys.filter((k) => !selectedFilters.includes(k));
-
-    if (missing.length > 0) {
-      const nextSelectedFilters = [...selectedFilters, ...missing];
-      dispatch(
-        updateStandardsField({
-          field: "selectedFilters",
-          value: nextSelectedFilters,
-        }),
-      );
-
-      const prevData = Array.isArray(ahufiltrationData)
-        ? ahufiltrationData
-        : [];
-      const existingIndex = prevData.findIndex(
-        (item: { field?: string }) => item.field === "selectedFilters",
-      );
-      let newData;
-      if (existingIndex >= 0) {
-        newData = [...prevData];
-        newData[existingIndex] = {
-          ...newData[existingIndex],
-          value: nextSelectedFilters,
-        };
-      } else {
-        newData = [
-          ...prevData,
-          { field: "selectedFilters", value: nextSelectedFilters },
-        ];
-      }
-      dispatch(
-        updateStandardsField({ field: "ahufiltrationData", value: newData }),
-      );
-
-      missing.forEach((k: string) => {
-        const specs = getFilterSpecs(k.split(":")[1]);
-        if (!specs || selectedFilterDetails[k]) return;
-        dispatch(
-          updateFilterDetail({
-            filterName: k,
-            details: {
-              unit: "Pa",
-              initialDp: specs.initRange[0] * MM_WG_TO_PA,
-              finalDp: Math.max(...specs.finalRange) * MM_WG_TO_PA,
-            },
-          }),
-        );
-      });
-    }
-
-    unappliedRules.forEach(([handlingName]) => {
-      appliedHandlingExhaustPreselectionRef.current[handlingName] = true;
-    });
-  }, [
-    activeHandlingPreselectionRules,
-    filterTypes,
-    selectedFilters,
-    selectedFilterDetails,
-    ahufiltrationData,
-    dispatch,
-  ]);
 
   return (
     <>
@@ -2043,31 +1774,15 @@ const AHUFiltration = () => {
                       ? ahuData.filtrationSelection.exhaustFilters
                       : ahuData.filtrationSelection.supplyFilters;
 
-                  const specialExhaustFilters =
-                    type === "Exhaust" && hasSpecialHandling
-                      ? filterSelectionConfig.specialExhaustFilters
-                      : [];
-
-                  let currentFilters =
-                    type === "Exhaust" && hasSpecialHandling
-                      ? [
-                          ...specialExhaustFilters,
-                          ...baseFilters.filter(
-                            (f: string) => !specialExhaustFilters.includes(f),
-                          ),
-                        ]
-                      : baseFilters;
-
-                  currentFilters = currentFilters.filter((filter: string) => {
+                  const currentFilters = baseFilters.filter((filter: string) => {
                     const k = `${type}:${filter}`;
                     const isSelected = (selectedFilters || []).includes(k);
-                    const isPreselectedAndDisabled = specialExhaustFilters.includes(filter);
                     const isUserChoice = matchedAutoClassForUi?.userChoiceFilters?.[type]?.includes(filter) || false;
                     const isAutoPreselected = matchedAutoClassForUi?.filters?.[type]?.includes(filter) || false;
-                    return isSelected || isPreselectedAndDisabled || isUserChoice || isAutoPreselected;
+                    return isSelected || isUserChoice || isAutoPreselected;
                   }).sort((a: string, b: string) => {
-                    const isPreA = specialExhaustFilters.includes(a) || (matchedAutoClassForUi?.filters?.[type]?.includes(a) || false);
-                    const isPreB = specialExhaustFilters.includes(b) || (matchedAutoClassForUi?.filters?.[type]?.includes(b) || false);
+                    const isPreA = matchedAutoClassForUi?.filters?.[type]?.includes(a) || false;
+                    const isPreB = matchedAutoClassForUi?.filters?.[type]?.includes(b) || false;
                     if (isPreA && !isPreB) return -1;
                     if (!isPreA && isPreB) return 1;
                     return 0;
@@ -2075,7 +1790,7 @@ const AHUFiltration = () => {
 
                   const selectedCount = currentFilters.filter((filter: string) => {
                     const k = `${type}:${filter}`;
-                    return (selectedFilters || []).includes(k) || specialExhaustFilters.includes(filter);
+                    return (selectedFilters || []).includes(k);
                   }).length;
 
                   const titleBarClass = type === "Supply" ? s.titleBarSupply : s.titleBarExhaust;
@@ -2162,10 +1877,8 @@ const AHUFiltration = () => {
                             {currentFilters.map((filter: string) => {
                               const k = `${type}:${filter}`;
                               const isSelected = (selectedFilters || []).includes(k);
-                              const isPreselectedAndDisabled = specialExhaustFilters.includes(filter);
-                              
                               const specs = getFilterSpecs(filter);
-                              const isActive = isSelected || isPreselectedAndDisabled;
+                              const isActive = isSelected;
                               const rowClass = isActive ? s.rowSelected : s.rowUnselected;
 
                               const data = selectedFilterDetails[k];
@@ -2185,19 +1898,18 @@ const AHUFiltration = () => {
                                     <div className={s.tableCheckboxWrapper}>
                                       <input
                                         type="checkbox"
-                                        className={`${s.checkboxBase} ${isPreselectedAndDisabled ? s.checkboxDisabled : s.checkboxEnabled}`}
+                                        className={`${s.checkboxBase} ${s.checkboxEnabled}`}
                                         checked={isActive}
-                                        disabled={isPreselectedAndDisabled}
                                         onChange={() => handleFilterToggle(type, filter)}
                                       />
                                     </div>
                                   </td>
                                   <td className={s.td}>
                                     <div className="flex flex-wrap items-center gap-2">
-                                      <span className={`${s.filterTextBase} ${isPreselectedAndDisabled ? s.filterTextDisabled : "text-slate-700"}`}>
+                                      <span className={`${s.filterTextBase} text-slate-700`}>
                                         {filter}
                                       </span>
-                                      {isPreselectedAndDisabled && (
+                                      {matchedAutoClassForUi?.filters?.[type]?.includes(filter) && (
                                         <span className={s.pillPreselected}>Preselected</span>
                                       )}
                                     </div>

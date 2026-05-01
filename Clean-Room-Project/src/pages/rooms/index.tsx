@@ -919,8 +919,12 @@ export default function Room() {
       }
 
       const uploadedRoomNames = new Set<string>();
+      const currentZoneId = String(currentZoneIdRef.current);
+
       const existingRoomNames = new Set(
-        savedRooms.map((r) => r.roomName.trim().toLowerCase()),
+        savedRooms
+          .filter((r) => String(r.zoneId) === currentZoneId)
+          .map((r) => r.roomName.trim().toLowerCase()),
       );
 
       const roomsToSave = rows.map((row, index) => {
@@ -1077,7 +1081,6 @@ export default function Room() {
   const renderInput = (key: keyof RoomForm) => {
     const disabled =
       isVentilationOnly && !ventilationAllowedFields.includes(key);
-   
 
     return (
       <div className={s.field} key={key}>

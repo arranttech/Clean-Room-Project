@@ -4,6 +4,7 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import { resetPasswordEmailTemplate } from "../emailTemplate/emailTemplate";
 
+
 // Gmail transporter using .env GMAIL_USER and GMAIL_PASS
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -23,6 +24,16 @@ transporter.verify((error, success) => {
 });
 
 export const userRepository = {
+  checkUserIdExists: async (user_id: string) => {
+    const [rows]: any = await database.execute(
+      "SELECT COUNT(*) AS count FROM tUsers WHERE user_id = ?",
+      [user_id]
+      
+    );
+
+    return rows[0].count > 0;
+  },
+
   createUser: async (payload: any) => {
     const connection = await database.getConnection();
     try {

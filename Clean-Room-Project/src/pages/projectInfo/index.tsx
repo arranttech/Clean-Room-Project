@@ -25,43 +25,51 @@ function ProjectInfoPage() {
   const customerId = useAppSelector((s: any) => s.customer.customerId);
   const customerName = useAppSelector((s: any) => s.customer.customerName);
 
-	// projectId from Redux
-	const projectIdFromRedux = useAppSelector(
-		(s: any) => s.projectInfo.projectId
-	);
-	const user_id = useAppSelector((s: any) => String(s.user.user_id || s.user.user_login_id));
-	const user_login_id = useAppSelector((s: any) => s.user.user_login_id);
-	const projectName = useAppSelector((s: any) => s.projectInfo.projectName);
-	const unitBranch = useAppSelector((s: any) => s.projectInfo.unitBranch);
-	const handling = useAppSelector((s: any) => s.projectInfo.handling);
-	const industry = useAppSelector((s: any) => s.projectInfo.industry);
-	const uniqueId = useAppSelector((s: any) => s.projectInfo.uniqueId);
-	const locationQuery = useAppSelector((s: any) => s.projectInfo.locationQuery);
-	const selectedLocation = useAppSelector(
-		(s: any) => s.projectInfo.selectedLocation
-	);
-	const minTemp = useAppSelector((s: any) => s.projectInfo.minTemp);
-	const maxTemp = useAppSelector((s: any) => s.projectInfo.maxTemp);
-	const relativeHumidityMin = useAppSelector(
-		(s: any) => s.projectInfo.relativeHumidityMin
-	);
-	const relativeHumidityMax = useAppSelector(
-		(s: any) => s.projectInfo.relativeHumidityMax
-	);
+  // projectId from Redux
+  const projectIdFromRedux = useAppSelector(
+    (s: any) => s.projectInfo.projectId,
+  );
+  const user_id = useAppSelector((s: any) =>
+    String(s.user.user_id || s.user.user_login_id),
+  );
+  const user_login_id = useAppSelector((s: any) => s.user.user_login_id);
+  const projectName = useAppSelector((s: any) => s.projectInfo.projectName);
+  const unitBranch = useAppSelector((s: any) => s.projectInfo.unitBranch);
+  const handling = useAppSelector((s: any) => s.projectInfo.handling);
+  const industry = useAppSelector((s: any) => s.projectInfo.industry);
+  const uniqueId = useAppSelector((s: any) => s.projectInfo.uniqueId);
+  const locationQuery = useAppSelector((s: any) => s.projectInfo.locationQuery);
+  const selectedLocation = useAppSelector(
+    (s: any) => s.projectInfo.selectedLocation,
+  );
+  const minTemp = useAppSelector((s: any) => s.projectInfo.minTemp);
+  const maxTemp = useAppSelector((s: any) => s.projectInfo.maxTemp);
+  const relativeHumidityMin = useAppSelector(
+    (s: any) => s.projectInfo.relativeHumidityMin,
+  );
+  const relativeHumidityMax = useAppSelector(
+    (s: any) => s.projectInfo.relativeHumidityMax,
+  );
 
   const [locationResults, setLocationResults] = useState<any[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [industryOpen, setIndustryOpen] = useState(false);
   const [subIndustryOpen, setSubIndustryOpen] = useState(false);
   const [handlingOpen, setHandlingOpen] = useState(false);
-  const [dismissedHandlingByContext, setDismissedHandlingByContext] = useState<Record<string, string[]>>({});
+  const [dismissedHandlingByContext, setDismissedHandlingByContext] = useState<
+    Record<string, string[]>
+  >({});
   const industryRef = useRef<HTMLDivElement>(null);
   const subIndustryRef = useRef<HTMLDivElement>(null);
   const handlingRef = useRef<HTMLDivElement>(null);
   const appliedHandlingRuleContextRef = useRef<string>("");
   const dismissedHandlingByContextRef = useRef<Record<string, Set<string>>>({});
 
-  const { industries, handlingOptions, handlingAutoSelectionRules = [] } = projectData as any;
+  const {
+    industries,
+    handlingOptions,
+    handlingAutoSelectionRules = [],
+  } = projectData as any;
 
   const subIndustry = useAppSelector((s: any) => s.projectInfo.subIndustry);
   const selectedIndustryData = industries.find((i: any) => i.name === industry);
@@ -72,7 +80,7 @@ function ProjectInfoPage() {
   const getCurrentRuleHandling = useCallback(() => {
     const matchedRule = handlingAutoSelectionRules.find(
       (rule: any) =>
-        rule.industry === industry && rule.subIndustry === subIndustry
+        rule.industry === industry && rule.subIndustry === subIndustry,
     );
     return Array.isArray(matchedRule?.handling) ? matchedRule.handling : [];
   }, [handlingAutoSelectionRules, industry, subIndustry]);
@@ -114,21 +122,23 @@ function ProjectInfoPage() {
     }
 
     // Apply defaults once per industry/sub-industry context.
-    if (appliedHandlingRuleContextRef.current === handlingRuleContextKey) return;
+    if (appliedHandlingRuleContextRef.current === handlingRuleContextKey)
+      return;
     appliedHandlingRuleContextRef.current = handlingRuleContextKey;
 
     const ruleHandling = getCurrentRuleHandling();
     if (ruleHandling.length === 0) return;
 
     const dismissedSet =
-      dismissedHandlingByContextRef.current[handlingRuleContextKey] || new Set();
+      dismissedHandlingByContextRef.current[handlingRuleContextKey] ||
+      new Set();
     const suggestedHandling = ruleHandling.filter(
-      (item: string) => !dismissedSet.has(item)
+      (item: string) => !dismissedSet.has(item),
     );
     if (suggestedHandling.length === 0) return;
 
     const mergedHandling = Array.from(
-      new Set([...(handling || []), ...suggestedHandling])
+      new Set([...(handling || []), ...suggestedHandling]),
     );
 
     const isDifferent =
@@ -167,13 +177,13 @@ function ProjectInfoPage() {
   })();
 
   const validateBranch = (branch: string) =>
-    /^[A-Za-z0-9\s]{1,20}$/.test(branch)
-      ? ""
-      : "Branch must be 1-20 characters";
+    /^(?=.*\S).{1,120}$/.test(branch) ? "" 
+    : "Branch must be more than 20 characters";
+
   const validateProject = (project: string) =>
-    /^[A-Za-z-_0-9\s]{1,20}$/.test(project)
+    /^(?=.*\S).{1,120}$/.test(project)
       ? ""
-      : "Project Name must be 1-20 characters";
+      : "Project Name must be more than 20 characters";
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -206,14 +216,14 @@ function ProjectInfoPage() {
         .replace(/\s+/g, "-")
         .replace(/[^A-Z0-9-]/g, "")
         .substring(0, 5);
-        const now = new Date();
+    const now = new Date();
     const today = new Date();
     const day = String(today.getDate()).padStart(2, "0");
     const month = String(today.getMonth() + 1).padStart(2, "0");
     const year = String(today.getFullYear()).slice(-2);
     const hours = String(now.getHours()).padStart(2, "0");
-  const minutes = String(now.getMinutes()).padStart(2, "0");
-  const seconds = String(now.getSeconds()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
     return `${slug(name)}-${slug(project)}-${day}${month}${year}-${hours}${minutes}${seconds}`;
   };
 
@@ -227,8 +237,8 @@ function ProjectInfoPage() {
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-          query
-        )}&limit=3`
+          query,
+        )}&limit=3`,
       );
       const data = await res.json();
       setLocationResults(data);
@@ -254,7 +264,7 @@ function ProjectInfoPage() {
       updateMultipleFields({
         selectedLocation: place,
         locationQuery: place.display_name,
-      })
+      }),
     );
     setShowResults(false);
     try {
@@ -265,21 +275,21 @@ function ProjectInfoPage() {
           startDate.toISOString().split("T")[0]
         }&end_date=${
           endDate.toISOString().split("T")[0]
-        }&daily=temperature_2m_max,temperature_2m_min,relative_humidity_2m_max,relative_humidity_2m_min&timezone=auto`
+        }&daily=temperature_2m_max,temperature_2m_min,relative_humidity_2m_max,relative_humidity_2m_min&timezone=auto`,
       );
       const data = await response.json();
       if (data?.daily) {
         const maxTemps = data.daily.temperature_2m_max.filter(
-          (t: any) => t !== null && !isNaN(t)
+          (t: any) => t !== null && !isNaN(t),
         );
         const minTemps = data.daily.temperature_2m_min.filter(
-          (t: any) => t !== null && !isNaN(t)
+          (t: any) => t !== null && !isNaN(t),
         );
         const humMax = data.daily.relative_humidity_2m_max?.filter(
-          (t: any) => t !== null && !isNaN(t)
+          (t: any) => t !== null && !isNaN(t),
         );
         const humMin = data.daily.relative_humidity_2m_min?.filter(
-          (t: any) => t !== null && !isNaN(t)
+          (t: any) => t !== null && !isNaN(t),
         );
         dispatch(
           updateMultipleFields({
@@ -287,7 +297,7 @@ function ProjectInfoPage() {
             minTemp: Math.min(...minTemps).toFixed(1),
             relativeHumidityMax: Math.max(...humMax).toFixed(0),
             relativeHumidityMin: Math.min(...humMin).toFixed(0),
-          })
+          }),
         );
       }
     } catch (error) {
@@ -295,23 +305,23 @@ function ProjectInfoPage() {
     }
   };
 
-	const saveProjectInfo = async () => {
-		const payload = {
-			user_id: user_id,
-			user_login_id: user_login_id,
-			customer_id: customerId,
-			projectName,
-			unitBranch,
-			handling,
-			industry,
+  const saveProjectInfo = async () => {
+    const payload = {
+      user_id: user_id,
+      user_login_id: user_login_id,
+      customer_id: customerId,
+      projectName,
+      unitBranch,
+      handling,
+      industry,
       subIndustry,
-			uniqueId,
-			selectedLocation,
-			minTemp,
-			maxTemp,
-			relativeHumidityMin,
-			relativeHumidityMax,
-		};
+      uniqueId,
+      selectedLocation,
+      minTemp,
+      maxTemp,
+      relativeHumidityMin,
+      relativeHumidityMax,
+    };
 
     const navigationState = {
       minimumTemp: minTemp,
@@ -333,7 +343,7 @@ function ProjectInfoPage() {
             project_name: projectName,
             customer_name: customerName,
             last_modified: new Date().toISOString(),
-          })
+          }),
         );
 
         toast.success("Details updated successfully!", {
@@ -358,7 +368,7 @@ function ProjectInfoPage() {
             last_modified: new Date().toISOString(),
             has_standard: false,
             has_rooms: false,
-          })
+          }),
         );
 
         toast.success("Details saved successfully!", {
@@ -400,7 +410,7 @@ function ProjectInfoPage() {
                 value={unitBranch}
                 onChange={(e) => {
                   dispatch(
-                    updateField({ field: "unitBranch", value: e.target.value })
+                    updateField({ field: "unitBranch", value: e.target.value }),
                   );
                   setErrors((p) => ({
                     ...p,
@@ -408,7 +418,7 @@ function ProjectInfoPage() {
                   }));
                 }}
                 placeholder="Enter Unit or Branch Name"
-                maxLength={20}
+                maxLength={120}
               />
               {errors.branch && unitBranch.length !== 0 && (
                 <p className="text-red-500 text-xs mt-1">{errors.branch}</p>
@@ -427,7 +437,7 @@ function ProjectInfoPage() {
                     updateField({
                       field: "projectName",
                       value: e.target.value,
-                    })
+                    }),
                   );
                   setErrors((p) => ({
                     ...p,
@@ -435,7 +445,7 @@ function ProjectInfoPage() {
                   }));
                 }}
                 placeholder="Enter Project Name"
-                maxLength={20}
+                maxLength={120}
               />
               {errors.project && projectName.length !== 0 && (
                 <p className="text-red-500 text-xs mt-1">{errors.project}</p>
@@ -462,7 +472,12 @@ function ProjectInfoPage() {
               />
               <span
                 className={styles.dropdownIcon}
-                style={{ position: "absolute", right: 16, top: 44, pointerEvents: "none" }}
+                style={{
+                  position: "absolute",
+                  right: 16,
+                  top: 44,
+                  pointerEvents: "none",
+                }}
               >
                 ▼
               </span>
@@ -473,8 +488,12 @@ function ProjectInfoPage() {
                     <div
                       key={item.name}
                       onClick={() => {
-                        dispatch(updateField({ field: "industry", value: item.name }));
-                        dispatch(updateField({ field: "subIndustry", value: "" }));
+                        dispatch(
+                          updateField({ field: "industry", value: item.name }),
+                        );
+                        dispatch(
+                          updateField({ field: "subIndustry", value: "" }),
+                        );
                         dispatch(updateField({ field: "handling", value: [] }));
                         setIndustryOpen(false);
                       }}
@@ -490,7 +509,10 @@ function ProjectInfoPage() {
 
           {/* Sub Industry */}
           <div className="w-full mb-4">
-            <div ref={subIndustryRef} className={styles.fieldGroup + " w-full relative"}>
+            <div
+              ref={subIndustryRef}
+              className={styles.fieldGroup + " w-full relative"}
+            >
               <label className={styles.label}>
                 Sub Industry <span className="text-red-600">*</span>
               </label>
@@ -506,13 +528,20 @@ function ProjectInfoPage() {
               />
               <span
                 className={styles.dropdownIcon}
-                style={{ position: "absolute", right: 16, top: 44, pointerEvents: "none" }}
+                style={{
+                  position: "absolute",
+                  right: 16,
+                  top: 44,
+                  pointerEvents: "none",
+                }}
               >
                 ▼
               </span>
               {subIndustryOpen && industry && (
                 <div className={styles.industryOpen}>
-                  <div className={styles.selectIndustry}>Select Industry First</div>
+                  <div className={styles.selectIndustry}>
+                    Select Industry First
+                  </div>
                   {subIndustries.map((sub: string) => (
                     <div
                       key={sub}
@@ -520,14 +549,18 @@ function ProjectInfoPage() {
                         const nextContextKey = `${industry || ""}||${sub}`;
                         // Explicitly reselecting a sub-industry should re-apply defaults for that context.
                         appliedHandlingRuleContextRef.current = "";
-                        delete dismissedHandlingByContextRef.current[nextContextKey];
+                        delete dismissedHandlingByContextRef.current[
+                          nextContextKey
+                        ];
                         setDismissedHandlingByContext((prev) => {
                           if (!prev[nextContextKey]) return prev;
                           const next = { ...prev };
                           delete next[nextContextKey];
                           return next;
                         });
-                        dispatch(updateField({ field: "subIndustry", value: sub }));
+                        dispatch(
+                          updateField({ field: "subIndustry", value: sub }),
+                        );
                         dispatch(updateField({ field: "handling", value: [] }));
                         setSubIndustryOpen(false);
                       }}
@@ -569,13 +602,13 @@ function ProjectInfoPage() {
                             e.stopPropagation();
                             markHandlingDismissed(item);
                             const updated = handling.filter(
-                              (i: string) => i !== item
+                              (i: string) => i !== item,
                             );
                             dispatch(
                               updateField({
                                 field: "handling",
                                 value: updated,
-                              })
+                              }),
                             );
                           }}
                         />
@@ -593,7 +626,7 @@ function ProjectInfoPage() {
                   <div className="px-4 py-3 font-semibold border-b">
                     Select Handling
                   </div>
-                  {handlingOptions.map((item) => {
+                  {handlingOptions.map((item: string) => {
                     const groupA = [
                       "Contagious",
                       "Hazardous",
@@ -605,10 +638,10 @@ function ProjectInfoPage() {
                     const isItemInB = groupB.includes(item);
 
                     const isGroupASelected = handling.some((h: string) =>
-                      groupA.includes(h)
+                      groupA.includes(h),
                     );
                     const isGroupBSelected = handling.some((h: string) =>
-                      groupB.includes(h)
+                      groupB.includes(h),
                     );
 
                     const isSelected = handling.includes(item);
@@ -616,7 +649,9 @@ function ProjectInfoPage() {
                     const isDismissedPreselected =
                       !isSelected &&
                       currentRuleHandling.includes(item) &&
-                      (dismissedHandlingByContext[handlingRuleContextKey] || []).includes(item);
+                      (
+                        dismissedHandlingByContext[handlingRuleContextKey] || []
+                      ).includes(item);
 
                     const isDisabled =
                       !isSelected &&
@@ -663,11 +698,16 @@ function ProjectInfoPage() {
                               ? handling.filter((i: string) => i !== item)
                               : [...handling, item];
                             dispatch(
-                              updateField({ field: "handling", value: updated })
+                              updateField({
+                                field: "handling",
+                                value: updated,
+                              }),
                             );
                           }}
                           className={`h-5 w-5 shrink-0 rounded-md border-gray-300 ${
-                            showDisabledState ? "text-gray-400" : "text-blue-600"
+                            showDisabledState
+                              ? "text-gray-400"
+                              : "text-blue-600"
                           }`}
                         />
                         <span
@@ -701,7 +741,7 @@ function ProjectInfoPage() {
                     updateField({
                       field: "locationQuery",
                       value: e.target.value,
-                    })
+                    }),
                   )
                 }
               />
@@ -806,7 +846,7 @@ function ProjectInfoPage() {
             onClick={() => {
               if (!isFormValid) {
                 alert(
-                  "Please fill all required fields correctly before proceeding."
+                  "Please fill all required fields correctly before proceeding.",
                 );
               } else {
                 saveProjectInfo();

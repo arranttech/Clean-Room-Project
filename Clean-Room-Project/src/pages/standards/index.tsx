@@ -884,7 +884,7 @@ export default function Standard() {
                   style={zoneNameStyles.input}
                   value={zoneSuffix}
                   placeholder="Enter Zone Name"
-                  maxLength={28}
+                  maxLength={120}
                   onChange={(e) => {
                     const suffix = getZoneSuffix(e.target.value);
                     const finalName = formatZoneName(suffix);

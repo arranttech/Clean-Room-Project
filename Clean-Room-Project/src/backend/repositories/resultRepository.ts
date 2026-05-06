@@ -60,13 +60,24 @@ export const resultRepository = {
     return (result as any).insertId;
   },
 
-  // GET: fetch results by projectId via stored procedure
-  getResultsByZone: async (payload?: { projectId: number }) => {
-    const projectId = payload?.projectId;
-    const [rows]: any = await database.execute(
-      "CALL GetResultsByProjectId(?)",
-      [projectId]
-    );
-    return rows[0] || [];
-  },
+  // // GET: fetch results by projectId via stored procedure Commented for CRA-193
+  // getResultsByZone: async (payload?: { projectId: number }) => {
+  //   const projectId = payload?.projectId;
+  //   const [rows]: any = await database.execute(
+  //     "CALL GetResultsByProjectId(?)",
+  //     [projectId]
+  //   );
+  //   return rows[0] || [];
+  // },
+
+  //CRA-193 : GET: fetch results summary by projectId via stored procedure
+    getResultsSummaryByProjectId :async(payload?:{projectId:number})=>{
+     const projectId = payload?.projectId;
+     const [rows]: any = await database.execute("CALL GetProjectResultSummary(?)",[projectId]);
+     console.log ("Results summary fetched from DB:", rows);
+     return rows[0] || [];
+
+   },
+
+
 };

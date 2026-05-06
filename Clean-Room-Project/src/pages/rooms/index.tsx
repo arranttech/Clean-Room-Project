@@ -42,6 +42,8 @@ import { FaPencil } from "react-icons/fa6";
 import st from "../../json/standardData.json";
 import * as XLSX from "xlsx-js-style";
 import { FaDownload, FaUpload } from "react-icons/fa";
+import { updateProjectStatus } from "../../backend/controller/projectController";
+import resultsText from "../../json/resultsText.json";
 
 type StandardItem = {
   id: number;
@@ -55,6 +57,7 @@ type StandardItem = {
 
 type StandardJson = { standards: StandardItem[]; text: any };
 const standardsDb = (standardDataJson as unknown as StandardJson).standards;
+const t=resultsText;
 
 type RoomForm = {
   roomName: string;
@@ -783,6 +786,7 @@ export default function Room() {
           zone_Result_Heating_Load_TR: r2(sum("resultHeatLoadTR")),
         });
       }
+      await updateProjectStatus(Number(projectId), "COMPLETED");
 
       navigate(`/results/${projectId}`);
       dispatch(resetRoom());

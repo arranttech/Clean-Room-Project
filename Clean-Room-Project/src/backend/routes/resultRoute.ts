@@ -29,6 +29,7 @@ export const resultRoute: ServerRoute[] = [
           project_Volume: numOrNull,
           project_RoomCfm: numOrNull,
           project_FreshAir: numOrNull,
+          project_ResultantSupplyAir: numOrNull,
           project_ExhaustAir: numOrNull,
           project_DehumidCfm: numOrNull,
           project_Rem_Water_Vapour: numOrNull,

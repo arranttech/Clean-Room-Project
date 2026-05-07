@@ -25,6 +25,9 @@
     "freshAir": {
       "label": "Fresh Air CFM"
     },
+    "ResultantSupplyAir": {
+      "label": "Resultant Supply Air CFM"
+    },
     "exhaustAir": {
       "label": "Exhaust Air CFM"
     },

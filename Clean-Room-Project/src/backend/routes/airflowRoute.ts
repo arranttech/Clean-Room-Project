@@ -12,6 +12,7 @@ const airflowResultSchema = Joi.object({
   volumeFt3: Joi.number().required(),
   roomCfm: Joi.number().required(),
   freshAir: Joi.number().required(),
+  ResultantSupplyAir: Joi.number().required(),
   exhaustAir: Joi.number().required(),
 
   dehumidValue: Joi.alternatives().try(

@@ -58,6 +58,7 @@ export const zoneRoute: ServerRoute[] = [
 					zone_Volume: Joi.number().allow(null),
 					zone_RoomCfm: Joi.number().allow(null),
 					zone_FreshAir: Joi.number().allow(null),
+					zone_ResultantSupplyAir: Joi.number().allow(null),
 					zone_ExhaustAir: Joi.number().allow(null),
 
 					zone_DehumidCfm: Joi.number().allow(null),

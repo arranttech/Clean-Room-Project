@@ -118,6 +118,7 @@ export type AirflowResults = {
   volumeFt3: number;
   roomCfm: number;
   freshAir: number;
+  ResultantSupplyAir: number;
   exhaustAir: number;
   dehumidValue: number | string;
   removedWater: number | string;
@@ -196,14 +197,12 @@ export function airflowService(
   const exhaustCfm = Number(room.exhaustAirCfm || 0);
 
   const freshAir = isVentilationSystem
-    ? (faFactor + 1)
+    ? baseFreshAir
     : (eaFactor === 0 && exhaustCfm === 0)
       ? baseFreshAir
       : (eaFactor + faFactor) * roomCfm;
 
-  const exhaustAir = isVentilationSystem
-    ? ((eaFactor + exhaustCfm) + 1) * roomCfm
-    : roomCfm * (eaFactor + exhaustCfm);
+  const exhaustAir = Number(((eaFactor * roomCfm) + exhaustCfm).toFixed(3));
 
   let dehumidValue: number | string = 0;
   let removedWater: number | string = 0;
@@ -414,7 +413,7 @@ export function airflowService(
         Number(freshroomCal.toFixed(3));
       correction = (roomCfm - freshAir) * waterRatio;
       humidValue = Math.ceil((baseLoad + correction) / 25) * 25;
-      ERLH = delWaterVal * baseLoad + (roomCfm - freshAir) * delAHUVal;
+      ERLH = delWaterVal * baseLoad + (roomCfm - (freshAir)) * delAHUVal;
     } else {
       humidValue = room.zoneReqInsideTempC || "Invalid";
     }
@@ -539,6 +538,7 @@ export function airflowService(
     volumeFt3: Number(volumeFt3.toFixed(2)),
     roomCfm: Number(roomCfm.toFixed(3)),
     freshAir: Number(freshAir.toFixed(3)),
+    ResultantSupplyAir: 0,
     exhaustAir: Number(exhaustAir.toFixed(3)),
     dehumidValue: calculateDehumidCfm(),
     removedWater: calculateRemovedWater(),
@@ -562,8 +562,7 @@ export function airflowService(
         ? baseFreshAir
         : (eaFactor + faFactor) * roomCfm;
 
-    const exhaustAirPrimary =
-      roomCfm * (eaFactor + exhaustCfm);
+    const exhaustAirPrimary = exhaustAir;
 
     const primaryResult: AirflowResults = {
       ...result,
@@ -571,14 +570,16 @@ export function airflowService(
       exhaustAir: Number(exhaustAirPrimary.toFixed(3)),
     };
 
-    const ventilationFreshAir = faFactor + 1;
+    const ventilationFreshAir = faFactor * roomCfm;
     const ventilationExhaustAir =
-      ((eaFactor + exhaustCfm) + 1) * roomCfm;
+      (eaFactor * roomCfm) + exhaustCfm;
+
 
     const ventilationOnlyResult: AirflowResults = {
       ...result,
       roomName: room.roomName,
       freshAir: Number(ventilationFreshAir.toFixed(3)),
+      ResultantSupplyAir: Number((ventilationFreshAir + roomCfm).toFixed(3)),
       exhaustAir: Number(ventilationExhaustAir.toFixed(3)),
       dehumidValue: 0,
       removedWater: 0,

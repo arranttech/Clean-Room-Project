@@ -360,7 +360,10 @@ const AHUFiltration = () => {
   const [filterTypeOpen, setFilterTypeOpen] = useState(false);
   const filterTypeRef = useRef<HTMLDivElement>(null);
   const appliedAutoRuleRef = useRef<string>("");
-  const appliedHandlingExhaustPreselectionRef = useRef<Record<string, boolean>>(
+  const appliedHandlingSupplyPreselectionRefV2 = useRef<Record<string, boolean>>(
+    {},
+  );
+  const appliedHandlingExhaustPreselectionRefV2 = useRef<Record<string, boolean>>(
     {},
   );
   const appliedHandlingConstructionPreselectionRef = useRef<
@@ -448,28 +451,60 @@ const AHUFiltration = () => {
         .toLowerCase(),
     ),
   );
-  const handlingBasedExhaustPreselectionRules: Record<string, string[]> = {
+  const handlingBasedSupplyPreselectionRules: Record<string, string[]> = {
+    "amc/molecular sensitive": ["Chemisorbent AMC Filter"],
     "volatile organics control(voc)": [
       "Activated Carbon V Cell Filter",
       "Flame Arrestor Filter",
-      "EPA (H11) (pre-HEPA) filter",
+      "HEPA + Carbon Combo Filter"
     ],
-    "amc/molecular sensitive": ["EPA (H11) (pre-HEPA) filter"],
-    "potent compound (hpapi)": [
-      "Legacy (H13 ~300mm) filter",
-      "ULPA filter (U15 ~150mm)",
-    ],
-    "odour/cross contamination": [
-      "Activated Carbon V Cell Filter",
-      "HEPA + Carbon Combo Filter",
-      "Radioiodine (I-131) Charcoal Filtration Systems",
-    ],
-    "Allergen-controlled": ["Chemisorbent AMC Filter"],
-    "explosive dust": ["Flame Arrestor Filter", "Chemisorbent AMC Filter"],
+    "allergen-controlled": ["PCO VOC Oxidation Filter"],
+    "explosive dust": ["Flame Arrestor Filter"],
+    "radiological": ["Radioiodine (I-131) Charcoal Filtration Filter"],
+    "odour/cross contamination": ["PCO VOC Oxidation Filter"]
   };
-  const activeHandlingPreselectionRules = Object.entries(
+
+  const handlingBasedExhaustPreselectionRules: Record<string, string[]> = {
+    "amc/molecular sensitive": ["Chemisorbent AMC Filter"],
+    "volatile organics control(voc)": [
+      "Activated Carbon V Cell Filter",
+      "Flame Arrestor Filter",
+      "HEPA + Carbon Combo Filter"
+    ],
+    "allergen-controlled": [
+      "Activated Carbon V Cell Filter",
+      "PCO VOC Oxidation Filter"
+    ],
+    "explosive dust": ["Flame Arrestor Filter"],
+    "radiological": [
+      "HEPA + Carbon Combo Filter",
+      "Radioiodine (I-131) Charcoal Filtration Filter"
+    ],
+    "potent compound (hpapi)": [
+      "Activated Carbon V Cell Filter",
+      "Chemisorbent AMC Filter",
+      "Flame Arrestor Filter",
+      "HEPA + Carbon Combo Filter"
+    ],
+    "odour/cross contamination": ["HEPA + Carbon Combo Filter"],
+    "sterile/aseptic": ["HEPA + Carbon Combo Filter"]
+  };
+
+  const activeHandlingSupplyPreselectionRules = Object.entries(
+    handlingBasedSupplyPreselectionRules,
+  ).filter(([handlingName]) => normalizedHandlingSelections.has(handlingName));
+
+  const activeHandlingExhaustPreselectionRules = Object.entries(
     handlingBasedExhaustPreselectionRules,
   ).filter(([handlingName]) => normalizedHandlingSelections.has(handlingName));
+
+  const handlingSupplyFilters = new Set(
+    activeHandlingSupplyPreselectionRules.flatMap(([, filters]) => filters)
+  );
+  const handlingExhaustFilters = new Set(
+    activeHandlingExhaustPreselectionRules.flatMap(([, filters]) => filters)
+  );
+
   const handlingBasedConstructionRequiredRules: Record<
     string,
     Record<string, string>
@@ -1004,11 +1039,17 @@ const AHUFiltration = () => {
       });
     }
 
-    const cleaned = (selectedFilters || []).filter((k: string) => allowedKeys.has(k));
+    const cleaned = (selectedFilters || []).filter((k: string) => {
+      if (allowedKeys.has(k)) return true;
+      const [type, filter] = k.split(":");
+      if (type === "Supply" && handlingSupplyFilters.has(filter)) return true;
+      if (type === "Exhaust" && handlingExhaustFilters.has(filter)) return true;
+      return false;
+    });
     if (cleaned.length !== (selectedFilters || []).length) {
       handleChange("selectedFilters", cleaned);
     }
-  }, [isoStandard, system, systemType, isoClassification, coolingMethod, heatingMethod]);
+  }, [isoStandard, system, systemType, isoClassification, coolingMethod, heatingMethod, handlingSupplyFilters, handlingExhaustFilters]);
 
 
 
@@ -1057,17 +1098,28 @@ const AHUFiltration = () => {
   }, [system, systemType]);
 
   useEffect(() => {
-    const activeRuleNames = new Set(
-      activeHandlingPreselectionRules.map(([name]) => name),
+    const activeExhaustNames = new Set(
+      activeHandlingExhaustPreselectionRules.map(([name]) => name),
     );
-    Object.keys(appliedHandlingExhaustPreselectionRef.current).forEach(
+    Object.keys(appliedHandlingExhaustPreselectionRefV2.current).forEach(
       (name) => {
-        if (!activeRuleNames.has(name)) {
-          delete appliedHandlingExhaustPreselectionRef.current[name];
+        if (!activeExhaustNames.has(name)) {
+          delete appliedHandlingExhaustPreselectionRefV2.current[name];
         }
       },
     );
-  }, [activeHandlingPreselectionRules]);
+
+    const activeSupplyNames = new Set(
+      activeHandlingSupplyPreselectionRules.map(([name]) => name),
+    );
+    Object.keys(appliedHandlingSupplyPreselectionRefV2.current).forEach(
+      (name) => {
+        if (!activeSupplyNames.has(name)) {
+          delete appliedHandlingSupplyPreselectionRefV2.current[name];
+        }
+      },
+    );
+  }, [activeHandlingExhaustPreselectionRules, activeHandlingSupplyPreselectionRules]);
 
   useEffect(() => {
     const activeRuleNames = new Set(
@@ -1127,6 +1179,82 @@ const AHUFiltration = () => {
     activeHandlingConstructionRules,
     virusBurner,
     ahuConstructionData,
+    dispatch,
+  ]);
+
+  useEffect(() => {
+    if (
+      activeHandlingSupplyPreselectionRules.length === 0 &&
+      activeHandlingExhaustPreselectionRules.length === 0
+    ) {
+      return;
+    }
+
+    const unappliedSupplyRules = activeHandlingSupplyPreselectionRules.filter(
+      ([handlingName]) => !appliedHandlingSupplyPreselectionRefV2.current[handlingName]
+    );
+
+    const unappliedExhaustRules = activeHandlingExhaustPreselectionRules.filter(
+      ([handlingName]) => !appliedHandlingExhaustPreselectionRefV2.current[handlingName]
+    );
+
+    if (unappliedSupplyRules.length === 0 && unappliedExhaustRules.length === 0) {
+      return;
+    }
+
+    const filtersToAdd = new Set<string>();
+
+    unappliedSupplyRules.forEach(([handlingName, filters]) => {
+      filters.forEach((filter) => {
+        filtersToAdd.add(`Supply:${filter}`);
+      });
+      appliedHandlingSupplyPreselectionRefV2.current[handlingName] = true;
+    });
+
+    unappliedExhaustRules.forEach(([handlingName, filters]) => {
+      filters.forEach((filter) => {
+        filtersToAdd.add(`Exhaust:${filter}`);
+      });
+      appliedHandlingExhaustPreselectionRefV2.current[handlingName] = true;
+    });
+
+    if (filtersToAdd.size > 0) {
+      const currentSelected = [...(selectedFilters || [])];
+      let selectionChanged = false;
+
+      filtersToAdd.forEach((k) => {
+        if (!currentSelected.includes(k)) {
+          currentSelected.push(k);
+          selectionChanged = true;
+          
+          if (!selectedFilterDetails[k]) {
+            const filterName = k.split(":")[1];
+            const specs = getFilterSpecs(filterName);
+            if (specs) {
+              dispatch(
+                updateFilterDetail({
+                  filterName: k,
+                  details: {
+                    unit: "Pa",
+                    initialDp: specs.initRange[0] * MM_WG_TO_PA,
+                    finalDp: Math.max(...specs.finalRange) * MM_WG_TO_PA,
+                  },
+                })
+              );
+            }
+          }
+        }
+      });
+
+      if (selectionChanged) {
+        handleChange("selectedFilters", currentSelected);
+      }
+    }
+  }, [
+    activeHandlingSupplyPreselectionRules,
+    activeHandlingExhaustPreselectionRules,
+    selectedFilters,
+    selectedFilterDetails,
     dispatch,
   ]);
 
@@ -1779,10 +1907,11 @@ const AHUFiltration = () => {
                     const isSelected = (selectedFilters || []).includes(k);
                     const isUserChoice = matchedAutoClassForUi?.userChoiceFilters?.[type]?.includes(filter) || false;
                     const isAutoPreselected = matchedAutoClassForUi?.filters?.[type]?.includes(filter) || false;
-                    return isSelected || isUserChoice || isAutoPreselected;
+                    const isHandlingPreselected = type === "Supply" ? handlingSupplyFilters.has(filter) : handlingExhaustFilters.has(filter);
+                    return isSelected || isUserChoice || isAutoPreselected || isHandlingPreselected;
                   }).sort((a: string, b: string) => {
-                    const isPreA = matchedAutoClassForUi?.filters?.[type]?.includes(a) || false;
-                    const isPreB = matchedAutoClassForUi?.filters?.[type]?.includes(b) || false;
+                    const isPreA = (matchedAutoClassForUi?.filters?.[type]?.includes(a) || false) || (type === "Supply" ? handlingSupplyFilters.has(a) : handlingExhaustFilters.has(a));
+                    const isPreB = (matchedAutoClassForUi?.filters?.[type]?.includes(b) || false) || (type === "Supply" ? handlingSupplyFilters.has(b) : handlingExhaustFilters.has(b));
                     if (isPreA && !isPreB) return -1;
                     if (!isPreA && isPreB) return 1;
                     return 0;

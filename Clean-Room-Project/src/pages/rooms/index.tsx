@@ -57,7 +57,7 @@ type StandardItem = {
 
 type StandardJson = { standards: StandardItem[]; text: any };
 const standardsDb = (standardDataJson as unknown as StandardJson).standards;
-const t=resultsText;
+const t = resultsText;
 
 type RoomForm = {
   roomName: string;
@@ -644,6 +644,9 @@ export default function Room() {
           project_Volume: toNullableNumber(result.volumeFt3),
           project_RoomCfm: toNullableNumber(result.roomCfm),
           project_FreshAir: toNullableNumber(result.freshAir),
+          project_ResultantSupplyAir: toNullableNumber(
+            result.ResultantSupplyAir,
+          ),
           project_ExhaustAir: toNullableNumber(result.exhaustAir),
           project_DehumidCfm: toNullableNumber(result.dehumidValue),
           project_Rem_Water_Vapour: toNullableNumber(result.removedWater),
@@ -760,7 +763,10 @@ export default function Room() {
         const { results, flag, zoneId } = data;
 
         const sum = (key: string): number =>
-          results.reduce((acc, r) => acc + (Number((r as any)[key]) || 0), 0);
+          results.reduce((acc, r) => {
+            const val = Number((r as any)[key]);
+            return acc + (isNaN(val) ? 0 : val);
+          }, 0);
 
         await createZoneTotals(zoneId, {
           ExhaustFlag: flag,
@@ -769,6 +775,7 @@ export default function Room() {
           zone_Volume: r2(sum("volumeFt3")),
           zone_RoomCfm: r2(sum("roomCfm")),
           zone_FreshAir: r2(sum("freshAir")),
+          zone_ResultantSupplyAir: r2(sum("ResultantSupplyAir")),
           zone_ExhaustAir: r2(sum("exhaustAir")),
           zone_DehumidCfm: r2(sum("dehumidValue")),
           zone_Rem_Water_Vapour: r3(sum("removedWater")),

@@ -47,6 +47,10 @@
       "label": "Fresh Air (%)",
       "placeholder": "10"
     },
+    "ResultantSupplyAir": {
+      "label": "Resultant Supply Air (%)",
+      "placeholder": "100"
+    },
     "exhaustAir": {
       "label": "Exhaust Air (%)",
       "placeholder": "10"

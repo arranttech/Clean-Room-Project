@@ -255,6 +255,7 @@ export const projectRepository = {
         t.zone_Volume,
         t.zone_RoomCfm,
         t.zone_FreshAir,
+        t.zone_ResultantSupplyAir,
         t.zone_ExhaustAir,
         t.zone_DehumidCfm,
         t.zone_Rem_Water_Vapour,

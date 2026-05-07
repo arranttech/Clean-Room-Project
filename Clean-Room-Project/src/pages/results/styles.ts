@@ -1,8 +1,8 @@
 import theme from "../../styles/theme";
 
 const resultsDesign = {
-  wrap: "min-h-screen flex items-center justify-center bg-slate-50 px-4",
-  card: "w-full max-w-5xl bg-white rounded-xl shadow-lg px-12 py-10",  // headerSection: `mb-4 sm:mb-6`,
+  wrap: "min-h-[calc(100vh-80px)] flex flex-col items-center justify-center bg-slate-50 px-4 py-6",
+  card: "w-full max-w-5xl bg-white rounded-xl shadow-lg px-12 py-8",
   // title:
   //   `${theme.h1} text-center`,
   // subtitle:
@@ -33,28 +33,28 @@ const resultsDesign = {
 
   // emptyRow:
   //   `px-4 sm:px-6 py-6 sm:py-8 text-center text-${theme.textMuted} bg-white border-b border-${theme.borderColor} text-sm`,
-headerSection: "text-center mb-8 flex flex-col items-center",
+  headerSection: "text-center mb-8 flex flex-col items-center",
 
-successIcon:
-  "w-16 h-16 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-3xl mb-4",
+  successIcon:
+    "w-16 h-16 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-3xl mb-4",
 
-title: "text-2xl font-bold text-gray-900 mb-2",
+  title: "text-2xl font-bold text-gray-900 mb-2",
 
-subtitle: "text-sm text-gray-500 mb-1",
+  subtitle: "text-sm text-gray-500 mb-1",
 
-description: "text-sm text-gray-400",
+  description: "text-sm text-gray-400",
 
   detailsBox:
-  "grid grid-cols-2 gap-6 bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8",
-  
+    "grid grid-cols-2 gap-6 bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8",
+
   detailLabel: "text-xs font-semibold text-gray-500 mb-1",
   detailValue: "text-sm font-medium text-gray-900",
   buttonRow: "grid grid-cols-2 gap-6 mb-8",
 
-   primaryBtn:
+  primaryBtn:
     "h-12 bg-orange-500 text-white rounded-lg font-semibold shadow-md hover:bg-orange-600",
 
-   secondaryBtn:
+  secondaryBtn:
     "h-12 border border-orange-500 text-orange-600 rounded-lg font-semibold hover:bg-orange-50",
   divider: "border-t border-slate-200 my-6",
 
@@ -65,15 +65,15 @@ description: "text-sm text-gray-400",
   reportItem: "flex items-start gap-2",
 
   check:
-  "w-5 h-5 flex items-center justify-center rounded-full bg-green-100 text-green-600 text-xs font-bold",
+    "w-5 h-5 flex items-center justify-center rounded-full bg-green-100 text-green-600 text-xs font-bold",
 
-  footer: "mt-8 flex justify-center",
+  footer: "mt-5 flex justify-center w-full",
   // footer:
   //   `mt-6 sm:mt-10 flex flex-col items-center gap-3`,
-  // footerTitle:
-  //   `text-xs sm:text-sm text-${theme.textMuted}`,
+  footerTitle:
+    `text-xs sm:text-sm text-${theme.textMuted}`,
   goHomeBtn:
-  "flex items-center gap-2 text-gray-600 font-medium hover:text-orange-600",
+    "h-12 px-8 border border-blue-900 text-blue-900 rounded-lg font-semibold hover:bg-blue-50 flex items-center justify-center gap-2 min-w-[220px]",
 };
 
 export default resultsDesign;

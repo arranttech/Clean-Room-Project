@@ -299,6 +299,7 @@ export const openApiSpec = {
 										volume: { type: "number" },
 										roomCfm: { type: "number" },
 										freshAir: { type: "number" },
+										ResultantSupplyAir: { type: "number" },
 										exhaustAir: { type: "number" },
 
 										dehumidValue: {
@@ -658,6 +659,7 @@ export const openApiSpec = {
 												volumeFt3: 1355.25,
 												roomCfm: 1355.25,
 												freshAir: 203.287,
+												ResultantSupplyAir: 3150,
 												exhaustAir: 67.763,
 												dehumidValue: 3150,
 												removedWater: 17.355,
@@ -680,6 +682,7 @@ export const openApiSpec = {
 												volumeFt3: 1355.25,
 												roomCfm: 1355.25,
 												freshAir: 203.287,
+												ResultantSupplyAir: 3150,
 												exhaustAir: 67.763,
 												dehumidValue: 3150,
 												removedWater: 17.355,
@@ -706,6 +709,7 @@ export const openApiSpec = {
 												volumeFt3: { type: "number", example: 1355.25 },
 												roomCfm: { type: "number", example: 1355.25 },
 												freshAir: { type: "number", example: 203.287 },
+												ResultantSupplyAir: { type: "number", example: 3150 },
 												exhaustAir: { type: "number", example: 67.763 },
 												dehumidValue: { type: "number", example: 3150 },
 												removedWater: { type: "number", example: 17.355 },

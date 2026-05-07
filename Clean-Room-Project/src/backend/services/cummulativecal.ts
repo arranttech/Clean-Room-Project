@@ -11,6 +11,7 @@ export type CalculatedZoneResults = {
     zoneVolume: number;
     zoneRoomCfm: number;
     zoneFreshAir: number;
+    zoneResultantSupplyAir: number;
     zoneExhaustAir: number;
     zoneDehumidValue: number;
     zoneRemovedWater: number;
@@ -30,6 +31,7 @@ export type CalculatedZoneResults = {
 
 interface AccumulatorTotals {
     zoneArea: number; zoneVolume: number; zoneRoomCfm: number; zoneFreshAir: number;
+    zoneResultantSupplyAir: number;
     zoneExhaustAir: number; zoneDehumidValue: number; zoneRemovedWater: number;
     zoneResultantCfm: number; zoneRoomACValue: number; zoneRoomTermSupplyValue: number;
     zoneCfmACLoadTR: number; zoneResultCoolLoadTR: number; zoneAddWaterValue: number;
@@ -52,6 +54,7 @@ export function cumulativeZoneService(
 
     const createEmptyTotal = (): AccumulatorTotals => ({
         zoneArea: 0, zoneVolume: 0, zoneRoomCfm: 0, zoneFreshAir: 0,
+        zoneResultantSupplyAir: 0,
         zoneExhaustAir: 0, zoneDehumidValue: 0, zoneRemovedWater: 0,
         zoneResultantCfm: 0, zoneRoomACValue: 0, zoneRoomTermSupplyValue: 0,
         zoneCfmACLoadTR: 0, zoneResultCoolLoadTR: 0, zoneAddWaterValue: 0,
@@ -68,6 +71,7 @@ export function cumulativeZoneService(
             target.zoneVolume += ensureNumber(room.volumeFt3);
             target.zoneRoomCfm += ensureNumber(room.roomCfm);
             target.zoneFreshAir += ensureNumber(room.freshAir);
+            target.zoneResultantSupplyAir += ensureNumber(room.ResultantSupplyAir);
             target.zoneExhaustAir += ensureNumber(room.exhaustAir);
             target.zoneDehumidValue += ensureNumber(room.dehumidValue);
             target.zoneRemovedWater += ensureNumber(room.removedWater);
@@ -98,6 +102,7 @@ export function cumulativeZoneService(
         zoneVolume: Number(totals.zoneVolume.toFixed(2)),
         zoneRoomCfm: Number(totals.zoneRoomCfm.toFixed(2)),
         zoneFreshAir: Number(totals.zoneFreshAir.toFixed(2)),
+        zoneResultantSupplyAir: Number(totals.zoneResultantSupplyAir.toFixed(2)),
         zoneExhaustAir: Number(totals.zoneExhaustAir.toFixed(2)),
         zoneDehumidValue: Number(totals.zoneDehumidValue.toFixed(2)),
         zoneRemovedWater: Number(totals.zoneRemovedWater.toFixed(3)),

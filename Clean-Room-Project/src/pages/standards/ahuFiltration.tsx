@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, type CSSProperties } from "react";
+import { useEffect, useState, useRef } from "react";
 import { HiChevronDown, HiX, HiCheck } from "react-icons/hi";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import {
@@ -404,7 +404,6 @@ const AHUFiltration = () => {
     heatingMethod,
     coolingMethod,
     coolingFlowVelocity,
-    bioSafetyLevel,
     standard,
     classification,
     systemType,
@@ -422,28 +421,6 @@ const AHUFiltration = () => {
   const handling = useAppSelector(
     (state: any) => state.projectInfo?.handling || [],
   );
-  const specialHandlingOptions = config.handling.specialHandlingOptions;
-  const hasSpecialHandling =
-    handling.length > 0 &&
-    handling.some((h: string) => specialHandlingOptions.includes(h)); // true if any selected handling matches special handling criteria
-  const exhaustRequiredHandling = new Set<string>([
-    "Allergen-controlled",
-    "amc/molecular sensitive",
-    "volatile organics control(voc)",
-    "radiological",
-    "potent compound (hpapi)",
-    "odour/cross contamination",
-    "explosive dust",
-  ]);
-  const hasHandlingRequiringExhaust =
-    handling.length > 0 &&
-    handling.some((h: string) =>
-      exhaustRequiredHandling.has(
-        String(h || "")
-          .trim()
-          .toLowerCase(),
-      ),
-    );
   const normalizedHandlingSelections = new Set(
     handling.map((h: string) =>
       String(h || "")
@@ -728,7 +705,6 @@ const AHUFiltration = () => {
   const activeFilters = (selectedFilters || []).filter((k: string) =>
     k && filterTypes.some((t: string) => k.startsWith(`${t}:`))
   );
-  const numStages = activeFilters.length;
   const numSupplyStages = activeFilters.filter((k: string) =>
     k.startsWith("Supply:"),
   ).length;
@@ -750,16 +726,12 @@ const AHUFiltration = () => {
     k.startsWith("Exhaust:"),
   ).length;
 
-  const filterDpSumMmWg = activeFilters.reduce(
-    (sum, k) => sum + getFinalDpMmWgForKey(k),
-    0,
-  );
   const supplyFinalPressureMmWg = activeFilters
     .filter((k: string) => k.startsWith("Supply:"))
-    .reduce((sum, k) => sum + getFinalDpMmWgForKey(k), 0);
+    .reduce((sum: number, k: string) => sum + getFinalDpMmWgForKey(k), 0);
   const exhaustFinalPressureMmWg = activeFilters
     .filter((k: string) => k.startsWith("Exhaust:"))
-    .reduce((sum, k) => sum + getFinalDpMmWgForKey(k), 0);
+    .reduce((sum: number, k: string) => sum + getFinalDpMmWgForKey(k), 0);
 
   const formatPressureDisplay = (mmWgValue: number) => {
     const pa = Math.round(mmWgValue * MM_WG_TO_PA);
@@ -774,10 +746,12 @@ const AHUFiltration = () => {
     config.calculationConstants.PLANT_ROOM_DISTANCE_FACTOR;
 
   // Static Pressure (mmWG) = (Plant Room Distance (m) * 0.7) + specific stream Filter Δp (mmWG) + specific stream Additional Δp (mmWG)
-  const staticPressureSupplyMmWg =
-    distanceDpParams + supplyFinalPressureWithAdditionalMmWg;
-  const staticPressureExhaustMmWg =
-    distanceDpParams + exhaustFinalPressureWithAdditionalMmWg;
+  const staticPressureSupplyMmWg = showSupplyFields
+    ? distanceDpParams + supplyFinalPressureWithAdditionalMmWg
+    : 0;
+  const staticPressureExhaustMmWg = showExhaustFields
+    ? distanceDpParams + exhaustFinalPressureWithAdditionalMmWg
+    : 0;
 
   const supplyFinalPressureDisplay = formatPressureDisplay(
     staticPressureSupplyMmWg,

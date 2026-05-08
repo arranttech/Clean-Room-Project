@@ -165,8 +165,8 @@ const COLS: Col[] = [
   { label: "Pipe Configuration", key: "pipe_configuration", sec: "brown", src: "std" },
   { label: "Static Pressure (Supply)", key: "static_Pressure_Supply", sec: "brown", src: "std" },
   { label: "Static Pressure (Exhaust)", key: "static_Pressure_Exhaust", sec: "brown", src: "std" },
-  { label: "Filtration Stages (Supply)", key: "total_Filtration_Stages_Supply", sec: "brown", src: "std" },
-  { label: "Filtration Stages (Exhaust)", key: "total_Filtration_Stages_Exhaust", sec: "brown", src: "std" },
+  { label: "Filtration Stages (Supply)", key: "number_of_Filtrations_Supply", sec: "brown", src: "std" },
+  { label: "Filtration Stages (Exhaust)", key: "number_of_Filtrations_Exhaust", sec: "brown", src: "std" },
 
   { label: "Area (m²)", key: "project_Area", sec: "airflow", src: "result", zoneCol: "zone_Area" },
   { label: "Volume (m³)", key: "project_Volume", sec: "airflow", src: "result", zoneCol: "zone_Volume" },

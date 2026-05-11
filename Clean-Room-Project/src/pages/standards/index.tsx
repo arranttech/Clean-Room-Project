@@ -350,16 +350,6 @@ export default function Standard() {
         );
       });
       return classifications;
-    } else {
-      if (!SPECIAL_STANDARDS.includes(selectedStandard.title)) {
-        classifications = classifications.filter((c) => {
-          const name = c.name || "";
-          return !(
-            name.toLowerCase().includes("non classified") ||
-            name.toLowerCase().includes("non-classified")
-          );
-        });
-      }
     }
 
     const industryFilters = (data as any).industryFilters || [];
@@ -367,14 +357,28 @@ export default function Standard() {
       (f: any) => f.industry === industry && f.subIndustry === subIndustry,
     );
 
-    if (activeFilter && activeFilter.allowedClassifications) {
+    if (
+      industry === "Pharmaceutical Industry" &&
+      activeFilter &&
+      activeFilter.allowedClassifications
+    ) {
       const allowedMap = activeFilter.allowedClassifications;
       const title = selectedStandard.title;
       if (allowedMap[title]) {
-        classifications = classifications.filter((c) =>
+        return classifications.filter((c) =>
           allowedMap[title].includes(c.name),
         );
       }
+    }
+
+    if (!SPECIAL_STANDARDS.includes(selectedStandard.title)) {
+      classifications = classifications.filter((c) => {
+        const name = c.name || "";
+        return !(
+          name.toLowerCase().includes("non classified") ||
+          name.toLowerCase().includes("non-classified")
+        );
+      });
     }
 
     return classifications;

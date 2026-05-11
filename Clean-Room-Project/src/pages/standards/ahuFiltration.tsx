@@ -16,110 +16,12 @@ const config = (ahuData as any).ahuConstructionConfig;
 const filterSelectionConfig = (ahuData as any).filtrationSelection;
 const filterSpecsMap = (ahuData as any).filterSpecs;
 
-const FILTER_SPEC_ALIASES: Record<string, string> = {
-  "EPA (H11) (pre-HEPA) filter": "EPA (pre-HEPA) filter",
-  "Leagcy (H13 ~50mm) filter": "Leagcy (H13 ~150) filter",
-  "Leagcy (H13 ~100mm) filter": "Leagcy (H13 ~300) filter",
-  "Leagcy (H14 ~150mm) filter": "Leagcy (H14 ~150) filter",
-  "Leagcy (H14 ~300mm) filter": "Leagcy (H14 ~300) filter",
-  "Upper HEPA (H15 ~150mm) filter": "Upper HEPA (H15 ~150) filter",
-  "Upper HEPA (H15 ~300mm) filter": "Upper HEPA (H15 ~300) filter",
-};
-
 const getIsoEquivalent = (standard: string, classification: string) => {
-  const mapping: Record<string, Record<string, string>> = {
-    "FDA 209E": {
-      "NC": "ISO 9 (Non-Classified)",
-      "Non-Classified": "ISO 9 (Non-Classified)",
-      "Class100K": "ISO 8",
-      "Class10K": "ISO 7",
-      "Class1K": "ISO 6",
-      "Class 100": "ISO 5",
-      "Class 10": "ISO 4",
-      "Class 1": "ISO 3",
-    },
-    "GMP": {
-      "NC": "ISO 9 (Non-Classified)",
-      "Non-Classified": "ISO 9 (Non-Classified)",
-      "Grade D (ISO 8 at Rest & Not Defined)": "ISO 8",
-      "Grade C (ISO 7 at Rest & ISO 8 in Oper.)": "ISO 7",
-      "Grade B (ISO 5 at Rest & ISO 7 in Oper.)": "ISO 6",
-      "Grade A (ISO 5 at Rest & ISO 5 in Oper.)": "ISO 5",
-    },
-    "JIS B 9920": {
-      "JIS Class 9": "ISO 9 (Non-Classified)",
-      "JIS Class 9 (Non-Classified)": "ISO 9 (Non-Classified)",
-      "JIS Class 8": "ISO 8",
-      "JIS Class 7": "ISO 7",
-      "JIS Class 6": "ISO 6",
-      "JIS Class 5": "ISO 5",
-      "JIS Class 4": "ISO 4",
-      "JIS Class 3": "ISO 3",
-      "JIS Class 2": "ISO 2",
-      "JIS Class 1": "ISO 1",
-    },
-    "EU GMP": {
-      "NC": "ISO 9 (Non-Classified)",
-      "Non-Classified": "ISO 9 (Non-Classified)",
-      "Grade D (ISO 7 at Rest & ISO 8 in Oper.)": "ISO 8",
-      "Grade C (ISO 7 at Rest & ISO 7 in Oper.)": "ISO 7",
-      "Grade B (ISO 5 at Rest & ISO 7 in Oper.)": "ISO 6",
-      "Grade A (ISO 5 at Rest & ISO 5 in Oper.)": "ISO 5",
-    },
-    "TGA": {
-      "NC": "ISO 9 (Non-Classified)",
-      "Non-Classified": "ISO 9 (Non-Classified)",
-      "3500": "ISO 8",
-      "350": "ISO 7",
-      "35": "ISO 6",
-      "3.5": "ISO 5",
-      "0.35": "ISO 4",
-      "0.035": "ISO 3",
-    },
-    "BS 5295": {
-      "NC": "ISO 9 (Non-Classified)",
-      "Non-Classified": "ISO 9 (Non-Classified)",
-      "K": "ISO 8",
-      "J": "ISO 7",
-      "G or H": "ISO 6",
-      "E or F": "ISO 5",
-      "D": "ISO 4",
-      "C": "ISO 3",
-    },
-    "GERMANY VD": {
-      "NC": "ISO 9 (Non-Classified)",
-      "Non-Classified": "ISO 9 (Non-Classified)",
-      "6": "ISO 8",
-      "5": "ISO 7",
-      "4": "ISO 6",
-      "3": "ISO 5",
-      "2": "ISO 4",
-      "1": "ISO 3",
-      "0": "ISO 2",
-    },
-    "AFNOR X44101": {
-      "NC": "ISO 9 (Non-Classified)",
-      "Non-Classified": "ISO 9 (Non-Classified)",
-      "4000000": "ISO 8",
-      "400000": "ISO 7",
-      "4000": "ISO 5",
-    },
-    "NC-Non Classified": {
-      "20μ": "ISO 9 (Non-Classified)",
-      "15μ": "ISO 8",
-      "10μ": "ISO 7",
-      "5μ": "ISO 6",
-      "1μ": "ISO 5",
-      "No-Filtration": "ISO 4",
-      "Positive Pressure": "ISO 3",
-      "Exhaust": "ISO 2",
-    }
-  };
-
   if (standard === "ISO 14644-4") {
     return { isoStandard: standard, isoClassification: classification };
   }
   
+  const mapping: Record<string, Record<string, string>> = (ahuData as any).filtrationSelection.standardToIsoMapping || {};
   const isoClass = mapping[standard]?.[classification];
   if (isoClass) {
     return { isoStandard: "ISO 14644-4", isoClassification: isoClass };
@@ -131,7 +33,8 @@ const getIsoEquivalent = (standard: string, classification: string) => {
 const getFilterSpecs = (filterName: string) => {
   if (!filterName) return null;
   if (filterSpecsMap[filterName]) return filterSpecsMap[filterName];
-  const alias = FILTER_SPEC_ALIASES[filterName];
+  const filterSpecAliases: Record<string, string> = (ahuData as any).filtrationSelection.filterSpecAliases || {};
+  const alias = filterSpecAliases[filterName];
   if (alias && filterSpecsMap[alias]) return filterSpecsMap[alias];
   const withoutMm = filterName.replace(/~(\d+)mm/g, "~$1");
   if (filterSpecsMap[withoutMm]) return filterSpecsMap[withoutMm];

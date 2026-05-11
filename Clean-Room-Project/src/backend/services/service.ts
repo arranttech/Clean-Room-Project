@@ -197,12 +197,17 @@ export function airflowService(
   const exhaustCfm = Number(room.exhaustAirCfm || 0);
 
   const freshAir = isVentilationSystem
-    ? baseFreshAir
+    ? (faFactor + 1) * roomCfm
     : (eaFactor === 0 && exhaustCfm === 0)
       ? baseFreshAir
       : (eaFactor + faFactor) * roomCfm;
 
-  const exhaustAir = Number(((eaFactor * roomCfm) + exhaustCfm).toFixed(3));
+  const exhaustAir = isVentilationSystem
+    ? (eaFactor === 0 && exhaustCfm === 0)
+      ? Math.max((eaFactor * roomCfm) + exhaustCfm, roomCfm)
+      : (eaFactor * roomCfm) + exhaustCfm
+    : (eaFactor * roomCfm) + exhaustCfm;
+
 
   let dehumidValue: number | string = 0;
   let removedWater: number | string = 0;
@@ -224,6 +229,8 @@ export function airflowService(
   let baseLoad = 0;
   let correction = 0;
   let ERLH = 0;
+
+  ///// Cooling Calculations //////
 
   function calculateDehumidCfm() {
     if (!showCooling) return 0;
@@ -361,7 +368,7 @@ export function airflowService(
     }
     return resultCoolLoadTR;
   }
-
+  //// Heating Calculations /////
   function calculateaddWaterVapour() {
     if (!showHeating) return 0;
 
@@ -530,6 +537,8 @@ export function airflowService(
     return resultHeatLoadTR;
   }
 
+  const isCombinedVentilationSystem =
+    isCoolingAndVentilation || isHeatingAndVentilation;
   const result: AirflowResults = {
     roomName: room.roomName,
     zoneSystem: String(room.zoneSystem),
@@ -538,7 +547,10 @@ export function airflowService(
     volumeFt3: Number(volumeFt3.toFixed(2)),
     roomCfm: Number(roomCfm.toFixed(3)),
     freshAir: Number(freshAir.toFixed(3)),
-    ResultantSupplyAir: 0,
+    ResultantSupplyAir:
+      isVentilationSystem && !isCombinedVentilationSystem
+        ? Number((freshAir + roomCfm).toFixed(3))
+        : 0,
     exhaustAir: Number(exhaustAir.toFixed(3)),
     dehumidValue: calculateDehumidCfm(),
     removedWater: calculateRemovedWater(),
@@ -570,9 +582,10 @@ export function airflowService(
       exhaustAir: Number(exhaustAirPrimary.toFixed(3)),
     };
 
-    const ventilationFreshAir = faFactor * roomCfm;
-    const ventilationExhaustAir =
-      (eaFactor * roomCfm) + exhaustCfm;
+    const ventilationFreshAir = (faFactor + 1) * roomCfm;
+    const ventilationExhaustAir = (eaFactor === 0 && exhaustCfm === 0)
+      ? Math.max((eaFactor * roomCfm) + exhaustCfm, roomCfm)
+      : (eaFactor * roomCfm) + exhaustCfm;
 
 
     const ventilationOnlyResult: AirflowResults = {

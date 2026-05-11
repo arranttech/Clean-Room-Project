@@ -1,7 +1,7 @@
 import { ServerRoute } from "@hapi/hapi";
 import Joi from "joi";
 import { cumulativeZoneService } from "../services/cummulativecal";
-import { boqresults, BOQPayload } from "../services/boqresults";
+import { boqresults } from "../services/boqresults";
 import { zoneRepository } from "../repositories/zoneRepository";
 
 
@@ -50,7 +50,7 @@ export const boqRoute: ServerRoute[] = [
 			response: {
 				status: {
 					200: Joi.object({
-						
+
 						exhaustTotals: Joi.object().required(),
 						nonExhaustTotals: Joi.object().required(),
 					}).required(),
@@ -65,9 +65,9 @@ export const boqRoute: ServerRoute[] = [
 		},
 		handler: async (request, h) => {
 			try {
-				
+
 				const { zoneName, rooms } = request.payload as any;
-				const payload = request.payload as any; 
+				const payload = request.payload as any;
 
 				const result = await cumulativeZoneService(zoneName, rooms);
 
@@ -76,7 +76,7 @@ export const boqRoute: ServerRoute[] = [
 
 				const nonExhaustId = await zoneRepository.createProjectZone(payload);
 				await zoneRepository.createZoneTotals(nonExhaustId, result.nonExhaustTotals);
-				
+
 				return h.response(result).code(200);
 			} catch (err: any) {
 				console.error("Cumulative calculation error:", err);
@@ -149,8 +149,19 @@ export const boqRoute: ServerRoute[] = [
 		},
 		handler: async (request, h) => {
 			try {
-				const payload = request.payload as BOQPayload;
-				const result = await boqresults(payload);
+				const payload = request.payload as any;
+
+				const standards = {
+					flowVelocity: payload.flowVelocity,
+					heatingFlowVelocity: payload.heatingFlowVelocity,
+					coolingFlowVelocity: payload.coolingFlowVelocity,
+					totalFiltrationStagesSupply: payload.totalFiltrationStagesSupply,
+					totalFiltrationStagesExhaust: payload.totalFiltrationStagesExhaust,
+					staticPressureSupply: payload.staticPressureSupply,
+					staticPressureExhaust: payload.staticPressureExhaust,
+					pipeConfiguration: payload.pipeConfiguration
+				};
+				const result = await boqresults(payload, standards);
 				return h.response(result).code(200);
 			} catch (err: any) {
 				console.error("BOQ calculation error:", err);

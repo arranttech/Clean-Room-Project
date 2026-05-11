@@ -245,13 +245,29 @@ function getSystemFlags(systemTypeRaw: any) {
   };
 }
 
-function isSupplyRoom(room: any): boolean {
-  const exhaustPercent = Number(room.room_ExhaustAir ?? 0);
-  const exhaustCfm = Number(room.room_ExhaustAirCfm ?? 0);
+function isSupplyByRoomInput(room: any): boolean {
+  const exhaustPercent = Number(room.room_ExhaustAir);
+  const exhaustCfm = Number(room.room_ExhaustAirCfm);
 
   return (
-    (isNaN(exhaustPercent) || exhaustPercent === 0) &&
-    (isNaN(exhaustCfm) || exhaustCfm === 0)
+    (
+      (isNaN(exhaustPercent) || exhaustPercent === 0) &&
+      (isNaN(exhaustCfm) || exhaustCfm === 0)
+    ) ||
+    (
+      (isNaN(exhaustPercent) || exhaustPercent !== 0) &&
+      (isNaN(exhaustCfm) || exhaustCfm !== 0)
+    )
+  );
+}
+
+function isExhaustByRoomInput(room: any): boolean {
+  const exhaustPercent = Number(room.room_ExhaustAir);
+  const exhaustCfm = Number(room.room_ExhaustAirCfm);
+
+  return (
+    (isNaN(exhaustPercent) || exhaustPercent !== 0) &&
+    (isNaN(exhaustCfm) || exhaustCfm !== 0)
   );
 }
 
@@ -621,14 +637,12 @@ function buildZoneSheet(
 
     if (tableKind === "ventilation") {
       for (const room of zoneRooms) {
-        const roomExhaustAir = toNum(room.room_ExhaustAir);
-        const roomExhaustAirCfm = toNum(room.room_ExhaustAirCfm);
 
-        const isVentilationSupply =
-          roomExhaustAir === 0 && roomExhaustAirCfm === 0;
+        const isRoomSupply = isSupplyByRoomInput(room);
+        const isRoomExhaust = isExhaustByRoomInput(room);
 
-        if (tableSide === "supply" && !isVentilationSupply) continue;
-        if (tableSide === "exhaust" && isVentilationSupply) continue;
+        if (tableSide === "supply" && !isRoomSupply) continue;
+        if (tableSide === "exhaust" && !isRoomExhaust) continue;
 
         const res = getVentilationResultForRoom(room, resByName);
 
@@ -643,10 +657,12 @@ function buildZoneSheet(
         const resultRows = getAllResultRowsForRoom(room, resByName);
 
         for (const res of resultRows) {
-          const dbExhaustAir = toNum(res.project_ExhaustAir);
 
-          if (tableSide === "supply" && dbExhaustAir !== 0) continue;
-          if (tableSide === "exhaust" && dbExhaustAir <= 0) continue;
+          const isRoomSupply = isSupplyByRoomInput(room);
+          const isRoomExhaust = isExhaustByRoomInput(room);
+
+          if (tableSide === "supply" && !isRoomSupply) continue;
+          if (tableSide === "exhaust" && !isRoomExhaust) continue;
 
           if (tableKind === "cooling") {
             const coolingDataSum =

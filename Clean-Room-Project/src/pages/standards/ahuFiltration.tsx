@@ -917,8 +917,10 @@ const AHUFiltration = () => {
     }
 
     const cleaned = (selectedFilters || []).filter((k: string) => {
-      if (allowedKeys.has(k)) return true;
       const [type, filter] = k.split(":");
+      if (!filterTypes.includes(type)) return false;
+
+      if (allowedKeys.has(k)) return true;
       if (type === "Supply" && handlingSupplyFilters.has(filter)) return true;
       if (type === "Exhaust" && handlingExhaustFilters.has(filter)) return true;
       return false;
@@ -926,7 +928,18 @@ const AHUFiltration = () => {
     if (cleaned.length !== (selectedFilters || []).length) {
       handleChange("selectedFilters", cleaned);
     }
-  }, [isoStandard, system, systemType, isoClassification, coolingMethod, heatingMethod, handlingSupplyFilters, handlingExhaustFilters]);
+  }, [
+    isoStandard,
+    system,
+    systemType,
+    isoClassification,
+    coolingMethod,
+    heatingMethod,
+    handlingSupplyFilters,
+    handlingExhaustFilters,
+    filterTypes,
+    selectedFilters,
+  ]);
 
 
 
@@ -1082,6 +1095,7 @@ const AHUFiltration = () => {
     const filtersToAdd = new Set<string>();
 
     unappliedSupplyRules.forEach(([handlingName, filters]) => {
+      if (!filterTypes.includes("Supply")) return;
       filters.forEach((filter) => {
         filtersToAdd.add(`Supply:${filter}`);
       });
@@ -1089,6 +1103,7 @@ const AHUFiltration = () => {
     });
 
     unappliedExhaustRules.forEach(([handlingName, filters]) => {
+      if (!filterTypes.includes("Exhaust")) return;
       filters.forEach((filter) => {
         filtersToAdd.add(`Exhaust:${filter}`);
       });
@@ -1103,7 +1118,7 @@ const AHUFiltration = () => {
         if (!currentSelected.includes(k)) {
           currentSelected.push(k);
           selectionChanged = true;
-          
+
           if (!selectedFilterDetails[k]) {
             const filterName = k.split(":")[1];
             const specs = getFilterSpecs(filterName);
@@ -1116,7 +1131,7 @@ const AHUFiltration = () => {
                     initialDp: specs.initRange[0] * MM_WG_TO_PA,
                     finalDp: Math.max(...specs.finalRange) * MM_WG_TO_PA,
                   },
-                })
+                }),
               );
             }
           }
@@ -1133,6 +1148,7 @@ const AHUFiltration = () => {
     selectedFilters,
     selectedFilterDetails,
     dispatch,
+    filterTypes,
   ]);
 
 

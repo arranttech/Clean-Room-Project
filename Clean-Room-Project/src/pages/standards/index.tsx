@@ -186,7 +186,7 @@ export default function Standard() {
   });
 
   const [modalMessage, setModalMessage] = useState("");
-  const [existingZoneNames, setExistingZoneNames] = useState<string[]>([]);
+  const [existingZones, setExistingZones] = useState<{id: number, name: string}[]>([]);
 
   const clearSupplyFilters = () => {
     const currentFilters = Array.isArray(selectedFilters)
@@ -294,11 +294,14 @@ export default function Standard() {
       try {
         const data = await getProjectDetails(projectId);
 
-        const dbZoneNames = Array.isArray(data?.zones)
-          ? data.zones.map((z: any) => String(z.zone_name || "").trim())
+        const dbZones = Array.isArray(data?.zones)
+          ? data.zones.map((z: any) => ({
+              id: z.zone_id,
+              name: String(z.zone_name || "").trim()
+            }))
           : [];
 
-        setExistingZoneNames(dbZoneNames);
+        setExistingZones(dbZones);
       } catch (error) {
         console.error("Failed to fetch existing zone names:", error);
       }
@@ -656,8 +659,8 @@ export default function Standard() {
 
     if (!getZoneSuffix(value)) return "Zone name is required";
 
-    const isDuplicate = existingZoneNames.some(
-      (name) => name.toLowerCase() === enteredZoneName.toLowerCase(),
+    const isDuplicate = existingZones.some(
+      (z) => z.name.toLowerCase() === enteredZoneName.toLowerCase() && z.id !== zoneIdFromRedux
     );
 
     if (isDuplicate) return "Zone already exist, please enter unique name";

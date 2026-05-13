@@ -1,10 +1,11 @@
 import boqresult from "../../json/boqresult.json";
 import { CalculatedZoneResults } from "../services/cummulativecal";
 import { RoomPayload } from "../services/service";
-import { getSystemFlags } from "./service";
+import { getSystemFlags, AirflowResults } from "./service";
 
 
 export type RoomBOQPayload = RoomPayload;
+export type ResultPayload = AirflowResults;
 export type BOQPayload = CalculatedZoneResults;
 
 
@@ -14,7 +15,7 @@ const c = boqresult?.fields?.RowsofCoolingCoil?.Coolval || [];
 const w = boqresult?.fields?.WaterLS?.waterval || 0;
 const ps = boqresult?.fields?.PipeSize?.pipesize || [];
 
-export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPayload) {
+export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPayload, result?: ResultPayload) {
     try {
         const {
             flowVelocity,
@@ -46,32 +47,35 @@ export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPaylo
         // ================= CFM =================
         function calculatedAHUCfm(): number {
             const exhaustAir = Number(zone.zoneExhaustAir || 0);
+            const exhaustcond = Number(result?.exhaustAir || 0);
             const freshAir = Number(zone.zoneFreshAir || 0);
             const roomCFM = Number(zone.zoneRoomCfm || 0);
-            //const coolingBase = Number(zone.zoneResultantCfm || 0);
-            //const heatingBase = Number(zone.zoneResultantHeatCfm || 0);
+            const coolingBase = Number(zone.zoneResultantCfm || 0);
+            const heatingBase = Number(zone.zoneResultantHeatCfm || 0);
 
             let ahuCfm = 0;
 
-             const coolingCfm =
-            //exhaustAir !== 0
+            const coolingCfm =
+                exhaustAir !== 0
             // ? Math.ceil((exhaustAir * 1.10) / 50) * 50
             // : Math.ceil(coolingBase / 250) * 250;
-             Math.ceil(exhaustAir / 250) * 250;
+            ? Math.ceil(exhaustAir / 250) * 250
+            : Math.ceil(coolingBase / 250) * 250;
 
             const heatingCfm =
-            //  exhaustAir !== 0
-            // ? Math.ceil((exhaustAir * 1.10) / 50) * 50
-            //  : Math.ceil(heatingBase / 250) * 250;
-             Math.ceil(exhaustAir / 250) * 250;
+                exhaustAir !== 0
+                    // ? Math.ceil((exhaustAir * 1.10) / 50) * 50
+                    //  : Math.ceil(heatingBase / 250) * 250;
+                    ? Math.ceil(exhaustAir / 250) * 250
+                    : Math.ceil(heatingBase / 250) * 250;
 
 
 
             const ventilationCfm =
-            // exhaustAir !== 0
-            //  ? Math.ceil(roomCFM / 250) * 250
-            //: Math.ceil(freshAir / 100) * 100;
-            Math.ceil(roomCFM / 250) * 250 ;
+                exhaustAir !== 0
+                    //  ? Math.ceil(roomCFM / 250) * 250
+                    ? Math.ceil(roomCFM / 250) * 250
+                    : Math.ceil((roomCFM + freshAir) / 250) * 250;
 
             if (isVentilationSystem) ahuCfm = ventilationCfm;
             else if (isHeatingandCooling) ahuCfm = Math.max(coolingCfm, heatingCfm);
@@ -79,8 +83,8 @@ export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPaylo
             else if (showHeating) ahuCfm = heatingCfm;
 
             //ahuCfm = isVentilationSystem ?
-                //Math.ceil(roomCFM / 250) * 250 :
-                //Math.ceil(exhaustAir / 250) * 250;
+            //Math.ceil(roomCFM / 250) * 250 :
+            //Math.ceil(exhaustAir / 250) * 250;
 
             return ahuCfm;
         }
@@ -148,7 +152,7 @@ export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPaylo
         }
 
         function calculateCoolingCoil(width: number, height: number): number {
-            
+
 
             const requiredload = Math.max(
                 Number(zone.zoneRoomACValue || 0),
@@ -166,6 +170,14 @@ export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPaylo
             else if (baseCapacity * c[5] >= requiredload) return 8;
 
             return 0;
+        }
+
+
+         function calculateStagesofFiltration(exhaustAir: number): number {
+
+            if (exhaustAir !== 0) 
+            return totalFiltrationStagesExhaust;
+            else return totalFiltrationStagesSupply;
         }
 
         function calculateAHULength(bdbVal: number, stages: number, coolingcoil: number): number {
@@ -206,6 +218,13 @@ export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPaylo
 
             const totalLength = BlowerLength + FilterLength + CoilLength;
             return totalLength < 4000 ? totalLength : totalLength + 400;
+        }
+
+
+        function calculateStaticPressure(exhaustAir: number): number {
+
+            if (exhaustAir !== 0) return staticPressureExhaust;
+            else return staticPressureSupply;
         }
 
         function calculateGPM(): number {
@@ -259,7 +278,8 @@ export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPaylo
         const finalWidth = calculateAHUWidth(finalCfm);
         const finalHeight = calculateAHUHeight(finalCfm);
         const finalCoolingCoil = calculateCoolingCoil(finalWidth, finalHeight);
-
+        const stagesoffilteration = calculateStagesofFiltration(Number(zone.zoneExhaustAir || 0));
+        const staticPressure = calculateStaticPressure(Number(zone.zoneExhaustAir || 0));
         const displayVelocity = displayflowvelocity();
         const finalWaterGPM = calculateGPM();
 
@@ -271,13 +291,13 @@ export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPaylo
             AHUCfm: finalCfm,
             AHUWidth: finalWidth,
             AHUHeight: finalHeight,
-            AHULength: calculateAHULength(safeBDB, totalFiltrationStagesExhaust, finalCoolingCoil),
-            stageFilter: totalFiltrationStagesExhaust,
-            staticPressure: staticPressureExhaust,
+            stageFilter: stagesoffilteration,
+            AHULength: calculateAHULength(safeBDB, stagesoffilteration, finalCoolingCoil),
+            staticPressure: staticPressure,
             BDB: finalBDB,
-            motorHP: calculateMotorHP(finalCfm, staticPressureExhaust),
-            AHUCoolingLoadTR: Number(AHUCoolLoadTR),
-            coolingCoil: finalCoolingCoil,
+            motorHP: calculateMotorHP(finalCfm, staticPressure),
+            AHULoadTR: Number(AHUCoolLoadTR),
+            noofrowsofCoil: finalCoolingCoil,
             WaterGPM: finalWaterGPM,
             WaterLS: calculateWaterLS(finalWaterGPM),
             flowVelocity: displayVelocity,

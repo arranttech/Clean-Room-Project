@@ -287,7 +287,6 @@ export default function Dashboard() {
             tempUnit: std.project_temp_unit ?? "C",
             reqInsideTempC: std.project_required_inside_temp ?? null,
             reqInsideHum: std.project_required_inside_humid ?? "",
-            flowVelocity: std.flow_velocity ?? 1.5,
             heatingFlowVelocity: std.heating_flow_velocity ?? 1.5,
             coolingFlowVelocity: std.cooling_flow_velocity ?? 1.5,
             staticPressureSupply: std.static_Pressure_Supply ?? 0,

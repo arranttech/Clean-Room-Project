@@ -14,7 +14,6 @@ const initialState = {
 	reqInsideTempC: "",
 	reqInsideTempDisplay: "",
 	reqInsideHum: "",
-	flowVelocity: 1.5,
 	heatingFlowVelocity: 1.5,
 	coolingFlowVelocity: 1.5,
 	zoneName: "",

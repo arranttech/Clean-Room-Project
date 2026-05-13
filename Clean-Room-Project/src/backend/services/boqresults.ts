@@ -227,12 +227,13 @@ export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPaylo
         function displayflowvelocity(): number | number[] {
             if (isHeatingandCooling) {
                 if ((pipeConfiguration || "").toUpperCase() === "SINGLE PIPE") {
-                    return heatingFlowVelocity || coolingFlowVelocity;
+                    return heatingFlowVelocity || coolingFlowVelocity || 0;
                 }
-                return [heatingFlowVelocity, coolingFlowVelocity];
+                return [heatingFlowVelocity || 0, coolingFlowVelocity || 0];
             }
 
-            if (showCooling || showHeating) return flowVelocity;
+            if (showHeating) return heatingFlowVelocity || 0;
+            if (showCooling) return coolingFlowVelocity || 0;
             return 0;
         }
 

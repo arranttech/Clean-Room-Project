@@ -260,7 +260,6 @@ export default function Standard() {
               reqInsideHum: std.project_required_inside_humid
                 ? String(std.project_required_inside_humid)
                 : "",
-              flowVelocity: std.flow_velocity || 1.5,
               pipeConfiguration: std.pipe_configuration || "",
               staticPressureSupply: std.static_Pressure_Supply || 0,
               staticPressureExhaust: std.static_Pressure_Exhaust || 0,
@@ -787,7 +786,6 @@ export default function Standard() {
         staticPressureSupply,
         staticPressureExhaust,
         exhaustImpactPercentage,
-        flowVelocity,
         heatingFlowVelocity,
         coolingFlowVelocity,
         additionalDpValue,

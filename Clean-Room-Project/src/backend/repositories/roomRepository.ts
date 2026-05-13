@@ -14,17 +14,29 @@ const toStr = (v: any): string | null => {
 // this function is used to handle the velocity data based on the system and pipe configuration
 const s = (payload: any) => {
   const system = payload.system || "";
-  const pipeConfig = payload.pipeConfiguration || "";
 
-  const isDualPipeHeatingCooling =
-    system === "Air Cooling and Air Heating System" && pipeConfig === "Dual Pipe";
   const isVentilation = system === "Ventilation System";
+
+  // Check if system is heating or cooling related
+  const isHeatingRelated = [
+    "Air-Heating System",
+    "Air Heating and Ventilation System",
+    "Air Cooling and Air Heating System"
+  ].includes(system);
+
+  const isCoolingRelated = [
+    "Air-Cooling System",
+    "Air Cooling and Ventilation System",
+    "Air Cooling and Air Heating System"
+  ].includes(system);
+
+  let heatingVelocity = payload.heatingFlowVelocity;
+  let coolingVelocity = payload.coolingFlowVelocity;
 
   return {
     ...payload,
-    flowVelocity: (isVentilation || isDualPipeHeatingCooling) ? null : payload.flowVelocity,
-    heatingFlowVelocity: isDualPipeHeatingCooling ? payload.heatingFlowVelocity : null,
-    coolingFlowVelocity: isDualPipeHeatingCooling ? payload.coolingFlowVelocity : null,
+    heatingFlowVelocity: isHeatingRelated ? (heatingVelocity ?? 1.5) : null,
+    coolingFlowVelocity: isCoolingRelated ? (coolingVelocity ?? 1.5) : null,
     pipeConfiguration: isVentilation ? null : payload.pipeConfiguration,
   };
 };
@@ -56,7 +68,6 @@ export const roomRepository = {
     project_min_temp,
     project_relative_min_humid,
     project_relative_max_humid,
-    flow_velocity,
     heating_flow_velocity,
     cooling_flow_velocity,
     Additional_dp_exhaust,
@@ -71,7 +82,7 @@ export const roomRepository = {
     number_of_Filtrations_Exhaust,
     created_by,
     updated_by
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     const values = [
       payload.project_id,
@@ -90,7 +101,6 @@ export const roomRepository = {
       toNum(payload.minTempC),
       toNum(payload.rhMin),
       toNum(payload.rhMax),
-      toNum(payload.flowVelocity),
       toNum(payload.heatingFlowVelocity),
       toNum(payload.coolingFlowVelocity),
       toNum(payload.additionalDpValueExhaust),
@@ -150,7 +160,6 @@ export const roomRepository = {
       toNum(payload.minTempC),
       toNum(payload.rhMin),
       toNum(payload.rhMax),
-      toNum(payload.flowVelocity),
       toNum(payload.heatingFlowVelocity),
       toNum(payload.coolingFlowVelocity),
       toNum(payload.additionalDpValueExhaust),
@@ -190,7 +199,6 @@ export const roomRepository = {
         project_min_temp = ?,
         project_relative_min_humid = ?,
         project_relative_max_humid = ?,
-        flow_velocity = ?,
         heating_flow_velocity = ?,
         cooling_flow_velocity = ?,
         Additional_dp_exhaust = ?,

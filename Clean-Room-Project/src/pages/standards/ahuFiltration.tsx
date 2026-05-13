@@ -295,7 +295,6 @@ const AHUFiltration = () => {
     purgeWall,
     pipeConfiguration,
     treatedFreshAirUnit,
-    flowVelocity,
     heatingFlowVelocity,
     filterTypeSelection,
     selectedFilters = [],
@@ -456,7 +455,6 @@ const AHUFiltration = () => {
     dispatch(updateStandardsField({ field, value }));
 
     const SEPARATE_COLUMNS = [
-      "flowVelocity",
       "heatingFlowVelocity",
       "coolingFlowVelocity",
       "selectedFilters",
@@ -759,12 +757,6 @@ const AHUFiltration = () => {
 
   useEffect(() => {
     // Enforce boundaries when medium changes (e.g. from Hot Water to Steam)
-    if (flowVelocity < flowRange.min || flowVelocity > flowRange.max) {
-      handleChange(
-        "flowVelocity",
-        clamp(Number(flowVelocity), flowRange.min, flowRange.max),
-      );
-    }
     if (
       heatingFlowVelocity < heatingFlowRange.min ||
       heatingFlowVelocity > heatingFlowRange.max
@@ -1568,17 +1560,16 @@ const AHUFiltration = () => {
                                 min={flowRange.min}
                                 max={flowRange.max}
                                 step={0.1}
-                                value={flowVelocity}
-                                onChange={(e) =>
-                                  handleChange(
-                                    "flowVelocity",
-                                    clamp(
-                                      Number(e.target.value),
-                                      flowRange.min,
-                                      flowRange.max,
-                                    ),
-                                  )
-                                }
+                                value={isHeating ? heatingFlowVelocity : coolingFlowVelocity}
+                                onChange={(e) => {
+                                  const val = clamp(
+                                    Number(e.target.value),
+                                    flowRange.min,
+                                    flowRange.max,
+                                  );
+                                  if (isHeating) handleChange("heatingFlowVelocity", val);
+                                  if (isCooling) handleChange("coolingFlowVelocity", val);
+                                }}
                               />
                               <div className={s.dualFlowMax}>
                                 {flowRange.max}
@@ -1586,17 +1577,17 @@ const AHUFiltration = () => {
                               <input
                                 className={s.dualFlowValueBox}
                                 inputMode="decimal"
-                                value={flowVelocity}
+                                value={isHeating ? heatingFlowVelocity : coolingFlowVelocity}
                                 required={true}
                                 onChange={(e) => {
                                   const v = e.target.value;
                                   if (v === "" || isNumericLike(v)) {
                                     const n = Number(v);
-                                    if (!isNaN(n))
-                                      handleChange(
-                                        "flowVelocity",
-                                        clamp(n, flowRange.min, flowRange.max),
-                                      );
+                                    if (!isNaN(n)) {
+                                      const val = clamp(n, flowRange.min, flowRange.max);
+                                      if (isHeating) handleChange("heatingFlowVelocity", val);
+                                      if (isCooling) handleChange("coolingFlowVelocity", val);
+                                    }
                                   }
                                 }}
                               />

@@ -432,8 +432,6 @@ export const openApiSpec = {
 									minTempC: { type: "number" },
 									rhMin: { type: "number" },
 									rhMax: { type: "number" },
-									flowVelocity: { type: "number" },
-									flowMedium: { type: "string" },
 									heatingFlowVelocity: { type: "number" },
 									coolingFlowVelocity: { type: "number" },
 								},

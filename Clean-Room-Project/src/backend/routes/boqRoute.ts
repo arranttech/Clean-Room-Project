@@ -152,7 +152,6 @@ export const boqRoute: ServerRoute[] = [
 				const payload = request.payload as any;
 
 				const standards = {
-					flowVelocity: payload.flowVelocity,
 					heatingFlowVelocity: payload.heatingFlowVelocity,
 					coolingFlowVelocity: payload.coolingFlowVelocity,
 					totalFiltrationStagesSupply: payload.totalFiltrationStagesSupply,

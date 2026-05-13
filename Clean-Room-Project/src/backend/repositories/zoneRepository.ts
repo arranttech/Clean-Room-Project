@@ -17,6 +17,81 @@ export const zoneRepository = {
         return (result as any).insertId;
     },
 
+
+    saveBOQResults: async (zoneId: number | string, boqResults: any) => {
+    const connection = await database.getConnection();
+    console.log("Saving BOQ results for zoneId:", zoneId, "with results:", boqResults);
+    try {
+        await connection.beginTransaction();
+        const [result] = await connection.execute(
+           `INSERT INTO tBOQResults (
+             zone_id,
+             boq_AHUCfm,
+             boq_StaticPressure,
+             boq_BlowerModelBDB,
+             boq_MotorSelectedInHp,
+             boq_NoOfStagesOfFiltr,
+             boq_FlowVelocityCooling,
+             boq_PipeSizeCooling,
+             boq_NoOfRowsOfCoil,
+             boq_AHULoadInTR,
+             boq_GPM,
+             boq_Ls,
+             boq_FlowVelocityHeating,
+             boq_PipeSizeHeating,
+             boq_AHUWidth,
+             boq_AHULength,
+             boq_AHUHeight,
+             created_at,
+             updated_at
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,NOW(), NOW())`,
+    [
+        zoneId,
+        boqResults.AHUCfm ?? null,
+        boqResults.staticPressure ?? null,
+        boqResults.BDB ?? null,
+        boqResults.motorHP ?? null,
+        boqResults.stageFilter ?? null,
+
+        Array.isArray(boqResults.flowVelocity)
+            ? boqResults.flowVelocity[1]
+            : boqResults.flowVelocity ?? null,
+
+        Array.isArray(boqResults.PipeSize)
+            ? boqResults.PipeSize[1]
+            : boqResults.PipeSize ?? null,
+
+        boqResults.coolingCoil ?? boqResults.heatingCoil ?? null,
+        boqResults.AHUCoolingLoadTR ?? boqResults.AHUHeatingLoadTR ?? null,
+        boqResults.WaterGPM ?? null,
+        boqResults.WaterLS ?? null,
+
+        Array.isArray(boqResults.flowVelocity)
+            ? boqResults.flowVelocity[0]
+            : boqResults.flowVelocity ?? null,
+
+        Array.isArray(boqResults.PipeSize)
+            ? boqResults.PipeSize[0]
+            : boqResults.PipeSize ?? null,
+
+        boqResults.AHUWidth ?? null,
+        boqResults.AHULength ?? null,
+        boqResults.AHUHeight ?? null,
+    ]
+);
+        console.log(result);
+
+        await connection.commit();
+    } catch (error) {
+        await connection.rollback();
+        console.error("Database Error in saveBOQResults:", error);
+        throw error;
+    } finally {
+        connection.release();
+    }
+ },
+
     createZoneTotals: async (zoneId: number | string, totals: any) => {
         const connection = await database.getConnection();
         try {

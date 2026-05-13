@@ -44,6 +44,7 @@ import * as XLSX from "xlsx-js-style";
 import { FaDownload, FaUpload } from "react-icons/fa";
 import { updateProjectStatus } from "../../backend/controller/projectController";
 import resultsText from "../../json/resultsText.json";
+import { saveBOQResults } from "../../backend/controller/BOQController";
 
 type StandardItem = {
   id: number;
@@ -116,6 +117,31 @@ export default function Room() {
   ) as SavedRoom[];
 
   const standard = useAppSelector((state: any) => state.standards.standard);
+  const boqConfig = useAppSelector((state: any) => ({
+  totalFiltrationStagesSupply:
+    state.standards.totalFiltrationStagesSupply,
+
+  totalFiltrationStagesExhaust:
+    state.standards.totalFiltrationStagesExhaust,
+
+  staticPressureSupply:
+    state.standards.staticPressureSupply,
+
+  staticPressureExhaust:
+    state.standards.staticPressureExhaust,
+
+  flowVelocity:
+    state.standards.flowVelocity,
+
+  heatingFlowVelocity:
+    state.standards.heatingFlowVelocity,
+
+  coolingFlowVelocity:
+    state.standards.coolingFlowVelocity,
+
+  pipeConfiguration:
+    state.standards.pipeConfiguration,
+}));
   const classification = useAppSelector(
     (state: any) => state.standards.classification,
   );
@@ -553,6 +579,7 @@ export default function Room() {
   const goToResultsPage = async () => {
     const missing: string[] = [];
 
+
     if (!projectId) {
       missing.push("Project Information (Project details not saved)");
     }
@@ -767,39 +794,60 @@ export default function Room() {
             const val = Number((r as any)[key]);
             return acc + (isNaN(val) ? 0 : val);
           }, 0);
-
-        await createZoneTotals(zoneId, {
-          ExhaustFlag: flag,
-          user_id,
-          zone_Area: r2(sum("areaFt2")),
-          zone_Volume: r2(sum("volumeFt3")),
-          zone_RoomCfm: r2(sum("roomCfm")),
-          zone_FreshAir: r2(sum("freshAir")),
-          zone_ResultantSupplyAir: r2(sum("ResultantSupplyAir")),
-          zone_ExhaustAir: r2(sum("exhaustAir")),
-          zone_DehumidCfm: r2(sum("dehumidValue")),
-          zone_Rem_Water_Vapour: r3(sum("removedWater")),
-          zone_ResultCfm: r2(sum("resultantCfm")),
-          zone_Room_Termi_Supply_Mod: r2(sum("roomTermSupplyValue")),
-          zone_Room_AC_Load_TR: r2(sum("roomACValue")),
-          zone_Cfm_AC_Load_TR: r2(sum("cfmACLoadTR")),
-          zone_Res_Cooling_Load_TR: r2(sum("resultCoolLoadTR")),
-          zone_add_Water_Vapour: r2(sum("addWaterValue")),
-          zone_HumidCfm: r2(sum("humidValue")),
-          zone_ResultCfm_Hot: r2(sum("resultantheatCfm")),
-          zone_Room_Term_Supply_Mod: r2(sum("roomTermSupplyHeatValue")),
-          zone_Room_Heating_Load_TR: r2(sum("roomHeatLoadTR")),
-          zone_Cfm_Heating_Load_TR: r2(sum("cfmHeatLoadTRValue")),
-          zone_Result_Heating_Load_TR: r2(sum("resultHeatLoadTR")),
-        });
+        const zoneTotalsPayload = {
+             ExhaustFlag: flag,
+            user_id,
+            zone_Area: r2(sum("areaFt2")),
+            zone_Volume: r2(sum("volumeFt3")),
+            zone_RoomCfm: r2(sum("roomCfm")),
+            zone_FreshAir: r2(sum("freshAir")),
+            zone_ResultantSupplyAir: r2(sum("ResultantSupplyAir")),
+            zone_ExhaustAir: r2(sum("exhaustAir")),
+            zone_ResultCfm: r2(sum("resultantCfm")),
+            zone_ResultCfm_Hot: r2(sum("resultantheatCfm")),
+            zone_Room_AC_Load_TR: r2(sum("roomACValue")),
+            zone_Cfm_AC_Load_TR: r2(sum("cfmACLoadTR")),
+            zone_Res_Cooling_Load_TR: r2(sum("resultCoolLoadTR")),
+            zone_Room_Heating_Load_TR: r2(sum("roomHeatLoadTR")),
+            zone_Cfm_Heating_Load_TR: r2(sum("cfmHeatLoadTRValue")),
+            zone_Result_Heating_Load_TR: r2(sum("resultHeatLoadTR")),
+        };
+        console.log("Zone Totals Payload for Zone ID", zoneId, ":", zoneTotalsPayload);
+        await createZoneTotals(zoneId,zoneTotalsPayload);
+        const boqPayload = {
+         zoneId,
+         zoneName: `Zone ${zoneId}`,
+         zoneSystem: system,
+         zoneExhaustAir: zoneTotalsPayload.zone_ExhaustAir,
+         zoneRoomCfm: zoneTotalsPayload.zone_RoomCfm,
+         zoneFreshAir: zoneTotalsPayload.zone_FreshAir,
+         zoneResultantCfm: zoneTotalsPayload.zone_ResultCfm,
+         zoneResultantHeatCfm: zoneTotalsPayload.zone_ResultCfm_Hot,
+         zoneReqInsideTempC: reqInsideTempC,
+         zoneClassification: classification,
+         zoneResultCoolLoadTR: zoneTotalsPayload.zone_Res_Cooling_Load_TR,
+         zoneRoomACValue: zoneTotalsPayload.zone_Room_AC_Load_TR,
+         zoneCfmACLoadTR: zoneTotalsPayload.zone_Cfm_AC_Load_TR,
+         zoneRoomHeatLoadTR: zoneTotalsPayload.zone_Room_Heating_Load_TR,
+         zoneCfmHeatLoadTRValue: zoneTotalsPayload.zone_Cfm_Heating_Load_TR,...boqConfig,
+        }; 
+        console.log("BOQ Payload for Zone ID", zoneId, ":", boqPayload);
+        await saveBOQResults(boqPayload);
       }
-      await updateProjectStatus(Number(projectId), "COMPLETED");
+      console.log("Before updating project status to Completed");
 
+      await updateProjectStatus(Number(projectId), "COMPLETED");
+      console.log("Project status updated to Completed");
       navigate(`/results/${projectId}`);
+      console.log("Navigated to results page");
       dispatch(resetRoom());
+      console.log("Room state reset");
       dispatch(resetStandards());
+      console.log("Standards state reset");
       dispatch(resetProjectInfo());
+      console.log("Project info state reset");
       dispatch(removeInProgressProject(projectId));
+      console.log("In-progress project removed from dashboard");
     } catch (error) {
       console.error("Failed to generate results:", error);
       alert("Failed to generate results. Please try again.");

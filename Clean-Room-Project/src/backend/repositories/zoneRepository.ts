@@ -91,6 +91,25 @@ export const zoneRepository = {
         connection.release();
     }
  },
+ getBOQResultsByZoneId: async (zoneId: number | string) => {
+    const connection = await database.getConnection();
+
+    try {
+        const [rows]: any = await connection.execute(
+            `SELECT *
+             FROM tBOQResults
+             WHERE zone_id = ?`,
+            [zoneId]
+        );
+
+        return rows;
+    } catch (error) {
+        console.error("Database Error in getBOQResultsByZoneId:", error);
+        throw error;
+    } finally {
+        connection.release();
+    }
+},
 
     createZoneTotals: async (zoneId: number | string, totals: any) => {
         const connection = await database.getConnection();

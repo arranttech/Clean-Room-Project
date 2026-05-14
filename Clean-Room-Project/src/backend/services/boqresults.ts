@@ -3,11 +3,17 @@ import { CalculatedZoneResults } from "../services/cummulativecal";
 import { RoomPayload } from "../services/service";
 import { getSystemFlags, AirflowResults } from "./service";
 
-
 export type RoomBOQPayload = RoomPayload;
 export type ResultPayload = AirflowResults;
 export type BOQPayload = CalculatedZoneResults;
 
+export type BOQRowType =
+    | "COOLING_SUPPLY"
+    | "COOLING_EXHAUST"
+    | "HEATING_SUPPLY"
+    | "HEATING_EXHAUST"
+    | "VENTILATION_SUPPLY"
+    | "VENTILATION_EXHAUST";
 
 const bdb = boqresult?.fields?.BDB;
 const m = boqresult?.fields?.MotorHP;
@@ -15,10 +21,15 @@ const c = boqresult?.fields?.RowsofCoolingCoil?.Coolval || [];
 const w = boqresult?.fields?.WaterLS?.waterval || 0;
 const ps = boqresult?.fields?.PipeSize?.pipesize || [];
 
-export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPayload, result?: ResultPayload) {
+export function boqresults(
+    zone: BOQPayload,
+    standards: any,
+    room?: RoomBOQPayload,
+    result?: ResultPayload | ResultPayload[],
+    boqRowType?: BOQRowType
+) {
     try {
         const {
-            flowVelocity,
             heatingFlowVelocity,
             coolingFlowVelocity,
             totalFiltrationStagesSupply,
@@ -37,6 +48,21 @@ export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPaylo
         const isHeatingandCooling = showCooling && showHeating;
         const ahu = boqresult?.fields?.AHUSize;
 
+        const isCoolingSupply = boqRowType === "COOLING_SUPPLY";
+        const isCoolingExhaust = boqRowType === "COOLING_EXHAUST";
+
+        const isHeatingSupply = boqRowType === "HEATING_SUPPLY";
+        const isHeatingExhaust = boqRowType === "HEATING_EXHAUST";
+
+        const isVentilationSupply = boqRowType === "VENTILATION_SUPPLY";
+        const isVentilationExhaust = boqRowType === "VENTILATION_EXHAUST";
+
+        const isSupplyRow =
+            isCoolingSupply || isHeatingSupply || isVentilationSupply;
+
+        const isExhaustRow =
+            isCoolingExhaust || isHeatingExhaust || isVentilationExhaust;
+
         let rawTemp = zone.zoneReqInsideTempC;
         let temp = String(rawTemp ?? "").trim().toUpperCase();
         let isNumericTemp =
@@ -47,7 +73,6 @@ export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPaylo
         // ================= CFM =================
         function calculatedAHUCfm(): number {
             const exhaustAir = Number(zone.zoneExhaustAir || 0);
-            const exhaustcond = Number(result?.exhaustAir || 0);
             const freshAir = Number(zone.zoneFreshAir || 0);
             const roomCFM = Number(zone.zoneRoomCfm || 0);
             const coolingBase = Number(zone.zoneResultantCfm || 0);
@@ -55,36 +80,53 @@ export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPaylo
 
             let ahuCfm = 0;
 
-            const coolingCfm =
-                exhaustAir !== 0
-            // ? Math.ceil((exhaustAir * 1.10) / 50) * 50
-            // : Math.ceil(coolingBase / 250) * 250;
-            ? Math.ceil(exhaustAir / 250) * 250
-            : Math.ceil(coolingBase / 250) * 250;
+            const allResults = Array.isArray(result)
+                ? result
+                : result
+                    ? [result]
+                    : [];
 
-            const heatingCfm =
-                exhaustAir !== 0
-                    // ? Math.ceil((exhaustAir * 1.10) / 50) * 50
-                    //  : Math.ceil(heatingBase / 250) * 250;
-                    ? Math.ceil(exhaustAir / 250) * 250
-                    : Math.ceil(heatingBase / 250) * 250;
+            const exhaustValues = allResults.map(
+                (r: any) => Number(r?.exhaustAir ?? 0)
+            );
 
+            const isSupplySystem =
+                exhaustValues.length > 0
+                    ? exhaustValues.some((v: number) => v === 0)
+                    : exhaustAir === 0;
 
+            const isExhaustSystem =
+                exhaustValues.length > 0
+                    ? exhaustValues.every((v: number) => v !== 0)
+                    : exhaustAir !== 0;
 
-            const ventilationCfm =
-                exhaustAir !== 0
-                    //  ? Math.ceil(roomCFM / 250) * 250
-                    ? Math.ceil(roomCFM / 250) * 250
-                    : Math.ceil((roomCFM + freshAir) / 250) * 250;
+            const coolingSupplyCfm = Math.ceil(coolingBase / 250) * 250;
+            const coolingExhaustCfm = Math.ceil(exhaustAir / 250) * 250;
 
-            if (isVentilationSystem) ahuCfm = ventilationCfm;
-            else if (isHeatingandCooling) ahuCfm = Math.max(coolingCfm, heatingCfm);
-            else if (showCooling) ahuCfm = coolingCfm;
-            else if (showHeating) ahuCfm = heatingCfm;
+            const heatingSupplyCfm = Math.ceil(heatingBase / 250) * 250;
+            const heatingExhaustCfm = Math.ceil(exhaustAir / 250) * 250;
 
-            //ahuCfm = isVentilationSystem ?
-            //Math.ceil(roomCFM / 250) * 250 :
-            //Math.ceil(exhaustAir / 250) * 250;
+            const ventilationSupplyCfm =
+                Math.ceil((roomCFM + freshAir) / 250) * 250;
+
+            const ventilationExhaustCfm =
+                Math.ceil(roomCFM / 250) * 250;
+
+            if (isCoolingSupply) ahuCfm = coolingSupplyCfm;
+            else if (isCoolingExhaust) ahuCfm = coolingExhaustCfm;
+            else if (isHeatingSupply) ahuCfm = heatingSupplyCfm;
+            else if (isHeatingExhaust) ahuCfm = heatingExhaustCfm;
+            else if (isVentilationSupply) ahuCfm = ventilationSupplyCfm;
+            else if (isVentilationExhaust) ahuCfm = ventilationExhaustCfm;
+            else if (isVentilationSystem) ahuCfm = isSupplySystem ? ventilationSupplyCfm : ventilationExhaustCfm;
+            else if (isHeatingandCooling) {
+                const supplyCfm = Math.max(coolingSupplyCfm, heatingSupplyCfm);
+                const exhaustCfm = Math.max(coolingExhaustCfm, heatingExhaustCfm);
+
+                ahuCfm = isSupplySystem ? supplyCfm : exhaustCfm;
+            }
+            else if (showCooling) ahuCfm = isSupplySystem ? coolingSupplyCfm : isExhaustSystem ? coolingExhaustCfm : 0;
+            else if (showHeating) ahuCfm = isSupplySystem ? heatingSupplyCfm : isExhaustSystem ? heatingExhaustCfm : 0;
 
             return ahuCfm;
         }
@@ -121,7 +163,6 @@ export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPaylo
             return height[lastKey] || 0;
         }
 
-
         function calculateBDB(cfm: number): number | string {
             const bdbCfm = bdb?.BDBCfm || {};
             const bdbVal = bdb?.BDBVal || {};
@@ -152,8 +193,6 @@ export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPaylo
         }
 
         function calculateCoolingCoil(width: number, height: number): number {
-
-
             const requiredload = Math.max(
                 Number(zone.zoneRoomACValue || 0),
                 Number(zone.zoneCfmACLoadTR || 0)
@@ -172,11 +211,9 @@ export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPaylo
             return 0;
         }
 
-
-         function calculateStagesofFiltration(exhaustAir: number): number {
-
-            if (exhaustAir !== 0) 
-            return totalFiltrationStagesExhaust;
+        function calculateStagesofFiltration(exhaustAir: number): number {
+            if (exhaustAir !== 0)
+                return totalFiltrationStagesExhaust;
             else return totalFiltrationStagesSupply;
         }
 
@@ -220,9 +257,7 @@ export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPaylo
             return totalLength < 4000 ? totalLength : totalLength + 400;
         }
 
-
         function calculateStaticPressure(exhaustAir: number): number {
-
             if (exhaustAir !== 0) return staticPressureExhaust;
             else return staticPressureSupply;
         }
@@ -279,16 +314,20 @@ export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPaylo
         const finalWidth = calculateAHUWidth(finalCfm);
         const finalHeight = calculateAHUHeight(finalCfm);
         const finalCoolingCoil = calculateCoolingCoil(finalWidth, finalHeight);
-        const stagesoffilteration = calculateStagesofFiltration(Number(zone.zoneExhaustAir || 0));
-        const staticPressure = calculateStaticPressure(Number(zone.zoneExhaustAir || 0));
+
+        const boqExhaustValue = isExhaustRow ? 1 : 0;
+
+        const stagesoffilteration = calculateStagesofFiltration(boqExhaustValue);
+        const staticPressure = calculateStaticPressure(boqExhaustValue);
+
         const displayVelocity = displayflowvelocity();
         const finalWaterGPM = calculateGPM();
-
 
         const safeBDB = typeof finalBDB === "number" ? finalBDB : 0;
 
         return {
             zoneName: zone.zoneName,
+            boqRowType,
             AHUCfm: finalCfm,
             AHUWidth: finalWidth,
             AHUHeight: finalHeight,
@@ -309,4 +348,78 @@ export function boqresults(zone: BOQPayload, standards: any, room?: RoomBOQPaylo
         console.error("BOQ ERROR:", err);
         throw err;
     }
+}
+
+export function getBOQRowsForZone(
+    zone: BOQPayload,
+    standards: any,
+    room?: RoomBOQPayload,
+    result?: ResultPayload | ResultPayload[]
+) {
+    const system = String(zone.zoneSystem ?? "").toLowerCase();
+
+    const isCoolingOnly =
+        system.includes("cooling") &&
+        !system.includes("heating") &&
+        !system.includes("ventilation");
+
+    const isHeatingOnly =
+        system.includes("heating") &&
+        !system.includes("cooling") &&
+        !system.includes("ventilation");
+
+    const isCoolingVentilation =
+        system.includes("cooling") &&
+        system.includes("ventilation");
+
+    const isHeatingVentilation =
+        system.includes("heating") &&
+        system.includes("ventilation");
+
+    const isCoolingHeating =
+        system.includes("cooling") &&
+        system.includes("heating") &&
+        !system.includes("ventilation");
+
+    if (isCoolingOnly) {
+        return [
+            boqresults(zone, standards, room, result, "COOLING_SUPPLY"),
+            boqresults(zone, standards, room, result, "COOLING_EXHAUST"),
+        ];
+    }
+
+    if (isHeatingOnly) {
+        return [
+            boqresults(zone, standards, room, result, "HEATING_SUPPLY"),
+            boqresults(zone, standards, room, result, "HEATING_EXHAUST"),
+        ];
+    }
+
+    if (isCoolingVentilation) {
+        return [
+            boqresults(zone, standards, room, result, "COOLING_SUPPLY"),
+            boqresults(zone, standards, room, result, "COOLING_EXHAUST"),
+            boqresults(zone, standards, room, result, "VENTILATION_SUPPLY"),
+            boqresults(zone, standards, room, result, "VENTILATION_EXHAUST"),
+        ];
+    }
+
+    if (isHeatingVentilation) {
+        return [
+            boqresults(zone, standards, room, result, "HEATING_SUPPLY"),
+            boqresults(zone, standards, room, result, "HEATING_EXHAUST"),
+            boqresults(zone, standards, room, result, "VENTILATION_SUPPLY"),
+            boqresults(zone, standards, room, result, "VENTILATION_EXHAUST"),
+        ];
+    }
+
+    if (isCoolingHeating) {
+        return [
+            boqresults(zone, standards, room, result, "COOLING_SUPPLY"),
+            boqresults(zone, standards, room, result, "HEATING_SUPPLY"),
+            boqresults(zone, standards, room, result, "COOLING_EXHAUST"),
+        ];
+    }
+
+    return [boqresults(zone, standards, room, result)];
 }

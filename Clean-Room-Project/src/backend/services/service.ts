@@ -204,7 +204,7 @@ export function airflowService(
 
   const exhaustAir = isVentilationSystem
     ? (eaFactor === 0 && exhaustCfm === 0)
-      ? Math.max((eaFactor * roomCfm) + exhaustCfm, roomCfm)
+      ? (eaFactor * roomCfm) + exhaustCfm
       : (eaFactor * roomCfm) + exhaustCfm
     : (eaFactor * roomCfm) + exhaustCfm;
 
@@ -584,7 +584,7 @@ export function airflowService(
 
     const ventilationFreshAir = (faFactor + 1) * roomCfm;
     const ventilationExhaustAir = (eaFactor === 0 && exhaustCfm === 0)
-      ? Math.max((eaFactor * roomCfm) + exhaustCfm, roomCfm)
+      ? (eaFactor * roomCfm) + exhaustCfm
       : (eaFactor * roomCfm) + exhaustCfm;
 
 

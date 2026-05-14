@@ -1,5 +1,5 @@
 import XLSXStyle from "xlsx-js-style";
-import { buildBOQSheet } from "./boqResultexport";
+//import { buildBOQSheet } from "./boqResultexport";
 
 const C = {
   yellow: "FFFF00",
@@ -953,7 +953,7 @@ export async function downloadProjectXLSX(
     "Zone"
   );
 
-  XLSXStyle.utils.book_append_sheet(wb, buildBOQSheet(), "BOQ");
+  //XLSXStyle.utils.book_append_sheet(wb, buildBOQSheet(), "BOQ");
 
   XLSXStyle.writeFile(wb, `${projectUniqueId}_export.xlsx`);
 }

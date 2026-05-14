@@ -89,7 +89,15 @@ export const boqRoute: ServerRoute[] = [
 			}
 		},
 	},
-
+{
+    method: "GET",
+    path: "/v1/boqresults/{zoneId}",
+    handler: async (request, h) => {
+    const zoneId = request.params.zoneId;
+    const result = await zoneRepository.getBOQResultsByZoneId(zoneId);
+    return h.response(result).code(200);
+   },
+},
 	{
 		method: "POST",
 		path: "/v1/boqresults",

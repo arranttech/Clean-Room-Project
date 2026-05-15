@@ -8,8 +8,9 @@ export async function request(
   payload: object | null = null
 ) {
   const token = localStorage.getItem("token");
-  const headers: any = { "Content-Type": "application/json",
-	};
+  const headers: any = {
+    "Content-Type": "application/json",
+  };
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
@@ -26,11 +27,9 @@ export async function request(
   const response = await fetch(`${BASE_URL}${endpoint}`, options);
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    // Returns exact error from backend — error.error or error.message
-    throw new Error(
-      errorData.error || errorData.message || "API request failed"
-    );
+    const errorData = await response.json().catch(() => null);
+    console.error("API Error:", errorData);
+    throw new Error(errorData?.sqlMessage || errorData?.error || "Internal Server Error");
   }
 
   return response.json();

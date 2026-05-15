@@ -20,7 +20,7 @@ import {
   resetRoom,
   updateRoom,
 } from "../../redux/slices/roomSlice";
-
+import { getBOQRowsForZone } from "../../backend/services/boqresults";
 import { resetProjectInfo } from "../../redux/slices/projectInfoSlice";
 import { removeInProgressProject } from "../../redux/slices/dashboardSlice";
 import { toast } from "react-toastify";
@@ -43,6 +43,7 @@ import { FaDownload, FaUpload } from "react-icons/fa";
 import { updateProjectStatus } from "../../backend/controller/projectController";
 import { buildZoneTotalsByFlag } from "../../backend/services/cummulativecal";
 import { createZoneTotals } from "../../backend/controller/zoneController";
+import { saveBOQResults } from "..//../backend/controller/BOQController";
 
 type StandardItem = {
   id: number;
@@ -113,19 +114,11 @@ export default function Room() {
   const standard = useAppSelector((state: any) => state.standards.standard);
   const boqConfig = useAppSelector((state: any) => ({
     totalFiltrationStagesSupply: state.standards.totalFiltrationStagesSupply,
-
     totalFiltrationStagesExhaust: state.standards.totalFiltrationStagesExhaust,
-
     staticPressureSupply: state.standards.staticPressureSupply,
-
     staticPressureExhaust: state.standards.staticPressureExhaust,
-
-    flowVelocity: state.standards.flowVelocity,
-
     heatingFlowVelocity: state.standards.heatingFlowVelocity,
-
     coolingFlowVelocity: state.standards.coolingFlowVelocity,
-
     pipeConfiguration: state.standards.pipeConfiguration,
   }));
   const classification = useAppSelector(
@@ -695,11 +688,125 @@ export default function Room() {
         systemCond,
         user_id,
       );
+      const savedBOQZoneIds = new Set<string>();
 
       for (const { zoneId, payload } of zoneTotalsByFlag) {
         await createZoneTotals(zoneId, payload);
+
+        if (savedBOQZoneIds.has(String(zoneId))) {
+          continue;
+        }
+
+        savedBOQZoneIds.add(String(zoneId));
+
+        const zoneRoom = roomsSnapshot.find(
+          (room) => String(room.zoneId) === String(zoneId),
+        );
+
+        const zoneFlatResults = flatResults
+          .filter((entry) => String(entry.room.zoneId) === String(zoneId))
+          .map((entry) => entry.result);
+
+        const boqZonePayload = {
+          zoneName: payload.zone_name,
+          zoneSystem: zoneRoom?.zoneSystem || system,
+          zoneClassification: zoneRoom?.zoneClassification || classification,
+          zoneReqInsideTempC: zoneRoom?.zoneReqInsideTempC ?? reqInsideTempC,
+
+          zoneExhaustAir: Number(payload.zone_ExhaustAir ?? 0),
+          zoneRoomCfm: Number(payload.zone_RoomCfm ?? 0),
+          zoneFreshAir: Number(payload.zone_FreshAir ?? 0),
+
+          zoneResultantCfm: Number(payload.zone_ResultCfm ?? 0),
+          zoneResultantHeatCfm: Number(payload.zone_ResultCfm_Hot ?? 0),
+
+          zoneResultCoolLoadTR: Number(payload.zone_Res_Cooling_Load_TR ?? 0),
+          zoneRoomACValue: Number(payload.zone_Room_AC_Load_TR ?? 0),
+          zoneCfmACLoadTR: Number(payload.zone_Cfm_AC_Load_TR ?? 0),
+
+          zoneRoomHeatLoadTR: Number(payload.zone_Room_Heating_Load_TR ?? 0),
+          zoneCfmHeatLoadTRValue: Number(payload.zone_Cfm_Heating_Load_TR ?? 0),
+        };
+        console.log("boqConfig from Redux:", boqConfig);
+
+        const standardsPayload = {
+          heatingFlowVelocity: Number(boqConfig.heatingFlowVelocity ?? 0),
+          coolingFlowVelocity: Number(boqConfig.coolingFlowVelocity ?? 0),
+          totalFiltrationStagesSupply: Number(
+            boqConfig.totalFiltrationStagesSupply ?? 0,
+          ),
+          totalFiltrationStagesExhaust: Number(
+            boqConfig.totalFiltrationStagesExhaust ?? 0,
+          ),
+          staticPressureSupply: Number(boqConfig.staticPressureSupply ?? 0),
+          staticPressureExhaust: Number(boqConfig.staticPressureExhaust ?? 0),
+          pipeConfiguration: boqConfig.pipeConfiguration,
+        };
+
+        const boqRows = getBOQRowsForZone(
+          boqZonePayload as any,
+          standardsPayload,
+          zoneRoom as any,
+          zoneFlatResults,
+        );
+
+        for (const boqResult of boqRows) {
+          const isExhaust = String(boqResult.boqRowType || "").includes(
+            "EXHAUST",
+          );
+          const isSupply = String(boqResult.boqRowType || "").includes(
+            "SUPPLY",
+          );
+          const flag = boqResult.boqRowType;
+
+          await saveBOQResults({
+            zone_id: zoneId,
+            user_id,
+
+            AHUCfm: boqResult.AHUCfm ?? null,
+
+            staticPressureExhaust: isExhaust ? boqResult.staticPressure : null,
+            staticPressureSupply: isSupply ? boqResult.staticPressure : null,
+
+            BDB: boqResult.BDB ?? null,
+            motorHP: boqResult.motorHP ?? null,
+
+            stageFilterExhaust: isExhaust ? boqResult.stageFilter : null,
+            stageFilterSupply: isSupply ? boqResult.stageFilter : null,
+
+            coolingFlowVelocity: Array.isArray(boqResult.flowVelocity)
+              ? boqResult.flowVelocity[1]
+              : (boqResult.flowVelocity ?? null),
+
+            heatingFlowVelocity: Array.isArray(boqResult.flowVelocity)
+              ? boqResult.flowVelocity[0]
+              : (boqResult.flowVelocity ?? null),
+
+            pipesizecooling: Array.isArray(boqResult.PipeSize)
+              ? boqResult.PipeSize[1]
+              : (boqResult.PipeSize ?? null),
+
+            pipesizeheating: Array.isArray(boqResult.PipeSize)
+              ? boqResult.PipeSize[0]
+              : (boqResult.PipeSize ?? null),
+
+            coolingCoil: boqResult.noofrowsofCoil ?? null,
+            heatingCoil: boqResult.noofrowsofCoil ?? null,
+
+            AHUCoolingLoadTR: boqResult.AHULoadTR ?? null,
+            AHUHeatingLoadTR: boqResult.AHULoadTR ?? null,
+
+            WaterGPM: boqResult.WaterGPM ?? null,
+            WaterLS: boqResult.WaterLS ?? null,
+
+            AHUWidth: boqResult.AHUWidth ?? null,
+            AHULength: boqResult.AHULength ?? null,
+            AHUHeight: boqResult.AHUHeight ?? null,
+            flag: flag ?? null,
+          });
+        }
       }
-      
+
       await updateProjectStatus(Number(projectId), "COMPLETED");
       console.log("Project status updated to Completed");
       navigate(`/results/${projectId}`);

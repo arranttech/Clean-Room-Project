@@ -18,98 +18,115 @@ export const zoneRepository = {
     },
 
 
-    saveBOQResults: async (zoneId: number | string, boqResults: any) => {
-    const connection = await database.getConnection();
-    console.log("Saving BOQ results for zoneId:", zoneId, "with results:", boqResults);
-    try {
-        await connection.beginTransaction();
-        const [result] = await connection.execute(
-           `INSERT INTO tBOQResults (
-             zone_id,
-             boq_AHUCfm,
-             boq_StaticPressure,
-             boq_BlowerModelBDB,
-             boq_MotorSelectedInHp,
-             boq_NoOfStagesOfFiltr,
-             boq_FlowVelocityCooling,
-             boq_PipeSizeCooling,
-             boq_NoOfRowsOfCoil,
-             boq_AHULoadInTR,
-             boq_GPM,
-             boq_Ls,
-             boq_FlowVelocityHeating,
-             boq_PipeSizeHeating,
-             boq_AHUWidth,
-             boq_AHULength,
-             boq_AHUHeight,
-             created_at,
-             updated_at
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,NOW(), NOW())`,
-    [
-        zoneId,
-        boqResults.AHUCfm ?? null,
-        boqResults.staticPressure ?? null,
-        boqResults.BDB ?? null,
-        boqResults.motorHP ?? null,
-        boqResults.stageFilter ?? null,
+    saveBOQResults: async (payload: any) => {
+        const connection = await database.getConnection();
 
-        Array.isArray(boqResults.flowVelocity)
-            ? boqResults.flowVelocity[1]
-            : boqResults.flowVelocity ?? null,
+        console.log("Saving BOQ results:", payload);
 
-        Array.isArray(boqResults.PipeSize)
-            ? boqResults.PipeSize[1]
-            : boqResults.PipeSize ?? null,
+        try {
+            await connection.beginTransaction();
 
-        boqResults.coolingCoil ?? boqResults.heatingCoil ?? null,
-        boqResults.AHUCoolingLoadTR ?? boqResults.AHUHeatingLoadTR ?? null,
-        boqResults.WaterGPM ?? null,
-        boqResults.WaterLS ?? null,
+            const [result] = await connection.execute(
+                `INSERT INTO tBOQResults (
+                zone_id,
+                boq_AHUCfm,
+                boq_StaticPressureExhaust,
+                boq_StaticPressureSupply,
+                boq_BlowerModelBDB,
+                boq_MotorSelectedInHp,
+                boq_NoOfStagesOfFiltrExhaust,
+                boq_NoOfStagesOfFiltrSupply,
+                boq_FlowVelocityCooling,
+                boq_PipeSizeCooling,
+                boq_NoOfRowsOfCoil,
+                boq_AHULoadInTR,
+                boq_GPM,
+                boq_Ls,
+                boq_FlowVelocityHeating,
+                boq_PipeSizeHeating,
+                boq_AHUWidth,
+                boq_AHULength,
+                boq_AHUHeight,
+                Flag,
+                created_by,
+                updated_by
+                
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?)`,
+                [
+                    payload.zone_id ?? null,
 
-        Array.isArray(boqResults.flowVelocity)
-            ? boqResults.flowVelocity[0]
-            : boqResults.flowVelocity ?? null,
+                    payload.AHUCfm ?? null,
 
-        Array.isArray(boqResults.PipeSize)
-            ? boqResults.PipeSize[0]
-            : boqResults.PipeSize ?? null,
+                    payload.staticPressureExhaust ?? null,
+                    payload.staticPressureSupply ?? null,
 
-        boqResults.AHUWidth ?? null,
-        boqResults.AHULength ?? null,
-        boqResults.AHUHeight ?? null,
-    ]
-);
-        console.log(result);
+                    payload.BDB ?? null,
+                    payload.motorHP ?? null,
 
-        await connection.commit();
-    } catch (error) {
-        await connection.rollback();
-        console.error("Database Error in saveBOQResults:", error);
-        throw error;
-    } finally {
-        connection.release();
-    }
- },
- getBOQResultsByZoneId: async (zoneId: number | string) => {
-    const connection = await database.getConnection();
+                    payload.stageFilterExhaust ?? null,
+                    payload.stageFilterSupply ?? null,
 
-    try {
-        const [rows]: any = await connection.execute(
-            `SELECT *
+                    payload.coolingFlowVelocity ?? null,
+                    payload.pipesizecooling ?? null,
+
+                    payload.coolingCoil ?? payload.heatingCoil ?? null,
+
+                    payload.AHUCoolingLoadTR ?? payload.AHUHeatingLoadTR ?? null,
+
+                    payload.WaterGPM ?? null,
+                    payload.WaterLS ?? null,
+
+                    payload.heatingFlowVelocity ?? null,
+                    payload.pipesizeheating ?? null,
+
+                    payload.AHUWidth ?? null,
+                    payload.AHULength ?? null,
+                    payload.AHUHeight ?? null,
+                    payload.flag ?? null,
+                    payload.user_id ?? null,
+                    payload.user_id ?? null,
+
+                ]
+            );
+
+            console.log("BOQ INSERT RESULT:", result);
+
+            await connection.commit();
+
+            return {
+                insertId: (result as any).insertId,
+                affectedRows: (result as any).affectedRows,
+            };
+
+
+        } catch (error) {
+            await connection.rollback();
+            console.error("Database Error in saveBOQResults:", error);
+            throw error;
+        } finally {
+            connection.release();
+        }
+    },
+    getBOQResultsByZoneId: async (zoneId: number | string) => {
+        const connection = await database.getConnection();
+
+        try {
+            const [rows]: any = await connection.execute(
+                `SELECT *
              FROM tBOQResults
              WHERE zone_id = ?`,
-            [zoneId]
-        );
+                [zoneId]
+            );
 
-        return rows;
-    } catch (error) {
-        console.error("Database Error in getBOQResultsByZoneId:", error);
-        throw error;
-    } finally {
-        connection.release();
-    }
-},
+            return rows;
+        } catch (error) {
+            console.error("Database Error in getBOQResultsByZoneId:", error);
+            throw error;
+        } finally {
+            connection.release();
+        }
+    },
 
     createZoneTotals: async (zoneId: number | string, totals: any) => {
         const connection = await database.getConnection();

@@ -119,12 +119,27 @@ export function boqresults(
             else if (isVentilationSupply) ahuCfm = ventilationSupplyCfm;
             else if (isVentilationExhaust) ahuCfm = ventilationExhaustCfm;
             else if (isVentilationSystem) ahuCfm = isSupplySystem ? ventilationSupplyCfm : ventilationExhaustCfm;
-            else if (isHeatingandCooling) {
-                const supplyCfm = Math.max(coolingSupplyCfm, heatingSupplyCfm);
-                const exhaustCfm = Math.max(coolingExhaustCfm, heatingExhaustCfm);
+            // ... existing logic above ...
 
-                ahuCfm = isSupplySystem ? supplyCfm : exhaustCfm;
+            else if (isHeatingandCooling) {
+                const coolsupplyCfm = coolingSupplyCfm;
+                const heatsupplyCfm = heatingSupplyCfm;
+                const exhaustCfm = coolingExhaustCfm || heatingExhaustCfm;
+
+                if (isSupplySystem) {
+                    if (isCoolingSupply) {
+                        ahuCfm = coolsupplyCfm;
+                    } else if (isHeatingSupply) {
+                        ahuCfm = heatsupplyCfm;
+                    } else {
+                        ahuCfm = coolsupplyCfm || heatsupplyCfm;
+                    }
+                } else {
+
+                    ahuCfm = exhaustCfm;
+                }
             }
+
             else if (showCooling) ahuCfm = isSupplySystem ? coolingSupplyCfm : isExhaustSystem ? coolingExhaustCfm : 0;
             else if (showHeating) ahuCfm = isSupplySystem ? heatingSupplyCfm : isExhaustSystem ? heatingExhaustCfm : 0;
 
@@ -271,9 +286,26 @@ export function boqresults(
             const HotWaterGPM =
                 Math.max(zone.zoneRoomHeatLoadTR || 0, zone.zoneCfmHeatLoadTRValue || 0) * 4;
 
-            if (isHeatingandCooling) return Math.max(ChilledWaterGPM, HotWaterGPM);
-            if (showCooling) return ChilledWaterGPM;
-            if (showHeating) return HotWaterGPM;
+            if (showCooling && !showHeating) {
+                return ChilledWaterGPM;
+            }
+            if (showHeating && !showCooling) {
+                return HotWaterGPM;
+            }
+            if (isHeatingandCooling) {
+
+                if (isCoolingSupply) {
+                    return ChilledWaterGPM;
+                }
+
+                if (isHeatingSupply) {
+                    return HotWaterGPM;
+                }
+
+                if (isCoolingExhaust || isHeatingExhaust) {
+                    return 0;
+                }
+            }
 
             return 0;
         }
@@ -342,6 +374,7 @@ export function boqresults(
             WaterLS: calculateWaterLS(finalWaterGPM),
             flowVelocity: displayVelocity,
             PipeSize: calculatePipeSize(finalWaterGPM, displayVelocity)
+
         };
 
     } catch (err) {
@@ -368,6 +401,11 @@ export function getBOQRowsForZone(
         !system.includes("cooling") &&
         !system.includes("ventilation");
 
+    const isVentilationOnly =
+        system.includes("ventilation") &&
+        !system.includes("cooling") &&
+        !system.includes("heating");
+
     const isCoolingVentilation =
         system.includes("cooling") &&
         system.includes("ventilation");
@@ -392,6 +430,13 @@ export function getBOQRowsForZone(
         return [
             boqresults(zone, standards, room, result, "HEATING_SUPPLY"),
             boqresults(zone, standards, room, result, "HEATING_EXHAUST"),
+        ];
+    }
+
+    if (isVentilationOnly) {
+        return [
+            boqresults(zone, standards, room, result, "VENTILATION_SUPPLY"),
+            boqresults(zone, standards, room, result, "VENTILATION_EXHAUST"),
         ];
     }
 

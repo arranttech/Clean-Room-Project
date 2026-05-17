@@ -62,7 +62,7 @@ const orD = (v: any, bl = B()) =>
   mc(v, C.orange, C.black, false, false, typeof v === "number" ? "right" : "left", bl);
 
 const brickD = (v: any, bl = B()) =>
-  mc(v, C.brickred, C.black, false, false, typeof v === "number" ? "right" : "left", bl);
+  mc(v, C.brickred, C.black, false, false, "center", bl);
 
 const rdD = (v: any, bl = B()) =>
   mc(v, C.red, C.white, true, false, typeof v === "number" ? "right" : "center", bl);
@@ -1132,7 +1132,7 @@ function buildZoneSheet(
       renderTable(`${zoneName} Ventilation System (Exhaust)`, zoneId, zoneRooms, "ventilation", "exhaust");
 
     } else if (flags.isHeatingSystem) {
-      renderTable(`${zoneName} Air Heating System (Recirculatory)`, zoneId, zoneRooms, "heating", "supply");
+      renderTable(`${zoneName} Air Heating System (Supply)`, zoneId, zoneRooms, "heating", "supply");
       renderTable(`${zoneName} Air Heating System (Exhaust)`, zoneId, zoneRooms, "heating", "exhaust");
 
     } else if (flags.isCoolingSystem) {
@@ -1143,7 +1143,7 @@ function buildZoneSheet(
       renderTable(`${zoneName} Ventilation System (Supply)`, zoneId, zoneRooms, "ventilation", "supply");
       renderTable(`${zoneName} Ventilation System (Exhaust)`, zoneId, zoneRooms, "ventilation", "exhaust");
     } else {
-      renderTable(`${zoneName} Air Cooling and Heating System - Cooling (Supply)`, zoneId, zoneRooms, "cooling", "supply");
+      renderTable(`${zoneName} Air Cooling and Heating System - Cooling (Recirculatory)`, zoneId, zoneRooms, "cooling", "supply");
       renderTable(`${zoneName} Air Cooling and Heating System - Heating (Supply)`, zoneId, zoneRooms, "heating", "supply");
       renderTable(`${zoneName} Air Cooling and Heating System (Exhaust)`, zoneId, zoneRooms, "normal", "exhaust");
     }

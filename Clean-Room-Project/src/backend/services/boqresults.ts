@@ -21,13 +21,36 @@ const c = boqresult?.fields?.RowsofCoolingCoil?.Coolval || [];
 const w = boqresult?.fields?.WaterLS?.waterval || 0;
 const ps = boqresult?.fields?.PipeSize?.pipesize || [];
 
+const toNumber = (value: any): number => {
+    const num = Number(value);
+    return Number.isFinite(num) ? num : 0;
+};
+
+const firstPositive = (...values: any[]): number => {
+    for (const value of values) {
+        const num = toNumber(value);
+        if (num !== 0) return num;
+    }
+    return 0;
+};
+
+const sumFromResults = (
+    allResults: ResultPayload[],
+    fieldName: keyof ResultPayload | string
+): number => {
+    return allResults.reduce((sum, row: any) => {
+        return sum + toNumber(row?.[fieldName]);
+    }, 0);
+};
+
 export function boqresults(
-    zone: BOQPayload,
+    zone: BOQPayload | any,
     standards: any,
     room?: RoomBOQPayload,
     result?: ResultPayload | ResultPayload[],
     boqRowType?: BOQRowType
 ) {
+
     try {
         const {
             heatingFlowVelocity,
@@ -36,14 +59,28 @@ export function boqresults(
             totalFiltrationStagesExhaust,
             staticPressureSupply,
             staticPressureExhaust,
-            pipeConfiguration
+            pipeConfiguration,
         } = standards;
 
-        const currentZoneSystem = zone.zoneSystem ?? "";
+        const allResults = Array.isArray(result)
+            ? result
+            : result
+                ? [result]
+                : [];
+
+        const currentZoneSystem =
+            zone?.zoneSystem ??
+            room?.zoneSystem ??
+            "";
+
         const currentZoneSystemType = room?.zoneSystemType ?? "";
 
         const { showCooling, showHeating, isVentilationSystem } =
-            getSystemFlags(currentZoneSystem, currentZoneSystemType, room || {} as RoomPayload);
+            getSystemFlags(
+                currentZoneSystem,
+                currentZoneSystemType,
+                room || ({} as RoomPayload)
+            );
 
         const isHeatingandCooling = showCooling && showHeating;
         const ahu = boqresult?.fields?.AHUSize;
@@ -63,42 +100,89 @@ export function boqresults(
         const isExhaustRow =
             isCoolingExhaust || isHeatingExhaust || isVentilationExhaust;
 
-        let rawTemp = zone.zoneReqInsideTempC;
-        let temp = String(rawTemp ?? "").trim().toUpperCase();
-        let isNumericTemp =
-            rawTemp !== null && rawTemp !== undefined && !isNaN(Number(rawTemp));
+        const exhaustAir = firstPositive(
+            zone?.zoneExhaustAir,
+            zone?.zone_ExhaustAir,
+            sumFromResults(allResults, "exhaustAir")
+        );
 
-        const AHUCoolLoadTR = zone.zoneResultCoolLoadTR ?? 0;
+        const freshAir = firstPositive(
+            zone?.zoneFreshAir,
+            zone?.zone_FreshAir,
+            sumFromResults(allResults, "freshAir")
+        );
+
+        const roomCFM = firstPositive(
+            zone?.zoneRoomCfm,
+            zone?.zone_RoomCfm,
+            sumFromResults(allResults, "roomCfm")
+        );
+
+        const coolingBase = firstPositive(
+            zone?.zoneResultantCfm,
+            zone?.zone_ResultCfm,
+            sumFromResults(allResults, "resultantCfm")
+        );
+
+        const heatingBase = firstPositive(
+            zone?.zoneResultantHeatCfm,
+            zone?.zone_ResultCfm_Hot,
+            sumFromResults(allResults, "resultantheatCfm")
+        );
+
+        const zoneRoomACValue = firstPositive(
+            zone?.zoneRoomACValue,
+            zone?.zone_Room_AC_Load_TR,
+            sumFromResults(allResults, "roomACValue")
+        );
+
+        const zoneCfmACLoadTR = firstPositive(
+            zone?.zoneCfmACLoadTR,
+            zone?.zone_Cfm_AC_Load_TR,
+            sumFromResults(allResults, "cfmACLoadTR")
+        );
+
+        const zoneResultCoolLoadTR = firstPositive(
+            zone?.zoneResultCoolLoadTR,
+            zone?.zone_Res_Cooling_Load_TR,
+            sumFromResults(allResults, "resultCoolLoadTR")
+        );
+
+        const zoneRoomHeatLoadTR = firstPositive(
+            zone?.zoneRoomHeatLoadTR,
+            zone?.zone_Room_Heating_Load_TR,
+            sumFromResults(allResults, "roomHeatLoadTR")
+        );
+
+        const zoneCfmHeatLoadTRValue = firstPositive(
+            zone?.zoneCfmHeatLoadTRValue,
+            zone?.zone_Cfm_Heating_Load_TR,
+            sumFromResults(allResults, "cfmHeatLoadTRValue")
+        );
+
+        const zoneResultHeatLoadTR = firstPositive(
+            zone?.zoneResultHeatLoadTR,
+            zone?.zone_Result_Heating_Load_TR,
+            sumFromResults(allResults, "resultHeatLoadTR")
+        );
+
+        const exhaustValues = allResults.map((r: any) =>
+            toNumber(r?.exhaustAir)
+        );
+
+        const isSupplySystem =
+            exhaustValues.length > 0
+                ? exhaustValues.some((v: number) => v === 0)
+                : exhaustAir === 0;
+
+        const isExhaustSystem =
+            exhaustValues.length > 0
+                ? exhaustValues.every((v: number) => v !== 0)
+                : exhaustAir !== 0;
 
         // ================= CFM =================
         function calculatedAHUCfm(): number {
-            const exhaustAir = Number(zone.zoneExhaustAir || 0);
-            const freshAir = Number(zone.zoneFreshAir || 0);
-            const roomCFM = Number(zone.zoneRoomCfm || 0);
-            const coolingBase = Number(zone.zoneResultantCfm || 0);
-            const heatingBase = Number(zone.zoneResultantHeatCfm || 0);
-
             let ahuCfm = 0;
-
-            const allResults = Array.isArray(result)
-                ? result
-                : result
-                    ? [result]
-                    : [];
-
-            const exhaustValues = allResults.map(
-                (r: any) => Number(r?.exhaustAir ?? 0)
-            );
-
-            const isSupplySystem =
-                exhaustValues.length > 0
-                    ? exhaustValues.some((v: number) => v === 0)
-                    : exhaustAir === 0;
-
-            const isExhaustSystem =
-                exhaustValues.length > 0
-                    ? exhaustValues.every((v: number) => v !== 0)
-                    : exhaustAir !== 0;
 
             const coolingSupplyCfm = Math.ceil(coolingBase / 250) * 250;
             const coolingExhaustCfm = Math.ceil(exhaustAir / 250) * 250;
@@ -118,36 +202,46 @@ export function boqresults(
             else if (isHeatingExhaust) ahuCfm = heatingExhaustCfm;
             else if (isVentilationSupply) ahuCfm = ventilationSupplyCfm;
             else if (isVentilationExhaust) ahuCfm = ventilationExhaustCfm;
-            else if (isVentilationSystem) ahuCfm = isSupplySystem ? ventilationSupplyCfm : ventilationExhaustCfm;
-            // ... existing logic above ...
+            else if (isVentilationSystem) {
+                ahuCfm = isSupplySystem
+                    ? ventilationSupplyCfm
+                    : ventilationExhaustCfm;
+            } else if (isHeatingandCooling) {
+                const rowTypeMap: Record<string, number> = {
+                    COOLING_SUPPLY: coolingSupplyCfm,
+                    HEATING_SUPPLY: heatingSupplyCfm,
+                    COOLING_EXHAUST: coolingExhaustCfm,
+                    HEATING_EXHAUST: heatingExhaustCfm,
+                };
 
-            else if (isHeatingandCooling) {
-                const coolsupplyCfm = coolingSupplyCfm;
-                const heatsupplyCfm = heatingSupplyCfm;
-                const exhaustCfm = coolingExhaustCfm || heatingExhaustCfm;
-
-                if (isSupplySystem) {
-                    if (isCoolingSupply) {
-                        ahuCfm = coolsupplyCfm;
-                    } else if (isHeatingSupply) {
-                        ahuCfm = heatsupplyCfm;
-                    } else {
-                        ahuCfm = coolsupplyCfm || heatsupplyCfm;
-                    }
-                } else {
-
-                    ahuCfm = exhaustCfm;
-                }
+                ahuCfm = rowTypeMap[boqRowType || ""] || 0;
+            } else if (showCooling) {
+                ahuCfm = isSupplySystem
+                    ? coolingSupplyCfm
+                    : isExhaustSystem
+                        ? coolingExhaustCfm
+                        : 0;
+            } else if (showHeating) {
+                ahuCfm = isSupplySystem
+                    ? heatingSupplyCfm
+                    : isExhaustSystem
+                        ? heatingExhaustCfm
+                        : 0;
             }
-
-            else if (showCooling) ahuCfm = isSupplySystem ? coolingSupplyCfm : isExhaustSystem ? coolingExhaustCfm : 0;
-            else if (showHeating) ahuCfm = isSupplySystem ? heatingSupplyCfm : isExhaustSystem ? heatingExhaustCfm : 0;
 
             return ahuCfm;
         }
 
-        // Clamp CFM
         const MAX_CFM = 40000;
+
+        console.log("BOQ ROW CREATE CHECK:", {
+            boqRowType,
+            zoneResultantHeatCfm: zone?.zoneResultantHeatCfm,
+            zone_ResultCfm_Hot: zone?.zone_ResultCfm_Hot,
+            fallbackHeatingBase: heatingBase,
+            zone,
+        });
+
         const finalCfmRaw = calculatedAHUCfm();
         const finalCfm = Math.min(finalCfmRaw, MAX_CFM);
 
@@ -207,32 +301,82 @@ export function boqresults(
             return Number(mtbdb[lastKey] || 0);
         }
 
-        function calculateCoolingCoil(width: number, height: number): number {
-            const requiredload = Math.max(
-                Number(zone.zoneRoomACValue || 0),
-                Number(zone.zoneCfmACLoadTR || 0)
-            );
+        function calculateCoil(width: number, height: number) {
+            let coolingResult = 0;
+            let heatingResult = 10;
 
-            if (isVentilationSystem && requiredload === 0) return 0;
-            if (!c || c.length < 6) return 0;
+            if (isVentilationSystem || !c || c.length < 6) {
+                return { cooling: 0, heating: 0 };
+            }
 
             const baseCapacity =
                 ((width - c[0]) * (height - c[1]) * c[2]) / c[3];
 
-            if (baseCapacity >= requiredload) return 4;
-            else if (baseCapacity * c[4] >= requiredload) return 6;
-            else if (baseCapacity * c[5] >= requiredload) return 8;
+            const requiredcoolload =
+                showCooling && isSupplyRow
+                    ? Math.max(zoneRoomACValue, zoneCfmACLoadTR)
+                    : 0;
+
+            if (requiredcoolload > 0) {
+                if (baseCapacity >= requiredcoolload) coolingResult = 4;
+                else if (baseCapacity * c[4] >= requiredcoolload) coolingResult = 6;
+                else if (baseCapacity * c[5] >= requiredcoolload) coolingResult = 8;
+                else coolingResult = 0;
+            } else {
+                coolingResult = 0;
+            }
+
+            const requiredheatingload =
+                showHeating && isSupplyRow
+                    ? Math.max(zoneRoomHeatLoadTR, zoneCfmHeatLoadTRValue)
+                    : 0;
+
+            if (requiredheatingload > 0) {
+                if (baseCapacity >= requiredheatingload) heatingResult = 4;
+                else if (baseCapacity * c[4] >= requiredheatingload) heatingResult = 6;
+                else if (baseCapacity * c[5] >= requiredheatingload) heatingResult = 8;
+                else heatingResult = 10;
+            } else {
+                heatingResult = 10;
+            }
+
+            return { cooling: coolingResult, heating: heatingResult };
+        }
+
+        function calculateAHULoadTR() {
+            if (isHeatingandCooling) {
+                if (boqRowType === "COOLING_SUPPLY") {
+                    return zoneResultCoolLoadTR;
+                }
+
+                if (boqRowType === "HEATING_SUPPLY") {
+                    return zoneResultHeatLoadTR;
+                }
+
+                return 0;
+            }
+
+            if (showCooling && isSupplySystem) {
+                return zoneResultCoolLoadTR;
+            }
+
+            if (showHeating && isSupplySystem) {
+                return zoneResultHeatLoadTR;
+            }
 
             return 0;
         }
 
-        function calculateStagesofFiltration(exhaustAir: number): number {
-            if (exhaustAir !== 0)
-                return totalFiltrationStagesExhaust;
-            else return totalFiltrationStagesSupply;
+        function calculateStagesofFiltration(exhaustFlag: number): number {
+            if (exhaustFlag !== 0) return totalFiltrationStagesExhaust;
+            return totalFiltrationStagesSupply;
         }
 
-        function calculateAHULength(bdbVal: number, stages: number, coolingcoil: number): number {
+        function calculateAHULength(
+            bdbVal: number,
+            stages: number,
+            coolingcoil: number
+        ): number {
             const ahuln = ahu?.AHULengthCfm;
             if (!ahuln) return 0;
 
@@ -263,37 +407,50 @@ export function boqresults(
 
             for (let i = 0; i < ahucool.length; i++) {
                 if (coolingcoil <= ahucool[i]) {
-                    CoilLength = ahucoolval[i] || 0;
+                    CoilLength = ahucoolval[i];
                     break;
                 }
+            }
+
+            if (coolingcoil > ahucool[ahucool.length - 1]) {
+                CoilLength = showHeating || boqRowType?.includes("HEATING") ? 1200 : 0;
             }
 
             const totalLength = BlowerLength + FilterLength + CoilLength;
             return totalLength < 4000 ? totalLength : totalLength + 400;
         }
 
-        function calculateStaticPressure(exhaustAir: number): number {
-            if (exhaustAir !== 0) return staticPressureExhaust;
-            else return staticPressureSupply;
+        function calculateStaticPressure(exhaustFlag: number): number {
+            if (exhaustFlag !== 0) return staticPressureExhaust;
+            return staticPressureSupply;
         }
 
         function calculateGPM(): number {
             if (isVentilationSystem) return 0;
 
             const ChilledWaterGPM =
-                Math.max(zone.zoneRoomACValue || 0, zone.zoneCfmACLoadTR || 0) * 4;
+                Math.max(zoneRoomACValue, zoneCfmACLoadTR, zoneResultCoolLoadTR) * 4;
+
+            console.log("Calculated Chilled Water GPM:", ChilledWaterGPM);
 
             const HotWaterGPM =
-                Math.max(zone.zoneRoomHeatLoadTR || 0, zone.zoneCfmHeatLoadTRValue || 0) * 4;
+                Math.max(
+                    zoneRoomHeatLoadTR,
+                    zoneCfmHeatLoadTRValue,
+                    zoneResultHeatLoadTR
+                ) * 4;
+
+            console.log("Calculated Hot Water GPM:", HotWaterGPM);
 
             if (showCooling && !showHeating) {
                 return ChilledWaterGPM;
             }
+
             if (showHeating && !showCooling) {
                 return HotWaterGPM;
             }
-            if (isHeatingandCooling) {
 
+            if (isHeatingandCooling) {
                 if (isCoolingSupply) {
                     return ChilledWaterGPM;
                 }
@@ -311,23 +468,33 @@ export function boqresults(
         }
 
         function displayflowvelocity(): number | number[] {
+            if (isVentilationSystem) return 0;
+            if (isCoolingExhaust || isHeatingExhaust) return 0;
+            if (isCoolingSupply) return coolingFlowVelocity || 0;
+            if (isHeatingSupply) return heatingFlowVelocity || 0;
+
             if (isHeatingandCooling) {
                 if ((pipeConfiguration || "").toUpperCase() === "SINGLE PIPE") {
                     return heatingFlowVelocity || coolingFlowVelocity || 0;
                 }
+
                 return [heatingFlowVelocity || 0, coolingFlowVelocity || 0];
             }
 
             if (showHeating) return heatingFlowVelocity || 0;
             if (showCooling) return coolingFlowVelocity || 0;
+
             return 0;
         }
 
         function calculateWaterLS(GPM: number): number {
-            return Math.round((GPM * w) * 10) / 10;
+            return Math.round(GPM * w * 10) / 10;
         }
 
-        function calculatePipeSize(GPM: number, velocity: number | number[]): number | number[] {
+        function calculatePipeSize(
+            GPM: number,
+            velocity: number | number[]
+        ): number | number[] {
             const calc = (v: number) => {
                 if (!GPM || !v) return 0;
 
@@ -345,7 +512,13 @@ export function boqresults(
         const finalBDB = calculateBDB(finalCfm);
         const finalWidth = calculateAHUWidth(finalCfm);
         const finalHeight = calculateAHUHeight(finalCfm);
-        const finalCoolingCoil = calculateCoolingCoil(finalWidth, finalHeight);
+        const finalCoil = calculateCoil(finalWidth, finalHeight);
+
+        let activeCoilRows = finalCoil.cooling;
+
+        if (isHeatingSupply || isHeatingExhaust || (showHeating && !showCooling)) {
+            activeCoilRows = finalCoil.heating;
+        }
 
         const boqExhaustValue = isExhaustRow ? 1 : 0;
 
@@ -358,25 +531,27 @@ export function boqresults(
         const safeBDB = typeof finalBDB === "number" ? finalBDB : 0;
 
         return {
-            zoneName: zone.zoneName,
+            zoneName: zone.zoneName || zone.zone_name,
             boqRowType,
             AHUCfm: finalCfm,
             AHUWidth: finalWidth,
             AHUHeight: finalHeight,
             stageFilter: stagesoffilteration,
-            AHULength: calculateAHULength(safeBDB, stagesoffilteration, finalCoolingCoil),
-            staticPressure: staticPressure,
+            AHULength: calculateAHULength(
+                safeBDB,
+                stagesoffilteration,
+                activeCoilRows
+            ),
+            staticPressure,
             BDB: finalBDB,
             motorHP: calculateMotorHP(finalCfm, staticPressure),
-            AHULoadTR: Number(AHUCoolLoadTR),
-            noofrowsofCoil: finalCoolingCoil,
+            AHULoadTR: calculateAHULoadTR(),
+            noofrowsofCoil: activeCoilRows,
             WaterGPM: finalWaterGPM,
             WaterLS: calculateWaterLS(finalWaterGPM),
             flowVelocity: displayVelocity,
-            PipeSize: calculatePipeSize(finalWaterGPM, displayVelocity)
-
+            PipeSize: calculatePipeSize(finalWaterGPM, displayVelocity),
         };
-
     } catch (err) {
         console.error("BOQ ERROR:", err);
         throw err;
@@ -384,12 +559,16 @@ export function boqresults(
 }
 
 export function getBOQRowsForZone(
-    zone: BOQPayload,
+    zone: BOQPayload | any,
     standards: any,
     room?: RoomBOQPayload,
     result?: ResultPayload | ResultPayload[]
 ) {
-    const system = String(zone.zoneSystem ?? "").toLowerCase();
+    const system = String(
+        zone?.zoneSystem ??
+        room?.zoneSystem ??
+        ""
+    ).toLowerCase();
 
     const isCoolingOnly =
         system.includes("cooling") &&

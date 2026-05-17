@@ -148,6 +148,7 @@ export function cumulativeZoneService(
 
     rooms.forEach((room) => addRoomToTotals(totals, room));
 
+    console.log(`Cumulative totals for `, totals.zoneResultantHeatCfm);
     return {
         zoneName,
         zoneSystem,

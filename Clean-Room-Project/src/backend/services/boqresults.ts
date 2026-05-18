@@ -302,8 +302,13 @@ export function boqresults(
         }
 
         function calculateCoil(width: number, height: number) {
+
+            if (isVentilationSupply || isVentilationExhaust) {
+                return { cooling: 0, heating: 0 };
+            }
+
             let coolingResult = 0;
-            let heatingResult = 10;
+            let heatingResult = 0;
 
             if (isVentilationSystem || !c || c.length < 6) {
                 return { cooling: 0, heating: 0 };
@@ -313,7 +318,7 @@ export function boqresults(
                 ((width - c[0]) * (height - c[1]) * c[2]) / c[3];
 
             const requiredcoolload =
-                showCooling && isSupplyRow
+                (showCooling && isSupplyRow) || (isCoolingSupply && isSupplyRow)
                     ? Math.max(zoneRoomACValue, zoneCfmACLoadTR)
                     : 0;
 
@@ -322,12 +327,10 @@ export function boqresults(
                 else if (baseCapacity * c[4] >= requiredcoolload) coolingResult = 6;
                 else if (baseCapacity * c[5] >= requiredcoolload) coolingResult = 8;
                 else coolingResult = 0;
-            } else {
-                coolingResult = 0;
             }
 
             const requiredheatingload =
-                showHeating && isSupplyRow
+                showHeating && isSupplyRow || isHeatingSupply && isSupplyRow
                     ? Math.max(zoneRoomHeatLoadTR, zoneCfmHeatLoadTRValue)
                     : 0;
 
@@ -335,9 +338,7 @@ export function boqresults(
                 if (baseCapacity >= requiredheatingload) heatingResult = 4;
                 else if (baseCapacity * c[4] >= requiredheatingload) heatingResult = 6;
                 else if (baseCapacity * c[5] >= requiredheatingload) heatingResult = 8;
-                else heatingResult = 10;
-            } else {
-                heatingResult = 10;
+                else heatingResult = 0;
             }
 
             return { cooling: coolingResult, heating: heatingResult };
@@ -426,10 +427,17 @@ export function boqresults(
         }
 
         function calculateGPM(): number {
-            if (isVentilationSystem) return 0;
+
+            // ventilation rows alone should be zero
+            if (isVentilationSupply || isVentilationExhaust) {
+                return 0;
+            }
 
             const ChilledWaterGPM =
-                Math.max(zoneRoomACValue, zoneCfmACLoadTR, zoneResultCoolLoadTR) * 4;
+                Math.max(
+                    zoneRoomACValue,
+                    zoneCfmACLoadTR,
+                ) * 4;
 
             console.log("Calculated Chilled Water GPM:", ChilledWaterGPM);
 
@@ -437,16 +445,17 @@ export function boqresults(
                 Math.max(
                     zoneRoomHeatLoadTR,
                     zoneCfmHeatLoadTRValue,
-                    zoneResultHeatLoadTR
                 ) * 4;
 
             console.log("Calculated Hot Water GPM:", HotWaterGPM);
 
-            if (showCooling && !showHeating) {
+            // Cooling supply should work even in Cooling + Ventilation
+            if (isCoolingSupply || (showCooling && !showHeating)) {
                 return ChilledWaterGPM;
             }
 
-            if (showHeating && !showCooling) {
+            // Heating supply should work even in Heating + Ventilation
+            if (isHeatingSupply || (showHeating && !showCooling)) {
                 return HotWaterGPM;
             }
 
@@ -468,20 +477,34 @@ export function boqresults(
         }
 
         function displayflowvelocity(): number | number[] {
-            if (isVentilationSystem) return 0;
-            if (isCoolingExhaust || isHeatingExhaust) return 0;
-            if (isCoolingSupply) return coolingFlowVelocity || 0;
-            if (isHeatingSupply) return heatingFlowVelocity || 0;
+
+            if (isVentilationSupply || isVentilationExhaust) {
+                return 0;
+            }
+
+            if (isCoolingExhaust || isHeatingExhaust) {
+                return 0;
+            }
+            if (isCoolingSupply) {
+                return coolingFlowVelocity || 0;
+            }
+            if (isHeatingSupply) {
+                return heatingFlowVelocity || 0;
+            }
 
             if (isHeatingandCooling) {
                 if ((pipeConfiguration || "").toUpperCase() === "SINGLE PIPE") {
                     return heatingFlowVelocity || coolingFlowVelocity || 0;
                 }
 
-                return [heatingFlowVelocity || 0, coolingFlowVelocity || 0];
+                return [
+                    heatingFlowVelocity || 0,
+                    coolingFlowVelocity || 0
+                ];
             }
 
             if (showHeating) return heatingFlowVelocity || 0;
+
             if (showCooling) return coolingFlowVelocity || 0;
 
             return 0;

@@ -20,13 +20,13 @@ const getIsoEquivalent = (standard: string, classification: string) => {
   if (standard === "ISO 14644-4") {
     return { isoStandard: standard, isoClassification: classification };
   }
-  
+
   const mapping: Record<string, Record<string, string>> = (ahuData as any).filtrationSelection.standardToIsoMapping || {};
   const isoClass = mapping[standard]?.[classification];
   if (isoClass) {
     return { isoStandard: "ISO 14644-4", isoClassification: isoClass };
   }
-  
+
   return { isoStandard: standard, isoClassification: classification };
 };
 
@@ -127,8 +127,12 @@ const ruleMatchesSelectionContext = (
 };
 
 export const ahupayload = (standards: any) => {
-  const payload: any = {};
-  AHU_CONSTRUCTION_FIELDS.forEach((field) => {
+  const payload: any = {
+    selectedFilters: standards.selectedFilters || [],
+    filterTypeSelection: standards.filterTypeSelection || [],
+    selectedFilterDetails: standards.selectedFilterDetails || {},
+  };
+  AHU_CONSTRUCTION_KEYS.forEach((field) => {
     payload[field] = standards[field];
   });
 
@@ -1228,7 +1232,7 @@ const AHUFiltration = () => {
                       (Number(plantRoomDistance) <
                         config.plantRoomDistanceLimits.min ||
                         Number(plantRoomDistance) >
-                          config.plantRoomDistanceLimits.max) && (
+                        config.plantRoomDistanceLimits.max) && (
                         <div className={s.errorText}>
                           Distance must be between{" "}
                           {config.plantRoomDistanceLimits.min} and{" "}
@@ -1339,11 +1343,11 @@ const AHUFiltration = () => {
                   <>
                     <div className={s.subSectionHeader}>
                       {system === "Air-Cooling System" ||
-                      system === "Air Cooling and Ventilation System" ||
-                      system === "Air Cooling and Air Heating System"
+                        system === "Air Cooling and Ventilation System" ||
+                        system === "Air Cooling and Air Heating System"
                         ? "Additional Specifications for Air Cooling System"
                         : system === "Air-Heating System" ||
-                            system === "Air Heating and Ventilation System"
+                          system === "Air Heating and Ventilation System"
                           ? "Additional Specifications for Air Heating System"
                           : "Additional Specifications"}
                     </div>
@@ -1656,11 +1660,10 @@ const AHUFiltration = () => {
                   <div ref={filterTypeRef} className={s.dropdownWrapper}>
                     <div
                       onClick={() => setFilterTypeOpen(!filterTypeOpen)}
-                      className={`${s.input} cursor-pointer flex items-center justify-between min-h-[48px] px-4 py-2 bg-white border-2 ${
-                        filterTypeOpen
+                      className={`${s.input} cursor-pointer flex items-center justify-between min-h-[48px] px-4 py-2 bg-white border-2 ${filterTypeOpen
                           ? "border-blue-500 ring-4 ring-blue-50"
                           : "border-slate-200"
-                      }`}
+                        }`}
                     >
                       <div className={s.selectedTags}>
                         {filterTypes.length > 0 ? (
@@ -1724,8 +1727,8 @@ const AHUFiltration = () => {
                                   onClick={() => {
                                     const updated = isSelected
                                       ? filterTypes.filter(
-                                          (t: string) => t !== v,
-                                        )
+                                        (t: string) => t !== v,
+                                      )
                                       : [...filterTypes, v];
 
                                     handleChange(
@@ -1758,11 +1761,10 @@ const AHUFiltration = () => {
                                       );
                                     }
                                   }}
-                                  className={`${s.optionBase} ${
-                                    isSelected
+                                  className={`${s.optionBase} ${isSelected
                                       ? s.optionSelected
                                       : s.optionUnselected
-                                  }`}
+                                    }`}
                                 >
                                   <span className={s.optionLabel}>{v}</span>
                                   {isSelected && (
@@ -1832,9 +1834,9 @@ const AHUFiltration = () => {
                                 value={
                                   exhaustImpactPercentage
                                     ? exhaustImpactPercentage.replace(
-                                        /[^0-9.-]/g,
-                                        "",
-                                      )
+                                      /[^0-9.-]/g,
+                                      "",
+                                    )
                                     : ""
                                 }
                                 onChange={(e) => {

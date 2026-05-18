@@ -145,6 +145,7 @@ export default function Standard() {
     staticPressureSupply,
     staticPressureExhaust,
     exhaustImpactPercentage,
+    selectedFilterDetails,
   } = standards;
 
   const ahuPayload = ahupayload(standards);
@@ -177,34 +178,6 @@ export default function Standard() {
 
   const [modalMessage, setModalMessage] = useState("");
   const [existingZones, setExistingZones] = useState<{id: number, name: string}[]>([]);
-
-  const clearSupplyFilters = () => {
-    const currentFilters = Array.isArray(selectedFilters)
-      ? selectedFilters
-      : [];
-    const nextFilters = currentFilters.filter(
-      (key: string) => !key.startsWith("Supply:"),
-    );
-    const currentDetails = standards.selectedFilterDetails || {};
-    const nextDetails = Object.fromEntries(
-      Object.entries(currentDetails).filter(
-        ([key]) => !String(key).startsWith("Supply:"),
-      ),
-    );
-
-    const filtersChanged = nextFilters.length !== currentFilters.length;
-    const detailsChanged =
-      Object.keys(nextDetails).length !== Object.keys(currentDetails).length;
-
-    if (filtersChanged || detailsChanged) {
-      dispatch(
-        updateMultipleStandardsFields({
-          selectedFilters: nextFilters,
-          selectedFilterDetails: nextDetails,
-        }),
-      );
-    }
-  };
 
   // ──when room.tsx passes resetKey via navigate state (addAnotherZone),
   useEffect(() => {
@@ -756,6 +729,8 @@ export default function Standard() {
 
         zone_id: finalZoneId,
         zone_name: cleanZoneName,
+        industry,
+        subIndustry,
 
         system,
         systemType,
@@ -780,6 +755,9 @@ export default function Standard() {
         coolingFlowVelocity,
         additionalDpValue,
         additionalDpValueExhaust,
+        selectedFilters,
+        filterTypeSelection,
+        selectedFilterDetails,
         ...ahuPayload,
       };
 
@@ -1100,7 +1078,6 @@ export default function Standard() {
                       className={s.select}
                       value={standard}
                       onChange={(e) => {
-                        clearSupplyFilters();
                         dispatch(
                           updateStandardsField({
                             field: "standard",
@@ -1141,7 +1118,6 @@ export default function Standard() {
                       disabled={!selectedStandard}
                       value={classification}
                       onChange={(e) => {
-                        clearSupplyFilters();
                         dispatch(
                           updateStandardsField({
                             field: "classification",

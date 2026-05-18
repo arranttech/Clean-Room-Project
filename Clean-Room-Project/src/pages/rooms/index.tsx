@@ -1705,7 +1705,19 @@ export default function Room() {
           </div>
         </div>
       </div>
+      {isGenerating && (
+        <div className={s.loaderOverlay}>
+          <div className={s.loaderCard}>
+            <div className={s.loaderSpinner} />
 
+            <div className={s.loaderContent}>
+              <p className={s.loaderTitle}>{(T as any).loader.title}</p>
+
+              <p className={s.loaderSubtitle}>{(T as any).loader.subtitle}</p>
+            </div>
+          </div>
+        </div>
+      )}
       {showMissingPopup && (
         <div className={s.popupOverlay}>
           <div className={s.popupCard}>

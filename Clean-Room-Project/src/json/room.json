@@ -67,6 +67,10 @@
     "generate": "Submit",
     "deleteRoom": "Delete"
   },
+  "loader": {
+    "title": "Generating Results...",
+    "subtitle": "Please wait........"
+  },
   "excelTemplate": {
     "fileName": "Room_Details_Template.xlsx",
     "sheetName": "Room Template",

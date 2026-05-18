@@ -986,7 +986,7 @@ export default function Room() {
           getExcelValue(row, "ACPH") || String(selectedAcph || "");
 
         if (!roomData.roomName) {
-          throw new Error(`Row ${index + 2}: Room Name is required.`);
+          throw new Error(` Please upload valid format data.`);
         }
 
         const lowerName = roomData.roomName.toLowerCase();

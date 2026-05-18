@@ -20,7 +20,7 @@ import {
   resetRoom,
   updateRoom,
 } from "../../redux/slices/roomSlice";
-
+import { getBOQRowsForZone } from "../../backend/services/boqresults";
 import { resetProjectInfo } from "../../redux/slices/projectInfoSlice";
 import { removeInProgressProject } from "../../redux/slices/dashboardSlice";
 import { toast } from "react-toastify";
@@ -35,16 +35,15 @@ import {
   updateZoneRoom,
 } from "../../backend/controller/roomController";
 import { storeresults } from "../../backend/controller/resultsController";
-import { createZoneTotals } from "../../backend/controller/zoneController";
 import { airflowService } from "../../backend/services/service";
 import Header from "../../components/header";
 import { FaPencil } from "react-icons/fa6";
-import st from "../../json/standardData.json";
 import * as XLSX from "xlsx-js-style";
 import { FaDownload, FaUpload } from "react-icons/fa";
 import { updateProjectStatus } from "../../backend/controller/projectController";
-import resultsText from "../../json/resultsText.json";
-import { saveBOQResults } from "../../backend/controller/BOQController";
+import { buildZoneTotalsByFlag } from "../../backend/services/cummulativecal";
+import { createZoneTotals } from "../../backend/controller/zoneController";
+import { saveBOQResults } from "..//../backend/controller/BOQController";
 
 type StandardItem = {
   id: number;
@@ -58,7 +57,6 @@ type StandardItem = {
 
 type StandardJson = { standards: StandardItem[]; text: any };
 const standardsDb = (standardDataJson as unknown as StandardJson).standards;
-const t = resultsText;
 
 type RoomForm = {
   roomName: string;
@@ -99,9 +97,6 @@ const toNullableNumber = (value: any): number | null => {
   return Number.isFinite(num) ? num : null;
 };
 
-const r2 = (v: number) => Math.round(v * 100) / 100;
-const r3 = (v: number) => Math.round(v * 1000) / 1000;
-
 export default function Room() {
   const buttonStyles = (T as any).excelTemplate.buttonStyles;
   const dispatch = useAppDispatch();
@@ -118,30 +113,14 @@ export default function Room() {
 
   const standard = useAppSelector((state: any) => state.standards.standard);
   const boqConfig = useAppSelector((state: any) => ({
-  totalFiltrationStagesSupply:
-    state.standards.totalFiltrationStagesSupply,
-
-  totalFiltrationStagesExhaust:
-    state.standards.totalFiltrationStagesExhaust,
-
-  staticPressureSupply:
-    state.standards.staticPressureSupply,
-
-  staticPressureExhaust:
-    state.standards.staticPressureExhaust,
-
-  flowVelocity:
-    state.standards.flowVelocity,
-
-  heatingFlowVelocity:
-    state.standards.heatingFlowVelocity,
-
-  coolingFlowVelocity:
-    state.standards.coolingFlowVelocity,
-
-  pipeConfiguration:
-    state.standards.pipeConfiguration,
-}));
+    totalFiltrationStagesSupply: state.standards.totalFiltrationStagesSupply,
+    totalFiltrationStagesExhaust: state.standards.totalFiltrationStagesExhaust,
+    staticPressureSupply: state.standards.staticPressureSupply,
+    staticPressureExhaust: state.standards.staticPressureExhaust,
+    heatingFlowVelocity: state.standards.heatingFlowVelocity,
+    coolingFlowVelocity: state.standards.coolingFlowVelocity,
+    pipeConfiguration: state.standards.pipeConfiguration,
+  }));
   const classification = useAppSelector(
     (state: any) => state.standards.classification,
   );
@@ -579,7 +558,6 @@ export default function Room() {
   const goToResultsPage = async () => {
     const missing: string[] = [];
 
-
     if (!projectId) {
       missing.push("Project Information (Project details not saved)");
     }
@@ -703,138 +681,131 @@ export default function Room() {
         });
       }
 
-      type ZoneFlag = "S" | "E" | "VS" | "VE";
+      const systemCond = (standardDataJson as any).text.options.systems;
 
-      const normalizeSystemName = (value: any) =>
-        String(value || "")
-          .trim()
-          .replace(/\s+/g, " ")
-          .toUpperCase();
+      const zoneTotalsByFlag = buildZoneTotalsByFlag(
+        flatResults,
+        systemCond,
+        user_id,
+      );
+      const savedBOQZoneIds = new Set<string>();
 
-      const systemCond = st.text.options.systems;
+      for (const { zoneId, payload } of zoneTotalsByFlag) {
+        await createZoneTotals(zoneId, payload);
 
-      const isSystemMatch = (
-        zoneSystem: string,
-        values: string | string[] = [],
-      ) => {
-        const valueArray = typeof values === "string" ? [values] : values;
-        return valueArray.some(
-          (item) =>
-            normalizeSystemName(item) === normalizeSystemName(zoneSystem),
+        if (savedBOQZoneIds.has(String(zoneId))) {
+          continue;
+        }
+
+        savedBOQZoneIds.add(String(zoneId));
+
+        const zoneRoom = roomsSnapshot.find(
+          (room) => String(room.zoneId) === String(zoneId),
         );
-      };
 
-      const isVentilationSupplyByRoomInputs = (room: SavedRoom) =>
-        Number(room.exhaustAir || 0) === 0 &&
-        Number(room.exhaustAirCfm || 0) === 0;
+        const zoneFlatResults = flatResults
+          .filter((entry) => String(entry.room.zoneId) === String(zoneId))
+          .map((entry) => entry.result);
 
-      const getZoneFlag = (
-        room: SavedRoom,
-        result: any,
-        resultLabel: "PRIMARY" | "VENTILATION",
-      ): ZoneFlag => {
-        const zoneSystem = String(room.zoneSystem || "").trim();
-        const isExhaustByResult = Number(result.exhaustAir || 0) !== 0;
+        const boqZonePayload = {
+          zoneName: payload.zone_name,
+          zoneSystem: zoneRoom?.zoneSystem || system,
+          zoneClassification: zoneRoom?.zoneClassification || classification,
+          zoneReqInsideTempC: zoneRoom?.zoneReqInsideTempC ?? reqInsideTempC,
 
-        // Ventilation only
-        if (isSystemMatch(zoneSystem, systemCond.ventilation)) {
-          return isVentilationSupplyByRoomInputs(room) ? "VS" : "VE";
-        }
+          zoneExhaustAir: Number(payload.zone_ExhaustAir ?? 0),
+          zoneRoomCfm: Number(payload.zone_RoomCfm ?? 0),
+          zoneFreshAir: Number(payload.zone_FreshAir ?? 0),
 
-        // Cooling + Ventilation
-        if (isSystemMatch(zoneSystem, systemCond.coolingVentilation)) {
-          if (resultLabel === "VENTILATION") {
-            return isVentilationSupplyByRoomInputs(room) ? "VS" : "VE";
-          }
-          return isExhaustByResult ? "E" : "S";
-        }
+          zoneResultantCfm: Number(payload.zone_ResultCfm ?? 0),
+          zoneResultantHeatCfm: Number(payload.zone_ResultCfm_Hot ?? 0),
 
-        // Heating + Ventilation
-        if (isSystemMatch(zoneSystem, systemCond.heatingVentilation)) {
-          if (resultLabel === "VENTILATION") {
-            return isVentilationSupplyByRoomInputs(room) ? "VS" : "VE";
-          }
-          return isExhaustByResult ? "E" : "S";
-        }
+          zoneResultCoolLoadTR: Number(payload.zone_Res_Cooling_Load_TR ?? 0),
+          zoneRoomACValue: Number(payload.zone_Room_AC_Load_TR ?? 0),
+          zoneCfmACLoadTR: Number(payload.zone_Cfm_AC_Load_TR ?? 0),
 
-        // Cooling / Heating / Cooling+Heating
-        return isExhaustByResult ? "E" : "S";
-      };
-
-      const zoneGroups = new Map<
-        string,
-        { results: any[]; flag: ZoneFlag; zoneId: number | string }
-      >();
-
-      const addToZoneGroup = (
-        zoneId: number | string,
-        flag: ZoneFlag,
-        result: any,
-      ) => {
-        const groupKey = `${zoneId}-${flag}`;
-
-        if (!zoneGroups.has(groupKey)) {
-          zoneGroups.set(groupKey, { results: [], flag, zoneId });
-        }
-
-        zoneGroups.get(groupKey)!.results.push(result);
-      };
-
-      flatResults.forEach(({ room, result, resultLabel }) => {
-        const zid = room.zoneId;
-        const flag = getZoneFlag(room, result, resultLabel);
-        addToZoneGroup(zid, flag, result);
-      });
-
-      for (const [, data] of zoneGroups.entries()) {
-        const { results, flag, zoneId } = data;
-
-        const sum = (key: string): number =>
-          results.reduce((acc, r) => {
-            const val = Number((r as any)[key]);
-            return acc + (isNaN(val) ? 0 : val);
-          }, 0);
-        const zoneTotalsPayload = {
-             ExhaustFlag: flag,
-            user_id,
-            zone_Area: r2(sum("areaFt2")),
-            zone_Volume: r2(sum("volumeFt3")),
-            zone_RoomCfm: r2(sum("roomCfm")),
-            zone_FreshAir: r2(sum("freshAir")),
-            zone_ResultantSupplyAir: r2(sum("ResultantSupplyAir")),
-            zone_ExhaustAir: r2(sum("exhaustAir")),
-            zone_ResultCfm: r2(sum("resultantCfm")),
-            zone_ResultCfm_Hot: r2(sum("resultantheatCfm")),
-            zone_Room_AC_Load_TR: r2(sum("roomACValue")),
-            zone_Cfm_AC_Load_TR: r2(sum("cfmACLoadTR")),
-            zone_Res_Cooling_Load_TR: r2(sum("resultCoolLoadTR")),
-            zone_Room_Heating_Load_TR: r2(sum("roomHeatLoadTR")),
-            zone_Cfm_Heating_Load_TR: r2(sum("cfmHeatLoadTRValue")),
-            zone_Result_Heating_Load_TR: r2(sum("resultHeatLoadTR")),
+          zoneRoomHeatLoadTR: Number(payload.zone_Room_Heating_Load_TR ?? 0),
+          zoneCfmHeatLoadTRValue: Number(payload.zone_Cfm_Heating_Load_TR ?? 0),
         };
-        console.log("Zone Totals Payload for Zone ID", zoneId, ":", zoneTotalsPayload);
-        await createZoneTotals(zoneId,zoneTotalsPayload);
-        const boqPayload = {
-         zoneId,
-         zoneName: `Zone ${zoneId}`,
-         zoneSystem: system,
-         zoneExhaustAir: zoneTotalsPayload.zone_ExhaustAir,
-         zoneRoomCfm: zoneTotalsPayload.zone_RoomCfm,
-         zoneFreshAir: zoneTotalsPayload.zone_FreshAir,
-         zoneResultantCfm: zoneTotalsPayload.zone_ResultCfm,
-         zoneResultantHeatCfm: zoneTotalsPayload.zone_ResultCfm_Hot,
-         zoneReqInsideTempC: reqInsideTempC,
-         zoneClassification: classification,
-         zoneResultCoolLoadTR: zoneTotalsPayload.zone_Res_Cooling_Load_TR,
-         zoneRoomACValue: zoneTotalsPayload.zone_Room_AC_Load_TR,
-         zoneCfmACLoadTR: zoneTotalsPayload.zone_Cfm_AC_Load_TR,
-         zoneRoomHeatLoadTR: zoneTotalsPayload.zone_Room_Heating_Load_TR,
-         zoneCfmHeatLoadTRValue: zoneTotalsPayload.zone_Cfm_Heating_Load_TR,...boqConfig,
-        }; 
-        console.log("BOQ Payload for Zone ID", zoneId, ":", boqPayload);
-        await saveBOQResults(boqPayload);
+        console.log("boqConfig from Redux:", boqConfig);
+
+        const standardsPayload = {
+          heatingFlowVelocity: Number(boqConfig.heatingFlowVelocity ?? 0),
+          coolingFlowVelocity: Number(boqConfig.coolingFlowVelocity ?? 0),
+          totalFiltrationStagesSupply: Number(
+            boqConfig.totalFiltrationStagesSupply ?? 0,
+          ),
+          totalFiltrationStagesExhaust: Number(
+            boqConfig.totalFiltrationStagesExhaust ?? 0,
+          ),
+          staticPressureSupply: Number(boqConfig.staticPressureSupply ?? 0),
+          staticPressureExhaust: Number(boqConfig.staticPressureExhaust ?? 0),
+          pipeConfiguration: boqConfig.pipeConfiguration,
+        };
+
+        const boqRows = getBOQRowsForZone(
+          boqZonePayload as any,
+          standardsPayload,
+          zoneRoom as any,
+          zoneFlatResults,
+        );
+
+        for (const boqResult of boqRows) {
+          const isExhaust = String(boqResult.boqRowType || "").includes(
+            "EXHAUST",
+          );
+          const isSupply = String(boqResult.boqRowType || "").includes(
+            "SUPPLY",
+          );
+          const flag = boqResult.boqRowType;
+
+          await saveBOQResults({
+            zone_id: zoneId,
+            user_id,
+
+            AHUCfm: boqResult.AHUCfm ?? null,
+
+            staticPressureExhaust: isExhaust ? boqResult.staticPressure : null,
+            staticPressureSupply: isSupply ? boqResult.staticPressure : null,
+
+            BDB: boqResult.BDB ?? null,
+            motorHP: boqResult.motorHP ?? null,
+
+            stageFilterExhaust: isExhaust ? boqResult.stageFilter : null,
+            stageFilterSupply: isSupply ? boqResult.stageFilter : null,
+
+            coolingFlowVelocity: Array.isArray(boqResult.flowVelocity)
+              ? boqResult.flowVelocity[1]
+              : (boqResult.flowVelocity ?? null),
+
+            heatingFlowVelocity: Array.isArray(boqResult.flowVelocity)
+              ? boqResult.flowVelocity[0]
+              : (boqResult.flowVelocity ?? null),
+
+            pipesizecooling: Array.isArray(boqResult.PipeSize)
+              ? boqResult.PipeSize[1]
+              : (boqResult.PipeSize ?? null),
+
+            pipesizeheating: Array.isArray(boqResult.PipeSize)
+              ? boqResult.PipeSize[0]
+              : (boqResult.PipeSize ?? null),
+
+            coolingCoil: boqResult.noofrowsofCoil ?? null,
+            heatingCoil: boqResult.noofrowsofCoil ?? null,
+
+            AHUCoolingLoadTR: boqResult.AHULoadTR ?? null,
+            AHUHeatingLoadTR: boqResult.AHULoadTR ?? null,
+
+            WaterGPM: boqResult.WaterGPM ?? null,
+            WaterLS: boqResult.WaterLS ?? null,
+
+            AHUWidth: boqResult.AHUWidth ?? null,
+            AHULength: boqResult.AHULength ?? null,
+            AHUHeight: boqResult.AHUHeight ?? null,
+            flag: flag ?? null,
+          });
+        }
       }
-      console.log("Before updating project status to Completed");
 
       await updateProjectStatus(Number(projectId), "COMPLETED");
       console.log("Project status updated to Completed");

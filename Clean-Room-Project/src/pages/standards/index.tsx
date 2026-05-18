@@ -38,16 +38,7 @@ type StandardItem = {
 };
 type StandardJson = { standards: StandardItem[]; text: any };
 
-export type CalculatedZoneResults = {
-  flowVelocity?: number;
-  heatingFlowVelocity?: number;
-  coolingFlowVelocity?: number;
-  totalFiltrationStagesSupply?: number;
-  totalFiltrationStagesExhaust?: number;
-  staticPressureSupply?: number;
-  staticPressureExhaust?: number;
-  pipeConfiguration?: string;
-};
+
 
 const data = standardDataJson as unknown as StandardJson;
 const standardsData = data.standards;

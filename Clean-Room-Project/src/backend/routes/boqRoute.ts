@@ -1,13 +1,13 @@
 import { ServerRoute } from "@hapi/hapi";
 import Joi from "joi";
-import { cumulativeZoneService } from "../services/cummulativecal";
+//import { cumulativeZoneService } from "../services/cummulativecal";
 import { boqresults } from "../services/boqresults";
 import { zoneRepository } from "../repositories/zoneRepository";
 
 
 export const boqRoute: ServerRoute[] = [
 
-	{
+	/*{
 		method: "POST",
 		path: "/v1/cummulativecalculation",
 		options: {
@@ -88,8 +88,16 @@ export const boqRoute: ServerRoute[] = [
 				return h.response({ error: "Internal Server Error" }).code(500);
 			}
 		},
+	}, */
+	{
+		method: "GET",
+		path: "/v1/boqresults/{zoneId}",
+		handler: async (request, h) => {
+			const zoneId = request.params.zoneId;
+			const result = await zoneRepository.getBOQResultsByZoneId(zoneId);
+			return h.response(result).code(200);
+		},
 	},
-
 	{
 		method: "POST",
 		path: "/v1/boqresults",
@@ -97,53 +105,25 @@ export const boqRoute: ServerRoute[] = [
 			description: "Calculate BOQ values for a zone",
 			tags: ["api", "calculations"],
 			validate: {
-				payload: Joi.object({
-					zoneName: Joi.string().required(),
-					zoneSystem: Joi.string().required(),
-					zoneExhaustAir: Joi.number().required(),
-					zoneRoomCfm: Joi.number().optional(),
-					zoneFreshAir: Joi.number().optional(),
-					zoneResultantCfm: Joi.number().required(),
-					zoneResultantHeatCfm: Joi.number().required(),
-					zoneReqInsideTempC: Joi.alternatives()
-						.try(Joi.number(), Joi.string().valid("Ambient"))
-						.required(),
-					zoneClassification: Joi.string().required(),
-					zoneResultCoolLoadTR: Joi.number().required(),
-					zoneRoomACValue: Joi.number().required(),
-					zoneCfmACLoadTR: Joi.number().required(),
-					zoneRoomHeatLoadTR: Joi.number().required(),
-					zoneCfmHeatLoadTRValue: Joi.number().required(),
-					totalFiltrationStagesSupply: Joi.number().required(),
-					totalFiltrationStagesExhaust: Joi.number().required(),
-					staticPressureSupply: Joi.number().required(),
-					staticPressureExhaust: Joi.number().required(),
-				}).unknown(true),
+				payload: Joi.object().unknown(true),
 			},
 			response: {
 				status: {
 					200: Joi.object({
-						zoneName: Joi.string().required(),
-						AHUCfm: Joi.number().required(),
-						AHUWidth: Joi.number().required(),
-						AHUHeight: Joi.number().required(),
-						stageFilter: Joi.number().required(),
-						BDB: Joi.number().required(),
-						motorHP: Joi.number().required(),
-						AHUCoolingLoadTR: Joi.number().required(),
-						coolingCoil: Joi.number().required(),
-						flowVelocity: Joi.alternatives().try(
-							Joi.number(),
-							Joi.array().items(Joi.number())
-						).required(),
-					}).unknown(true).required(),
+						message: Joi.string().required(),
+						data: Joi.object({
+							insertId: Joi.number().allow(null).required(),
+							affectedRows: Joi.number().required(),
+						}).required(),
+					}).required(),
 					400: Joi.object({
 						error: Joi.string().required(),
 					}),
 					500: Joi.object({
-						error: Joi.string().required(),
-
-					}),
+						error: Joi.string().optional(),
+						sqlMessage: Joi.string().optional(),
+						code: Joi.string().optional(),
+					}).unknown(true),
 				},
 			},
 		},
@@ -151,26 +131,24 @@ export const boqRoute: ServerRoute[] = [
 			try {
 				const payload = request.payload as any;
 
-				const standards = {
-					heatingFlowVelocity: payload.heatingFlowVelocity,
-					coolingFlowVelocity: payload.coolingFlowVelocity,
-					totalFiltrationStagesSupply: payload.totalFiltrationStagesSupply,
-					totalFiltrationStagesExhaust: payload.totalFiltrationStagesExhaust,
-					staticPressureSupply: payload.staticPressureSupply,
-					staticPressureExhaust: payload.staticPressureExhaust,
-					pipeConfiguration: payload.pipeConfiguration
-				};
-				const result = await boqresults(payload, standards);
-				return h.response(result).code(200);
+				console.log("BOQ route payload:", payload);
+
+				const result = await zoneRepository.saveBOQResults(payload);
+
+				return h.response({
+					message: "BOQ saved successfully",
+					data: result,
+				}).code(200);
 			} catch (err: any) {
-				console.error("BOQ calculation error:", err);
+				console.error("BOQ route error:", err);
 
-				if (err?.isBoom) {
-					return h.response({ error: err.message }).code(400);
-				}
-
-				return h.response({ error: "Internal Server Error" }).code(500);
+				return h.response({
+					error: err?.message,
+					sqlMessage: err?.sqlMessage,
+					code: err?.code,
+				}).code(500);
 			}
 		},
 	},
+
 ];

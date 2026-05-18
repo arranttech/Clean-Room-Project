@@ -310,7 +310,7 @@ export function boqresults(
             let coolingResult = 0;
             let heatingResult = 0;
 
-            if (isVentilationSystem || !c || c.length < 6) {
+            if (!c || c.length < 6) {
                 return { cooling: 0, heating: 0 };
             }
 
@@ -318,7 +318,7 @@ export function boqresults(
                 ((width - c[0]) * (height - c[1]) * c[2]) / c[3];
 
             const requiredcoolload =
-                (showCooling && isSupplyRow) || (isCoolingSupply && isSupplyRow)
+                (showCooling || isCoolingSupply) && isSupplyRow
                     ? Math.max(zoneRoomACValue, zoneCfmACLoadTR)
                     : 0;
 
@@ -330,7 +330,7 @@ export function boqresults(
             }
 
             const requiredheatingload =
-                showHeating && isSupplyRow || isHeatingSupply && isSupplyRow
+                (showHeating || isHeatingSupply) && isSupplyRow
                     ? Math.max(zoneRoomHeatLoadTR, zoneCfmHeatLoadTRValue)
                     : 0;
 

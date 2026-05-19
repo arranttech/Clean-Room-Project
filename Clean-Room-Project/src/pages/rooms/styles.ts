@@ -86,6 +86,14 @@ const roomDesign = {
     `w-full sm:w-80 text-center bg-white px-2 py-1 text-sm outline-none focus:outline-none border-none focus:ring-0`,
   rangeText: `text-xs sm:text-sm text-${theme.textMuted} mt-1`,
 
+  tableDeviationBox:
+    "w-[118px] h-[36px] flex items-center justify-between border border-slate-300 rounded-lg bg-white overflow-hidden px-1",
+
+  tableDeviationBtn:
+    "w-[40px] h-full flex items-center justify-center text-slate-500 hover:bg-slate-100 disabled:opacity-40",
+
+  tableDeviationInput:
+    "w-[60px] h-full text-center text-sm text-slate-700 outline-none border-0 bg-transparent",
   loaderOverlay:
     "fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm",
 

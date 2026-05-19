@@ -1484,6 +1484,7 @@ export default function Room() {
                           <th className={s.tableTh}>Exhaust Air(%)</th>
                           <th className={s.tableTh}>Exhaust Air(CFM)</th>
                           <th className={s.tableTh}>ACPH Value</th>
+                          <th className={s.tableTh}>ACPH Deviation</th>
                           <th className={s.tableTh}>Actions</th>
                         </tr>
                       </thead>
@@ -1543,6 +1544,39 @@ export default function Room() {
                                 </option>
                               ))}
                             </select>
+                          </td>
+
+                          <td className={s.tableTd}>
+                            <div className={s.tableDeviationBox}>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setAcphDeviation((p) => (p > -20 ? p - 5 : p))
+                                }
+                                disabled={acphDeviation <= -20}
+                                className={s.tableDeviationBtn}
+                              >
+                                −
+                              </button>
+
+                              <input
+                                type="text"
+                                value={`${acphDeviation}%`}
+                                readOnly
+                                className={s.tableDeviationInput}
+                              />
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setAcphDeviation((p) => (p < 20 ? p + 5 : p))
+                                }
+                                disabled={acphDeviation >= 20}
+                                className={s.tableDeviationBtn}
+                              >
+                                +
+                              </button>
+                            </div>
                           </td>
                           <td className={s.tableTd}>
                             <div className="flex gap-2 justify-center">

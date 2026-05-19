@@ -18,6 +18,7 @@ const roomDesign = {
 
   grid2: `mt-3 sm:mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6`,
   grid3: `mt-3 sm:mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6`,
+  grid4: "grid grid-cols-1 md:grid-cols-4 gap-6",
 
   field: `flex flex-col gap-2`,
   labelRow: `flex items-center gap-2`,
@@ -85,6 +86,15 @@ const roomDesign = {
   deviationInput:
     `w-full sm:w-80 text-center bg-white px-2 py-1 text-sm outline-none focus:outline-none border-none focus:ring-0`,
   rangeText: `text-xs sm:text-sm text-${theme.textMuted} mt-1`,
+
+  tableDeviationBox:
+    "w-[118px] h-[36px] flex items-center justify-between border border-slate-300 rounded-lg bg-white overflow-hidden px-1",
+
+  tableDeviationBtn:
+    "w-[40px] h-full flex items-center justify-center text-slate-500 hover:bg-slate-100 disabled:opacity-40",
+
+  tableDeviationInput:
+    "w-[60px] h-full text-center text-sm text-slate-700 outline-none border-0 bg-transparent",
 
   loaderOverlay:
     "fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm",

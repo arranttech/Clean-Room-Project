@@ -10,7 +10,7 @@ import { useAppDispatch } from "../../redux/hooks";
 import { setUser } from "../../redux/slices/userSlice";
 import { setCustomer } from "../../redux/slices/customerSlice";
 
-const API_URL = import.meta.env.VITE_API_URL || "";
+// const API_URL = import.meta.env.VITE_API_URL || "";
 
 function Login() {
 	const styles = loginDesign;
@@ -21,7 +21,7 @@ function Login() {
 	const [showPassword, setShowPassword] = useState(false);
 	const [loading, setLoading] = useState(false);
 	// Separate loading state for Google
-	const [googleLoading, setGoogleLoading] = useState(false);
+	// const [googleLoading, setGoogleLoading] = useState(false);
 	const [error, setError] = useState("");
 
 	const handleLogin = async (e: React.FormEvent) => {
@@ -95,14 +95,14 @@ function Login() {
 		}
 	};
 
-	const handleGoogleRedirect = () => {
-		setGoogleLoading(true);
-		const returnTo = `${window.location.origin}/login`;
-		const url = `${API_URL}/auth/google?returnTo=${encodeURIComponent(
-			returnTo
-		)}`;
-		window.location.assign(url);
-	};
+	// const handleGoogleRedirect = () => {
+	// 	setGoogleLoading(true);
+	// 	const returnTo = `${window.location.origin}/login`;
+	// 	const url = `${API_URL}/auth/google?returnTo=${encodeURIComponent(
+	// 		returnTo
+	// 	)}`;
+	// 	window.location.assign(url);
+	// };
 
 	return (
 		<div className={styles.wrapper}>
@@ -175,14 +175,14 @@ function Login() {
 								{loading ? "Signing In..." : "Sign In"}
 							</button>
 
-							<div className="flex items-center gap-3 my-2">
+							{/* <div className="flex items-center gap-3 my-2">
 								<div className="flex-1 h-px bg-gray-200" />
 								<span className="text-xs text-gray-400 font-semibold">or</span>
 								<div className="flex-1 h-px bg-gray-200" />
-							</div>
+							</div> */}
 
 							{/* Google — only disabled when Google is loading */}
-							<button
+							{/* <button
 								type="button"
 								onClick={handleGoogleRedirect}
 								disabled={googleLoading}
@@ -196,7 +196,7 @@ function Login() {
 									className="w-5 h-5"
 								/>
 								{googleLoading ? "Redirecting..." : "Continue with Google"}
-							</button>
+							</button> */}
 						</div>
 					</form>
 				</div>

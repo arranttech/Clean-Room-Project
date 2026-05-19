@@ -1630,6 +1630,39 @@ export default function Room() {
                               ))}
                             </select>
                           </td>
+
+                          <td className={s.tableTd}>
+                            <div className={s.tableDeviationBox}>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setAcphDeviation((p) => (p > -20 ? p - 5 : p))
+                                }
+                                disabled={acphDeviation <= -20}
+                                className={s.tableDeviationBtn}
+                              >
+                                −
+                              </button>
+
+                              <input
+                                type="text"
+                                value={`${acphDeviation}%`}
+                                readOnly
+                                className={s.tableDeviationInput}
+                              />
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setAcphDeviation((p) => (p < 20 ? p + 5 : p))
+                                }
+                                disabled={acphDeviation >= 20}
+                                className={s.tableDeviationBtn}
+                              >
+                                +
+                              </button>
+                            </div>
+                          </td>
                           <td className={s.tableTd}>
                             <div className={s.tableDeviationBox}>
                               <button

@@ -202,17 +202,9 @@ export default function Room() {
   );
 
   const [acphDeviation, setAcphDeviation] = useState<number>(0);
-
   const [selectedAcph, setSelectedAcph] = useState<number | string>(
     standardsAcph ?? "",
   );
-
-  const finalAcph = useMemo(() => {
-    const acph = Number(selectedAcph || 0);
-
-    return Number((acph * (acphDeviation / 100) + acph).toFixed(2));
-  }, [selectedAcph, acphDeviation]);
-
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showMissingPopup, setShowMissingPopup] = useState(false);
@@ -424,7 +416,7 @@ export default function Room() {
           freshAirPercent: form.freshAirPercent || null,
           exhaustAir: form.exhaustAir || null,
           exhaustAirCfm: form.exhaustAirCfm || null,
-          selectedAcph: finalAcph,
+          selectedAcph: Number(selectedAcph),
           user_id,
         };
 
@@ -434,7 +426,7 @@ export default function Room() {
           updateRoom({
             ...editingRoom,
             ...form,
-            acph: finalAcph,
+            acph: Number(selectedAcph),
           }),
         );
 
@@ -455,7 +447,7 @@ export default function Room() {
           freshAirPercent: form.freshAirPercent,
           exhaustAir: form.exhaustAir,
           exhaustAirCfm: form.exhaustAirCfm,
-          selectedAcph: finalAcph,
+          selectedAcph: Number(selectedAcph),
           user_id,
         });
 
@@ -465,7 +457,7 @@ export default function Room() {
           saveRoom({
             ...form,
             id: generateId(),
-            acph: finalAcph,
+            acph: Number(selectedAcph),
             backendRoomId,
             zoneId,
             projectStandardId,
@@ -839,20 +831,19 @@ export default function Room() {
     const excelTemplate = (T as any).excelTemplate;
 
     const headers = excelTemplate.columns.map((col: any) => col.header);
+
     const ws = XLSX.utils.aoa_to_sheet([headers]);
 
+    // column widths
     ws["!cols"] = excelTemplate.columns.map((col: any) => ({
       wch: col.width || 20,
     }));
 
     ws["!rows"] = [{ hpt: 28 }];
 
-    const acphValueIndex = headers.indexOf("ACPH Value");
-    const acphDeviationIndex = headers.indexOf("ACPH Deviation");
-    const finalAcphIndex = headers.indexOf("Final ACPH");
-
     headers.forEach((header: string, index: number) => {
       const cellAddress = XLSX.utils.encode_cell({ r: 0, c: index });
+
       if (!ws[cellAddress]) return;
 
       const headerStyle = excelTemplate.headerStyle;
@@ -899,64 +890,15 @@ export default function Room() {
       ];
     });
 
-    if (
-      acphValueIndex !== -1 &&
-      acphDeviationIndex !== -1 &&
-      finalAcphIndex !== -1
-    ) {
-      ws["!dataValidation"] = ws["!dataValidation"] || [];
-
-      for (let rowIndex = 1; rowIndex <= 100; rowIndex++) {
-        const finalAcphCell = XLSX.utils.encode_cell({
-          r: rowIndex,
-          c: finalAcphIndex,
-        });
-        const acphValueCell = XLSX.utils.encode_cell({
-          r: rowIndex,
-          c: acphValueIndex,
-        });
-        const acphDeviationCell = XLSX.utils.encode_cell({
-          r: rowIndex,
-          c: acphDeviationIndex,
-        });
-
-        ws[finalAcphCell] = {
-          t: "n",
-          f: `IF(OR(${acphValueCell}="",${acphDeviationCell}=""),"",IF(OR(${acphDeviationCell}<-120,${acphDeviationCell}>120),"INVALID. PLEASE CHECK YOUR ACPH DEVIATION INPUT.",${acphValueCell}*(${acphDeviationCell}/100)+${acphValueCell}))`,
-          z: "0.00",
-        };
-
-        ws["!dataValidation"].push({
-          sqref: acphDeviationCell,
-          type: "whole",
-          operator: "between",
-          formulas: ["-120", "120"],
-          showErrorMessage: true,
-          errorTitle: "Invalid ACPH Deviation",
-          error: "Please enter a value between -120 and +120 only.",
-        });
-      }
-
-      ws["!ref"] = XLSX.utils.encode_range({
-        s: { r: 0, c: 0 },
-        e: { r: 100, c: headers.length - 1 },
-      });
-    }
-
+    // freeze header row
     ws["!freeze"] = { xSplit: 0, ySplit: 1 };
 
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, excelTemplate.sheetName);
 
-    (wb as any).Workbook = {
-      CalcPr: {
-        fullCalcOnLoad: true,
-        forceFullCalc: true,
-      },
-    };
-
     XLSX.writeFile(wb, excelTemplate.fileName);
   };
+
   const getExcelValue = (row: any, key: string) => {
     const value = row[key];
     return value === undefined || value === null ? "" : String(value).trim();
@@ -999,14 +941,7 @@ export default function Room() {
       }
 
       const worksheet = workbook.Sheets[sheetName];
-      const rows = XLSX.utils
-        .sheet_to_json<any>(worksheet, { defval: "" })
-        .filter((row: any) => {
-          return Object.entries(row).some(([key, value]) => {
-            if (key === "Final ACPH") return false;
-            return String(value ?? "").trim() !== "";
-          });
-        });
+      const rows = XLSX.utils.sheet_to_json<any>(worksheet, { defval: "" });
 
       if (!rows.length) {
         toast.error("Template is empty.");
@@ -1047,20 +982,11 @@ export default function Room() {
           exhaustAirCfm: getExcelValue(row, "Exhaust Air CFM"),
         };
 
-        const baseAcphValue =
-          getExcelValue(row, "ACPH Value") ||
-          getExcelValue(row, "ACPH") ||
-          String(selectedAcph || "");
-
-        const acphDeviationValue = getExcelValue(row, "ACPH Deviation") || "0";
-
-        const acphValue = String(
-          Number(baseAcphValue) * (Number(acphDeviationValue) / 100) +
-            Number(baseAcphValue),
-        );
+        const acphValue =
+          getExcelValue(row, "ACPH") || String(selectedAcph || "");
 
         if (!roomData.roomName) {
-          throw new Error(`Row ${index + 2}: Room Name is required.`);
+          throw new Error(` Please upload valid format data.`);
         }
 
         const lowerName = roomData.roomName.toLowerCase();
@@ -1407,7 +1333,7 @@ export default function Room() {
                       {renderInput("exhaustAir")}
                     </div>
 
-                    <div className={s.grid4}>
+                    <div className={s.grid3}>
                       {renderInput("exhaustAirCfm")}
 
                       <div>
@@ -1482,16 +1408,6 @@ export default function Room() {
                         </div>
 
                         <div className={s.rangeText}>Range: -20% to +20%</div>
-                      </div>
-                      <div>
-                        <label className={s.label}>Final ACPH</label>
-
-                        <input
-                          type="text"
-                          value={finalAcph || ""}
-                          readOnly
-                          className={s.input}
-                        />
                       </div>
                     </div>
 
@@ -1569,7 +1485,6 @@ export default function Room() {
                           <th className={s.tableTh}>Exhaust Air(CFM)</th>
                           <th className={s.tableTh}>ACPH Value</th>
                           <th className={s.tableTh}>ACPH Deviation</th>
-                          <th className={s.tableTh}>Final ACPH</th>
                           <th className={s.tableTh}>Actions</th>
                         </tr>
                       </thead>
@@ -1662,47 +1577,6 @@ export default function Room() {
                                 +
                               </button>
                             </div>
-                          </td>
-                          <td className={s.tableTd}>
-                            <div className={s.tableDeviationBox}>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setAcphDeviation((p) => (p > -20 ? p - 5 : p))
-                                }
-                                disabled={acphDeviation <= -20}
-                                className={s.tableDeviationBtn}
-                              >
-                                -
-                              </button>
-
-                              <input
-                                type="text"
-                                value={`${acphDeviation}%`}
-                                readOnly
-                                className={s.tableDeviationInput}
-                              />
-
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setAcphDeviation((p) => (p < 20 ? p + 5 : p))
-                                }
-                                disabled={acphDeviation >= 20}
-                                className={s.deviationBtn}
-                              >
-                                +
-                              </button>
-                            </div>
-                          </td>
-
-                          <td className={s.tableTd}>
-                            <input
-                              type="text"
-                              value={finalAcph || ""}
-                              readOnly
-                              className={s.tableInput}
-                            />
                           </td>
                           <td className={s.tableTd}>
                             <div className="flex gap-2 justify-center">

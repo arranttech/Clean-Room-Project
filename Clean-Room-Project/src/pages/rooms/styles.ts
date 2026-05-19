@@ -18,6 +18,7 @@ const roomDesign = {
 
   grid2: `mt-3 sm:mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6`,
   grid3: `mt-3 sm:mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6`,
+  grid4: "grid grid-cols-1 md:grid-cols-4 gap-6",
 
   field: `flex flex-col gap-2`,
   labelRow: `flex items-center gap-2`,

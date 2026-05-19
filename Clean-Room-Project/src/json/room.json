@@ -160,10 +160,22 @@
         "helpText": "Enter exhaust air CFM value."
       },
       {
-        "header": "ACPH",
+        "header": "ACPH Value",
         "key": "acph",
         "width": 16,
         "helpText": "Enter ACPH value based on selected classification range."
+      },
+      {
+        "header": "ACPH Deviation",
+        "key": "acphDeviation",
+        "width": 20,
+        "helpText": "Enter deviation percentage between -20 and +20."
+      },
+      {
+        "header": "Final ACPH",
+        "key": "finalAcph",
+        "width": 20,
+        "helpText": "Calculated Formula = ACPH Value * (ACPH Deviation / 100) + ACPH Value."
       }
     ],
     "buttonStyles": {

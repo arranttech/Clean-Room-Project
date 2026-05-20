@@ -79,12 +79,12 @@ const roomDesign = {
   range: `font-mono text-${theme.primaryTextLight}`,
 
   deviationBox:
-    `flex items-center gap-2 border border-${theme.borderColor} ${theme.roundSm} px-2 sm:px-3 py-2`,
+    `grid grid-cols-[56px_1fr_56px] items-center w-full h-[44px] border border-${theme.borderColor} ${theme.roundSm} bg-white overflow-hidden`,
   deviationValue: `font-mono text-${theme.primaryTextLight}`,
   deviationBtn:
-    `px-3 sm:px-6 ${theme.roundSm} text-${theme.textDisabled} hover:bg-slate-50 text-sm`,
+    `h-full w-full flex items-center justify-center text-${theme.textDisabled} hover:bg-slate-50 text-lg disabled:opacity-40 disabled:cursor-not-allowed`,
   deviationInput:
-    `w-full sm:w-80 text-center bg-white px-2 py-1 text-sm outline-none focus:outline-none border-none focus:ring-0`,
+    `w-full h-full text-center bg-white text-sm outline-none border-x border-${theme.borderColor} focus:outline-none focus:ring-0`,
   rangeText: `text-xs sm:text-sm text-${theme.textMuted} mt-1`,
 
   tableDeviationBox:

@@ -1485,17 +1485,19 @@ export default function Room() {
 
                         <div className={s.rangeText}>Range: -20% to +20%</div>
                       </div>
-                    </div>
-                    <div>
-                      <label className={s.label}>Final ACPH</label>
 
-                      <input
-                        type="text"
-                        value={finalAcph || ""}
-                        disabled
-                        className={s.inputDisabled}
-                      />
+                      <div>
+                        <label className={s.label}>Final ACPH</label>
+
+                        <input
+                          type="text"
+                          value={finalAcph || ""}
+                          readOnly
+                          className={s.input}
+                        />
+                      </div>
                     </div>
+
                     <div className={s.bottomActionsRow}>
                       <button
                         type="button"
@@ -1669,8 +1671,8 @@ export default function Room() {
                             <input
                               type="text"
                               value={finalAcph || ""}
-                              disabled
-                              className={s.inputDisabled}
+                              readOnly
+                              className={s.tableInput}
                             />
                           </td>
                           <td className={s.tableTd}>

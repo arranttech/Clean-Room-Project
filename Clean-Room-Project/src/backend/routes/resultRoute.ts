@@ -23,11 +23,13 @@ export const resultRoute: ServerRoute[] = [
         payload: Joi.object({
           project_RoomId: Joi.number().integer().allow(null).optional(),
           project_id: Joi.number().integer().required(),
+          user_id: Joi.string().optional(),
           roomName: Joi.string().allow(null, "").optional(),
           project_Area: numOrNull,
           project_Volume: numOrNull,
           project_RoomCfm: numOrNull,
           project_FreshAir: numOrNull,
+          project_ResultantSupplyAir: numOrNull,
           project_ExhaustAir: numOrNull,
           project_DehumidCfm: numOrNull,
           project_Rem_Water_Vapour: numOrNull,
@@ -66,6 +68,32 @@ export const resultRoute: ServerRoute[] = [
         return h.response({ resultId }).code(201);
       } catch (error) {
         console.error("storeResults DB error:", error);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+  // ── GET /v1/results/zone/{projectId}
+  {
+    method: "GET",
+    path: "/v1/results/{projectId}",
+    options: {
+      description: "Get all room results for a project via project zones",
+      tags: ["api", "results"],
+      validate: {
+        params: Joi.object({
+          projectId: Joi.number().integer().required(),
+        }),
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const { projectId } = request.params as unknown as { projectId: number };
+        const data = await resultRepository.getResultsSummaryByProjectId({
+          projectId: Number(projectId),
+        });
+        return h.response(data).code(200);
+      } catch (error) {
+        console.error("getResultsSummaryByProjectId Error:", error);
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },

@@ -7,6 +7,8 @@ import {
 	useNavigate,
 } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Home from "./pages/LandingPage";
 import CustomerInfoPage from "./pages/customerInfo";
 import ProjectInfoPage from "./pages/projectInfo";
@@ -22,7 +24,9 @@ import ApiDocs from "./pages/ApiDocs";
 import Main from "./pages/admin/adminLayout";
 import { refreshSession } from "./backend/controller/authContoller";
 import { clearSessionTimers, scheduleSessionTimers } from "./utils/auth";
-
+import ErrorScreen from "./pages/ErrorHandler/ErrorScreen";
+import ForgotPassword from "./pages/forgotPassword";
+import ResetPassword from "./pages/resetPassword";
 const SESSION_WARNING_BEFORE_MS = 110 * 1000;
 const SESSION_WARNING_MINUTES = SESSION_WARNING_BEFORE_MS / (60 * 1000);
 
@@ -41,18 +45,7 @@ function ProtectedRoute() {
 	const token = localStorage.getItem("token");
 
 	if (!token) {
-		return <Navigate to="/login" replace />;
-	}
-
-	return <Outlet />;
-}
-
-// redirect logged-in users away from login/register
-function GuestRoute() {
-	const token = localStorage.getItem("token");
-
-	if (token) {
-		return <Navigate to="/dashboard" replace />;
+		return <Navigate to="/" replace />;
 	}
 
 	return <Outlet />;
@@ -123,14 +116,32 @@ function App() {
 	return (
 		<>
 			<ScrollToTop />
-			<Routes>
-				{/* guest-only routes (redirect to dashboard if logged in) */}
-				<Route element={<GuestRoute />}>
-					<Route path="/" element={<Home />} />
-					<Route path="/login" element={<Login />} />
-					<Route path="/register" element={<Register />} />
-				</Route>
+			<ToastContainer
+				position="top-right"
+				autoClose={1800}
+				toastStyle={{ backgroundColor: "#16a34a", color: "#fff" }}
+				style={
+					{
+						"--toastify-icon-color-success": "#fff",
+						"--toastify-icon-color-error": "#fff",
+					} as React.CSSProperties
+				}
+			/>
+			<style>{`
+		  .Toastify__progress-bar { background: #fff !important; height: 4px !important; }
+		  .Toastify__progress-bar--success { background: #fff !important; }
+		  .Toastify__progress-bar--error { background: #fff !important; }
+		`}</style>
 
+			<Routes>
+				{/* public landing page — always accessible */}
+				<Route path="/" element={<Home />} />
+
+				{/* guest routes */}
+				<Route path="/login" element={<Login />} />
+				<Route path="/register" element={<Register />} />
+				<Route path="/forgot-password" element={<ForgotPassword />} />
+				<Route path="/reset-password" element={<ResetPassword />} />
 				{/* public routes */}
 				<Route path="/customer-info" element={<CustomerInfoPage />} />
 				<Route path="/project-info" element={<ProjectInfoPage />} />
@@ -140,15 +151,20 @@ function App() {
 					element={<ProjectListInfoPage />}
 				/>
 
+
+				
+
 				{/* protected routes */}
 				<Route element={<ProtectedRoute />}>
 					<Route path="/dashboard" element={<Dashboard />} />
 					<Route path="/standards" element={<Standard />} />
 					<Route path="/room" element={<Room />} />
-					<Route path="/results" element={<Results />} />
 					<Route path="/projects" element={<AllProjects />} />
 					<Route path="/docs" element={<ApiDocs />} />
+					<Route path="/results/:projectId" element={<Results />} />
+					{/* <Route path="*" element={<Navigate to="/" replace />} /> */}
 				</Route>
+				<Route path="*" element={<ErrorScreen />} />
 			</Routes>
 
 			{showSessionPopup && (

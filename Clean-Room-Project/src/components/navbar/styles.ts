@@ -1,38 +1,47 @@
-const navbarDesign = {
-  // Fixed bar on top + always above page content
-  header:
-  "fixed top-0 left-0 right-0 z-[9999] w-full bg-white shadow-[0_8px_18px_rgba(10,20,22,0.18)]",
+import theme from "../../styles/theme";
 
-  // Spacing
-  container: "mx-auto max-w-[1920px] px-[32px] py-[18px]",
-  row: "flex items-center",
+const S = {
+	// Fixed bar
+	header: `fixed top-0 left-0 right-0 z-[9999] w-full bg-white shadow-[0_8px_18px_rgba(10,20,22,0.18)]`,
 
-  /* LEFT */
-  left: "flex items-center flex-1",
+	container: `mx-auto max-w-[1920px] px-4 md:px-8`,
+	row: `flex items-center justify-between h-[72px]`,
 
-  logoWrap:
-    "h-[64px] w-[64px] rounded-2xl flex items-center justify-center overflow-hidden",
-  logoImg: "h-full w-full object-contain p-[8px] scale-110",
+	/* ── LEFT ── */
+	left: `flex items-center gap-4 flex-shrink-0`,
 
-  brandBlock: "ml-[18px] flex flex-col leading-[1.1]",
-  brandText: "text-[12px] font-semibold tracking-[0.28em] text-[#334155]",
+	logoWrap: `h-[44px] w-[44px] md:h-[56px] md:w-[56px] ${theme.roundMd} flex items-center justify-center overflow-hidden flex-shrink-0`,
+	logoImg: `h-full w-full object-contain p-[6px]`,
 
-  title: "ml-[36px] text-[20px] font-bold text-[#0F172A]",
+	brandBlock: `hidden sm:flex flex-col leading-[1.1] flex-shrink-0`,
+	brandText: `text-blue-800 text-[10px] md:text-[12px] ${theme.weightSemibold} tracking-[0.28em] text-[#334155] whitespace-nowrap`,
 
-  /* CENTER */
-  center: "flex-1 flex justify-center gap-[64px]",
-  navLink:
-    "text-[18px] font-bold text-[#0F172A] hover:text-[#475569] transition-colors no-underline",
+	// Vertical divider between brand block and title
+	leftDivider: `hidden sm:block w-px h-8 bg-slate-900 flex-shrink-0`,
 
-  /* RIGHT */
-  right: "flex-1 flex justify-end items-center gap-3",
+	title: `text-[16px] md:text-[20px] ${theme.weightBold} text-[#0F172A] whitespace-nowrap flex-shrink-0`,
 
-  signIn:
-  "text-[20px] font-bold text-[#0F172A] hover:text-[#475569] px-2 py-2 transition-colors no-underline",
+	/* ── CENTER — hidden on mobile ── */
+	center: `hidden md:flex flex-1 justify-center gap-8 lg:gap-[64px]`,
+	navLink: `text-[15px] lg:text-[18px] ${theme.weightBold} text-[#0F172A] hover:text-[#475569] ${theme.transitionColors} no-underline whitespace-nowrap`,
 
-  admin:
-  "text-[16px] font-semibold text-white bg-blue-600 hover:bg-blue-500 px-3 py-2 rounded-md transition-colors no-underline",
-  
-}
+	/* ── RIGHT ── */
+	right: `flex items-center gap-2 md:gap-3 flex-shrink-0`,
 
-export default navbarDesign
+	admin: `text-[14px] md:text-[16px] ${theme.weightSemibold} text-white bg-[${theme.accent}] hover:bg-[${theme.accentHover}] px-3 py-[6px] rounded-md ${theme.transitionColors} no-underline whitespace-nowrap`,
+
+	divider: `text-${theme.textPrimary} select-none hidden md:block`,
+
+	signIn: `hidden md:block text-[16px] md:text-[20px] ${theme.weightBold} text-[#0F172A] hover:text-[#475569] px-2 py-2 ${theme.transitionColors} no-underline whitespace-nowrap`,
+
+	/* ── HAMBURGER mobile only ── */
+	hamburger: `md:hidden flex flex-col justify-center items-center w-9 h-9 gap-[5px] cursor-pointer flex-shrink-0`,
+	hamburgerBar: `w-6 h-[2px] bg-[#0F172A] ${theme.roundFull} transition-all duration-200`,
+
+	/* ── MOBILE MENU DRAWER ── */
+	mobileMenu: `md:hidden absolute top-[72px] left-0 right-0 bg-white shadow-[0_8px_18px_rgba(10,20,22,0.12)] px-6 py-4 flex flex-col gap-4 z-[9998]`,
+	mobileLink: `text-[16px] ${theme.weightBold} text-[#0F172A] hover:text-[#475569] ${theme.transitionColors} py-2 border-b border-slate-100 last:border-0`,
+	mobileSignIn: `text-[16px] ${theme.weightBold} text-[#0F172A] hover:text-[#475569] ${theme.transitionColors} py-2`,
+};
+
+export default S;

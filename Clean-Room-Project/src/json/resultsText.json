@@ -1,6 +1,17 @@
 {
-  "title": "Form Results",
-  "subtitle": "These values are calculated results.",
+  
+  "title": "Project Submitted Successfully!",
+  "subtitle": "Your HVAC cleanroom project has been processed and saved.",
+  "description": "You can now download the detailed calculation report or view the project details.",
+  "FooterText":{
+    "Line1":"Complete BOQ calculations and equipment specifications",
+    "Line2":"Room-by-room analysis with CFM, airflow, and humidity requirements",
+    "Line3":"Filter specifications and delta P calculations",
+    "Line4" :"AHU capacity recommendations and technical specifications"
+  
+  },
+
+
   "fields": {
     "area": {
       "label": "Area (ft²)"
@@ -14,8 +25,11 @@
     "freshAir": {
       "label": "Fresh Air CFM"
     },
+    "ResultantSupplyAir": {
+      "label": "Resultant Supply Air CFM"
+    },
     "exhaustAir": {
-      "label": "Exhaust Air"
+      "label": "Exhaust Air CFM"
     },
     "Dehumidification": {
       "label": "Dehumidification.CFM"
@@ -187,11 +201,15 @@
     },
     "SystemCond":{
       "cooling":[
-        "AIR-COOLING SYSTEM",
+        "AIR-COOLING SYSTEM"
+      ],
+      "coolandvent":[
         "AIR COOLING AND VENTILATION SYSTEM"
       ],
       "heating":[
-        "AIR-HEATING SYSTEM",
+        "AIR-HEATING SYSTEM"
+      ],
+      "heatandvent":[
         "AIR HEATING AND VENTILATION SYSTEM"
       ],
       "heatandcold":[

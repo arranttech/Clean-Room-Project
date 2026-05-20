@@ -1,192 +1,204 @@
+import theme from "../../styles/theme";
+
 const standardDesign = {
-	page: "min-h-screen bg-white px-4 py-6",
+	page: `${theme.pageWrapperWhite} px-3 sm:px-4 py-4 sm:py-6`,
 
-	top: "mx-auto max-w-5xl text-center mb-4",
-	title: "text-2xl font-bold text-gray-950 tracking-tight",
-	subtitle: "mt-2 text-base text-blue-600",
+	top: `mx-auto ${theme.contentMaxWidth5xl} text-center mb-4`,
+	title: theme.h1,
+	subtitle: `mt-2 text-sm sm:text-base text-${theme.primaryText}`,
 
-	cardWrap: "mx-auto mt-10 max-w-auto",
-	card: "bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden",
+	cardWrap: `mx-auto mt-6 sm:mt-10 w-full`,
+	card: `${theme.card} overflow-hidden`,
 
-	cardHeader: "px-8 pt-8 pb-4",
-	cardHeaderTitle: "text-sm font-bold tracking-widest text-blue-800 uppercase",
-	divider: "border-t border-slate-200",
+	cardHeader: `px-4 sm:px-8 pt-6 sm:pt-8 pb-4`,
+	cardHeaderTitle: `text-xs sm:text-sm ${theme.weightBold} ${theme.trackingWidest} text-${theme.primaryText} uppercase`,
+	divider: theme.divider,
 
-	body: "px-8 py-8",
+	body: `px-4 sm:px-8 py-6 sm:py-8`,
 
-	sectionTitle: "text-sm font-bold tracking-widest text-blue-800 uppercase",
-	subSectionTitle: "text-xs font-bold tracking-wider text-blue-800 uppercase",
-	sectionSpacer: "mt-10",
-	sectionLine: "mt-6 border-t border-slate-200",
+	sectionTitle: `text-xs sm:text-sm ${theme.weightBold} ${theme.trackingWidest} text-${theme.primaryText} uppercase`,
+	subSectionTitle: `text-xs ${theme.weightBold} ${theme.trackingWide} text-${theme.primaryText} uppercase`,
+	sectionSpacer: `mt-6 sm:mt-10`,
+	sectionLine: `mt-6 border-t border-${theme.borderColor}`,
 
-	grid3: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
-	grid2: "grid grid-cols-1 md:grid-cols-2 gap-6",
-	grid4: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6",
+	grid3: `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6`,
+	grid2: `grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6`,
+	grid4: `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6`,
 
-	field: "flex flex-col gap-2",
-	label: "text-sm font-semibold text-slate-700",
-	required: "text-red-500",
+	field: theme.formGroup,
+	label: theme.labelBold,
+	required: `text-${theme.error}`,
 
-	select:
-		"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm " +
-		"focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none",
+	select: theme.select,
+	selectDisabled: theme.selectDisabled,
 
-	selectDisabled:
-		"w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-500",
+	input: theme.input,
+	inputDisabled: theme.inputDisabled,
+	helperText: `text-xs text-${theme.textMuted}`,
 
-	input:
-		"w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm " +
-		"focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none",
+	range: `mt-1 text-xs text-${theme.textSecondary}`,
+	rangeValue: `font-semibold text-${theme.primaryText}`,
+	quickView: `mt-6 sm:mt-8 text-xs sm:text-sm text-${theme.textSecondary} px-2`,
+	footer: `flex items-center justify-between w-full mt-6 sm:mt-8`,
+	backLink: theme.btnSecondary,
+	nextLink: theme.btnPrimary,
 
-	inputDisabled:
-		"w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-600",
-	helperText: "text-xs text-slate-500",
-
-	range: "mt-1 text-xs text-slate-600",
-	rangeValue: "font-semibold text-blue-600",
-	quickView: "mt-8 text-sm text-slate-700",
-	footer: "flex items-center justify-between w-full max-w-auto mt-8 align-middle",
-	backLink:
-		"inline-flex items-center gap-3 border border-gray-300 px-5 py-2.5 rounded-xl hover:bg-gray-50 shadow-sm text-gray-600 text-sm font-medium transition-all",
-	nextLink:
-		"inline-flex items-center gap-3 bg-blue-700 text-white px-7 py-2.5 rounded-xl hover:bg-blue-800 shadow-md text-sm font-semibold transition-all",
-
-	unitRow: "flex flex-wrap items-center gap-4",
-	unitLabel: "text-sm font-semibold text-slate-700",
-	unitGroup: "flex items-center gap-3",
+	unitRow: `flex flex-wrap items-center gap-3 sm:gap-4`,
+	unitLabel: theme.labelBold,
+	unitGroup: `flex items-center gap-2 sm:gap-3`,
 	unitOption:
-		"inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 " +
-		"text-sm text-slate-700 hover:bg-slate-200 transition",
-	unitRadio: "h-4 w-4 accent-blue-600",
-	unitHint: "text-xs text-slate-500",
-	tempHelper: "mt-3 text-xs text-slate-500",
-	disabled: "opacity-40 cursor-not-allowed",
+		`inline-flex items-center gap-2 ${theme.roundMd} border border-${theme.borderColor} bg-slate-100 px-2.5 sm:px-3 py-1.5 sm:py-2 ` +
+		`text-xs sm:text-sm text-${theme.textSecondary} hover:bg-slate-200 ${theme.transition}`,
+	unitRadio: `h-4 w-4 accent-${theme.primary}`,
+	unitHint: `text-xs text-${theme.textMuted}`,
+	tempHelper: `mt-2 sm:mt-3 text-xs text-${theme.textMuted}`,
+	disabled: theme.btnDisabled,
 
-	flowBlock: "mt-8",
-	flowLabelRow: "flex items-center justify-between",
-	flowTitle: "text-sm font-semibold text-slate-700",
-	flowUnit: "text-xs font-semibold text-slate-500",
-
-	flowRow:
-		"mt-3 flex flex-wrap items-center gap-4 border-b border-slate-200 pb-4",
-	flowMin: "text-xs text-slate-500 w-12",
-	flowMax: "text-xs text-slate-500 w-12 text-right",
-	flowSlider: "flex-1 min-w-[240px] accent-blue-600",
-	flowValueBoxWrap: "flex items-center",
+	flowBlock: `mt-6 sm:mt-8`,
+	flowLabelRow: `flex items-center justify-between`,
+	flowTitle: theme.labelBold,
+	flowUnit: `text-xs ${theme.weightSemibold} text-${theme.textMuted}`,
+	flowRow: `mt-3 flex flex-wrap items-center gap-3 sm:gap-4 border-b border-${theme.borderColor} pb-4`,
+	flowMin: `text-xs text-${theme.textMuted} w-10 sm:w-12`,
+	flowMax: `text-xs text-${theme.textMuted} w-10 sm:w-12 text-right`,
+	flowSlider: `flex-1 min-w-[160px] sm:min-w-[240px] accent-${theme.primary}`,
+	flowValueBoxWrap: `flex items-center`,
 	flowValueBox:
-		"w-20 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm " +
-		"focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none",
-	flowUnitSmall: "text-xs text-slate-600",
-	flowHint: "mt-2 text-xs text-slate-500",
+		`w-16 sm:w-20 ${theme.roundMd} border border-${theme.borderColor} bg-white px-2 sm:px-3 py-1.5 sm:py-2 text-sm ` +
+		`focus:border-${theme.primary} focus:ring-2 focus:ring-${theme.primaryLight} focus:outline-none`,
+	flowUnitSmall: `text-xs text-${theme.textSecondary}`,
+	flowHint: `mt-2 text-xs text-${theme.textMuted}`,
 
-	/* ---------- Dual Flow Velocity (Heating + Cooling) ---------- */
-	dualFlowBlock: "mt-8",
-	dualFlowGrid: "grid grid-cols-1 md:grid-cols-2 gap-6",
-
-	dualFlowCard: "rounded-xl border border-slate-200 bg-slate-50 p-4",
-
-	dualFlowTitle: "text-sm font-semibold text-slate-700 mb-3",
-
-	dualFlowRow: "flex items-center gap-3",
-
-	dualFlowMin: "text-xs text-slate-500 w-10",
-
-	dualFlowMax: "text-xs text-slate-500 w-10 text-right",
-
-	dualFlowSlider: "flex-1 accent-blue-600 min-w-[140px]",
-
+	dualFlowBlock: `mt-6 sm:mt-8`,
+	dualFlowGrid: `grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6`,
+	dualFlowCard: `${theme.roundMd} border border-${theme.borderColor} bg-slate-50 p-3 sm:p-4`,
+	dualFlowTitle: `text-xs sm:text-sm ${theme.weightSemibold} text-${theme.textSecondary} mb-3`,
+	dualFlowRow: `flex items-center gap-2 sm:gap-3`,
+	dualFlowMin: `text-xs text-${theme.textMuted} w-8 sm:w-10`,
+	dualFlowMax: `text-xs text-${theme.textMuted} w-8 sm:w-10 text-right`,
+	dualFlowSlider: `flex-1 accent-${theme.primary} min-w-[100px] sm:min-w-[140px]`,
 	dualFlowValueBox:
-		"w-16 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm " +
-		"focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none",
+		`w-14 sm:w-16 ${theme.roundSm} border border-${theme.borderColor} bg-white px-2 py-1 text-sm ` +
+		`focus:border-${theme.primary} focus:ring-2 focus:ring-${theme.primaryLight} focus:outline-none`,
+	dualFlowUnit: `text-xs text-${theme.textSecondary}`,
 
-	dualFlowUnit: "text-xs text-slate-600",
-	cardStack: "flex flex-col gap-8",
-	specialBox: "bg-slate-50 border border-slate-200 rounded-xl p-6 mb-10",
-	specialBoxRow: "flex items-center justify-between",
-	specialBoxTitle: "text-slate-700 font-bold mb-1",
-	specialBoxValue: "text-slate-400 text-xs",
-	specialBoxInputGroup: "flex items-center gap-3",
+	cardStack: `flex flex-col gap-6 sm:gap-8`,
+	specialBox: `bg-slate-50 border border-${theme.borderColor} ${theme.roundMd} p-4 sm:p-6 mb-6 sm:mb-10`,
+	specialBoxRow: `flex items-center justify-between flex-wrap gap-3`,
+	specialBoxTitle: `text-${theme.textSecondary} ${theme.weightBold} mb-1 text-sm sm:text-base`,
+	specialBoxValue: `text-${theme.textDisabled} text-xs`,
+	specialBoxInputGroup: `flex items-center gap-2 sm:gap-3`,
 	specialBoxInput:
-		"w-24 text-center py-2 border border-slate-300 rounded-lg text-slate-700 font-semibold " +
-		"focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none",
-	specialBoxUnit: "text-slate-500 text-sm",
-	subSectionHeader: "mt-12 text-xs font-bold tracking-wider text-blue-800 uppercase",
-	grid2Space: "grid grid-cols-1 md:grid-cols-2 gap-6 mt-6",
+		`w-20 sm:w-24 text-center py-1.5 sm:py-2 border border-${theme.borderColor} ${theme.roundSm} text-${theme.textSecondary} ${theme.weightSemibold} text-sm ` +
+		`focus:border-${theme.primary} focus:ring-1 focus:ring-${theme.primary} outline-none`,
+	specialBoxUnit: `text-${theme.textMuted} text-xs sm:text-sm`,
+	subSectionHeader: `mt-8 sm:mt-12 text-xs ${theme.weightBold} ${theme.trackingWide} text-${theme.primaryText} uppercase`,
+	grid2Space: `grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-4 sm:mt-6`,
 
-	/* ---------- Filter Detail Card ---------- */
-	filterCard: "rounded-xl border border-slate-200 bg-white p-4 shadow-sm",
-	filterStatRow: "flex items-center gap-1.5 text-xs text-slate-600 mb-1",
-	filterStatLabel: "font-bold text-slate-700",
-	filterStatValue: "text-slate-600",
-	filterDpGrid: "grid grid-cols-2 gap-4 mt-4",
-	filterDpLabel: "text-xs font-bold text-slate-700 mb-1",
-	filterDpRange: "text-[10px] text-slate-500 mt-1",
+	filterCard: `${theme.roundMd} border border-${theme.borderColor} bg-white p-3 sm:p-4 ${theme.shadowSm}`,
+	filterStatRow: `flex items-center gap-1.5 text-xs text-${theme.textSecondary} mb-1`,
+	filterStatLabel: `${theme.weightBold} text-${theme.textPrimary}`,
+	filterStatValue: `text-${theme.textSecondary}`,
+	filterDpGrid: `grid grid-cols-2 gap-3 sm:gap-4 mt-3 sm:mt-4`,
+	filterDpLabel: `text-xs ${theme.weightBold} text-${theme.textPrimary} mb-1`,
+	filterDpRange: `text-[10px] text-${theme.textMuted} mt-1`,
 
-	/* ---------- AHU Filtration Specific Styles ---------- */
-	filterHeader: "flex justify-between items-start mb-4",
-	filterTitle: "text-sm font-bold text-slate-800",
-	filterStats: "space-y-1 mb-4",
-	colEnd: "flex flex-col items-end",
-	errorText: "text-red-500 text-xs mt-2 text-right w-full block",
-	transitionOpacity: "transition-opacity duration-300",
-	flex1: "flex-1",
-	requiredText: "text-red-600",
+	filterHeader: `flex justify-between items-start mb-3 sm:mb-4`,
+	filterTitle: `text-xs sm:text-sm ${theme.weightBold} text-${theme.textPrimary}`,
+	filterStats: `space-y-1 mb-3 sm:mb-4`,
+	colEnd: `flex flex-col items-end`,
+	errorText: `text-${theme.error} text-xs mt-2 text-right w-full block`,
+	transitionOpacity: `transition-opacity duration-300`,
+	flex1: `flex-1`,
+	requiredText: `text-${theme.error}`,
 
-	/* ---------- Filter Type Dropdown ---------- */
-	dropdownWrapper: "relative w-72",
-	selectedTags: "flex flex-wrap gap-1.5 flex-1 mr-2",
-	tag: "bg-blue-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 shadow-sm",
-	tagRemove: "cursor-pointer hover:text-blue-200 transition-colors",
-	placeholder: "text-slate-400 text-sm",
+	dropdownWrapper: `relative w-full sm:w-72`,
+	selectedTags: `flex flex-wrap gap-1.5 flex-1 mr-2`,
+	tag: `bg-${theme.primary} text-white text-[10px] ${theme.weightBold} px-2 sm:px-2.5 py-1 ${theme.roundSm} flex items-center gap-1.5 ${theme.shadowSm}`,
+	tagRemove: `cursor-pointer hover:text-blue-200 ${theme.transitionColors}`,
+	placeholder: `text-${theme.textDisabled} text-sm`,
 	dropdownMenu:
-		"absolute z-50 mt-2 w-full bg-white border border-slate-200 rounded-2xl shadow-2xl " +
-		"overflow-hidden animate-in fade-in zoom-in duration-200",
-	dropdownContent: "p-2 flex flex-col gap-1",
-	optionLabel: "text-sm font-bold tracking-wide",
-	checkIcon: "text-blue-600 text-lg",
+		`absolute z-50 mt-2 w-full bg-white border border-${theme.borderColor} ${theme.roundLg} ${theme.shadow2xl} ` +
+		`overflow-hidden animate-in fade-in zoom-in duration-200`,
+	dropdownContent: `p-2 flex flex-col gap-1`,
+	optionLabel: `text-xs sm:text-sm ${theme.weightBold} ${theme.trackingWide}`,
+	checkIcon: `text-${theme.primary} text-base sm:text-lg`,
 
-	/* ---------- Impact / Exhaust Styles ---------- */
-	typeGroup: "flex flex-col gap-6",
-	typeTitle: "text-blue-800 font-bold text-sm uppercase tracking-widest border-b border-blue-100 pb-2",
-	impactBox: "bg-blue-50/50 border border-blue-100 rounded-xl p-4 flex flex-col gap-4 shadow-sm",
-	impactTitle: "text-blue-800 font-bold text-[10px] uppercase tracking-wider opacity-80",
-	impactContent: "flex flex-col gap-4",
-	inputGroup: "flex flex-col gap-1.5",
-	inputLabel: "text-xs font-semibold text-blue-950",
+	impactBox: `bg-slate-100/50 border border-${theme.borderColor} ${theme.roundMd} p-4 sm:p-5 mb-6 sm:mb-8`,
+	impactTitle: `text-${theme.primaryText} ${theme.weightBold} text-[10px] uppercase ${theme.trackingWidest} opacity-80`,
+	impactContent: `flex flex-col gap-3 sm:gap-4`,
+	inputGroup: `flex flex-col gap-1.5`,
+	inputLabel: `text-xs ${theme.weightSemibold} text-blue-950`,
 
-	/* ---------- Final Section & Calculations ---------- */
-	finalSection: "mt-12 pt-8 border-t border-slate-200",
-	finalGrid: "grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10",
-	autoCalcNote: "text-slate-400 font-normal ml-1",
+	typeGroup: `flex flex-col gap-2.5 sm:gap-3.5`,
+	typeTitle: `text-xs sm:text-sm ${theme.weightBold} ${theme.trackingWidest} text-${theme.primaryText} uppercase mb-4 sm:mb-6`,
 
-	/* ---------- Modal Styles ---------- */
-	modalOverlay: "fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity",
-	modalContent: "bg-white rounded-lg shadow-xl p-6 w-11/12 max-w-sm transform transition-all",
-	modalTitle: "text-slate-800 font-bold text-lg mb-2",
-	modalBody: "text-slate-600 mb-6 text-sm",
-	flexEnd: "flex justify-end",
-	modalButton: "bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded transition-colors text-sm",
-	specialBoxSubtitle: "text-[10px] text-blue-600 font-medium tracking-tight",
-	relativeFlex: "relative flex items-center",
-	relativeBox: "relative",
-	filterGridMain: "grid grid-cols-1 gap-12 mt-8 transition-all duration-300",
-	filterGridLg2: "lg:grid-cols-2",
-	subGridGap: "gap-6",
-	subGridMd2: "md:grid-cols-2 gap-x-10 gap-y-6",
-	filterLabelBase: "flex items-center gap-3",
-	filterLabelDisabled: "cursor-not-allowed opacity-70",
-	filterLabelEnabled: "cursor-pointer group",
-	checkboxBase: "h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500",
-	checkboxDisabled: "cursor-not-allowed bg-gray-100",
-	checkboxEnabled: "cursor-pointer",
-	filterTextBase: "text-sm font-medium",
-	filterTextDisabled: "text-slate-500",
-	filterTextEnabled: "text-slate-700 group-hover:text-blue-600 transition-colors",
-	chevronBase: "text-slate-400 transition-transform duration-300",
-	chevronOpen: "rotate-180 text-blue-500",
-	optionBase: "flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition-all",
-	optionSelected: "bg-blue-50 text-blue-700 ring-1 ring-blue-700/10",
-	optionUnselected: "hover:bg-slate-50 text-slate-700",
+	finalSection: `mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-${theme.borderColor}`,
+	finalGrid: `grid grid-cols-1 sm:grid-cols-2 gap-x-8 sm:gap-x-12 gap-y-6 sm:gap-y-10`,
+	autoCalcNote: `text-${theme.textDisabled} font-normal ml-1`,
+
+	modalOverlay: theme.modalOverlay,
+	modalContent: `bg-white ${theme.roundSm} ${theme.shadow2xl} p-5 sm:p-6 w-full max-w-sm transform transition-all`,
+	modalTitle: `text-${theme.textPrimary} ${theme.weightBold} text-base sm:text-lg mb-2`,
+	modalBody: `text-${theme.textSecondary} mb-5 sm:mb-6 text-xs sm:text-sm`,
+	flexEnd: `flex justify-end`,
+	modalButton: `bg-${theme.primary} hover:bg-${theme.primaryHover} text-white ${theme.weightMedium} py-2 px-5 sm:px-6 ${theme.roundSm} ${theme.transitionColors} text-xs sm:text-sm`,
+	specialBoxSubtitle: `text-[10px] text-${theme.primaryTextLight} ${theme.weightMedium} tracking-tight`,
+	relativeFlex: `relative flex items-center`,
+	relativeBox: `relative`,
+	filterGridMain: `grid grid-cols-1 gap-8 sm:gap-12 mt-6 sm:mt-8 ${theme.transition} duration-300`,
+	filterGridLg2: `lg:grid-cols-2`,
+	subGridGap: `gap-4 sm:gap-6`,
+	subGridMd2: `sm:grid-cols-2 gap-x-6 sm:gap-x-10 gap-y-4 sm:gap-y-6`,
+	filterLabelBase: `flex items-center gap-2 sm:gap-3`,
+	filterLabelDisabled: `cursor-not-allowed opacity-70`,
+	filterLabelEnabled: `cursor-pointer group`,
+	checkboxBase: `h-4 w-4 sm:h-5 sm:w-5 ${theme.roundSm} border-${theme.borderColor} text-${theme.primary} focus:ring-${theme.primary}`,
+	checkboxDisabled: `cursor-not-allowed bg-gray-100`,
+	checkboxEnabled: `cursor-pointer`,
+	checkboxGroupContainer: `flex flex-col gap-3 min-h-[48px] justify-center mt-3 mb-2`,
+	checkboxGroupLabel: `flex items-start gap-3 cursor-pointer text-sm font-medium text-slate-700`,
+	checkboxGroupInput: `w-4 h-4 mt-0.5 text-${theme.primary} rounded border-${theme.borderColor} focus:ring-${theme.primary} flex-shrink-0 cursor-pointer`,
+	checkboxGroupText: `flex-1 leading-snug`,
+	filterTextBase: `text-xs sm:text-sm ${theme.weightMedium}`,
+	filterTextDisabled: `text-${theme.textDisabled}`,
+	filterTextEnabled: `text-${theme.textSecondary} group-hover:text-${theme.primary} ${theme.transitionColors}`,
+	chevronBase: `text-${theme.textDisabled} ${theme.transition} duration-300`,
+	chevronOpen: `rotate-180 text-${theme.primaryTextLight}`,
+	optionBase: `flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 ${theme.roundMd} cursor-pointer ${theme.transition}`,
+	optionSelected: `bg-blue-50 text-${theme.primaryText} ring-1 ring-blue-700/10`,
+	optionUnselected: `hover:bg-slate-50 text-${theme.textSecondary}`,
+
+	toggleWrapper: `flex items-center gap-3 cursor-pointer select-none`,
+	toggleTrack: `relative w-10 h-5 ${theme.roundFull} ${theme.transition} duration-200 ease-in-out`,
+	toggleTrackOff: `bg-slate-200`,
+	toggleTrackOn: `bg-${theme.primary}`,
+	toggleThumb: `absolute top-1 left-1 w-3 h-3 bg-white ${theme.roundFull} ${theme.transition} duration-200 ease-in-out ${theme.shadowSm}`,
+	toggleThumbOn: `translate-x-5`,
+	toggleThumbOff: `translate-x-0`,
+	toggleLabel: `text-xs ${theme.weightBold} text-${theme.primaryText} uppercase ${theme.trackingWidest}`,
+
+	// Table Layout for Filters
+	tableWrapper:
+		`w-full border border-${theme.borderColor} ${theme.roundLg} overflow-x-auto overflow-y-scroll max-h-[400px] mb-6 sm:mb-8 ` +
+		`[&::-webkit-scrollbar]:w-[10px] [&::-webkit-scrollbar]:h-[10px] [&::-webkit-scrollbar]:block ` +
+		`[&::-webkit-scrollbar-track]:bg-slate-50 [&::-webkit-scrollbar-track]:rounded-xl [&::-webkit-scrollbar-track]:border [&::-webkit-scrollbar-track]:border-slate-200 ` +
+		`[&::-webkit-scrollbar-thumb]:bg-slate-500 [&::-webkit-scrollbar-thumb]:rounded-xl [&::-webkit-scrollbar-thumb]:border-2 [&::-webkit-scrollbar-thumb]:border-slate-50 ` +
+		`[&::-webkit-scrollbar-thumb:hover]:bg-slate-700 [scrollbar-width:thin] [scrollbar-color:#64748b_#f8fafc]`,
+	table: `w-full text-left border-collapse text-xs sm:text-sm`,
+	th: `sticky top-0 z-20 px-4 py-3 sm:py-4 ${theme.weightBold} text-${theme.textPrimary} border-b border-${theme.borderColor} bg-slate-100`,
+	thSupply: ``, // Background moved to th
+	thExhaust: ``, // Background moved to th
+	td: `px-4 py-3 sm:py-4 text-${theme.textSecondary} border-b border-${theme.borderColor} align-middle`,
+	rowSelected: `bg-white hover:bg-slate-50 ${theme.transitionColors}`, // Neutral background
+	rowUnselected: `bg-white hover:bg-slate-50 ${theme.transitionColors}`,
+	pillPreselected: `hidden`, // Hidden
+	titleBarSupply: `border-l-[6px] border-slate-400 pl-3`,
+	titleBarExhaust: `border-l-[6px] border-slate-400 pl-3`,
+	// Increase the width of the select input pressure differential to fit the values
+	tableSelectInput: `w-36 sm:w-44 ${theme.roundSm} border border-${theme.borderColor} bg-white px-2 py-1 text-xs focus:border-${theme.primary} focus:ring-1 focus:ring-${theme.primaryLight} focus:outline-none`,
+	emptyDash: `text-slate-300`,
+	tableCheckboxWrapper: `flex items-center justify-center`,
 };
 
 export default standardDesign;

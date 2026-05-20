@@ -62,68 +62,59 @@ export default function AllProjects() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
-	const userId = useAppSelector((state: any) => state.user?.user_login_id);
+  const userId = useAppSelector((state: any) => state.user?.user_login_id);
+  const loggedInUser = useAppSelector((state: any) => state.user);
 
-	// useEffect(() => {
-	//   if (!userId) return;
-	//   (async () => {
-	//     setLoading(true);
-	//     setError(null);
-	//     try {
-	//       const res = await getCompletedProjects(userId);
-	//       setProjects(res?.projects ?? []);
-	//     } catch (err) {
-	//       console.error("Failed to load completed projects:", err);
-	//       setError("Failed to load projects. Please try again.");
-	//     } finally {
-	//       setLoading(false);
-	//     }
-	//   })();
-	// }, [userId]);
+  useEffect(() => {
+    if (!loggedInUser?.user_login_id) return;
 
-	useEffect(() => {
-		if (!userId) return;
+    (async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await getCompletedProjects(loggedInUser.user_login_id, loggedInUser.customer_id);
+        const projectsRaw = res.projects || [];
 
-		(async () => {
-			setLoading(true);
-			setError(null);
-			try {
-				// FETCH RAW ROWS FROM BACKEND
-				const res = await getCompletedProjects(userId);
-				const projectsRaw = res.projects || [];
+        // Group by project_id to remove duplicates
+        const projectMap: Record<number, Project> = {};
+        projectsRaw.forEach((row: any) => {
+          if (!projectMap[row.project_id]) {
+            projectMap[row.project_id] = {
+              project_id: row.project_id,
+              project_unique_id: row.project_unique_id,
+              project_name: row.project_name,
+              project_unit_branch: row.project_unit_branch,
+              project_Industry: row.project_Industry,
+              project_Handling: row.project_Handling,
+              project_Location: row.project_Location,
+              project_status: row.project_status,
+              created_at: row.created_at,
+              customer_name: row.customer_name,
+              customer_address: row.customer_address,
+              customer_phone: row.customer_phone,
+              customer_email_id: row.customer_email_id,
+            };
+          }
+        });
 
-				// GROUP BY PROJECT_ID TO REMOVE DUPLICATES
-				const projectMap: Record<number, Project> = {};
-				projectsRaw.forEach((row: any) => {
-					if (!projectMap[row.project_id]) {
-						projectMap[row.project_id] = {
-							project_id: row.project_id,
-							project_unique_id: row.project_unique_id,
-							project_name: row.project_name,
-							project_unit_branch: row.project_unit_branch,
-							project_Industry: row.project_Industry,
-							project_Handling: row.project_Handling,
-							project_Location: row.project_Location,
-							project_status: row.project_status,
-							created_at: row.created_at,
-							customer_name: row.customer_name,
-							customer_address: row.customer_address,
-							customer_phone: row.customer_phone,
-							customer_email_id: row.customer_email_id,
-						};
-					}
-				});
+        const uniqueProjects = Object.values(projectMap);
 
-				const uniqueProjects = Object.values(projectMap);
-				setProjects(uniqueProjects);
-			} catch (err) {
-				console.error("Failed to load completed projects:", err);
-				setError("Failed to load projects. Please try again.");
-			} finally {
-				setLoading(false);
-			}
-		})();
-	}, [userId]);
+        // ── Sort by created_at descending (latest first) ──
+        uniqueProjects.sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+
+        setProjects(uniqueProjects);
+      } catch (err) {
+        
+        setError("Failed to load projects. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [loggedInUser?.user_login_id, loggedInUser?.customer_id]);
+ 
 
 	return (
 		<div className={s.page}>
@@ -203,40 +194,26 @@ export default function AllProjects() {
 											</span>
 										</div>
 
-										<div className={s.btnGroup}>
-											<button
-												type="button"
-												className={s.secondaryBtn}
-												onClick={() =>
-													downloadProjectXLSX(
-														p.project_id,
-														p.project_unique_id,
-														getProjectExportData
-													)
-												}
-											>
-												<FaDownload /> Download
-											</button>
-											{/* <button
+                    <div className={s.btnGroup}>
+                      <button
                         type="button"
-                        className={s.primaryBtn}
-                        onClick={() => alert(`View: ${p.project_unique_id}`)}
+                        className={s.secondaryBtn}
+                        onClick={() =>
+                          downloadProjectXLSX(
+                            p.project_id,
+                            p.project_unique_id,
+                            getProjectExportData
+                          )
+                        }
                       >
                         <FaDownload /> Download
                       </button>
                       <Link to={`/projectListInfo/${p.project_id}`}
-                       className={s.primaryBtn}>
+                        className={s.primaryBtn}>
                         <FaEye /> View Details
-                      </button> */}
-
-											<Link
-												to={`/projectListInfo/${p.project_id}`}
-												className={s.primaryBtn}
-											>
-												<FaEye /> View Details
-											</Link>
-										</div>
-									</div>
+                      </Link>
+                    </div>
+                  </div>
 
 									{/* Divider */}
 									<div className={s.divider} />
@@ -289,15 +266,15 @@ export default function AllProjects() {
 					)}
 				</div>
 
-				{/* Back button — centered */}
-				<div className="flex justify-center mt-10">
-					<Link to="/dashboard">
-						<button type="button" className={s.backBtn1}>
-							<FaArrowLeft /> {text.projects.backToDashboard}
-						</button>
-					</Link>
-				</div>
-			</div>
-		</div>
-	);
+        {/* Back button */}
+        <div className="flex justify-center mt-10">
+          <Link to="/dashboard">
+            <button type="button" className={s.backBtn1}>
+              <FaArrowLeft /> {text.projects.backToDashboard}
+            </button>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 }

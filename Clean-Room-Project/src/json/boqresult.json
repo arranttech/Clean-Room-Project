@@ -78,55 +78,7 @@
          "WaterLS":{
             "waterval": 0.06309
         },
-        "NumberofStagesFilter": {
-            "label": "To calculate the number of stages Filter",
-            "stage3Or4": [
-                "ISO 7",
-                "ISO 6",
-                "CLASS10K",
-                "CLASS1K",
-                "GRADE C (ISO 7 AT REST & ISO 8 IN OPER.)",
-                "GRADE B (ISO 5 AT REST & ISO 7 IN OPER.)",
-                "GRADE CLASS B",
-                "GRADE CLASS C"
-            ],
-            "stage4Or5": [
-                "ISO 8",
-                "ISO 5",
-                "ISO 4",
-                "ISO 3",
-                "ISO 2",
-                "ISO 1",
-                "CLASS100K",
-                "CLASS 100",
-                "GRADE A (ISO 5 AT REST & ISO 5 IN OPER.)",
-                "GRADE D (ISO 8 AT REST & NOT DEFINED)",
-                "GRADE CLASS A",
-                "GRADE CLASS D"
-            ]
-        },
-        "StaticPressure": {
-            "label": "Stati Pressure calculation",
-            "SPTempNum": {
-                "label": "Static Pressure calculation when temperature is number",
-                "1": 1,
-                "2": 2,
-                "3": 3,
-                "4": 4,
-                "5": 5
-            },
-            "SPVal": {
-                "label": "Static Pressure Value",
-                "1": 65,
-                "2": 75,
-                "3": 90,
-                "4": 100,
-                "5": 110,
-                "6": 125,
-                "7": 135,
-                "8": 150
-            }
-        },
+        
         "BDB": {
             "label": "Blower Model BDB Calculations",
             "BDBCfm": {
@@ -202,6 +154,10 @@
                 1.5,
                 2.0
             ]
+        },
+
+        "PipeSize":{
+            "pipesize": [4,0.00006309,3.14,1000 ]
         }
        
     }

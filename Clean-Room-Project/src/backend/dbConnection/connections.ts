@@ -1,8 +1,6 @@
 // src/backend/db.ts
 import mysql from "mysql2/promise";
-import dotenv from "dotenv";
 
-dotenv.config();
 
 console.log('[DB CONNECTION] Checking environment variables...');
 console.log('[DB CONNECTION] DB_HOST:', process.env.DB_HOST ? ' Set' : ' Missing');

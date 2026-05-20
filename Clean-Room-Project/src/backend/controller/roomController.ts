@@ -20,3 +20,5 @@ export const getAllDetailsforCalculations = (room_id: number) =>
 
   export const deleteZoneRoom = (roomId: number, zoneId: number | string) =>
   request(`/v1/zonerooms/${roomId}?zone_id=${zoneId}`, "DELETE");
+  export const updateZoneRoom = (roomId: number, payload: object) =>
+  request(`/v1/zonerooms/${roomId}`, "PUT", payload);

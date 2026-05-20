@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import s from "./style";
-import { FaArrowLeft,  FaLayerGroup,  FaCalculator } from "react-icons/fa";
-  import { MdApartment } from "react-icons/md";
+import { FaArrowLeft, FaLayerGroup, FaCalculator } from "react-icons/fa";
+import { MdApartment } from "react-icons/md";
 import Header from "../../../components/header";
 import { useAppSelector } from "../../../redux/hooks";
 import { getCompletedProjects } from "../../../backend/controller/projectController";
@@ -17,6 +17,7 @@ type Room = {
   room_Lighting: number;
   room_FreshAir: number;
   room_ExhaustAir: number;
+  room_ExhaustAirCfm: number;
 };
 
 type Standard = {
@@ -37,9 +38,11 @@ type Project = {
   customer_address: string;
   customer_phone: string;
   customer_email_id: string;
-  project_Location: string;
   project_Industry: string;
+  project_Location: string;
   project_Handling: string;
+  created_by?: string;
+  updated_by?: string;
   standards: Standard[];
 };
 
@@ -68,6 +71,7 @@ const RoomSection = ({ room, index }: { room: Room; index: number }) => (
       <InfoItem label="Lighting" value={room.room_Lighting} />
       <InfoItem label="Fresh Air" value={room.room_FreshAir} />
       <InfoItem label="Exhaust Air" value={room.room_ExhaustAir} />
+      <InfoItem label="Exhaust Air Cfm" value={room.room_ExhaustAirCfm} />
     </div>
   </div>
 );
@@ -76,6 +80,7 @@ export default function ProjectListInfo() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeTabs, setActiveTabs] = useState<Record<number, number>>({});
   const userId = useAppSelector((state: any) => state.user?.user_login_id);
+  const loggedInUser = useAppSelector((state: any) => state.user);
 
   function formatDate(raw: string): string {
     try {
@@ -93,6 +98,14 @@ export default function ProjectListInfo() {
       return Array.isArray(arr) ? arr.join(", ") : raw;
     } catch {
       return raw ?? "—";
+    }
+  }
+  function parseJson(raw: string): string[] {
+    try {
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : [];
+    } catch {
+      return [];
     }
   }
 
@@ -113,13 +126,16 @@ export default function ProjectListInfo() {
 
     const loadProjects = async () => {
       try {
-        const res = await getCompletedProjects(userId);
-        // const rows = res.projects || [];
+       
+        const res = await getCompletedProjects(
+          loggedInUser.user_login_id,
+          loggedInUser.customer_id
+        );
+
+      
         const rows = res.projects.filter((p: any) => p.project_id === projectIdNumber);
 
-        console.log("========= RAW DATABASE ROWS =========");
-        console.table(rows);
-
+       
         const projectMap: Record<number, any> = {};
 
         rows.forEach((row: any, index: number) => {
@@ -139,6 +155,8 @@ export default function ProjectListInfo() {
               project_unique_id: row.project_unique_id,
               project_name: row.project_name,
               created_at: row.created_at,
+              created_by: row.created_by,
+              updated_by: row.updated_by,
               customer_name: row.customer_name,
               project_unit_branch: row.project_unit_branch,
               customer_address: row.customer_address,
@@ -196,7 +214,9 @@ export default function ProjectListInfo() {
               room_Equipment_Load: row.room_Equipment_Load,
               room_Lighting: row.room_Lighting,
               room_FreshAir: row.room_FreshAir,
-              room_ExhaustAir: row.room_ExhaustAir
+              room_ExhaustAir: row.room_ExhaustAir,
+              room_ExhaustAirCfm: row.room_ExhaustAirCfm,
+
             });
 
           } else {
@@ -236,7 +256,7 @@ export default function ProjectListInfo() {
     };
 
     loadProjects();
-  }, [userId]);
+  }, [loggedInUser?.user_login_id, loggedInUser?.customer_id]);
 
   const handleTabClick = (projectId: number, standardId: number) => {
 
@@ -252,6 +272,16 @@ export default function ProjectListInfo() {
       [projectId]: standardId
     }));
   };
+  if (!projects.length) {
+    return (
+      <>
+        <Header />
+        <div className="p-10 text-center text-gray-500">
+          No project data found.
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -294,7 +324,9 @@ export default function ProjectListInfo() {
               <p className={s.createdDate}>
                 <span className={s.projectLabel}>Created:</span> {formatDate(p.created_at)}
               </p>
-
+              <p className={s.createdDate}>
+                <span className={s.projectLabel}>Created By:</span> {p.created_by || "—"}
+              </p>
 
             </div>
 
@@ -337,21 +369,50 @@ export default function ProjectListInfo() {
 
                 <div>
                   <p className={s.projectLabel}>Industry Sectors</p>
-                  <div className="flex gap-2 mt-1">
+                  {/* <div className="flex gap-2 mt-1">
                     <span className={s.projectValues + " bg-blue-100 text-blue-700 px-3 py-1 rounded-md text-xs"}>
                       {parseJsonArray(p.project_Industry) || "—"}
                     </span>
 
+                  </div> */}
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {parseJson(p.project_Industry).length > 0 ? (
+                      parseJson(p.project_Industry).map((item, i) => (
+                        <span
+                          key={i}
+                          className="bg-blue-100 text-blue-700 px-3 py-1 rounded-md text-xs"
+                        >
+                          {item}
+                        </span>
+                      ))
+                    ) : (
+                      <span className={s.projectValues}>—</span>
+                    )}
                   </div>
                 </div>
 
                 <div>
                   <p className={s.projectLabel}>Handling Types</p>
-                  <div className="flex gap-2 mt-1">
+                  {/* <div className="flex gap-2 mt-1">
                     <span className={s.projectValues + " bg-gray-200 px-3 py-1 rounded-md text-xs"}>
                       {parseJsonArray(p.project_Handling) || "—"}
                     </span>
 
+                  </div> */}
+
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {parseJson(p.project_Handling).length > 0 ? (
+                      parseJson(p.project_Handling).map((item, i) => (
+                        <span
+                          key={i}
+                          className="bg-gray-200 px-3 py-1 rounded-md text-xs"
+                        >
+                          {item}
+                        </span>
+                      ))
+                    ) : (
+                      <span className={s.projectValues}>—</span>
+                    )}
                   </div>
                 </div>
 
@@ -384,7 +445,7 @@ export default function ProjectListInfo() {
 
             {activeStandard && (<div className={s.customerInfoCard}>
               <h2 className={s.cardTitle}>
-               <FaLayerGroup className="text-blue-700 text-2xl" /> Classification Details
+                <FaLayerGroup className="text-blue-700 text-2xl" /> Classification Details
               </h2>
 
               <div className={s.projectDetails}>
@@ -415,18 +476,18 @@ export default function ProjectListInfo() {
             {activeStandard && (
               <div className={s.customerInfoCard}>
                 <h2 className={s.cardTitle}>
-                 <FaCalculator className="text-blue-700 text-2xl" /> Rooms ({activeStandard.rooms.length})
+                  <FaCalculator className="text-blue-700 text-2xl" /> Rooms ({activeStandard.rooms.length})
                 </h2>
                 <div className={s.roomCardInfo}>
-                  <div className={s.roomCardValue }>
+                  <div className={s.roomCardValue}>
                     {activeStandard.rooms.map((room, i) => (
-                  <RoomSection key={i} room={room} index={i} />
-                ))}
+                      <RoomSection key={i} room={room} index={i} />
+                    ))}
                   </div>
-                  
+
 
                 </div>
-                
+
               </div>
             )}
           </div>

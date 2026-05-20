@@ -9,3 +9,4 @@ export * from "./zoneController";
 export * from "./resultsController";
 export * from "./screenController";
 export * from "./profileController";
+export * from "./excelController";

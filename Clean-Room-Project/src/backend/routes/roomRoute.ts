@@ -44,6 +44,8 @@ export const roomRoute: ServerRoute[] = [
 			validate: {
 				payload: Joi.object({
 					project_id: Joi.number().integer().required(),
+					user_id: Joi.string().required(),
+					zone_name: Joi.string().trim().min(2).max(50).required(),
 					system: strOrNull,
 					systemType: strOrNull,
 					heatingMethod: strOrNull,
@@ -58,19 +60,26 @@ export const roomRoute: ServerRoute[] = [
 					minTempC: numOrNull,
 					rhMin: numOrNull,
 					rhMax: numOrNull,
-					flowVelocity: numOrNull,
-					flowMedium: strOrNull,
 					heatingFlowVelocity: numOrNull,
 					coolingFlowVelocity: numOrNull,
 					pipeConfiguration: strOrNull,
-					totalFiltrationStages: numOrNull,
-					staticPressure: numOrNull,
+					totalFiltrationStagesSupply: numOrNull,
+					staticPressureSupply: numOrNull,
+					staticPressureExhaust: numOrNull,
+					totalFiltrationStagesExhaust: numOrNull,
+					ahufiltrationData: Joi.array().optional(),
+					ahuConstructionData: Joi.array().optional(),
+					additionalDpValue: numOrNull,
+					additionalDpValueExhaust: numOrNull,
+					exhaustImpactPercentage: strOrNull,
 				}).options({ allowUnknown: true }),
 			},
 		},
 		handler: async (request, h) => {
 			try {
+				 console.log("Received createRoomStandards payload:", request.payload);
 				const id = await roomRepository.createRoomStandards(request.payload);
+				console.log("Created room standard ID:", id);
 				return h.response({ roomStandardsId: id }).code(201);
 			} catch (error) {
 				console.error("createRoomStandards error:", error);
@@ -114,6 +123,7 @@ export const roomRoute: ServerRoute[] = [
 			validate: {
 				payload: Joi.object({
 					zone_id: Joi.number().integer().required(),
+					user_id: Joi.string().required(),
 					projectStandardId: Joi.number().integer().optional().allow(null),
 					roomName: Joi.string().required(),
 					length: strOrNull,
@@ -125,9 +135,10 @@ export const roomRoute: ServerRoute[] = [
 					infiltrationsPerHour: strOrNull,
 					freshAirPercent: strOrNull,
 					exhaustAir: strOrNull,
+					exhaustAirCfm: strOrNull,
 					selectedAcph: numOrNull,
 				}),
-				failAction: (request, h, err) => {
+				failAction: (_request, _h, err) => {
 					console.log("zonerooms Validation Error:", err);
 					throw err;
 				},
@@ -159,6 +170,7 @@ export const roomRoute: ServerRoute[] = [
 				}),
 				payload: Joi.object({
 					project_id: Joi.number().integer().optional(),
+					user_id: Joi.string().optional(),
 					system: strOrNull,
 					systemType: strOrNull,
 					heatingMethod: strOrNull,
@@ -173,13 +185,19 @@ export const roomRoute: ServerRoute[] = [
 					minTempC: numOrNull,
 					rhMin: numOrNull,
 					rhMax: numOrNull,
-					flowVelocity: numOrNull,
 					heatingFlowVelocity: numOrNull,
 					coolingFlowVelocity: numOrNull,
 					pipeConfiguration: strOrNull,
-					totalFiltrationStages: numOrNull,
-					staticPressure: numOrNull,
-				}),
+					totalFiltrationStagesSupply: numOrNull,
+					staticPressureSupply: numOrNull,
+					staticPressureExhaust: numOrNull,
+					totalFiltrationStagesExhaust: numOrNull,
+					ahufiltrationData: Joi.array().optional(),
+					ahuConstructionData: Joi.array().optional(),
+					additionalDpValue: numOrNull,
+					additionalDpValueExhaust: numOrNull,
+					exhaustImpactPercentage: strOrNull,
+				}).options({ allowUnknown: true }),
 			},
 		},
 		handler: async (request, h) => {
@@ -227,5 +245,58 @@ export const roomRoute: ServerRoute[] = [
 				return h.response({ error: "Internal Server Error" }).code(500);
 			}
 		},
+	},
+	{
+		method: "PUT",
+		path: "/v1/zonerooms/{roomId}",
+		options: {
+			description: "Update zone room",
+			tags: ["api", "zones"],
+			validate: {
+				params: Joi.object({
+					roomId: Joi.number().integer().required(),
+				}),
+				payload: Joi.object({
+					zone_id: Joi.number().required(),
+					user_id: Joi.string().required(),
+					projectStandardId: Joi.number().optional().allow(null),
+					roomName: Joi.string().required(),
+					length: strOrNull,
+					width: strOrNull,
+					height: strOrNull,
+					occupancy: strOrNull,
+					equipmentLoad: strOrNull,
+					lightingLoad: strOrNull,
+					infiltrationsPerHour: strOrNull,
+					freshAirPercent: strOrNull,
+					exhaustAir: strOrNull,
+					exhaustAirCfm: strOrNull,
+					selectedAcph: numOrNull,
+				}),
+			},
+		},
+		// handler: async (request, h) => {
+		// 	const { roomId } = request.params as any;
+		// 	const payload = request.payload as any;
+
+		// 	await roomRepository.updateZoneRoom(roomId, payload);
+
+		// 	return h.response({ success: true }).code(200);
+		// },
+		handler: async (request, h) => {
+			try {
+				const { roomId } = request.params as any;
+				const payload = request.payload as any;
+
+				console.log("UPDATE PAYLOAD:", payload);
+
+				await roomRepository.updateZoneRoom(roomId, payload);
+
+				return h.response({ success: true }).code(200);
+			} catch (error) {
+				console.error("updateZoneRoom error:", error);
+				return h.response({ error: "Internal Server Error" }).code(500);
+			}
+		}
 	},
 ];

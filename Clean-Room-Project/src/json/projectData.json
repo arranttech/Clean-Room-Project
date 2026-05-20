@@ -1,32 +1,1120 @@
 {
-  "industryOptions": [
-    "Hospitals & Healthcare Infrastructure",
-    "Pharmaceuticals & Biotechnology",
-    "Chemical & Petrochemical Plants",
-    "Semiconductor & Battery Manufacturing",
-    "Advanced Research & Defense Facilities",
-    "Tissue Culture Laboratories (Plant)",
-    "Microbiological Laboratories",
-    "Vaccine manufacturing",
-    "Hospitals",
-    "Veterinary laboratories",
-    "Research & Development Laboratories",
-    "Atomic Energy Development centers",
-    "Quality Control Laboratories",
-    "Semi-conductor manufacturing",
-    "Food & Beverage Industries",
-    "Parenterals manufacturing",
-    "Chemical Laboratories",
-    "Cement Inductries",
-    "Power Generation Industries",
-    "Warehouses"
+  "industries": [
+    {
+      "name": "Electronics & Precision Engineering",
+      "subIndustries": [
+        "LED & OLED manufacturing",
+        "Solar PV cell/module manufacturing",
+        "Printed Circuit Board (PCB) manufacturing",
+        "Nano-Electromechanical Systems (NEMS)",
+        "Sensors & micro-electromechanical systems (MEMS)",
+        "Optoelectronics & laser component manufacturing"
+      ]
+    },
+    {
+      "name": "Aerospace & Space Technology",
+      "subIndustries": [
+        "Satellite assembly clean rooms",
+        "Spacecraft component manufacturing",
+        "Rocket engine precision assembly areas",
+        "Composite and carbon fiber manufacturing"
+      ]
+    },
+    {
+      "name": "Automotive & Mobility",
+      "subIndustries": [
+        "Advanced automotive electronics",
+        "ADAS/LiDAR manufacturing",
+        "Precision painting & coating shops",
+        "Engine test labs, NVH labs",
+        "Ship Building Industry",
+        "Aviation Industry"
+      ]
+    },
+    {
+      "name": "Food, Agriculture & Consumer Products",
+      "subIndustries": [
+        "Dairy processing clean zones",
+        "Chocolate and confectionary temperaturecontrolled lines",
+        "Bottling plants",
+        "Cold storage logistics",
+        "Fresh-cut & packaged food clean zones"
+      ]
+    },
+    {
+      "name": "Medical Devices & Allied Sectors",
+      "subIndustries": [
+        "Surgical instruments manufacturing",
+        "Orthopedics and implants manufacturing",
+        "Disposable medical devices",
+        "Dialysis consumables",
+        "Diagnostic equipment labs"
+      ]
+    },
+    {
+      "name": "Pharmaceutical Industry",
+      "subIndustries": [
+        "API Synthesis (Non‑Potent)",
+        "HPAPI / OEB 4–6 API Manufacturing",
+        "Fermentation (Small Molecules)",
+        "Solid Oral Dosage (Granulation)",
+        "Tablet Compression & Coating",
+        "Capsule Filling",
+        "Liquid Oral Manufacturing",
+        "Ointments / Creams (Semi‑Solids)",
+        "Sterile Injectable – Filling (SVP/LVP)",
+        "Lyophilization Suites",
+        "Biologics – Upstream (Cell Culture)",
+        "Biologics – Downstream (Purification)",
+        "Vaccine Filling (Biological)",
+        "ADC Manufacturing (Conjugation)",
+        "Clinical Trial Material (CTM)",
+        "Primary Packaging (Vials, Stoppers)",
+        "Secondary & Tertiary Packaging",
+        "QC Microbiology Labs",
+        "Analytical / Chemical QC Labs",
+        "GMP Warehouses (Controlled)",
+        "Cold Rooms / Stability Chambers",
+        "Utilities (PW/WFI, Clean Steam)"
+      ]
+    },
+    {
+      "name": "Biotechnology & Biopharma",
+      "subIndustries": [
+        "Cell culture",
+        "Fermentation",
+        "Gene therapy",
+        "Viral vector production",
+        "Biologics and ATMPs"
+      ]
+    },
+    {
+      "name": "Life Sciences",
+      "subIndustries": [
+        "QC, microbiology, R&D labs",
+        "Sterility test rooms",
+        "General R&D Chemistry",
+        "Tissue culture lab",
+        "BSL-2 Lab",
+        "BSL-3 Lab/Suite",
+        "BSL-4 Lab"
+      ]
+    },
+    {
+      "name": "Hospitals and healthcare Facilities",
+      "subIndustries": [
+        "Operating Theatre - Ultra Clean (Ortho)",
+        "Operating Theatre Conventional",
+        "AIIR Isolation (TB/COVID)",
+        "Protective Environment (Transplant, Hem-Onc)",
+        "ICU/NICU",
+        "CSSD - Decon/Wash",
+        "CSSD - Prep/Pack",
+        "CSSD - Sterile storage",
+        "Pharmacy Compounding - Non-hazardous (USP <797>)",
+        "Pharmacy Compounding - Hazardous (USP <800>)",
+        "Radiopharmacy / Nuclear Med",
+        "IVF labs",
+        "Endoscopy Reprocessing",
+        "Blood Blank Clean Areas"
+      ]
+    },
+    {
+      "name": "Veterinary & Preclinical",
+      "subIndustries": [
+        "Vivariums",
+        "Animal research",
+        "ABSL2 / ABSL3",
+        "Veterinary hospitals (research linked)"
+      ]
+    },
+    {
+      "name": "Nanotechnology & Advanced Materials",
+      "subIndustries": [
+        "Nanomaterial synthesis labs",
+        "Graphene & composite materials",
+        "Advanced polymer processing",
+        "Thin-film deposition labs"
+      ]
+    },
+    {
+      "name": "Cosmetics & Personal Care",
+      "subIndustries": [
+        "Skincare and beauty product manufacturing",
+        "Fragrance manufacturing (controlled HVAC)",
+        "Aerosol filling lines"
+      ]
+    },
+    {
+      "name": "Printing, Packaging & Specialty Production",
+      "subIndustries": [
+        "Specialty ink manufacturing",
+        "Precision printing",
+        "High-end packaging (pharma-grade, medical-grade)",
+        "Sterile packaging facilities"
+      ]
+    },
+    {
+      "name": "Education & Public Institutions",
+      "subIndustries": [
+        "University research labs",
+        "Pilot plant setups",
+        "Government research agencies",
+        "Forensic labs"
+      ]
+    },
+    {
+      "name": "Environmental & Waste Management Segments",
+      "subIndustries": [
+        "Waste-to-energy plants (controlled turbine rooms)",
+        "Chemical waste handling labs",
+        "Bio-waste treatment facilities"
+      ]
+    },
+    {
+      "name": "Hospitality & Commercial Spaces (Control-heavy HVAC)",
+      "subIndustries": [
+        "Hotels (HVAC zoning, IAQ control)",
+        "Shopping malls (central chilled-water systems)",
+        "Museums & heritage conservation centers (temperature & humidity control)",
+        "High-end commercial kitchens"
+      ]
+    },
+    {
+      "name": "UltraSpecialized Segments",
+      "subIndustries": [
+        "Cryogenic storage facilities",
+        "IVF centers and fertility labs",
+        "Forensic pathology labs",
+        "High-purity gas manufacturing plants",
+        "Ammunition and propellant manufacturing",
+        "Luxury watch & precision instrument manufacturing",
+        "Pharmaceutical cold chain logistics",
+        "Space simulation thermal vacuum chambers"
+      ]
+    }
   ],
   "handlingOptions": [
-    "Contagious",
-    "Non-Contagious",
-    "Hazardous",
-    "Non-Hazardous",
-    "Flammable Vapors",
-    "Bio-safety"
+    "Particulate sensitive",
+    "AMC/molecular sensitive",
+    "Volatile Organics Control(VOC)",
+    "ESD controlled",
+    "Temperature critical",
+    "Relative Humidity critical",
+    "Allergen-controlled",
+    "Explosive dust",
+    "Radiological",
+    "Cryogenic",
+    "High moisture wash-down",
+    "Pressure cascade-controlled",
+    "Potent compound (HPAPI)",
+    "Odour/Cross contamination",
+    "Sterile/Aseptic"
+  ],
+  "handlingAutoSelectionRules": [
+    {
+      "industry": "Electronics & Precision Engineering",
+      "subIndustry": "LED & OLED manufacturing",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Volatile Organics Control(VOC)",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Electronics & Precision Engineering",
+      "subIndustry": "Solar PV cell/module manufacturing",
+      "handling": [
+        "AMC/molecular sensitive",
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Electronics & Precision Engineering",
+      "subIndustry": "Printed Circuit Board (PCB) manufacturing",
+      "handling": [
+        "ESD controlled",
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Electronics & Precision Engineering",
+      "subIndustry": "Sensors & micro-electromechanical systems (MEMS)",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive"
+      ]
+    },
+    {
+      "industry": "Electronics & Precision Engineering",
+      "subIndustry": "Optoelectronics & laser component manufacturing",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Temperature critical"
+      ]
+    },
+    {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Satellite assembly clean rooms",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive"
+      ]
+    },
+    {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Spacecraft component manufacturing",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Rocket engine precision assembly areas",
+      "handling": [
+        "Particulate sensitive"
+      ]
+    },
+    {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Composite and carbon fiber manufacturing",
+      "handling": [
+        "Particulate sensitive",
+        "Volatile Organics Control(VOC)",
+        "Temperature critical",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Automotive & Mobility",
+      "subIndustry": "Advanced automotive electronics",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "ESD controlled"
+      ]
+    },
+    {
+      "industry": "Automotive & Mobility",
+      "subIndustry": "ADAS/LiDAR manufacturing",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Temperature critical"
+      ]
+    },
+    {
+      "industry": "Automotive & Mobility",
+      "subIndustry": "Precision painting & coating shops",
+      "handling": [
+        "Volatile Organics Control(VOC)",
+        "Odour/Cross contamination",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Automotive & Mobility",
+      "subIndustry": "Engine test labs, NVH labs",
+      "handling": [
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Automotive & Mobility",
+      "subIndustry": "Ship Building Industry",
+      "handling": []
+    },
+    {
+      "industry": "Automotive & Mobility",
+      "subIndustry": "Aviation Industry",
+      "handling": []
+    },
+    {
+      "industry": "Food, Agriculture & Consumer Products",
+      "subIndustry": "Dairy processing clean zones",
+      "handling": [
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Allergen-controlled",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Food, Agriculture & Consumer Products",
+      "subIndustry": "Chocolate and confectionary temperaturecontrolled lines",
+      "handling": [
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Food, Agriculture & Consumer Products",
+      "subIndustry": "Bottling plants",
+      "handling": [
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Food, Agriculture & Consumer Products",
+      "subIndustry": "Cold storage logistics",
+      "handling": [
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Food, Agriculture & Consumer Products",
+      "subIndustry": "Fresh-cut & packaged food clean zones",
+      "handling": [
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Allergen-controlled"
+      ]
+    },
+    {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Surgical instruments manufacturing",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Temperature critical"
+      ]
+    },
+    {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Orthopedics and implants manufacturing",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Temperature critical"
+      ]
+    },
+    {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Disposable medical devices",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Temperature critical"
+      ]
+    },
+    {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Dialysis consumables",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Temperature critical"
+      ]
+    },
+    {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Diagnostic equipment labs",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Temperature critical",
+        "ESD controlled"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "API Synthesis (Non‑Potent)",
+      "handling": [
+        "Particulate sensitive",
+        "Volatile Organics Control(VOC)",
+        "Pressure cascade-controlled",
+        "Explosive dust"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "HPAPI / OEB 4–6 API Manufacturing",
+      "handling": [
+        "Particulate sensitive",
+        "Volatile Organics Control(VOC)",
+        "Explosive dust",
+        "Pressure cascade-controlled",
+        "AMC/molecular sensitive",
+        "Potent compound (HPAPI)"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Fermentation (Small Molecules)",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Sterile/Aseptic"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Solid Oral Dosage (Granulation)",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Tablet Compression & Coating",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Capsule Filling",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Liquid Oral Manufacturing",
+      "handling": [
+        "Particulate sensitive",
+        "Relative Humidity critical",
+        "Temperature critical",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Ointments / Creams (Semi‑Solids)",
+      "handling": [
+        "Particulate sensitive",
+        "Relative Humidity critical",
+        "Temperature critical",
+        "Odour/Cross contamination",
+        "Volatile Organics Control(VOC)"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Sterile Injectable – Filling (SVP/LVP)",
+      "handling": [
+        "Sterile/Aseptic",
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Pressure cascade-controlled"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Lyophilization Suites",
+      "handling": [
+        "Sterile/Aseptic",
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Biologics – Upstream (Cell Culture)",
+      "handling": [
+        "Sterile/Aseptic",
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Biologics – Downstream (Purification)",
+      "handling": [
+        "Sterile/Aseptic",
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Volatile Organics Control(VOC)"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Vaccine Filling (Biological)",
+      "handling": [
+        "Sterile/Aseptic",
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "ADC Manufacturing (Conjugation)",
+      "handling": [
+        "Potent compound (HPAPI)",
+        "Sterile/Aseptic",
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Pressure cascade-controlled"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Clinical Trial Material (CTM)",
+      "handling": [
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Primary Packaging (Vials, Stoppers)",
+      "handling": [
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Sterile/Aseptic"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Secondary & Tertiary Packaging",
+      "handling": [
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Sterile/Aseptic"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "QC Microbiology Labs",
+      "handling": [
+        "Sterile/Aseptic",
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Pressure cascade-controlled"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Analytical / Chemical QC Labs",
+      "handling": [
+        "Particulate sensitive",
+        "Volatile Organics Control(VOC)",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "GMP Warehouses (Controlled)",
+      "handling": [
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Cold Rooms / Stability Chambers",
+      "handling": [
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Pharmaceutical Industry",
+      "subIndustry": "Utilities (PW/WFI, Clean Steam)",
+      "handling": [
+        "Particulate sensitive"
+      ]
+    },
+    {
+      "industry": "Biotechnology & Biopharma",
+      "subIndustry": "Cell culture",
+      "handling": [
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Biotechnology & Biopharma",
+      "subIndustry": "Fermentation",
+      "handling": [
+        "Particulate sensitive",
+        "Relative Humidity critical",
+        "Temperature critical"
+      ]
+    },
+    {
+      "industry": "Biotechnology & Biopharma",
+      "subIndustry": "Gene therapy",
+      "handling": [
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Biotechnology & Biopharma",
+      "subIndustry": "Viral vector production",
+      "handling": [
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Biotechnology & Biopharma",
+      "subIndustry": "Biologics and ATMPs",
+      "handling": [
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Life Sciences",
+      "subIndustry": "QC, microbiology, R&D labs",
+      "handling": [
+        "Temperature critical",
+        "Particulate sensitive",
+        "Relative Humidity critical",
+        "Particulate sensitive"
+      ]
+    },
+    {
+      "industry": "Life Sciences",
+      "subIndustry": "Tissue culture labs",
+      "handling": [
+        "AMC/molecular sensitive",
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Particulate sensitive"
+      ]
+    },
+    {
+      "industry": "Life Sciences",
+      "subIndustry": "Analytical labs",
+      "handling": [
+        "Temperature critical",
+        "Particulate sensitive",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Life Sciences",
+      "subIndustry": "Stability labs",
+      "handling": [
+        "Temperature critical",
+        "Particulate sensitive",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Life Sciences",
+      "subIndustry": "Preclinical research facilities",
+      "handling": [
+        "Temperature critical",
+        "Particulate sensitive",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Healthcare",
+      "subIndustry": "Hospitals",
+      "handling": [
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Healthcare",
+      "subIndustry": "Critical care units",
+      "handling": [
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Healthcare",
+      "subIndustry": "Operating theaters",
+      "handling": [
+        "Sterile/Aseptic",
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Healthcare",
+      "subIndustry": "Isolation rooms",
+      "handling": [
+        "Sterile/Aseptic",
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Healthcare",
+      "subIndustry": "IVF labs",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Healthcare",
+      "subIndustry": "Diagnostic labs",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Temperature critical"
+      ]
+    },
+    {
+      "industry": "Veterinary & Preclinical",
+      "subIndustry": "Vivariums",
+      "handling": [
+        "Odour/Cross contamination",
+        "Particulate sensitive",
+        "Temperature critical"
+      ]
+    },
+    {
+      "industry": "Veterinary & Preclinical",
+      "subIndustry": "Animal research",
+      "handling": [
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Veterinary & Preclinical",
+      "subIndustry": "ABSL2 / ABSL3",
+      "handling": [
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Veterinary & Preclinical",
+      "subIndustry": "Veterinary hospitals (research linked)",
+      "handling": [
+        "Particulate sensitive",
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Nanotechnology & Advanced Materials",
+      "subIndustry": "Nanomaterial synthesis labs",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Temperature critical"
+      ]
+    },
+    {
+      "industry": "Nanotechnology & Advanced Materials",
+      "subIndustry": "Graphene & composite materials",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Volatile Organics Control(VOC)",
+        "Temperature critical"
+      ]
+    },
+    {
+      "industry": "Nanotechnology & Advanced Materials",
+      "subIndustry": "Advanced polymer processing",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Volatile Organics Control(VOC)",
+        "Temperature critical"
+      ]
+    },
+    {
+      "industry": "Nanotechnology & Advanced Materials",
+      "subIndustry": "Thin-film deposition labs",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Volatile Organics Control(VOC)",
+        "Temperature critical"
+      ]
+    },
+    {
+      "industry": "Cosmetics & Personal Care",
+      "subIndustry": "Skincare and beauty product manufacturing",
+      "handling": [
+        "Particulate sensitive",
+        "Volatile Organics Control(VOC)",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Cosmetics & Personal Care",
+      "subIndustry": "Fragrance manufacturing (controlled HVAC)",
+      "handling": [
+        "Volatile Organics Control(VOC)",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Cosmetics & Personal Care",
+      "subIndustry": "Aerosol filling lines",
+      "handling": [
+        "Particulate sensitive",
+        "Volatile Organics Control(VOC)",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Printing, Packaging & Specialty Production",
+      "subIndustry": "Specialty ink manufacturing",
+      "handling": [
+        "Particulate sensitive",
+        "Volatile Organics Control(VOC)",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Printing, Packaging & Specialty Production",
+      "subIndustry": "Precision printing",
+      "handling": [
+        "Particulate sensitive",
+        "Volatile Organics Control(VOC)",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Printing, Packaging & Specialty Production",
+      "subIndustry": "High-end packaging (pharma-grade, medical-grade)",
+      "handling": [
+        "Particulate sensitive",
+        "Sterile/Aseptic",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Printing, Packaging & Specialty Production",
+      "subIndustry": "Sterile packaging facilities",
+      "handling": [
+        "Particulate sensitive",
+        "Sterile/Aseptic",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Education & Public Institutions",
+      "subIndustry": "University research labs",
+      "handling": [
+        "Temperature critical",
+        "Particulate sensitive",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Education & Public Institutions",
+      "subIndustry": "Pilot plant setups",
+      "handling": [
+        "Temperature critical",
+        "Particulate sensitive",
+        "Volatile Organics Control(VOC)",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Education & Public Institutions",
+      "subIndustry": "Government research agencies",
+      "handling": [
+        "Temperature critical",
+        "Particulate sensitive",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Education & Public Institutions",
+      "subIndustry": "Forensic labs",
+      "handling": [
+        "Temperature critical",
+        "Particulate sensitive",
+        "Volatile Organics Control(VOC)",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Environmental & Waste Management Segments",
+      "subIndustry": "Waste-to-energy plants (controlled turbine rooms)",
+      "handling": [
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Environmental & Waste Management Segments",
+      "subIndustry": "Chemical waste handling labs",
+      "handling": [
+        "Particulate sensitive",
+        "Volatile Organics Control(VOC)",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Environmental & Waste Management Segments",
+      "subIndustry": "Bio-waste treatment facilities",
+      "handling": [
+        "Particulate sensitive",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Hospitality & Commercial Spaces (Control-heavy HVAC)",
+      "subIndustry": "Hotels (HVAC zoning, IAQ control)",
+      "handling": [
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Hospitality & Commercial Spaces (Control-heavy HVAC)",
+      "subIndustry": "Shopping malls (central chilled-water systems)",
+      "handling": [
+        "Temperature critical",
+        "Odour/Cross contamination",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Hospitality & Commercial Spaces (Control-heavy HVAC)",
+      "subIndustry": "Museums & heritage conservation centers (temperature & humidity control)",
+      "handling": [
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Hospitality & Commercial Spaces (Control-heavy HVAC)",
+      "subIndustry": "High-end commercial kitchens",
+      "handling": [
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Volatile Organics Control(VOC)",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "UltraSpecialized Segments",
+      "subIndustry": "Cryogenic storage facilities",
+      "handling": [
+        "Cryogenic",
+        "Particulate sensitive"
+      ]
+    },
+    {
+      "industry": "UltraSpecialized Segments",
+      "subIndustry": "IVF centers and fertility labs",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "UltraSpecialized Segments",
+      "subIndustry": "Forensic pathology labs",
+      "handling": [
+        "Temperature critical",
+        "Particulate sensitive",
+        "Volatile Organics Control(VOC)",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "UltraSpecialized Segments",
+      "subIndustry": "High-purity gas manufacturing plants",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Volatile Organics Control(VOC)",
+        "Temperature critical"
+      ]
+    },
+    {
+      "industry": "UltraSpecialized Segments",
+      "subIndustry": "Ammunition and propellant manufacturing",
+      "handling": [
+        "Explosive dust",
+        "Particulate sensitive",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "UltraSpecialized Segments",
+      "subIndustry": "Luxury watch & precision instrument manufacturing",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Temperature critical"
+      ]
+    },
+    {
+      "industry": "UltraSpecialized Segments",
+      "subIndustry": "Pharmaceutical cold chain logistics",
+      "handling": [
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "UltraSpecialized Segments",
+      "subIndustry": "Space simulation thermal vacuum chambers",
+      "handling": [
+        "Temperature critical",
+        "Particulate sensitive",
+        "Relative Humidity critical"
+      ]
+    }
   ]
 }

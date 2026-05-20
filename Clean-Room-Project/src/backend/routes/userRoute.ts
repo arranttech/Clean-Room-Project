@@ -1,8 +1,16 @@
 import { ServerRoute } from "@hapi/hapi";
 import Joi from "joi";
 import { userRepository } from "../repositories";
+import { RateLimiterMemory } from "rate-limiter-flexible";
+import { checkUserIdExists } from "../controller";
 
 const errorSchema = Joi.object({ error: Joi.string().required() });
+
+// Rate limiter — 10 attempts per 5 minutes per IP
+const rateLimiter = new RateLimiterMemory({
+  points: 10,
+  duration: 60 * 5,
+});
 
 export const userRoute: ServerRoute[] = [
   {
@@ -50,19 +58,21 @@ export const userRoute: ServerRoute[] = [
           user_last_name: Joi.string().required(),
           user_id: Joi.string().required(),
           user_email_id: Joi.string().email().required(),
-          user_address: Joi.string().optional().allow("", null),
-          user_phone_home: Joi.string().optional().allow("", null),
-          user_phone_work: Joi.string().optional().allow("", null),
-          created_by: Joi.string().optional().default("admin"),
-          updated_by: Joi.string().optional().default("admin"),
-          user_admin_flag: Joi.string()
-            .valid("Yes", "No")
-            .optional()
-            .default("No"),
-          customer_id: Joi.number().integer().optional().allow(null),
-          password: Joi.string().optional().allow("", null),
-          status: Joi.string().valid("A", "I").optional().default("A"),
-        }).required(),
+          user_address: Joi.string().allow("", null),
+          user_phone_home: Joi.string().allow("", null),
+          user_phone_work: Joi.string().allow("", null),
+          created_by: Joi.string().default("admin"),
+          updated_by: Joi.string().default("admin"),
+          user_admin_flag: Joi.string().valid("Yes", "No").default("No"),
+          customer_ids: Joi.array()
+            .items(Joi.number().integer())
+            .min(1)
+            .required(),
+          password: Joi.string().allow("", null),
+          status: Joi.string().valid("A", "I").default("A"),
+        })
+          .unknown(true)
+          .required(),
       },
       response: {
         status: {
@@ -76,6 +86,7 @@ export const userRoute: ServerRoute[] = [
     },
     handler: async (request, h) => {
       try {
+        console.log("BACKEND RAW PAYLOAD:", request.payload);
         const userLoginId = await userRepository.createUser(request.payload);
         return h
           .response({
@@ -83,17 +94,33 @@ export const userRoute: ServerRoute[] = [
             userId: userLoginId,
           })
           .code(201);
-      } catch {
+      } catch (error) {
+        console.error("BACKEND ERROR:", error);
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },
   },
+  {
+  method: "GET",
+  path: "/v1/users/check-user-id",
+  handler: async (request, h) => {
+    try {
+      const { user_id } = request.query as { user_id: string };
+
+      const exists = await userRepository.checkUserIdExists(user_id);
+      return h.response({ exists }).code(200);
+    } catch (err) {
+      console.error("Error checking user id:", err);
+      return h.response({ exists: false }).code(500);
+    }
+  },
+},
 
   {
     method: "PUT",
     path: "/v1/users/update",
     options: {
-      description: "Update user by ID",
+      description: "Update user by ID (partial or full)",
       tags: ["api", "users"],
       validate: {
         payload: Joi.object({
@@ -108,6 +135,7 @@ export const userRoute: ServerRoute[] = [
           updated_by: Joi.string().optional().default("admin"),
           user_id: Joi.string().optional().allow("", null),
           customer_id: Joi.number().optional().allow(null, 0),
+          customer_ids: Joi.array().items(Joi.number().integer()).optional(),
           created_by: Joi.string().optional().allow("", null),
           password: Joi.string().optional().allow("", null),
           status: Joi.string().valid("A", "I").optional().default("A"),
@@ -126,13 +154,190 @@ export const userRoute: ServerRoute[] = [
         const { id, ...updates } = payload;
         await userRepository.updateUser(Number(id), updates);
         return h.response({ message: "User updated successfully" }).code(200);
-      } catch {
+      } catch (err) {
+        console.error("UPDATE USER ERROR:", err);
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },
   },
 
-  // GET single user by user_login_id — used by edit modal to prefill form
+  {
+    method: "PUT",
+    path: "/v1/password/update",
+    options: {
+      description: "Update user password",
+      tags: ["api", "users"],
+      validate: {
+        payload: Joi.object({
+          id: Joi.number().integer().positive().required(),
+          current_password: Joi.string().required(),
+          new_password: Joi.string().min(8).required(),
+        }).required(),
+      },
+      response: {
+        status: {
+          200: Joi.object({ message: Joi.string().required() }),
+          400: Joi.object({ error: Joi.string().required() }),
+          500: errorSchema,
+        },
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const { id, current_password, new_password } = request.payload as any;
+        const success = await userRepository.updatePassword(
+          Number(id),
+          current_password,
+          new_password
+        );
+        if (!success) {
+          return h
+            .response({ error: "Current password is incorrect" })
+            .code(400);
+        }
+        return h
+          .response({ message: "Password updated successfully" })
+          .code(200);
+      } catch (err) {
+        console.error("UPDATE PASSWORD ERROR:", err);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
+  // POST /v1/auth/forgot-password
+  // Checks tUsers for email — returns 404 if not found
+  // Returns 429 if rate limited
+  // Returns 200 and sends email if found
+  {
+    method: "POST",
+    path: "/v1/auth/forgot-password",
+    options: {
+      description: "Send password reset link via Gmail",
+      tags: ["api", "auth"],
+      validate: {
+        payload: Joi.object({
+          email: Joi.string().email().required(),
+        }).required(),
+      },
+      response: {
+        status: {
+          200: Joi.object({ message: Joi.string().required() }),
+          404: Joi.object({ error: Joi.string().required() }),
+          429: Joi.object({ error: Joi.string().required() }),
+          500: errorSchema,
+        },
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const clientIp = request.info.remoteAddress;
+        try {
+          await rateLimiter.consume(clientIp);
+        } catch {
+          return h
+            .response({
+              error: "Too many requests. Please try again after 15 minutes.",
+            })
+            .code(429);
+        }
+
+        const { email } = request.payload as any;
+
+        // sendPasswordResetLink checks tUsers — returns false if not found
+        const result = await userRepository.sendPasswordResetLink(email);
+
+        // Email not found in tUsers — frontend shows notFound box
+        if (!result) {
+          return h
+            .response({ error: "No account found with this email address." })
+            .code(404);
+        }
+
+        return h
+          .response({ message: "Reset link sent successfully." })
+          .code(200);
+      } catch (err) {
+        console.error("FORGOT PASSWORD ERROR:", err);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
+  // GET /v1/auth/verify-reset-token/:token
+  // Called when /reset-password page loads
+  // Hashes token and looks up in tPasswordResetTokens
+  {
+    method: "GET",
+    path: "/v1/auth/verify-reset-token/{token}",
+    options: {
+      description: "Verify reset token",
+      tags: ["api", "auth"],
+      validate: {
+        params: Joi.object({
+          token: Joi.string().required(),
+        }),
+      },
+      response: {
+        status: {
+          200: Joi.object({
+            valid: Joi.boolean().required(),
+            message: Joi.string().optional(),
+          }),
+          500: errorSchema,
+        },
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const { token } = request.params;
+        const result = await userRepository.verifyResetToken(token);
+        return h.response(result).code(200);
+      } catch (err) {
+        console.error("VERIFY TOKEN ERROR:", err);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
+  // POST /v1/auth/reset-password
+  // Verifies token, hashes new password, updates tUserPassword
+  // Deletes token after use
+  {
+    method: "POST",
+    path: "/v1/auth/reset-password",
+    options: {
+      description: "Reset password using token",
+      tags: ["api", "auth"],
+      validate: {
+        payload: Joi.object({
+          token: Joi.string().required(),
+          new_password: Joi.string().min(8).required(),
+        }).required(),
+      },
+      response: {
+        status: {
+          200: Joi.object({ message: Joi.string().required() }),
+          400: Joi.object({ error: Joi.string().required() }),
+          500: errorSchema,
+        },
+      },
+    },
+    handler: async (request, h) => {
+      try {
+        const { token, new_password } = request.payload as any;
+        const result = await userRepository.resetPassword(token, new_password);
+        if (!result.success) {
+          return h.response({ error: result.message }).code(400);
+        }
+        return h.response({ message: result.message }).code(200);
+      } catch (err) {
+        console.error("RESET PASSWORD ERROR:", err);
+        return h.response({ error: "Internal Server Error" }).code(500);
+      }
+    },
+  },
+
   {
     method: "GET",
     path: "/v1/users/{user_login_id}",
@@ -158,14 +363,20 @@ export const userRoute: ServerRoute[] = [
     },
     handler: async (request, h) => {
       try {
-        const user_login_id = parseInt(request.params.user_login_id, 10);
+        const user_login_id = Number(request.params.user_login_id);
+        if (!user_login_id || isNaN(user_login_id)) {
+          return h
+            .response({ success: false, message: "Invalid user_login_id" })
+            .code(400);
+        }
         const result = await userRepository.getUserById(user_login_id);
         if (!result.success)
           return h
             .response({ success: false, message: result.message })
             .code(404);
         return h.response(result).code(200);
-      } catch {
+      } catch (error) {
+        console.error("GET USER ERROR:", error);
         return h.response({ error: "Internal Server Error" }).code(500);
       }
     },

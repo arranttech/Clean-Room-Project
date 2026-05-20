@@ -11,12 +11,21 @@ export const updateProjectInfo = (projectId: number, payload: object) =>
 export const updateProjectStatus = (projectId: number, status: string) =>
   request(`/v1/projectinfo/${projectId}/status`, "PATCH", { status });
 
-export const getCompletedProjects = (user_login_id: number) =>
-  request(`/v1/projects/completed?user_login_id=${user_login_id}`, "GET");
+export const deleteProject = (projectId: number) =>
+  request(`/v1/projectinfo/${projectId}`, "DELETE");
 
-export const getProjectCounts = (user_login_id: number) =>
-  request(`/v1/projects/counts?user_login_id=${user_login_id}`, "GET");
+export const getProjectDetails = (projectId: number) =>
+  request(`/v1/projects/${projectId}/details`, "GET");
+
+export const getInProgressProjects = (user_id: string, customer_id: any) =>
+  request(`/v1/projects/inprogress?user_id=${user_id}&customer_id=${customer_id}`, "GET");
+
+export const getCompletedProjects = (user_id: string, customer_id: number) =>
+  request(`/v1/projects/completed?user_id=${user_id}&customer_id=${customer_id}`, "GET");
+
+export const getProjectCounts = (user_id: string, customer_id: number) =>
+  request(`/v1/projects/counts?user_id=${user_id}&customer_id=${customer_id}`, "GET");
   
 //EXCEL export
 export const getProjectExportData = (projectId: number) =>
-  request(`/v1/projects/${projectId}/export`, "GET");
+  request(`/v1/exceloutput/${projectId}`, "GET");

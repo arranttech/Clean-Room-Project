@@ -4,22 +4,28 @@ import { useAppSelector, useAppDispatch } from "../../redux/hooks";
 import {
   updateStandardsField,
   updateMultipleStandardsFields,
-
+  resetStandards,
 } from "../../redux/slices/standardSlice";
+import { updateInProgressProject } from "../../redux/slices/dashboardSlice";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { toast } from "react-toastify";
 import standardDesign from "./styles";
 import standardDataJson from "../../json/standardData.json";
 import {
   roomStandards,
   getRoomStandards,
-  updateRoomStandards
+  updateRoomStandards,
 } from "../../backend/controller/roomController";
 import { createProjectZone } from "../../backend/controller/zoneController";
+import { getProjectDetails } from "../../backend/controller/projectController";
 import { Tooltip } from "../../components/Tooltip/index";
 import constants from "../../json/constants.json";
 import Header from "../../components/header";
 import store from "../../redux/store";
-import AHUFiltration, { ahupayload, validateAhuConstruction } from "./ahuFiltration";
+import AHUFiltration, {
+  ahupayload,
+  validateAhuConstruction,
+} from "./ahuFiltration";
 
 type StandardItem = {
   id: number;
@@ -32,9 +38,12 @@ type StandardItem = {
 };
 type StandardJson = { standards: StandardItem[]; text: any };
 
+
+
 const data = standardDataJson as unknown as StandardJson;
 const standardsData = data.standards;
 const t = data.text;
+const zoneNameStyles = t.zoneNameStyles;
 
 function celsiusToFahrenheit(c: number): number {
   return (c * 9) / 5 + 32;
@@ -65,7 +74,7 @@ const humidity_range = { min: 0, max: 100 };
 function allowNumericInput(
   setter: (v: string) => void,
   value: string,
-  range = humidity_range
+  range = humidity_range,
 ) {
   if (value === "" || isNumericLike(value)) setter(value);
   if (!/^[\d*\.?\d*]{0,3}$/.test(value)) return;
@@ -82,7 +91,18 @@ function validateHumidity(value: string): string {
   return "";
 }
 
+const ZONE_PREFIX = "Z_";
 
+function getZoneSuffix(value: string): string {
+  return String(value || "")
+    .replace(/^z_/i, "")
+    .trimStart();
+}
+
+function formatZoneName(value: string): string {
+  const suffix = getZoneSuffix(value);
+  return suffix ? `${ZONE_PREFIX}${suffix}` : "";
+}
 
 export default function Standard() {
   const s = standardDesign;
@@ -91,12 +111,16 @@ export default function Standard() {
   const location = useLocation();
 
   const projectIdFromRedux = useAppSelector(
-    (state: any) => state.projectInfo.projectId
+    (state: any) => state.projectInfo.projectId,
   );
   const projectId = location.state?.projectId ?? projectIdFromRedux;
+  const user_id = useAppSelector((state: any) =>
+    String(state.user?.user_id || state.user?.user_login_id),
+  );
 
   const standards = useAppSelector((state: any) => state.standards);
   const {
+    zoneName,
     zoneId: zoneIdFromRedux,
     projectStandardId: projectStandardIdFromRedux,
     standard,
@@ -110,29 +134,37 @@ export default function Standard() {
     reqInsideTempC,
     reqInsideTempDisplay,
     reqInsideHum,
-    flowVelocity,
     heatingFlowVelocity,
     coolingFlowVelocity,
     additionalDpValue,
+    additionalDpValueExhaust,
     filterTypeSelection,
     selectedFilters,
-    totalFiltrationStages,
-    staticPressure,
+    totalFiltrationStagesSupply,
+    totalFiltrationStagesExhaust,
+    staticPressureSupply,
+    staticPressureExhaust,
+    exhaustImpactPercentage,
+    selectedFilterDetails,
   } = standards;
 
   const ahuPayload = ahupayload(standards);
 
-
   const minTempC = useAppSelector((state: any) => state.projectInfo.minTemp);
   const maxTempC = useAppSelector((state: any) => state.projectInfo.maxTemp);
   const rhMin = useAppSelector(
-    (state: any) => state.projectInfo.relativeHumidityMin
+    (state: any) => state.projectInfo.relativeHumidityMin,
   );
   const rhMax = useAppSelector(
-    (state: any) => state.projectInfo.relativeHumidityMax
+    (state: any) => state.projectInfo.relativeHumidityMax,
+  );
+  const industry = useAppSelector((state: any) => state.projectInfo.industry);
+  const subIndustry = useAppSelector(
+    (state: any) => state.projectInfo.subIndustry,
   );
 
   const [errors, setErrors] = useState({
+    zoneName: "",
     standard: "",
     classification: "",
     acph: "",
@@ -144,10 +176,27 @@ export default function Standard() {
     temperature: "",
   });
 
+  const [modalMessage, setModalMessage] = useState("");
+  const [existingZones, setExistingZones] = useState<{id: number, name: string}[]>([]);
+
+  // ──when room.tsx passes resetKey via navigate state (addAnotherZone),
+  useEffect(() => {
+    if (!location.state?.resetKey) return;
+    dispatch(resetStandards());
+    // Wipe the nav state so a manual page refresh doesn't re-trigger this.
+    window.history.replaceState({}, "");
+  }, [location.state?.resetKey]);
+
+  // ── DB pre-fill: only runs for the FIRST zone visit (when standard is empty
   useEffect(() => {
     if (!projectId) return;
-    if (zoneIdFromRedux === null) return;
+    // Skip DB pre-fill if this is a fresh "add another zone" navigation
+    if (location.state?.resetKey) return;
+    // Skip if already populated from a previous visit
     if (standard) return;
+    // Skip if zoneId is set (means we already created a zone for this session)
+    if (zoneIdFromRedux) return;
+
     const fetchStandards = async () => {
       try {
         const data = await getRoomStandards(projectId);
@@ -159,6 +208,8 @@ export default function Standard() {
               systemType: std.project_system_type || "",
               heatingMethod: std.project_heating_method || "",
               coolingMethod: std.project_cooling_method || "",
+              additionalDpValue: std.Additional_dp_supply ?? 0,
+              additionalDpValueExhaust: std.Additional_dp_exhaust ?? 0,
               standard: std.project_standard || "",
               classification: std.project_classification_name || "",
               acph: std.project_ACPH ? String(std.project_ACPH) : "",
@@ -172,13 +223,23 @@ export default function Standard() {
               reqInsideHum: std.project_required_inside_humid
                 ? String(std.project_required_inside_humid)
                 : "",
-              flowVelocity: std.flow_velocity || 1.5,
               pipeConfiguration: std.pipe_configuration || "",
-              totalFiltrationStages: std.total_filtration_stages || 0,
-              staticPressure: std.static_pressure || 0,
+              staticPressureSupply: std.static_Pressure_Supply || 0,
+              staticPressureExhaust: std.static_Pressure_Exhaust || 0,
+              exhaustImpactPercentage: std.exhaust_impact || "",
+              totalFiltrationStagesSupply:
+                std.number_of_Filtrations_Supply || 0,
+              totalFiltrationStagesExhaust:
+                std.number_of_Filtrations_Exhaust || 0,
               heatingFlowVelocity: std.heating_flow_velocity || 1.5,
               coolingFlowVelocity: std.cooling_flow_velocity || 1.5,
-            })
+              ahufiltrationData: std.ahu_filtration_data
+                ? JSON.parse(std.ahu_filtration_data)
+                : [],
+              ahuConstructionData: std.ahu_construction_specifications
+                ? JSON.parse(std.ahu_construction_specifications)
+                : [],
+            }),
           );
         }
       } catch (error) {
@@ -186,37 +247,107 @@ export default function Standard() {
       }
     };
     fetchStandards();
-  }, [projectId, zoneIdFromRedux]);
+  }, [projectId, zoneIdFromRedux, location.state?.resetKey]);
+
+  useEffect(() => {
+    if (!projectId) return;
+
+    const fetchProjectDetails = async () => {
+      try {
+        const data = await getProjectDetails(projectId);
+
+        const dbZones = Array.isArray(data?.zones)
+          ? data.zones.map((z: any) => ({
+              id: z.zone_id,
+              name: String(z.zone_name || "").trim()
+            }))
+          : [];
+
+        setExistingZones(dbZones);
+      } catch (error) {
+        console.error("Failed to fetch existing zone names:", error);
+      }
+    };
+
+    fetchProjectDetails();
+  }, [projectId]);
 
   const selectedStandard = standardsData.find((x) => x.title === standard);
-  const SPECIAL_STANDARDS = ["NC-Non Classified", "ISO 14698", "SCHEDULE M"];
+  const SPECIAL_STANDARDS = [
+    "ISO 14644-4",
+    "NC-Non Classified",
+    "ISO 14698",
+    "SCHEDULE M",
+  ];
 
   const isNonClassifiedSystem = useMemo(() => {
     if (!systemType) return false;
-    return systemType.toLowerCase().includes("non-classified");
+    const lower = systemType.toLowerCase();
+    return lower.includes("non-classified") || lower.includes("comfort");
   }, [systemType]);
 
   const filteredStandardsData = useMemo(() => {
-    if (systemType !== "" && !isNonClassifiedSystem)
-      return standardsData.filter(
-        (item) => !SPECIAL_STANDARDS.includes(item.title)
+    if (systemType === "") return standardsData;
+    if (isNonClassifiedSystem) {
+      return standardsData.filter((item) =>
+        SPECIAL_STANDARDS.includes(item.title),
       );
-    return standardsData;
+    } else {
+      return standardsData.filter(
+        (item) =>
+          !SPECIAL_STANDARDS.includes(item.title) ||
+          item.title === "ISO 14644-4",
+      );
+    }
   }, [systemType, isNonClassifiedSystem]);
 
   const classList = useMemo(() => {
     if (!selectedStandard) return [];
-    if (SPECIAL_STANDARDS.includes(selectedStandard.title)) {
-      return selectedStandard.classifications || [];
+
+    let classifications = selectedStandard.classifications || [];
+
+    if (isNonClassifiedSystem) {
+      classifications = classifications.filter((c) => {
+        const name = c.name || "";
+        return (
+          name.toLowerCase().includes("non classified") ||
+          name.toLowerCase().includes("non-classified")
+        );
+      });
+      return classifications;
     }
-    return (selectedStandard.classifications || []).filter((c) => {
-      const name = c.name || "";
-      const isNCClass =
-        name.toLowerCase().includes("non classified") ||
-        name.toLowerCase().includes("non-classified");
-      return isNonClassifiedSystem ? isNCClass : !isNCClass;
-    });
-  }, [selectedStandard, isNonClassifiedSystem]);
+
+    const industryFilters = (data as any).industryFilters || [];
+    const activeFilter = industryFilters.find(
+      (f: any) => f.industry === industry && f.subIndustry === subIndustry,
+    );
+
+    if (
+      industry === "Pharmaceutical Industry" &&
+      activeFilter &&
+      activeFilter.allowedClassifications
+    ) {
+      const allowedMap = activeFilter.allowedClassifications;
+      const title = selectedStandard.title;
+      if (allowedMap[title]) {
+        return classifications.filter((c) =>
+          allowedMap[title].includes(c.name),
+        );
+      }
+    }
+
+    if (!SPECIAL_STANDARDS.includes(selectedStandard.title)) {
+      classifications = classifications.filter((c) => {
+        const name = c.name || "";
+        return !(
+          name.toLowerCase().includes("non classified") ||
+          name.toLowerCase().includes("non-classified")
+        );
+      });
+    }
+
+    return classifications;
+  }, [selectedStandard, isNonClassifiedSystem, industry, subIndustry]);
 
   const selectedClass = classList.find((c) => c.name === classification);
 
@@ -334,14 +465,14 @@ export default function Standard() {
           reqInsideTempC: t.misc.ambient,
           reqInsideTempDisplay: t.misc.ambient,
           reqInsideHum: t.misc.ambient,
-        })
+        }),
       );
     } else {
       if (reqInsideTempC === t.misc.ambient)
         dispatch(updateStandardsField({ field: "reqInsideTempC", value: "" }));
       if (reqInsideTempDisplay === t.misc.ambient)
         dispatch(
-          updateStandardsField({ field: "reqInsideTempDisplay", value: "" })
+          updateStandardsField({ field: "reqInsideTempDisplay", value: "" }),
         );
       if (reqInsideHum === t.misc.ambient)
         dispatch(updateStandardsField({ field: "reqInsideHum", value: "" }));
@@ -362,7 +493,7 @@ export default function Standard() {
     if (ventilationOnly) return;
     if (!reqInsideTempC) {
       dispatch(
-        updateStandardsField({ field: "reqInsideTempDisplay", value: "" })
+        updateStandardsField({ field: "reqInsideTempDisplay", value: "" }),
       );
       return;
     }
@@ -371,7 +502,7 @@ export default function Standard() {
         updateStandardsField({
           field: "reqInsideTempDisplay",
           value: t.misc.ambient,
-        })
+        }),
       );
       return;
     }
@@ -380,7 +511,7 @@ export default function Standard() {
         updateStandardsField({
           field: "reqInsideTempDisplay",
           value: reqInsideTempC,
-        })
+        }),
       );
       return;
     }
@@ -390,7 +521,7 @@ export default function Standard() {
         ? String(roundTo(c, 2))
         : String(roundTo(celsiusToFahrenheit(c), 2));
     dispatch(
-      updateStandardsField({ field: "reqInsideTempDisplay", value: display })
+      updateStandardsField({ field: "reqInsideTempDisplay", value: display }),
     );
   }, [tempUnit, reqInsideTempC, ventilationOnly]);
 
@@ -401,13 +532,13 @@ export default function Standard() {
         updateMultipleStandardsFields({
           reqInsideTempDisplay: "",
           reqInsideTempC: "",
-        })
+        }),
       );
       return;
     }
     if (!isNumericLike(val)) return;
     dispatch(
-      updateStandardsField({ field: "reqInsideTempDisplay", value: val })
+      updateStandardsField({ field: "reqInsideTempDisplay", value: val }),
     );
     if (!isRealNumberString(val)) return;
     const n = parseFloat(val);
@@ -417,22 +548,19 @@ export default function Standard() {
         updateStandardsField({
           field: "reqInsideTempC",
           value: String(roundTo(n, 2)),
-        })
+        }),
       );
     else
       dispatch(
         updateStandardsField({
           field: "reqInsideTempC",
           value: String(roundTo(fahrenheitToCelsius(n), 4)),
-        })
+        }),
       );
   };
 
   const tempPlaceholder =
     tempUnit === "C" ? t.placeholders.reqTempC : t.placeholders.reqTempF;
-
-
-
 
   const roomPayload = useMemo(() => {
     const isVentilationOnly = system === t.options.systems.ventilation;
@@ -463,8 +591,7 @@ export default function Standard() {
       rhMin,
       rhMax,
       ventilationOnly: isVentilationOnly,
-      // AHU Specs & Filtration
-      ...ahuPayload
+      ...ahuPayload,
     };
   }, [
     system,
@@ -486,7 +613,26 @@ export default function Standard() {
     ahuPayload,
   ]);
 
+  const zoneSuffix = getZoneSuffix(zoneName || "");
+  const cleanZoneName = formatZoneName(zoneSuffix);
+
+  const validateZoneName = (value: string): string => {
+    const enteredZoneName = formatZoneName(value);
+
+    if (!getZoneSuffix(value)) return "Zone name is required";
+
+    const isDuplicate = existingZones.some(
+      (z) => z.name.toLowerCase() === enteredZoneName.toLowerCase() && z.id !== zoneIdFromRedux
+    );
+
+    if (isDuplicate) return "Zone already exist, please enter unique name";
+
+    return "";
+  };
+
   const isFormValid = (() => {
+    if (!cleanZoneName || errors.zoneName) return false;
+
     if (!standard || (errors as any).standard) return false;
     if (!classification || (errors as any).classification) return false;
     if (!acph || (errors as any).acph) return false;
@@ -499,6 +645,7 @@ export default function Standard() {
       if (!reqInsideTempC || (errors as any).temperature) return false;
     }
     if (additionalDpValue === "") return false;
+    if (additionalDpValueExhaust === "") return false;
     return true;
   })();
   ;
@@ -511,37 +658,53 @@ export default function Standard() {
   const createProjectZones = async () => {
     const freshProjectId = getFreshProjectId();
     if (!freshProjectId) {
-      alert("Project ID is missing. Please go back to Project Info and try again.");
+      alert(
+        "Project ID is missing. Please go back to Project Info and try again.",
+      );
       throw new Error("Missing project_id for zone creation");
     }
-    const data = await createProjectZone({ project_id: freshProjectId });
+
+    if (!cleanZoneName) {
+      alert("Zone name is required");
+      throw new Error("Missing zone_name");
+    }
+
+    const data = await createProjectZone({
+      project_id: freshProjectId,
+      user_id,
+      zone_name: cleanZoneName,
+    });
     console.log("Zone created:", data);
     return data;
   };
 
-
-
-  // ── handleNext ──
   const handleNext = async (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
+    const zoneError = validateZoneName(zoneSuffix);
+
+    if (zoneError) {
+      setErrors((p) => ({ ...p, zoneName: zoneError }));
+      setModalMessage(zoneError);
+      return;
+    }
     if (!isFormValid) {
-      alert("Please fill all required fields correctly before proceeding.");
+      setModalMessage(
+        "Please fill all required fields correctly before proceeding.",
+      );
       return;
     }
     const ahuError = validateAhuConstruction(standards);
     if (ahuError) {
-      alert(ahuError);
+      setModalMessage(ahuError);
       return;
     }
-    // Validation for filtration: at least one filter type and one specific filter must be selected
-    const types = Array.isArray(filterTypeSelection) ? filterTypeSelection : [filterTypeSelection].filter(Boolean);
+    const types = Array.isArray(filterTypeSelection)
+      ? filterTypeSelection
+      : [filterTypeSelection].filter(Boolean);
     if (types.length === 0) {
-      alert("Please select a Filter Type (Supply or Exhaust) before proceeding.");
-      return;
-    }
-
-    if (!selectedFilters || totalFiltrationStages === 0) {
-      alert("Please select at least one filter before proceeding.");
+      setModalMessage(
+        "Please select a Filter Type (Supply or Exhaust) before proceeding.",
+      );
       return;
     }
 
@@ -549,12 +712,11 @@ export default function Standard() {
       let finalZoneId = zoneIdFromRedux;
       let finalProjectStandardId = projectStandardIdFromRedux;
 
-      // Create zone only if none exists
       if (!finalZoneId) {
         const zoneData = await createProjectZones();
         finalZoneId = zoneData?.zoneId;
         if (!finalZoneId) {
-          alert("Failed to create zone. Please try again.");
+          setModalMessage("Failed to create zone. Please try again.");
           return;
         }
         dispatch(updateStandardsField({ field: "zoneId", value: finalZoneId }));
@@ -564,6 +726,13 @@ export default function Standard() {
       const freshProjectId = getFreshProjectId();
       const payload = {
         project_id: freshProjectId,
+        user_id,
+
+        zone_id: finalZoneId,
+        zone_name: cleanZoneName,
+        industry,
+        subIndustry,
+
         system,
         systemType,
         heatingMethod,
@@ -578,47 +747,86 @@ export default function Standard() {
         minTempC,
         rhMin,
         rhMax,
-        ...ahuPayload,
-        totalFiltrationStages: totalFiltrationStages,
-        staticPressure: staticPressure,
-        flowVelocity,
+        totalFiltrationStagesSupply,
+        totalFiltrationStagesExhaust,
+        staticPressureSupply,
+        staticPressureExhaust,
+        exhaustImpactPercentage,
         heatingFlowVelocity,
         coolingFlowVelocity,
+        additionalDpValue,
+        additionalDpValueExhaust,
+        selectedFilters,
+        filterTypeSelection,
+        selectedFilterDetails,
+        ...ahuPayload,
       };
 
       if (finalProjectStandardId) {
-        // PUT — update existing row, no new row created
         await updateRoomStandards(finalProjectStandardId, payload);
         console.log("Room standards updated:", finalProjectStandardId);
+        dispatch(
+          updateInProgressProject({
+            project_id: freshProjectId,
+            has_standard: true,
+            last_modified: new Date().toISOString(),
+          }),
+        );
+        toast.success("Details updated successfully!", {
+          onClose: () =>
+            navigate("/room", {
+              state: {
+                ...roomPayload,
+                zoneId: finalZoneId,
+                projectStandardId: finalProjectStandardId,
+                totalFiltrationStagesSupply,
+                totalFiltrationStagesExhaust,
+                staticPressureSupply,
+                staticPressureExhaust,
+              },
+            }),
+          autoClose: 1500,
+        });
       } else {
-        // POST — create new row
-        const standardData = await roomStandards(payload); //console.log(standardData)
+        const standardData = await roomStandards(payload);
         finalProjectStandardId = standardData?.roomStandardsId;
         if (!finalProjectStandardId) {
-          alert("Failed to save project standard. Please try again.");
+          setModalMessage("Failed to save project standard. Please try again.");
           return;
         }
         dispatch(
           updateStandardsField({
             field: "projectStandardId",
             value: finalProjectStandardId,
-          })
+          }),
+        );
+        dispatch(
+          updateInProgressProject({
+            project_id: freshProjectId,
+            has_standard: true,
+            last_modified: new Date().toISOString(),
+          }),
         );
         console.log("Standard created, ID:", finalProjectStandardId);
+        toast.success("Details saved successfully!", {
+          onClose: () =>
+            navigate("/room", {
+              state: {
+                ...roomPayload,
+                zoneId: finalZoneId,
+                projectStandardId: finalProjectStandardId,
+                totalFiltrationStagesSupply,
+                totalFiltrationStagesExhaust,
+                staticPressureSupply,
+                staticPressureExhaust,
+              },
+            }),
+          autoClose: 1500,
+        });
       }
-
-      navigate("/room", {
-        state: {
-          ...roomPayload,
-          zoneId: finalZoneId,
-          projectStandardId: finalProjectStandardId,
-          totalFiltrationStages: totalFiltrationStages,
-          staticPressure: staticPressure,
-        },
-      });
     } catch (error) {
+      toast.error("An error occurred. Please try again.");
       console.error("Error in handleNext:", error);
-      alert("An error occurred. Please try again.");
     }
   };
 
@@ -631,6 +839,55 @@ export default function Standard() {
           <p className={s.subtitle}>{t.page.subtitle}</p>
         </div>
 
+        <div className={s.card}>
+          <div className={s.cardHeader}>
+            <div className={s.cardHeaderTitle}>Zone Information</div>
+          </div>
+          <div className={s.divider} />
+          <div className={s.body}>
+            <div className={s.field}>
+              <label className={s.label}>
+                Zone Name <span className={s.required}>*</span>
+              </label>
+
+              <div style={zoneNameStyles.wrapper}>
+                <span style={zoneNameStyles.prefix}>Z_</span>
+
+                <input
+                  className={s.input}
+                  style={zoneNameStyles.input}
+                  value={zoneSuffix}
+                  placeholder="Enter Zone Name"
+                  maxLength={120}
+                  onChange={(e) => {
+                    const suffix = getZoneSuffix(e.target.value);
+                    const finalName = formatZoneName(suffix);
+                    const zoneError = validateZoneName(suffix);
+
+                    dispatch(
+                      updateStandardsField({
+                        field: "zoneName",
+                        value: finalName,
+                      }),
+                    );
+
+                    setErrors((p) => ({
+                      ...p,
+                      zoneName: zoneError,
+                    }));
+                  }}
+                />
+              </div>
+
+              {errors.zoneName && (
+                <div className="text-red-500 text-xs mt-1">
+                  {errors.zoneName}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
         <div className={s.cardWrap + " space-y-8"}>
           {/* Card 1: Standards and Classification */}
           <div className={s.card}>
@@ -638,6 +895,7 @@ export default function Standard() {
               <div className={s.cardHeaderTitle}>{t.page.cardTitle}</div>
             </div>
             <div className={s.divider} />
+
             <div className={s.body}>
               <div className={s.grid2}>
                 <div className={s.field}>
@@ -656,13 +914,16 @@ export default function Standard() {
                         updateStandardsField({
                           field: "system",
                           value: e.target.value,
-                        })
+                        }),
                       );
                       dispatch(
-                        updateStandardsField({ field: "systemType", value: "" })
+                        updateStandardsField({
+                          field: "systemType",
+                          value: "",
+                        }),
                       );
                     }}
-                    required={true}
+                    required
                   >
                     <option value="">{t.placeholders.system}</option>
                     <option value={t.options.systems.heating}>
@@ -710,19 +971,19 @@ export default function Standard() {
                           updateStandardsField({
                             field: "systemType",
                             value: e.target.value,
-                          })
+                          }),
                         );
                         dispatch(
                           updateStandardsField({
                             field: "classification",
                             value: "",
-                          })
+                          }),
                         );
                         dispatch(
-                          updateStandardsField({ field: "acph", value: "" })
+                          updateStandardsField({ field: "acph", value: "" }),
                         );
                       }}
-                      required={true}
+                      required
                     >
                       <option value="">{systemTypePlaceholder}</option>
                       {systemTypes.map((v: string) => (
@@ -755,10 +1016,10 @@ export default function Standard() {
                             updateStandardsField({
                               field: "heatingMethod",
                               value: e.target.value,
-                            })
+                            }),
                           )
                         }
-                        required={true}
+                        required
                       >
                         <option value="">{t.placeholders.heatingMethod}</option>
                         {heatingMethods.map((m: string) => (
@@ -787,10 +1048,10 @@ export default function Standard() {
                             updateStandardsField({
                               field: "coolingMethod",
                               value: e.target.value,
-                            })
+                            }),
                           )
                         }
-                        required={true}
+                        required
                       >
                         <option value="">{t.placeholders.coolingMethod}</option>
                         {coolingMethods.map((m: string) => (
@@ -822,19 +1083,19 @@ export default function Standard() {
                           updateStandardsField({
                             field: "standard",
                             value: e.target.value,
-                          })
+                          }),
                         );
                         dispatch(
                           updateStandardsField({
                             field: "classification",
                             value: "",
-                          })
+                          }),
                         );
                         dispatch(
-                          updateStandardsField({ field: "acph", value: "" })
+                          updateStandardsField({ field: "acph", value: "" }),
                         );
                       }}
-                      required={true}
+                      required
                     >
                       <option value="">{t.placeholders.standard}</option>
                       {filteredStandardsData.map((item) => (
@@ -854,20 +1115,18 @@ export default function Standard() {
                       />
                     </label>
                     <select
-                      className={
-                        selectedStandard ? s.select : s.selectDisabled
-                      }
+                      className={selectedStandard ? s.select : s.selectDisabled}
                       disabled={!selectedStandard}
                       value={classification}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         dispatch(
                           updateStandardsField({
                             field: "classification",
                             value: e.target.value,
-                          })
-                        )
-                      }
-                      required={true}
+                          }),
+                        );
+                      }}
+                      required
                     >
                       <option value="">
                         {selectedStandard
@@ -898,10 +1157,10 @@ export default function Standard() {
                           updateStandardsField({
                             field: "acph",
                             value: e.target.value,
-                          })
+                          }),
                         )
                       }
-                      required={true}
+                      required
                     >
                       {acphDisabled ? (
                         <option value="">{t.placeholders.acphDisabled}</option>
@@ -950,7 +1209,7 @@ export default function Standard() {
                           updateStandardsField({
                             field: "tempUnit",
                             value: "C",
-                          })
+                          }),
                         )
                       }
                       disabled={ventilationOnly}
@@ -969,7 +1228,7 @@ export default function Standard() {
                           updateStandardsField({
                             field: "tempUnit",
                             value: "F",
-                          })
+                          }),
                         )
                       }
                       disabled={ventilationOnly}
@@ -978,27 +1237,27 @@ export default function Standard() {
                   </label>
                 </div>
                 {ventilationOnly && (
-                  <div className={s.unitHint}>
-                    {t.misc.ventilationUnitHint}
-                  </div>
+                  <div className={s.unitHint}>{t.misc.ventilationUnitHint}</div>
                 )}
               </div>
 
               <div className={"mt-6 " + s.grid2}>
                 <div className={s.field}>
                   <label className={s.label}>
-                    {t.labels.reqInsideTemp} (
-                    {tempUnit === "C" ? "°C" : "°F"}){" "}
+                    {t.labels.reqInsideTemp} ({tempUnit === "C" ? "°C" : "°F"}){" "}
                     <span className={s.required}>*</span>
-                    <Tooltip id="requiredTemperature" content={constants.Tooltip.requiredTemperatureTooltip} />
+                    <Tooltip
+                      id="requiredTemperature"
+                      content={constants.Tooltip.requiredTemperatureTooltip}
+                    />
                   </label>
                   <input
                     className={ventilationOnly ? s.inputDisabled : s.input}
                     inputMode="decimal"
                     placeholder={tempPlaceholder}
-                    value={reqInsideTempDisplay}
+                    value={reqInsideTempDisplay || ""}
                     maxLength={3}
-                    required={true}
+                    required
                     onChange={(e) => {
                       onReqInsideTempChange(e.target.value);
                       setErrors((p) => ({
@@ -1017,8 +1276,7 @@ export default function Standard() {
                     reqInsideTempC &&
                     reqInsideTempC !== t.misc.ambient && (
                       <div className={s.tempHelper}>
-                        {t.misc.storedInternally}{" "}
-                        <b>{reqInsideTempC} °C</b>
+                        {t.misc.storedInternally} <b>{reqInsideTempC} °C</b>
                       </div>
                     )}
                 </div>
@@ -1036,8 +1294,8 @@ export default function Standard() {
                     inputMode="decimal"
                     placeholder={t.placeholders.reqHumidity}
                     maxLength={3}
-                    value={reqInsideHum}
-                    required={true}
+                    value={reqInsideHum || ""}
+                    required
                     onChange={(e) => {
                       allowNumericInput(
                         (v) =>
@@ -1045,9 +1303,9 @@ export default function Standard() {
                             updateStandardsField({
                               field: "reqInsideHum",
                               value: v,
-                            })
+                            }),
                           ),
-                        e.target.value
+                        e.target.value,
                       );
                       setErrors((p) => ({
                         ...p,
@@ -1102,9 +1360,6 @@ export default function Standard() {
                   />
                 </div>
               </div>
-
-
-
             </div>
           </div>
 
@@ -1129,6 +1384,22 @@ export default function Standard() {
           </button>
         </div>
       </div>
+
+      {modalMessage && (
+        <div className={s.modalOverlay}>
+          <div className={s.modalContent}>
+            <div className={s.modalBody}>{modalMessage}</div>
+            <div className={s.flexEnd}>
+              <button
+                className={s.modalButton}
+                onClick={() => setModalMessage("")}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

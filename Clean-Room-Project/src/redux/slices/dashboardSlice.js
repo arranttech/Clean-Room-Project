@@ -4,6 +4,7 @@ const initialState = {
 	total: 0,
 	inProgress: 0,
 	completed: 0,
+	inProgressProjects: [],
 };
 
 const dashboardSlice = createSlice({
@@ -14,6 +15,32 @@ const dashboardSlice = createSlice({
 			state.total = action.payload.total ?? 0;
 			state.inProgress = action.payload.inProgress ?? 0;
 			state.completed = action.payload.completed ?? 0;
+		},
+
+		setInProgressProjects: (state, action) => {
+			state.inProgressProjects = action.payload;
+		},
+
+		// Upsert — updates if project_id exists, adds if not
+		updateInProgressProject: (state, action) => {
+			const { project_id, ...updates } = action.payload;
+			const idx = state.inProgressProjects.findIndex(
+				(p) => p.project_id === project_id
+			);
+			if (idx !== -1) {
+				state.inProgressProjects[idx] = {
+					...state.inProgressProjects[idx],
+					...updates,
+				};
+			} else {
+				state.inProgressProjects.unshift({ project_id, ...updates });
+			}
+		},
+
+		removeInProgressProject: (state, action) => {
+			state.inProgressProjects = state.inProgressProjects.filter(
+				(p) => p.project_id !== action.payload
+			);
 		},
 
 		// Update single field
@@ -33,5 +60,13 @@ const dashboardSlice = createSlice({
 	},
 });
 
-export const { setProjectCounts, updateDashboardField, updateMultipleDashboardFields, resetDashboard } = dashboardSlice.actions;
+export const {
+	setProjectCounts,
+	setInProgressProjects,
+	updateInProgressProject,
+	removeInProgressProject,
+	updateDashboardField,
+	updateMultipleDashboardFields,
+	resetDashboard,
+} = dashboardSlice.actions;
 export default dashboardSlice.reducer;

@@ -14,28 +14,6 @@ import store from "../../redux/store";
 import constants from "../../json/constants.json";
 
 const config = (ahuData as any).ahuConstructionConfig;
-
-export const AHU_CONSTRUCTION_FIELDS = Object.keys(config.fields);
-
-export const ahupayload = (standards: any) => {
-    const payload: any = {};
-    AHU_CONSTRUCTION_FIELDS.forEach(field => {
-        payload[field] = standards[field];
-    });
-    return payload;
-};
-
-export const validateAhuConstruction = (standards: any) => {
-    const { plantRoomDistance } = standards;
-    const { min, max } = config.plantRoomDistanceLimits;
-    if (!plantRoomDistance || Number(plantRoomDistance) < min || Number(plantRoomDistance) > max) {
-        return `Plant room distance needs to be between ${min} and ${max} meters.`;
-    }
-    return null;
-};
-
-
-const config = (ahuData as any).ahuConstructionConfig;
 const filterSelectionConfig = (ahuData as any).filtrationSelection;
 const filterSpecsMap = (ahuData as any).filterSpecs;
 

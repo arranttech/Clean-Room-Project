@@ -1492,8 +1492,8 @@ export default function Room() {
                       <input
                         type="text"
                         value={finalAcph || ""}
-                        readOnly
-                        className={s.input}
+                        disabled
+                        className={s.inputDisabled}
                       />
                     </div>
                     <div className={s.bottomActionsRow}>
@@ -1664,45 +1664,13 @@ export default function Room() {
                               </button>
                             </div>
                           </td>
-                          <td className={s.tableTd}>
-                            <div className={s.tableDeviationBox}>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setAcphDeviation((p) => (p > -20 ? p - 5 : p))
-                                }
-                                disabled={acphDeviation <= -20}
-                                className={s.tableDeviationBtn}
-                              >
-                                -
-                              </button>
-
-                              <input
-                                type="text"
-                                value={`${acphDeviation}%`}
-                                readOnly
-                                className={s.tableDeviationInput}
-                              />
-
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setAcphDeviation((p) => (p < 20 ? p + 5 : p))
-                                }
-                                disabled={acphDeviation >= 20}
-                                className={s.deviationBtn}
-                              >
-                                +
-                              </button>
-                            </div>
-                          </td>
 
                           <td className={s.tableTd}>
                             <input
                               type="text"
                               value={finalAcph || ""}
-                              readOnly
-                              className={s.tableInput}
+                              disabled
+                              className={s.inputDisabled}
                             />
                           </td>
                           <td className={s.tableTd}>

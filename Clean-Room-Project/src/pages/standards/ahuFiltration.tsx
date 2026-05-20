@@ -10,6 +10,7 @@ import standardDesign from "./styles";
 import ahuData from "../../json/ahuFiltrationData.json";
 import standardDataJson from "../../json/standardData.json";
 import { Tooltip } from "../../components/Tooltip/index";
+import store from "../../redux/store";
 import constants from "../../json/constants.json";
 
 const config = (ahuData as any).ahuConstructionConfig;
@@ -828,7 +829,8 @@ const AHUFiltration = () => {
     const dismissedSupplySet =
       dismissedSupplyByContextRef.current[autoRuleContextKey] || new Set();
 
-    const nextSelected = [...(selectedFilters || [])];
+    const currentReduxFilters = store.getState().standards?.selectedFilters || [];
+    const nextSelected = [...currentReduxFilters];
     const detailsToAdd: Array<{ filterName: string; details: any }> = [];
 
     selectedTypesForRule.forEach((type: string) => {
@@ -857,8 +859,8 @@ const AHUFiltration = () => {
     });
 
     const selectedChanged =
-      nextSelected.length !== selectedFilters.length ||
-      nextSelected.some((k: string) => !selectedFilters.includes(k));
+      nextSelected.length !== currentReduxFilters.length ||
+      nextSelected.some((k: string) => !currentReduxFilters.includes(k));
 
     if (selectedChanged) {
       handleChange("selectedFilters", nextSelected);
@@ -1107,7 +1109,7 @@ const AHUFiltration = () => {
     });
 
     if (filtersToAdd.size > 0) {
-      const currentSelected = [...(selectedFilters || [])];
+      const currentSelected = [...(store.getState().standards?.selectedFilters || [])];
       let selectionChanged = false;
 
       filtersToAdd.forEach((k) => {

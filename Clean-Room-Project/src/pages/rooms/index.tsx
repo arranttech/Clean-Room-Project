@@ -181,13 +181,23 @@ export default function Room() {
   const [isUploadingRooms, setIsUploadingRooms] = useState(false);
 
   useEffect(() => {
-    if (!currentZoneIdRef.current && zoneIdFromRedux) {
-      currentZoneIdRef.current = zoneIdFromRedux;
+    const latestZoneId = zoneIdFromNav ?? zoneIdFromRedux ?? null;
+    const latestProjectStandardId =
+      projectStandardIdFromNav ?? projectStandardIdFromRedux ?? null;
+
+    if (latestZoneId) {
+      currentZoneIdRef.current = latestZoneId;
     }
-    if (!currentProjectStandardIdRef.current && projectStandardIdFromRedux) {
-      currentProjectStandardIdRef.current = projectStandardIdFromRedux;
+
+    if (latestProjectStandardId) {
+      currentProjectStandardIdRef.current = latestProjectStandardId;
     }
-  }, [zoneIdFromRedux, projectStandardIdFromRedux]);
+  }, [
+    zoneIdFromNav,
+    zoneIdFromRedux,
+    projectStandardIdFromNav,
+    projectStandardIdFromRedux,
+  ]);
 
   const alertShownRef = useRef(false);
   const exhaustPrefilledRef = useRef(false);
@@ -387,7 +397,9 @@ export default function Room() {
       return;
     }
 
-    const zoneId = editingRoom ? editingRoom.zoneId : currentZoneIdRef.current;
+    const zoneId = editingRoom
+      ? editingRoom.zoneId
+      : (zoneIdFromNav ?? zoneIdFromRedux ?? currentZoneIdRef.current);
     const projectStandardId = editingRoom
       ? editingRoom.projectStandardId
       : currentProjectStandardIdRef.current;

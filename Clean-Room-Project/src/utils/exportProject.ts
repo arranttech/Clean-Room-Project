@@ -11,7 +11,7 @@ const C = {
   white: "FFFFFF",
   black: "000000",
   lightGray: "595959",
-  brickred: "ED7D31",
+  green: "92D050",
 };
 
 const thin = { style: "thin", color: { rgb: C.black } };
@@ -62,7 +62,7 @@ const orD = (v: any, bl = B()) =>
   mc(v, C.orange, C.black, false, false, typeof v === "number" ? "right" : "left", bl);
 
 const brickD = (v: any, bl = B()) =>
-  mc(v, C.brickred, C.black, false, false, "center", bl);
+  mc(v, C.green, C.black, false, false, "center", bl);
 
 const rdD = (v: any, bl = B()) =>
   mc(v, C.red, C.white, true, false, typeof v === "number" ? "right" : "center", bl);
@@ -173,7 +173,6 @@ const COLS: Col[] = [
   { label: "Min Temp (°C)", key: "project_min_temp", sec: "brown", src: "std" },
   { label: "Min Humidity (%)", key: "project_relative_min_humid", sec: "brown", src: "std" },
   { label: "Max Humidity (%)", key: "project_relative_max_humid", sec: "brown", src: "std" },
-  { label: "Flow Velocity", key: "flow_velocity", sec: "brown", src: "std" },
   { label: "Heat Flow Velocity", key: "heating_flow_velocity", sec: "brown", src: "std" },
   { label: "Cool Flow Velocity", key: "cooling_flow_velocity", sec: "brown", src: "std" },
   { label: "Pipe Configuration", key: "pipe_configuration", sec: "brown", src: "std" },
@@ -865,7 +864,7 @@ function buildZoneSheet(
     }
 
     if (exhaustAhuStart !== -1) {
-      titleRow[exhaustAhuStart] = yTitle("Exhaust AHU Design", BDivLeft());
+      titleRow[exhaustAhuStart] = yTitle("Exhaust AHU Details", BDivLeft());
       merges.push(mg(ri, ri, exhaustAhuStart, exhaustAhuEnd));
     }
     allRows.push(titleRow);
@@ -1074,19 +1073,13 @@ function buildZoneSheet(
       ri++;
     }
 
-    const dataEndRi = ri - 1;
-
-    // Merge all data rows only for Supply AHU / Exhaust AHU columns
-    if (dataEndRi > dataStartRi) {
-      tableVisibleCols.forEach((col, colIndex) => {
-        if (col.sec === "supplyAhu" || col.sec === "exhaustAhu") {
-          merges.push(mg(dataStartRi, dataEndRi, colIndex, colIndex));
-        }
-      });
-    }
-
     const totalsRow: CO[] = tableVisibleCols.map((col, i) => {
       const bl = borderForVisibleIndex(i, tableVisibleCols);
+
+      // Keep AHU bottom row green instead of red
+      if (col.sec === "supplyAhu" || col.sec === "exhaustAhu") {
+        return brickD("", bl);
+      }
 
       if (i === 0) return rdD("TOTAL", bl);
       if (!col.zoneCol) return rdD("", bl);
@@ -1103,6 +1096,16 @@ function buildZoneSheet(
     rowHeights.push({ hpt: 20 });
     ri++;
 
+    const ahuMergeEndRi = ri - 1;
+
+    if (ahuMergeEndRi >= dataStartRi) {
+      tableVisibleCols.forEach((col, colIndex) => {
+        if (col.sec === "supplyAhu" || col.sec === "exhaustAhu") {
+          merges.push(mg(dataStartRi, ahuMergeEndRi, colIndex, colIndex));
+        }
+      });
+    }
+    
     allRows.push(Array.from({ length: tableVisibleCols.length }, () => eW()));
     rowHeights.push({ hpt: 12 });
     ri++;

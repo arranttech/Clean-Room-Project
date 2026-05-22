@@ -180,6 +180,23 @@ export function boqresults(
                 ? exhaustValues.every((v: number) => v !== 0)
                 : exhaustAir !== 0;
 
+
+        const isSinglePipe = (pipeConfiguration || "").toUpperCase() === "SINGLE PIPE";
+
+        const ChilledWaterGPM =
+            Math.max(
+                zoneRoomACValue,
+                zoneCfmACLoadTR,
+            ) * 4;
+
+        console.log("Calculated Chilled Water GPM:", ChilledWaterGPM);
+
+        const HotWaterGPM =
+            Math.max(
+                zoneRoomHeatLoadTR,
+                zoneCfmHeatLoadTRValue,
+            ) * 4;
+
         // ================= CFM =================
         function calculatedAHUCfm(): number {
             let ahuCfm = 0;
@@ -233,14 +250,6 @@ export function boqresults(
         }
 
         const MAX_CFM = 40000;
-
-        console.log("BOQ ROW CREATE CHECK:", {
-            boqRowType,
-            zoneResultantHeatCfm: zone?.zoneResultantHeatCfm,
-            zone_ResultCfm_Hot: zone?.zone_ResultCfm_Hot,
-            fallbackHeatingBase: heatingBase,
-            zone,
-        });
 
         const finalCfmRaw = calculatedAHUCfm();
         const finalCfm = Math.min(finalCfmRaw, MAX_CFM);
@@ -369,6 +378,10 @@ export function boqresults(
         }
 
         function calculateStagesofFiltration(exhaustFlag: number): number {
+             if (isVentilationSupply || isVentilationExhaust) {
+               if(exhaustFlag !== 0) return totalFiltrationStagesExhaust + 1;
+                return totalFiltrationStagesSupply + 1;
+            }
             if (exhaustFlag !== 0) return totalFiltrationStagesExhaust;
             return totalFiltrationStagesSupply;
         }
@@ -428,33 +441,15 @@ export function boqresults(
 
         function calculateGPM(): number {
 
-            // ventilation rows alone should be zero
             if (isVentilationSupply || isVentilationExhaust) {
                 return 0;
             }
 
-            const ChilledWaterGPM =
-                Math.max(
-                    zoneRoomACValue,
-                    zoneCfmACLoadTR,
-                ) * 4;
 
-            console.log("Calculated Chilled Water GPM:", ChilledWaterGPM);
-
-            const HotWaterGPM =
-                Math.max(
-                    zoneRoomHeatLoadTR,
-                    zoneCfmHeatLoadTRValue,
-                ) * 4;
-
-            console.log("Calculated Hot Water GPM:", HotWaterGPM);
-
-            // Cooling supply should work even in Cooling + Ventilation
             if (isCoolingSupply || (showCooling && !showHeating)) {
                 return ChilledWaterGPM;
             }
 
-            // Heating supply should work even in Heating + Ventilation
             if (isHeatingSupply || (showHeating && !showCooling)) {
                 return HotWaterGPM;
             }
@@ -485,18 +480,32 @@ export function boqresults(
             if (isCoolingExhaust || isHeatingExhaust) {
                 return 0;
             }
+
+            if (isHeatingandCooling && isSinglePipe) {
+                if (isCoolingSupply) {
+                    return coolingFlowVelocity || 0;
+                }
+
+                if (isHeatingSupply) {
+                    if (!ChilledWaterGPM || !HotWaterGPM || !coolingFlowVelocity) {
+                        return 0;
+                    }
+
+                    return  Number (((coolingFlowVelocity * HotWaterGPM) / ChilledWaterGPM).toFixed(3));
+                }
+
+                return 0;
+            }
+
             if (isCoolingSupply) {
                 return coolingFlowVelocity || 0;
             }
+
             if (isHeatingSupply) {
                 return heatingFlowVelocity || 0;
             }
 
             if (isHeatingandCooling) {
-                if ((pipeConfiguration || "").toUpperCase() === "SINGLE PIPE") {
-                    return heatingFlowVelocity || coolingFlowVelocity || 0;
-                }
-
                 return [
                     heatingFlowVelocity || 0,
                     coolingFlowVelocity || 0
@@ -509,6 +518,7 @@ export function boqresults(
 
             return 0;
         }
+        
 
         function calculateWaterLS(GPM: number): number {
             return Math.round(GPM * w * 10) / 10;

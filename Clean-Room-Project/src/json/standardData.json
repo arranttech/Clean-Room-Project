@@ -3355,6 +3355,717 @@
           "15u"
         ]
       }
+    },
+    {
+      "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+      "subIndustry": "Refinery Control Rooms / CCR",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "3500"
+        ],
+        "BS 5295": [
+          "J",
+          "K"
+        ],
+        "GERMANY VD": [
+          "5",
+          "6"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "15u"
+        ]
+      }
+    },
+    {
+      "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+      "subIndustry": "Central Analytical Labs",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 7"
+        ],
+        "FDA 209E": [
+          "Class10K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "350"
+        ],
+        "BS 5295": [
+          "J"
+        ],
+        "GERMANY VD": [
+          "5"
+        ],
+        "AFNOR X44101": [
+          "400000"
+        ],
+        "NC-Non Classified": [
+          "10u"
+        ]
+      }
+    },
+    {
+      "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+      "subIndustry": "Catalyst Handling / Charging Areas",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Non-Classified"
+        ],
+        "TGA": [
+          "350",
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "J",
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "5",
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "20"
+        ]
+      }
+    },
+    {
+      "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+      "subIndustry": "Sulphur Recovery Units (SRU)",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 8",
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Class100K",
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Grade D (ISO 8 at Rest & Not Defined)",
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 8",
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Non-Classified"
+        ],
+        "TGA": [
+          "3500",
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "K",
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "6",
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "4000000",
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "15u",
+          "20"
+        ]
+      }
+    },
+    {
+      "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+      "subIndustry": "Petrochemical Polymerisation Units",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "3500"
+        ],
+        "BS 5295": [
+          "J",
+          "K"
+        ],
+        "GERMANY VD": [
+          "5",
+          "6"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "15u"
+        ]
+      }
+    },
+    {
+      "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+      "subIndustry": "Specialty / Fine Chemicals Production",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 6",
+          "ISO 7"
+        ],
+        "FDA 209E": [
+          "Class1K",
+          "Class10K"
+        ],
+        "GMP": [
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)",
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 6",
+          "JIS Class 7"
+        ],
+        "EU GMP": [
+          "Grade B (ISO 5 at Rest & ISO 7 in Oper.)",
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)"
+        ],
+        "TGA": [
+          "35",
+          "350"
+        ],
+        "BS 5295": [
+          "G or H",
+          "J"
+        ],
+        "GERMANY VD": [
+          "4",
+          "5"
+        ],
+        "AFNOR X44101": [
+          "400000"
+        ],
+        "NC-Non Classified": [
+          "5u",
+          "10u"
+        ]
+      }
+    },
+    {
+      "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+      "subIndustry": "Blending & Additive Manufacturing",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "3500"
+        ],
+        "BS 5295": [
+          "K"
+        ],
+        "GERMANY VD": [
+          "6"
+        ],
+        "AFNOR X44101": [
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "15u"
+        ]
+      }
+    },
+    {
+      "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+      "subIndustry": "Packaging & Drumming Areas",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 8",
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Class100K",
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Grade D (ISO 8 at Rest & Not Defined)",
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 8",
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Non-Classified"
+        ],
+        "TGA": [
+          "3500",
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "K",
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "6",
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "4000000",
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "15u",
+          "20"
+        ]
+      }
+    },
+    {
+      "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+      "subIndustry": "Gas Processing Plants (Onshore)",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "3500"
+        ],
+        "BS 5295": [
+          "K"
+        ],
+        "GERMANY VD": [
+          "6"
+        ],
+        "AFNOR X44101": [
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "15u"
+        ]
+      }
+    },
+    {
+      "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+      "subIndustry": "Offshore Platforms (Process Areas)",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 8",
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Class100K",
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Grade D (ISO 8 at Rest & Not Defined)",
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 8",
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Non-Classified"
+        ],
+        "TGA": [
+          "3500",
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "K",
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "6",
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "4000000",
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "15u",
+          "20"
+        ]
+      }
+    },
+    {
+      "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+      "subIndustry": "LNG Process & Compressors",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "3500"
+        ],
+        "BS 5295": [
+          "K"
+        ],
+        "GERMANY VD": [
+          "6"
+        ],
+        "AFNOR X44101": [
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "15u"
+        ]
+      }
+    },
+    {
+      "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+      "subIndustry": "LNG Control & E‑Rooms",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 7",
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class10K",
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade C (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 7",
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade C (ISO 7 at Rest & ISO 7 in Oper.)",
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "350",
+          "3500"
+        ],
+        "BS 5295": [
+          "J",
+          "K"
+        ],
+        "GERMANY VD": [
+          "5",
+          "6"
+        ],
+        "AFNOR X44101": [
+          "400000",
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "10u",
+          "15u"
+        ]
+      }
+    },
+    {
+      "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+      "subIndustry": "Hydrogen Production (SMR / Electrolysis)",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 8"
+        ],
+        "FDA 209E": [
+          "Class100K"
+        ],
+        "GMP": [
+          "Grade D (ISO 8 at Rest & Not Defined)"
+        ],
+        "JIS B 9920": [
+          "JIS Class 8"
+        ],
+        "EU GMP": [
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)"
+        ],
+        "TGA": [
+          "3500"
+        ],
+        "BS 5295": [
+          "K"
+        ],
+        "GERMANY VD": [
+          "6"
+        ],
+        "AFNOR X44101": [
+          "4000000"
+        ],
+        "NC-Non Classified": [
+          "15u"
+        ]
+      }
+    },
+    {
+      "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+      "subIndustry": "Battery Energy Storage (O&G + Power)",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20"
+        ]
+      }
+    },
+    {
+      "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+      "subIndustry": "Hazardous Chemical Storage Rooms",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 8",
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Class100K",
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Grade D (ISO 8 at Rest & Not Defined)",
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 8",
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Non-Classified"
+        ],
+        "TGA": [
+          "3500",
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "K",
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "6",
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "4000000",
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "15u",
+          "20"
+        ]
+      }
+    },
+    {
+      "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+      "subIndustry": "NORM Handling & Sludge Processing",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 8",
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Class100K",
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Grade D (ISO 8 at Rest & Not Defined)",
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 8",
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Grade D (ISO 7 at Rest & ISO 8 in Oper.)",
+          "Non-Classified"
+        ],
+        "TGA": [
+          "3500",
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "K",
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "6",
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "4000000",
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "15u",
+          "20"
+        ]
+      }
+    },
+    {
+      "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+      "subIndustry": "Utility Buildings & Workshops",
+      "allowedClassifications": {
+        "ISO 14644-4": [
+          "ISO 9 (Non-Classified)"
+        ],
+        "FDA 209E": [
+          "Non-Classified"
+        ],
+        "GMP": [
+          "Non-Classified"
+        ],
+        "JIS B 9920": [
+          "JIS Class 9 (Non-Classified)"
+        ],
+        "EU GMP": [
+          "Non-Classified"
+        ],
+        "TGA": [
+          "Non-Classified"
+        ],
+        "BS 5295": [
+          "Non-Classified"
+        ],
+        "GERMANY VD": [
+          "Non-Classified"
+        ],
+        "AFNOR X44101": [
+          "Non-Classified"
+        ],
+        "NC-Non Classified": [
+          "20"
+        ]
+      }
     }
   ],
   "text": {

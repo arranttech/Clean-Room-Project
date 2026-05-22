@@ -323,7 +323,6 @@ export default function Standard() {
     );
 
     if (
-      industry === "Pharmaceutical Industry" &&
       activeFilter &&
       activeFilter.allowedClassifications
     ) {

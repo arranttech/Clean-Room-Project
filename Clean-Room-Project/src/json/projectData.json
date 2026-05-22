@@ -1,7 +1,58 @@
 {
   "industries": [
     {
-      "name": "Electronics & Precision Engineering",
+      "name": "Pharmaceutical Industry",
+      "subIndustries": [
+        "API Synthesis (Non‑Potent)",
+        "HPAPI / OEB 4–6 API Manufacturing",
+        "Fermentation (Small Molecules)",
+        "Solid Oral Dosage (Granulation)",
+        "Tablet Compression & Coating",
+        "Capsule Filling",
+        "Liquid Oral Manufacturing",
+        "Ointments / Creams (Semi‑Solids)",
+        "Sterile Injectable – Filling (SVP/LVP)",
+        "Lyophilization Suites",
+        "Biologics – Upstream (Cell Culture)",
+        "Biologics – Downstream (Purification)",
+        "Vaccine Filling (Biological)",
+        "ADC Manufacturing (Conjugation)",
+        "Clinical Trial Material (CTM)",
+        "Primary Packaging (Vials, Stoppers)",
+        "Secondary & Tertiary Packaging",
+        "QC Microbiology Labs",
+        "Analytical / Chemical QC Labs",
+        "GMP Warehouses (Controlled)",
+        "Cold Rooms / Stability Chambers",
+        "Utilities (PW/WFI, Clean Steam)"
+      ]
+    },
+
+    {
+      "name": "Oil & Gas, Petrochemicals & Allied Segment",
+      "subIndustries":[
+        "Refinery Control Rooms / CCR",
+        "Central Analytical Labs",
+        "Catalyst Handling / Charging Areas",
+        "Sulphur Recovery Units (SRU)",
+        "Petrochemical Polymerisation Units",
+        "Specialty / Fine Chemicals Production",
+        "Blending & Additive Manufacturing",
+        "Packaging & Drumming Areas",
+        "Gas Processing Plants (Onshore)",
+        "Offshore Platforms (Process Areas)",
+        "LNG Process & Compressors",
+        "LNG Control & E‑Rooms",
+        "Hydrogen Production (SMR / Electrolysis)",
+        "Battery Energy Storage (O&G + Power)",
+        "Hazardous Chemical Storage Rooms",
+        "NORM Handling & Sludge Processing",
+        "Utility Buildings & Workshops"
+      ]
+    },
+
+    {
+       "name": "Electronics & Precision Engineering",
       "subIndustries": [
         "LED & OLED manufacturing",
         "Solar PV cell/module manufacturing",
@@ -51,33 +102,7 @@
         "Diagnostic equipment labs"
       ]
     },
-    {
-      "name": "Pharmaceutical Industry",
-      "subIndustries": [
-        "API Synthesis (Non‑Potent)",
-        "HPAPI / OEB 4–6 API Manufacturing",
-        "Fermentation (Small Molecules)",
-        "Solid Oral Dosage (Granulation)",
-        "Tablet Compression & Coating",
-        "Capsule Filling",
-        "Liquid Oral Manufacturing",
-        "Ointments / Creams (Semi‑Solids)",
-        "Sterile Injectable – Filling (SVP/LVP)",
-        "Lyophilization Suites",
-        "Biologics – Upstream (Cell Culture)",
-        "Biologics – Downstream (Purification)",
-        "Vaccine Filling (Biological)",
-        "ADC Manufacturing (Conjugation)",
-        "Clinical Trial Material (CTM)",
-        "Primary Packaging (Vials, Stoppers)",
-        "Secondary & Tertiary Packaging",
-        "QC Microbiology Labs",
-        "Analytical / Chemical QC Labs",
-        "GMP Warehouses (Controlled)",
-        "Cold Rooms / Stability Chambers",
-        "Utilities (PW/WFI, Clean Steam)"
-      ]
-    },
+
     {
       "name": "Biotechnology & Biopharma",
       "subIndustries": [
@@ -655,6 +680,154 @@
         "Particulate sensitive"
       ]
     },
+    {
+    "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+    "subIndustry": "Refinery Control Rooms / CCR",
+    "handling": [
+      "ESD controlled",
+      "Pressure cascade-controlled"
+    ]
+  },
+  {
+    "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+    "subIndustry": "Central Analytical Labs",
+    "handling": [
+      "Particulate sensitive",
+      "AMC/molecular sensitive",
+      "Volatile Organics Control(VOC)"
+    ]
+  },
+  {
+    "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+    "subIndustry": "Catalyst Handling / Charging Areas",
+    "handling": [
+      "Particulate sensitive",
+      "Explosive dust",
+      "Volatile Organics Control(VOC)"
+    ]
+  },
+  {
+    "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+    "subIndustry": "Sulphur Recovery Units (SRU)",
+    "handling": [
+      "Volatile Organics Control(VOC)",
+      "Odour/Cross contamination"
+    ]
+  },
+  {
+    "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+    "subIndustry": "Petrochemical Polymerisation Units",
+    "handling": [
+      "ESD controlled",
+      "Volatile Organics Control(VOC)",
+      "Explosive dust"
+    ]
+  },
+  {
+    "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+    "subIndustry": "Specialty / Fine Chemicals Production",
+    "handling": [
+      "Volatile Organics Control(VOC)",
+      "Odour/Cross contamination",
+      "Potent compound (HPAPI)"
+    ]
+  },
+  {
+    "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+    "subIndustry": "Blending & Additive Manufacturing",
+    "handling": [
+      "Volatile Organics Control(VOC)",
+      "Explosive dust",
+      "Odour/Cross contamination"
+    ]
+  },
+  {
+    "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+    "subIndustry": "Packaging & Drumming Areas",
+    "handling": [
+      "Explosive dust",
+      "Odour/Cross contamination"
+    ]
+  },
+  {
+    "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+    "subIndustry": "Gas Processing Plants (Onshore)",
+    "handling": [
+      "ESD controlled",
+      "Explosive dust",
+      "Volatile Organics Control(VOC)"
+    ]
+  },
+  {
+    "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+    "subIndustry": "Offshore Platforms (Process Areas)",
+    "handling": [
+      "High moisture wash-down",
+      "ESD controlled",
+      "Explosive dust",
+      "Pressure cascade-controlled"
+    ]
+  },
+  {
+    "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+    "subIndustry": "LNG Process & Compressors",
+    "handling": [
+      "Cryogenic",
+      "Explosive dust",
+      "Pressure cascade-controlled"
+    ]
+  },
+  {
+    "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+    "subIndustry": "LNG Control & E‑Rooms",
+    "handling": [
+      "ESD controlled",
+      "Pressure cascade-controlled",
+      "High moisture wash-down"
+    ]
+  },
+  {
+    "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+    "subIndustry": "Hydrogen Production (SMR / Electrolysis)",
+    "handling": [
+      "Explosive dust",
+      "Pressure cascade-controlled",
+      "ESD controlled"
+    ]
+  },
+  {
+    "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+    "subIndustry": "Battery Energy Storage (O&G + Power)",
+    "handling": [
+      "ESD controlled",
+      "Temperature critical",
+      "Relative Humidity critical"
+    ]
+  },
+  {
+    "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+    "subIndustry": "Hazardous Chemical Storage Rooms",
+    "handling": [
+      "Volatile Organics Control(VOC)",
+      "Odour/Cross contamination",
+      "Explosive dust"
+    ]
+  },
+  {
+    "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+    "subIndustry": "NORM Handling & Sludge Processing",
+    "handling": [
+      "Radiological",
+      "Particulate sensitive"
+    ]
+  },
+  {
+    "industry": "Oil & Gas, Petrochemicals & Allied Segment",
+    "subIndustry": "Utility Buildings & Workshops",
+    "handling": [
+      "Particulate sensitive"
+    ]
+  },
     {
       "industry": "Biotechnology & Biopharma",
       "subIndustry": "Cell culture",

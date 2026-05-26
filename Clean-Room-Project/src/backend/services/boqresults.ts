@@ -591,6 +591,188 @@ export function boqresults(
     }
 }
 
+
+const isSupplyBOQRow = (rowType?: BOQRowType) =>
+    rowType === "COOLING_SUPPLY" ||
+    rowType === "HEATING_SUPPLY" ||
+    rowType === "VENTILATION_SUPPLY";
+
+const getSafeNumber = (value: any): number => {
+    const num = Number(value);
+    return Number.isFinite(num) ? num : 0;
+};
+
+const getCoilLengthByRows = (coilRows: number): number => {
+    const ahu = boqresult?.fields?.AHUSize;
+    const ahuln = ahu?.AHULengthCfm;
+    if (!ahuln || coilRows <= 0) return 0;
+
+    const coilLimits = ahuln.CoolingCoil || [];
+    const coilLengths = ahuln.CoilLength || [];
+
+    for (let i = 0; i < coilLimits.length; i++) {
+        if (coilRows <= coilLimits[i]) {
+            return coilLengths[i] || 0;
+        }
+    }
+
+    return 1200;
+};
+
+const calculateSharedSupplyAHULength = (
+    bdbVal: number,
+    stages: number,
+    coilRowsList: number[]
+): number => {
+    const ahu = boqresult?.fields?.AHUSize;
+    const ahuln = ahu?.AHULengthCfm;
+    if (!ahuln) return 0;
+
+    const bdbLimits = ahuln.BDB || [];
+    const blowerLengths = ahuln.BlowerLength || [];
+    const filterStages = ahuln.FilterStages || [];
+    const filterLengths = ahuln.FilterLength || [];
+
+    let blowerLength = blowerLengths[blowerLengths.length - 1] || 0;
+    let filterLength = 0;
+
+    for (let i = 0; i < bdbLimits.length; i++) {
+        if (bdbVal <= bdbLimits[i]) {
+            blowerLength = blowerLengths[i] || blowerLength;
+            break;
+        }
+    }
+
+    for (let i = 0; i < filterStages.length; i++) {
+        if (stages === filterStages[i]) {
+            filterLength = filterLengths[i] || 0;
+            break;
+        }
+    }
+
+    const totalCoilLength = coilRowsList.reduce(
+        (sum, coilRows) => sum + getCoilLengthByRows(coilRows),
+        0
+    );
+
+    const totalLength = blowerLength + filterLength + totalCoilLength;
+
+    return totalLength < 4000 ? totalLength : totalLength + 400;
+};
+
+const applySharedSupplyAHUForCombination = (
+    rows: any[],
+    coilRowTypesToInclude: BOQRowType[]
+) => {
+    const supplyRows = rows.filter((row) => isSupplyBOQRow(row.boqRowType));
+
+    if (supplyRows.length <= 1) return rows;
+
+    const finalSupplyCfm = Math.max(
+        ...supplyRows.map((row) => getSafeNumber(row.AHUCfm))
+    );
+
+    const finalSupplyWidth = Math.max(
+        ...supplyRows.map((row) => getSafeNumber(row.AHUWidth))
+    );
+
+    const finalSupplyHeight = Math.max(
+        ...supplyRows.map((row) => getSafeNumber(row.AHUHeight))
+    );
+
+    const finalSupplyBDB = Math.max(
+        ...supplyRows.map((row) => getSafeNumber(row.BDB))
+    );
+
+    const finalSupplyStages = Math.max(
+        ...supplyRows.map((row) => getSafeNumber(row.stageFilter))
+    );
+
+    const coilRowsForLength = rows
+        .filter((row) => coilRowTypesToInclude.includes(row.boqRowType))
+        .map((row) => getSafeNumber(row.noofrowsofCoil))
+        .filter((coilRows) => coilRows > 0);
+
+    const finalSupplyLength = calculateSharedSupplyAHULength(
+        finalSupplyBDB,
+        finalSupplyStages,
+        coilRowsForLength
+    );
+
+    return rows.map((row) => {
+        if (!isSupplyBOQRow(row.boqRowType)) return row;
+
+        return {
+            ...row,
+            AHUCfm: finalSupplyCfm,
+            AHUWidth: finalSupplyWidth,
+            AHUHeight: finalSupplyHeight,
+            AHULength: finalSupplyLength,
+        };
+    });
+};
+
+const isExhaustBOQRow = (rowType?: BOQRowType) =>
+    rowType === "COOLING_EXHAUST" ||
+    rowType === "HEATING_EXHAUST" ||
+    rowType === "VENTILATION_EXHAUST";
+
+const applySharedExhaustAHUForCombination = (rows: any[]) => {
+    const exhaustRows = rows.filter((row) => isExhaustBOQRow(row.boqRowType));
+
+    if (exhaustRows.length <= 1) return rows;
+
+    const finalExhaustCfm = Math.max(
+        ...exhaustRows.map((row) => getSafeNumber(row.AHUCfm))
+    );
+
+    const finalExhaustWidth = Math.max(
+        ...exhaustRows.map((row) => getSafeNumber(row.AHUWidth))
+    );
+
+    const finalExhaustHeight = Math.max(
+        ...exhaustRows.map((row) => getSafeNumber(row.AHUHeight))
+    );
+
+    const finalExhaustBDB = Math.max(
+        ...exhaustRows.map((row) => getSafeNumber(row.BDB))
+    );
+
+    const finalExhaustStages = Math.max(
+        ...exhaustRows.map((row) => getSafeNumber(row.stageFilter))
+    );
+
+    const finalExhaustLength = calculateSharedSupplyAHULength(
+        finalExhaustBDB,
+        finalExhaustStages,
+        []
+    );
+
+    return rows.map((row) => {
+        if (!isExhaustBOQRow(row.boqRowType)) return row;
+
+        return {
+            ...row,
+            AHUCfm: finalExhaustCfm,
+            AHUWidth: finalExhaustWidth,
+            AHUHeight: finalExhaustHeight,
+            AHULength: finalExhaustLength,
+        };
+    });
+};
+
+const applySharedAHUForCombination = (
+    rows: any[],
+    coilRowTypesToInclude: BOQRowType[]
+) => {
+    const rowsWithSharedSupplyAHU = applySharedSupplyAHUForCombination(
+        rows,
+        coilRowTypesToInclude
+    );
+
+    return applySharedExhaustAHUForCombination(rowsWithSharedSupplyAHU);
+};
+
 export function getBOQRowsForZone(
     zone: BOQPayload | any,
     standards: any,
@@ -653,29 +835,38 @@ export function getBOQRowsForZone(
     }
 
     if (isCoolingVentilation) {
-        return [
+        const rows = [
             boqresults(zone, standards, room, result, "COOLING_SUPPLY"),
             boqresults(zone, standards, room, result, "COOLING_EXHAUST"),
             boqresults(zone, standards, room, result, "VENTILATION_SUPPLY"),
             boqresults(zone, standards, room, result, "VENTILATION_EXHAUST"),
         ];
+
+        return applySharedAHUForCombination(rows, ["COOLING_SUPPLY"]);
     }
 
     if (isHeatingVentilation) {
-        return [
+        const rows = [
             boqresults(zone, standards, room, result, "HEATING_SUPPLY"),
             boqresults(zone, standards, room, result, "HEATING_EXHAUST"),
             boqresults(zone, standards, room, result, "VENTILATION_SUPPLY"),
             boqresults(zone, standards, room, result, "VENTILATION_EXHAUST"),
         ];
+
+        return applySharedAHUForCombination(rows, ["HEATING_SUPPLY"]);
     }
 
     if (isCoolingHeating) {
-        return [
+        const rows = [
             boqresults(zone, standards, room, result, "COOLING_SUPPLY"),
             boqresults(zone, standards, room, result, "HEATING_SUPPLY"),
             boqresults(zone, standards, room, result, "COOLING_EXHAUST"),
         ];
+
+        return applySharedAHUForCombination(rows, [
+            "COOLING_SUPPLY",
+            "HEATING_SUPPLY",
+        ]);
     }
 
     return [boqresults(zone, standards, room, result)];

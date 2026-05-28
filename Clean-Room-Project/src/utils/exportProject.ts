@@ -330,14 +330,8 @@ function isSupplyByRoomInput(room: any): boolean {
   const exhaustCfm = Number(room.room_ExhaustAirCfm);
 
   return (
-    (
-      (isNaN(exhaustPercent) || exhaustPercent === 0) &&
-      (isNaN(exhaustCfm) || exhaustCfm === 0)
-    ) ||
-    (
-      (isNaN(exhaustPercent) || exhaustPercent !== 0) &&
-      (isNaN(exhaustCfm) || exhaustCfm !== 0)
-    )
+    (isNaN(exhaustPercent) || exhaustPercent === 0) &&
+    (isNaN(exhaustCfm) || exhaustCfm === 0)
   );
 }
 
@@ -346,11 +340,10 @@ function isExhaustByRoomInput(room: any): boolean {
   const exhaustCfm = Number(room.room_ExhaustAirCfm);
 
   return (
-    (isNaN(exhaustPercent) || exhaustPercent !== 0) &&
-    (isNaN(exhaustCfm) || exhaustCfm !== 0)
+    (!isNaN(exhaustPercent) && exhaustPercent > 0) ||
+    (!isNaN(exhaustCfm) && exhaustCfm > 0)
   );
 }
-
 function hasThermalValues(result: any): boolean {
   return (
     Number(result.project_DehumidCfm || 0) > 0 ||

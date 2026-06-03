@@ -68,6 +68,7 @@
         "Spacecraft Integration & Assembly Cleanrooms",
         "Satellite Component Manufacturing",
         "Launch Vehicle (Rocket) Assembly Halls",
+        "Rocket Engine Precision Assembly Hall",
         "Propellant Handling & Fuelling Areas",
         "Cryogenic Propellant Storage & Transfer",
         "Hypergolic Propellant Processing",
@@ -82,11 +83,7 @@
         "Aircraft Engine Test Cells",
         "Ejection Seat & Pyrotechnic Assembly",
         "Ground Support Equipment (GSE) Maintenance Bays",
-        "Mission Control & Command Rooms",
-        "Utility Buildings & Support Workshops"
-
-
-
+        "Mission Control & Command Rooms"
       ]
     },
     {
@@ -339,6 +336,23 @@
     },
             {
       "industry": "Aerospace & Space Technology",
+      "subIndustry": "Rocket Engine Precision Assembly Hall",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "ESD controlled",
+        "Volatile Organics Control(VOC)",
+        "Explosive dust",
+        "Cryogenic",
+        "Pressure cascade-controlled",
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Odour/Cross contamination"
+
+      ]
+    },
+            {
+      "industry": "Aerospace & Space Technology",
       "subIndustry": "Propellant Handling & Fuelling Areas",
       "handling": [
         "Explosive dust",
@@ -485,14 +499,6 @@
         "AMC/molecular sensitive"
       ]
     },
-                                                               {
-      "industry": "Aerospace & Space Technology",
-      "subIndustry": "Utility Buildings & Support Workshops",
-      "handling": [
-        "Particulate sensitive"
-      ]
-    },
-
 
     
     

@@ -325,6 +325,15 @@ const AHUFiltration = () => {
   const showSupplyFields = filterTypes.includes("Supply");
   const showExhaustFields = filterTypes.includes("Exhaust");
 
+  const industry = useAppSelector(
+    (state: any) => state.projectInfo?.industry || "",
+  );
+
+  const isOilAndGas =
+    industry === "Oil & Gas, Petrochemicals & Allied Segment" ||
+    String(industry).toLowerCase().includes("oil & gas") ||
+    String(industry).toLowerCase().includes("oil and gas");
+
   const handling = useAppSelector(
     (state: any) => state.projectInfo?.handling || [],
   );
@@ -335,44 +344,94 @@ const AHUFiltration = () => {
         .toLowerCase(),
     ),
   );
-  const handlingBasedSupplyPreselectionRules: Record<string, string[]> = {
+  // --- Pharmaceutical Industry Rules ---
+  const pharmaSupplyRules: Record<string, string[]> = {
     "amc/molecular sensitive": ["Chemisorbent AMC Filter"],
     "volatile organics control(voc)": [
       "Activated Carbon V Cell Filter",
       "Flame Arrestor Filter",
-      "HEPA + Carbon Combo Filter"
+      "HEPA + Carbon Combo Filter",
     ],
     "allergen-controlled": ["PCO VOC Oxidation Filter"],
     "explosive dust": ["Flame Arrestor Filter"],
     "radiological": ["Radioiodine (I-131) Charcoal Filtration Filter"],
-    "odour/cross contamination": ["PCO VOC Oxidation Filter"]
+    "odour/cross contamination": ["PCO VOC Oxidation Filter"],
   };
 
-  const handlingBasedExhaustPreselectionRules: Record<string, string[]> = {
+  const pharmaExhaustRules: Record<string, string[]> = {
     "amc/molecular sensitive": ["Chemisorbent AMC Filter"],
     "volatile organics control(voc)": [
       "Activated Carbon V Cell Filter",
       "Flame Arrestor Filter",
-      "HEPA + Carbon Combo Filter"
+      "HEPA + Carbon Combo Filter",
     ],
     "allergen-controlled": [
       "Activated Carbon V Cell Filter",
-      "PCO VOC Oxidation Filter"
+      "PCO VOC Oxidation Filter",
     ],
     "explosive dust": ["Flame Arrestor Filter"],
     "radiological": [
       "HEPA + Carbon Combo Filter",
-      "Radioiodine (I-131) Charcoal Filtration Filter"
+      "Radioiodine (I-131) Charcoal Filtration Filter",
     ],
     "potent compound (hpapi)": [
       "Activated Carbon V Cell Filter",
       "Chemisorbent AMC Filter",
       "Flame Arrestor Filter",
-      "HEPA + Carbon Combo Filter"
+      "HEPA + Carbon Combo Filter",
     ],
     "odour/cross contamination": ["HEPA + Carbon Combo Filter"],
-    "sterile/aseptic": ["HEPA + Carbon Combo Filter"]
+    "sterile/aseptic": ["HEPA + Carbon Combo Filter"],
   };
+
+  // --- Oil & Gas Industry Rules ---
+  const oilAndGasSupplyRules: Record<string, string[]> = {
+    "amc/molecular sensitive": ["Chemisorbent AMC Filter"],
+    "volatile organics control(voc)": [
+      "Activated Carbon V Cell Filter",
+      "Flame Arrestor Filter",
+      "HEPA + Carbon Combo Filter",
+    ],
+    "allergen-controlled": ["PCO VOC Oxidation Filter"],
+    "explosive dust": ["Flame Arrestor Filter"],
+    "radiological": ["Radioiodine (I-131) Charcoal Filtration Filter"],
+    "odour/cross contamination": ["HEPA + Carbon Combo Filter"],
+  };
+
+  const oilAndGasExhaustRules: Record<string, string[]> = {
+    "amc/molecular sensitive": ["Chemisorbent AMC Filter"],
+    "volatile organics control(voc)": [
+      "Activated Carbon V Cell Filter",
+      "Flame Arrestor Filter",
+      "HEPA + Carbon Combo Filter",
+    ],
+    "allergen-controlled": [
+      "Activated Carbon V Cell Filter",
+      "PCO VOC Oxidation Filter",
+    ],
+    "explosive dust": ["Flame Arrestor Filter"],
+    "radiological": [
+      "HEPA + Carbon Combo Filter",
+      "Radioiodine (I-131) Charcoal Filtration Filter",
+    ],
+    "potent compound (hpapi)": [
+      "Activated Carbon V Cell Filter",
+      "Chemisorbent AMC Filter",
+      "Flame Arrestor Filter",
+      "HEPA + Carbon Combo Filter",
+    ],
+    "odour/cross contamination": ["HEPA + Carbon Combo Filter"],
+    "sterile/aseptic": ["HEPA + Carbon Combo Filter"],
+  };
+
+  // Assign rules dynamically based on whether the industry is Oil & Gas
+  const handlingBasedSupplyPreselectionRules = isOilAndGas
+    ? oilAndGasSupplyRules
+    : pharmaSupplyRules;
+
+  const handlingBasedExhaustPreselectionRules = isOilAndGas
+    ? oilAndGasExhaustRules
+    : pharmaExhaustRules;
 
   const activeHandlingSupplyPreselectionRules = Object.entries(
     handlingBasedSupplyPreselectionRules,
@@ -1663,8 +1722,8 @@ const AHUFiltration = () => {
                     <div
                       onClick={() => setFilterTypeOpen(!filterTypeOpen)}
                       className={`${s.input} cursor-pointer flex items-center justify-between min-h-[48px] px-4 py-2 bg-white border-2 ${filterTypeOpen
-                          ? "border-blue-500 ring-4 ring-blue-50"
-                          : "border-slate-200"
+                        ? "border-blue-500 ring-4 ring-blue-50"
+                        : "border-slate-200"
                         }`}
                     >
                       <div className={s.selectedTags}>
@@ -1764,8 +1823,8 @@ const AHUFiltration = () => {
                                     }
                                   }}
                                   className={`${s.optionBase} ${isSelected
-                                      ? s.optionSelected
-                                      : s.optionUnselected
+                                    ? s.optionSelected
+                                    : s.optionUnselected
                                     }`}
                                 >
                                   <span className={s.optionLabel}>{v}</span>

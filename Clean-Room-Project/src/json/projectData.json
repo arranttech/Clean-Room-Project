@@ -110,11 +110,27 @@
     {
       "name": "Medical Devices & Allied Sectors",
       "subIndustries": [
-        "Surgical instruments manufacturing",
-        "Orthopedics and implants manufacturing",
-        "Disposable medical devices",
-        "Dialysis consumables",
-        "Diagnostic equipment labs"
+        "Sterile Medical Device Assembly Cleanrooms",
+        "Implantable Device Manufacturing (Orthopaedic / Cardiovascular)",
+        "Single-Use Device & Disposables Production",
+        "Pharmaceutical Drug–Device Combination Products",
+        "In-Vitro Diagnostics (IVD) Manufacturing",
+        "Active Implantable Medical Device (AIMD) / Pacemaker Labs",
+        "Surgical Instrument Fabrication & Finishing",
+        "Radiation Therapy Equipment Manufacturing",
+        "Endoscopy & Optical Medical Device Assembly",
+        "Hearing Aid & Micro-Electronics Medical Assembly",
+        "Wound Care & Dressing Manufacturing",
+        "Dental Device & Prosthetics Manufacturing",
+        "Biocompatibility & Sterilisation Validation Labs",
+        "Hospital Central Sterile Supply Departments (CSSD)",
+        "Animal Testing & Pre-Clinical Research Facilities",
+        "Radiopharmaceutical & Nuclear Medicine Device Labs",
+        "Rehabilitation & Assistive Technology Device Assembly",
+        "Packaging & Labelling Areas (Medical Grade)",
+        "Quality Control & Metrology Labs",
+        "Utility Buildings & Support Workshops"
+
       ]
     },
 
@@ -598,50 +614,228 @@
     },
     {
       "industry": "Medical Devices & Allied Sectors",
-      "subIndustry": "Surgical instruments manufacturing",
+      "subIndustry": "Sterile Medical Device Assembly Cleanrooms",
       "handling": [
         "Particulate sensitive",
-        "AMC/molecular sensitive",
-        "Temperature critical"
+        "Sterile/Aseptic",
+        "ESD controlled",
+        "Temperature critical",
+        "Relative Humidity critical"
       ]
     },
     {
       "industry": "Medical Devices & Allied Sectors",
-      "subIndustry": "Orthopedics and implants manufacturing",
+      "subIndustry": "Implantable Device Manufacturing (Orthopaedic / Cardiovascular)",
       "handling": [
         "Particulate sensitive",
-        "AMC/molecular sensitive",
-        "Temperature critical"
-      ]
-    },
-    {
-      "industry": "Medical Devices & Allied Sectors",
-      "subIndustry": "Disposable medical devices",
-      "handling": [
-        "Particulate sensitive",
-        "AMC/molecular sensitive",
-        "Temperature critical"
-      ]
-    },
-    {
-      "industry": "Medical Devices & Allied Sectors",
-      "subIndustry": "Dialysis consumables",
-      "handling": [
-        "Particulate sensitive",
-        "AMC/molecular sensitive",
-        "Temperature critical"
-      ]
-    },
-    {
-      "industry": "Medical Devices & Allied Sectors",
-      "subIndustry": "Diagnostic equipment labs",
-      "handling": [
-        "Particulate sensitive",
+        "Sterile/Aseptic",
         "AMC/molecular sensitive",
         "Temperature critical",
-        "ESD controlled"
+        "Relative Humidity critical"
       ]
     },
+    {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Single-Use Device & Disposables Production",
+      "handling": [
+        "Particulate sensitive",
+        "Sterile/Aseptic",
+        "Allergen-controlled",
+        "Odour/Cross contamination"
+      ]
+    },
+    {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Pharmaceutical Drug–Device Combination Products",
+      "handling": [
+        "Particulate sensitive",
+        "Sterile/Aseptic",
+        "Potent compound (HPAPI)",
+        "AMC/molecular sensitive",
+        "Volatile Organics Control(VOC)"
+      ]
+    },
+    {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "In-Vitro Diagnostics (IVD) Manufacturing",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Sterile/Aseptic",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+    {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Active Implantable Medical Device (AIMD) / Pacemaker Labs",
+      "handling": [
+        "Particulate sensitive",
+        "ESD controlled",
+        "AMC/molecular sensitive",
+        "Relative Humidity critical",
+        "Temperature critical"
+      ]
+    },
+        {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Surgical Instrument Fabrication & Finishing",
+      "handling": [
+        "Particulate sensitive",
+        "Volatile Organics Control(VOC)",
+        "Odour/Cross contamination",
+        "Sterile/Aseptic"
+      ]
+    },
+            {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Radiation Therapy Equipment Manufacturing",
+      "handling": [
+        "Radiological",
+        "Particulate sensitive",
+        "ESD controlled",
+        "Temperature critical"
+      ]
+    },
+                {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Radiation Therapy Equipment Manufacturing",
+      "handling": [
+        "Radiological",
+        "Particulate sensitive",
+        "ESD controlled",
+        "Temperature critical"
+      ]
+    },
+                    {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Endoscopy & Optical Medical Device Assembly",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "ESD controlled",
+        "Temperature critical",
+        "Relative Humidity critical"
+      ]
+    },
+                        {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Hearing Aid & Micro-Electronics Medical Assembly",
+      "handling": [
+        "Particulate sensitive",
+        "ESD controlled",
+        "AMC/molecular sensitive",
+        "Relative Humidity critical"
+      ]
+    },
+                            {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Wound Care & Dressing Manufacturing",
+      "handling": [
+        "Particulate sensitive",
+        "Sterile/Aseptic",
+        "Allergen-controlled",
+        "Odour/Cross contamination"
+      ]
+    },
+                                {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Dental Device & Prosthetics Manufacturing",
+      "handling": [
+        "Particulate sensitive",
+        "Volatile Organics Control(VOC)",
+        "Odour/Cross contamination",
+        "Allergen-controlled"
+      ]
+    },
+                                    {
+      "industry": "Medical Devices & Allied Sectors",
+      "subIndustry": "Dental Device & Prosthetics Manufacturing",
+      "handling": [
+        "Particulate sensitive",
+        "Volatile Organics Control(VOC)",
+        "Odour/Cross contamination",
+        "Allergen-controlled"
+      ]
+    },
+    {
+  "industry": "Medical Devices & Allied Sectors",
+  "subIndustry": "Biocompatibility & Sterilisation Validation Labs",
+  "handling": [
+    "Sterile/Aseptic",
+    "AMC/molecular sensitive",
+    "Volatile Organics Control(VOC)",
+    "Temperature critical"
+  ]
+},
+{
+  "industry": "Medical Devices & Allied Sectors",
+  "subIndustry": "Hospital Central Sterile Supply Departments (CSSD)",
+  "handling": [
+    "Sterile/Aseptic",
+    "High moisture wash-down",
+    "Temperature critical",
+    "Odour/Cross contamination"
+  ]
+},
+{
+  "industry": "Medical Devices & Allied Sectors",
+  "subIndustry": "Animal Testing & Pre-Clinical Research Facilities",
+  "handling": [
+    "Sterile/Aseptic",
+    "Allergen-controlled",
+    "Odour/Cross contamination",
+    "AMC/molecular sensitive"
+  ]
+},
+{
+  "industry": "Medical Devices & Allied Sectors",
+  "subIndustry": "Radiopharmaceutical & Nuclear Medicine Device Labs",
+  "handling": [
+    "Radiological",
+    "Sterile/Aseptic",
+    "Potent compound (HPAPI)",
+    "Pressure cascade-controlled"
+  ]
+},
+{
+  "industry": "Medical Devices & Allied Sectors",
+  "subIndustry": "Rehabilitation & Assistive Technology Device Assembly",
+  "handling": [
+    "Particulate sensitive",
+    "ESD controlled",
+    "Volatile Organics Control(VOC)"
+  ]
+},
+{
+  "industry": "Medical Devices & Allied Sectors",
+  "subIndustry": "Packaging & Labelling Areas (Medical Grade)",
+  "handling": [
+    "Particulate sensitive",
+    "Sterile/Aseptic",
+    "Allergen-controlled",
+    "Relative Humidity critical"
+  ]
+},
+{
+  "industry": "Medical Devices & Allied Sectors",
+  "subIndustry": "Quality Control & Metrology Labs",
+  "handling": [
+    "Particulate sensitive",
+    "AMC/molecular sensitive",
+    "Temperature critical",
+    "Relative Humidity critical"
+  ]
+},
+{
+  "industry": "Medical Devices & Allied Sectors",
+  "subIndustry": "Utility Buildings & Support Workshops",
+  "handling": [
+    "Particulate sensitive"
+  ]
+},
+
+
     {
       "industry": "Pharmaceutical Industry",
       "subIndustry": "API Synthesis (Non‑Potent)",

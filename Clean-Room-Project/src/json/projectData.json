@@ -65,10 +65,25 @@
     {
       "name": "Aerospace & Space Technology",
       "subIndustries": [
-        "Satellite assembly clean rooms",
-        "Spacecraft component manufacturing",
-        "Rocket engine precision assembly areas",
-        "Composite and carbon fiber manufacturing"
+        "Spacecraft Integration & Assembly Cleanrooms",
+        "Satellite Component Manufacturing",
+        "Launch Vehicle (Rocket) Assembly Halls",
+        "Rocket Engine Precision Assembly Hall",
+        "Propellant Handling & Fuelling Areas",
+        "Cryogenic Propellant Storage & Transfer",
+        "Hypergolic Propellant Processing",
+        "Avionics & Electronics Manufacturing",
+        "Composite & Advanced Materials Fabrication",
+        "Optical Payload & Telescope Assembly",
+        "Thermal Control System (TCS) Testing Labs",
+        "Environmental Test Chambers (Vibration / Thermal Vacuum)",
+        "Radiation Testing & Nuclear Propulsion R&D",
+        "Space Simulation / Vacuum Chamber Facilities",
+        "Defence Airframe & Aerostructures Manufacturing",
+        "Aircraft Engine Test Cells",
+        "Ejection Seat & Pyrotechnic Assembly",
+        "Ground Support Equipment (GSE) Maintenance Bays",
+        "Mission Control & Command Rooms"
       ]
     },
     {
@@ -286,39 +301,207 @@
     },
     {
       "industry": "Aerospace & Space Technology",
-      "subIndustry": "Satellite assembly clean rooms",
+      "subIndustry": "Spacecraft Integration & Assembly Cleanrooms",
       "handling": [
         "Particulate sensitive",
-        "AMC/molecular sensitive"
+        "AMC/molecular sensitive",
+        "ESD controlled",
+        "Relative Humidity critical",
+        "Temperature critical"
+
       ]
     },
     {
       "industry": "Aerospace & Space Technology",
-      "subIndustry": "Spacecraft component manufacturing",
+      "subIndustry": "Satellite Component Manufacturing",
       "handling": [
         "Particulate sensitive",
         "AMC/molecular sensitive",
+        "ESD controlled",
+        "Relative Humidity critical",
+        "Volatile Organics Control(VOC)"
+
+      ]
+    },
+        {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Launch Vehicle (Rocket) Assembly Halls",
+      "handling": [
+        "Particulate sensitive",
+        "ESD controlled",
+        "Explosive dust",
+        "Volatile Organics Control(VOC)"
+
+      ]
+    },
+            {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Rocket Engine Precision Assembly Hall",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "ESD controlled",
+        "Volatile Organics Control(VOC)",
+        "Explosive dust",
+        "Cryogenic",
+        "Pressure cascade-controlled",
+        "Temperature critical",
+        "Relative Humidity critical",
+        "Odour/Cross contamination"
+
+      ]
+    },
+            {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Propellant Handling & Fuelling Areas",
+      "handling": [
+        "Explosive dust",
+        "Volatile Organics Control(VOC)",
+        "Odour/Cross contamination",
+        "ESD controlled"
+      ]
+    },
+                {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Cryogenic Propellant Storage & Transfer",
+      "handling": [
+        "Cryogenic",
+        "Explosive dust",
+        "Pressure cascade-controlled"
+      ]
+    },
+                  {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Hypergolic Propellant Processing",
+      "handling": [
+        "Volatile Organics Control(VOC)",
+        "Odour/Cross contamination",
+        "Explosive dust",
+        "Potent compound (HPAPI)"
+      ]
+    },
+                      {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Avionics & Electronics Manufacturing",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "ESD controlled",
+        "Relative Humidity critical",
+        "Temperature critical"
+      ]
+    },
+                       {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Composite & Advanced Materials Fabrication",
+      "handling": [
+        "Particulate sensitive",
+        "Explosive dust",
+        "Volatile Organics Control(VOC)",
+        "Odour/Cross contamination"
+      ]
+    },
+                       {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Optical Payload & Telescope Assembly",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "ESD controlled",
         "Temperature critical",
         "Relative Humidity critical"
       ]
     },
-    {
+                           {
       "industry": "Aerospace & Space Technology",
-      "subIndustry": "Rocket engine precision assembly areas",
+      "subIndustry": "Thermal Control System (TCS) Testing Labs",
       "handling": [
-        "Particulate sensitive"
+        "Cryogenic",
+        "Temperature critical",
+        "Relative Humidity critical",
+        "ESD controlled"
       ]
     },
-    {
+                               {
       "industry": "Aerospace & Space Technology",
-      "subIndustry": "Composite and carbon fiber manufacturing",
+      "subIndustry": "Environmental Test Chambers (Vibration / Thermal Vacuum)",
       "handling": [
         "Particulate sensitive",
+        "Cryogenic",
+        "ESD controlled",
+        "Temperature critical"
+      ]
+    },
+                                   {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Radiation Testing & Nuclear Propulsion R&D",
+      "handling": [
+        "Radiological",
+        "Particulate sensitive",
+        "ESD controlled",
+        "Pressure cascade-controlled"
+      ]
+    },
+                                       {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Space Simulation / Vacuum Chamber Facilities",
+      "handling": [
+        "Particulate sensitive",
+        "AMC/molecular sensitive",
+        "Cryogenic",
+        "Pressure cascade-controlled"
+      ]
+    },
+                                           {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Defence Airframe & Aerostructures Manufacturing",
+      "handling": [
+        "Particulate sensitive",
+        "Explosive dust",
         "Volatile Organics Control(VOC)",
-        "Temperature critical",
         "Odour/Cross contamination"
       ]
     },
+                                               {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Aircraft Engine Test Cells",
+      "handling": [
+        "Volatile Organics Control(VOC)",
+        "Explosive dust",
+        "High moisture wash-down",
+        "Odour/Cross contamination"
+      ]
+    },
+                                                   {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Ejection Seat & Pyrotechnic Assembly",
+      "handling": [
+        "Explosive dust",
+        "ESD controlled",
+        "Pressure cascade-controlled"
+      ]
+    },
+                                                       {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Ground Support Equipment (GSE) Maintenance Bays",
+      "handling": [
+        "Volatile Organics Control(VOC)",
+        "Odour/Cross contamination",
+        "Explosive dust"
+      ]
+    },
+                                                           {
+      "industry": "Aerospace & Space Technology",
+      "subIndustry": "Mission Control & Command Rooms",
+      "handling": [
+        "ESD controlled",
+        "Pressure cascade-controlled",
+        "AMC/molecular sensitive"
+      ]
+    },
+
+    
+    
     {
       "industry": "Automotive & Mobility",
       "subIndustry": "Advanced automotive electronics",

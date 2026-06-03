@@ -1,0 +1,226 @@
+{
+  "Pharmaceutical Industry": {
+    "AMC/molecular sensitive": {
+      "supplyFilters": [
+        "Chemisorbent AMC Filter"
+      ],
+      "exhaustFilters": [
+        "Chemisorbent AMC Filter"
+      ]
+    },
+
+    "Volatile Organics Control(VOC)": {
+      "supplyFilters": [
+        "Activated Carbon V Cell Filter",
+        "Flame Arrestor Filter",
+        "HEPA + Carbon Combo Filter"
+      ],
+      "exhaustFilters": [
+        "Activated Carbon V Cell Filter",
+        "Flame Arrestor Filter",
+        "HEPA + Carbon Combo Filter"
+      ]
+    }
+,
+    "allergen-controlled":{
+    "supplyFilters": [
+        "PCO VOC Oxidation Filter"
+      ],
+      "exhaustFilters": [
+        "Activated Carbon V Cell Filter",
+      "PCO VOC Oxidation Filter"
+      ]
+
+  },
+   "explosive dust":{
+    "supplyFilters": [
+        "Flame Arrestor Filter"
+      ],
+      "exhaustFilters": [
+        "Flame Arrestor Filter"
+      ]
+
+  },
+   "radiological":{
+    "supplyFilters": [
+        "Radioiodine (I-131) Charcoal Filtration Filter"
+      ],
+      "exhaustFilters": [
+        "HEPA + Carbon Combo Filter",
+      "Radioiodine (I-131) Charcoal Filtration Filter"
+      ]
+
+  },
+     "odour/cross contamination":{
+    "supplyFilters": [
+        "PCO VOC Oxidation Filter"
+      ],
+      "exhaustFilters": [
+        "HEPA + Carbon Combo Filter"
+      ]
+
+  },
+   "potent compound (hpapi)":{
+    "supplyFilters": [
+        
+      ],
+      "exhaustFilters": [
+        "Activated Carbon V Cell Filter",
+      "Chemisorbent AMC Filter",
+      "Flame Arrestor Filter",
+      "HEPA + Carbon Combo Filter"
+      ]
+
+  },
+     "sterile/aseptic":{
+    "supplyFilters": [
+        
+      ],
+      "exhaustFilters": [
+       "HEPA + Carbon Combo Filter"
+      ]
+
+  }
+
+  },
+
+  "Aerospace & Space Technology": {
+    "AMC/molecular sensitive": {
+      "supplyFilters": [
+        "Chemisorbent AMC Filter"
+      ],
+      "exhaustFilters": [
+        "Chemisorbent AMC Filter"
+      ]
+    },
+
+    "Volatile Organics Control(VOC)": {
+      "supplyFilters": [
+        "Activated Carbon V Cell Filter",
+        "Flame Arrestor Filter",
+        "HEPA + Carbon Combo Filter"
+      ],
+      "exhaustFilters": [
+        "Activated Carbon V Cell Filter",
+        "Flame Arrestor Filter",
+        "HEPA + Carbon Combo Filter"
+      ]
+    },
+        "allergen-controlled":{
+    "supplyFilters": [
+        "PCO VOC Oxidation Filter"
+      ],
+      "exhaustFilters": [
+        "Activated Carbon V Cell Filter",
+      "PCO VOC Oxidation Filter"
+      ]
+
+  },
+     "explosive dust":{
+    "supplyFilters": [
+        "Flame Arrestor Filter"
+      ],
+      "exhaustFilters": [
+        "Flame Arrestor Filter"
+      ]
+
+  },
+
+   "radiological":{
+    "supplyFilters": [
+        "Radioiodine (I-131) or(I-125) Charcoal Filtration Filter"
+      ],
+      "exhaustFilters": [
+        "HEPA + Carbon Combo Filter",
+      "Radioiodine (I-131) or(I-125) Charcoal Filtration Filter"
+      ]
+
+  },
+     "potent compound (hpapi)":{
+    "supplyFilters": [
+              ],
+     "exhaustFilters": [
+        "Activated Carbon V Cell Filter",
+      "Chemisorbent AMC Filter",
+      "Flame Arrestor Filter",
+      "HEPA + Carbon Combo Filter"
+      ]
+
+  },
+      "odour/cross contamination":{
+    "supplyFilters": [
+        "HEPA + Carbon Combo Filter"
+      ],
+      "exhaustFilters": [
+        "HEPA + Carbon Combo Filter"
+      ]
+
+  },
+       "sterile/aseptic":{
+    "supplyFilters": [
+        
+      ],
+      "exhaustFilters": [
+       "HEPA + Carbon Combo Filter"
+      ]
+
+  }
+
+
+  },
+
+  "Oil & Gas, Petrochemicals & Allied Segment": {
+    "amc/molecular sensitive": {
+      "supplyFilters": ["Chemisorbent AMC Filter"],
+      "exhaustFilters": ["Chemisorbent AMC Filter"]
+    },
+    "volatile organics control(voc)": {
+      "supplyFilters": [
+        "Activated Carbon V Cell Filter",
+        "Flame Arrestor Filter",
+        "HEPA + Carbon Combo Filter"
+      ],
+      "exhaustFilters": [
+        "Activated Carbon V Cell Filter",
+        "Flame Arrestor Filter",
+        "HEPA + Carbon Combo Filter"
+      ]
+    },
+    "allergen-controlled": {
+      "supplyFilters": ["PCO VOC Oxidation Filter"],
+      "exhaustFilters": [
+        "Activated Carbon V Cell Filter",
+        "PCO VOC Oxidation Filter"
+      ]
+    },
+    "explosive dust": {
+      "supplyFilters": ["Flame Arrestor Filter"],
+      "exhaustFilters": ["Flame Arrestor Filter"]
+    },
+    "radiological": {
+      "supplyFilters": ["Radioiodine (I-131) Charcoal Filtration Filter"],
+      "exhaustFilters": [
+        "HEPA + Carbon Combo Filter",
+        "Radioiodine (I-131) Charcoal Filtration Filter"
+      ]
+    },
+    "odour/cross contamination": {
+      "supplyFilters": ["HEPA + Carbon Combo Filter"],
+      "exhaustFilters": ["HEPA + Carbon Combo Filter"]
+    },
+    "potent compound (hpapi)": {
+      "supplyFilters": [],
+      "exhaustFilters": [
+        "Activated Carbon V Cell Filter",
+        "Chemisorbent AMC Filter",
+        "Flame Arrestor Filter",
+        "HEPA + Carbon Combo Filter"
+      ]
+    },
+    "sterile/aseptic": {
+      "supplyFilters": [],
+      "exhaustFilters": ["HEPA + Carbon Combo Filter"]
+    }
+  }
+  
+}

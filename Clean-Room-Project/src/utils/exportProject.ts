@@ -18,7 +18,12 @@ const thin = { style: "thin", color: { rgb: C.black } };
 const medium = { style: "medium", color: { rgb: C.black } };
 
 const B = () => ({ top: thin, bottom: thin, left: thin, right: thin });
-const BDivRight = () => ({ top: thin, bottom: thin, left: thin, right: medium });
+const BDivRight = () => ({
+  top: thin,
+  bottom: thin,
+  left: thin,
+  right: medium,
+});
 const BDivLeft = () => ({ top: thin, bottom: thin, left: medium, right: thin });
 
 type CO = XLSXStyle.CellObject;
@@ -30,7 +35,7 @@ function mc(
   bold: boolean,
   rotate: boolean,
   ha: "left" | "center" | "right",
-  border: ReturnType<typeof B> = B()
+  border: ReturnType<typeof B> = B(),
 ): CO {
   const isN = typeof v === "number";
   return {
@@ -55,17 +60,49 @@ const yTitle = (v: any, bl = B()) =>
 const yHdr = (v: any, bl = B()) =>
   mc(v, C.yellow, C.black, true, true, "center", bl);
 const cyD = (v: any, bl = B()) =>
-  mc(v, C.cyan, C.black, false, false, typeof v === "number" ? "right" : "left", bl);
+  mc(
+    v,
+    C.cyan,
+    C.black,
+    false,
+    false,
+    typeof v === "number" ? "right" : "left",
+    bl,
+  );
 const brD = (v: any, bl = B()) =>
-  mc(v, C.brown, C.white, false, false, typeof v === "number" ? "right" : "left", bl);
+  mc(
+    v,
+    C.brown,
+    C.white,
+    false,
+    false,
+    typeof v === "number" ? "right" : "left",
+    bl,
+  );
 const orD = (v: any, bl = B()) =>
-  mc(v, C.orange, C.black, false, false, typeof v === "number" ? "right" : "left", bl);
+  mc(
+    v,
+    C.orange,
+    C.black,
+    false,
+    false,
+    typeof v === "number" ? "right" : "left",
+    bl,
+  );
 
 const brickD = (v: any, bl = B()) =>
   mc(v, C.green, C.black, false, false, "center", bl);
 
 const rdD = (v: any, bl = B()) =>
-  mc(v, C.red, C.white, true, false, typeof v === "number" ? "right" : "center", bl);
+  mc(
+    v,
+    C.red,
+    C.white,
+    true,
+    false,
+    typeof v === "number" ? "right" : "center",
+    bl,
+  );
 const fldD = (v: any) => mc(v, C.lightGray, C.black, true, false, "left");
 const valD = (v: any) => mc(v, C.white, C.black, false, false, "left");
 
@@ -110,7 +147,9 @@ function mg(rs: number, re: number, cs: number, ce: number) {
 
 function buildWS(rows: CO[][]): XLSXStyle.WorkSheet {
   if (!rows.length) {
-    rows = [[mc("No export data found.", C.yellow, C.black, true, false, "center")]];
+    rows = [
+      [mc("No export data found.", C.yellow, C.black, true, false, "center")],
+    ];
   }
 
   const ws: XLSXStyle.WorkSheet = {};
@@ -120,13 +159,19 @@ function buildWS(rows: CO[][]): XLSXStyle.WorkSheet {
     row.forEach((cell, c) => {
       if (c > range.e.c) range.e.c = c;
       ws[XLSXStyle.utils.encode_cell({ r, c })] = cell;
-    })
+    }),
   );
 
   ws["!ref"] = XLSXStyle.utils.encode_range(range);
   return ws;
 }
-type Sec = "cyan" | "brown" | "airflow" | "cooling" | "heating" | "supplyAhu"
+type Sec =
+  | "cyan"
+  | "brown"
+  | "airflow"
+  | "cooling"
+  | "heating"
+  | "supplyAhu"
   | "exhaustAhu";
 
 type Col = {
@@ -136,12 +181,12 @@ type Col = {
   src: "room" | "std" | "result";
   zoneCol?: string;
   ahuFor?:
-  | "cooling"
-  | "heating"
-  | "ventilation"
-  | "exhaust"
-  | "ventilationsupply"
-  | "ventilationexhaust";
+    | "cooling"
+    | "heating"
+    | "ventilation"
+    | "exhaust"
+    | "ventilationsupply"
+    | "ventilationexhaust";
 };
 
 const COLS: Col[] = [
@@ -150,124 +195,656 @@ const COLS: Col[] = [
   { label: "Width (m)", key: "room_Width", sec: "cyan", src: "room" },
   { label: "Height (m)", key: "room_Height", sec: "cyan", src: "room" },
   { label: "Occupancy", key: "room_Occupancy", sec: "cyan", src: "room" },
-  { label: "Equipment Load (kW)", key: "room_Equipment_Load", sec: "cyan", src: "room" },
+  {
+    label: "Equipment Load (kW)",
+    key: "room_Equipment_Load",
+    sec: "cyan",
+    src: "room",
+  },
   { label: "Lighting (W/m²)", key: "room_Lighting", sec: "cyan", src: "room" },
-  { label: "Infiltrations", key: "room_Infiltrations", sec: "cyan", src: "room" },
+  {
+    label: "Infiltrations",
+    key: "room_Infiltrations",
+    sec: "cyan",
+    src: "room",
+  },
   { label: "Fresh Air (%)", key: "room_FreshAir", sec: "cyan", src: "room" },
-  { label: "Exhaust Air (%)", key: "room_ExhaustAir", sec: "cyan", src: "room" },
-  { label: "Exhaust Air Cfm", key: "room_ExhaustAirCfm", sec: "cyan", src: "room" },
+  {
+    label: "Exhaust Air (%)",
+    key: "room_ExhaustAir",
+    sec: "cyan",
+    src: "room",
+  },
+  {
+    label: "Exhaust Air Cfm",
+    key: "room_ExhaustAirCfm",
+    sec: "cyan",
+    src: "room",
+  },
   { label: "ACPH", key: "project_ACPH", sec: "cyan", src: "room" },
 
-  { label: "Standard ID", key: "project_standard_id", sec: "brown", src: "std" },
+  {
+    label: "Standard ID",
+    key: "project_standard_id",
+    sec: "brown",
+    src: "std",
+  },
   { label: "System", key: "project_system", sec: "brown", src: "std" },
-  { label: "System Type", key: "project_system_type", sec: "brown", src: "std" },
-  { label: "Heating Method", key: "project_heating_method", sec: "brown", src: "std" },
-  { label: "Cooling Method", key: "project_cooling_method", sec: "brown", src: "std" },
+  {
+    label: "System Type",
+    key: "project_system_type",
+    sec: "brown",
+    src: "std",
+  },
+  {
+    label: "Heating Method",
+    key: "project_heating_method",
+    sec: "brown",
+    src: "std",
+  },
+  {
+    label: "Cooling Method",
+    key: "project_cooling_method",
+    sec: "brown",
+    src: "std",
+  },
   { label: "Standard", key: "project_standard", sec: "brown", src: "std" },
-  { label: "Classification", key: "project_classification_name", sec: "brown", src: "std" },
+  {
+    label: "Classification",
+    key: "project_classification_name",
+    sec: "brown",
+    src: "std",
+  },
   { label: "ACPH (Std)", key: "project_ACPH", sec: "brown", src: "std" },
   { label: "Temp Unit", key: "project_temp_Unit", sec: "brown", src: "std" },
-  { label: "Req. Inside Temp", key: "project_required_inside_temp", sec: "brown", src: "std" },
-  { label: "Req. Inside Humidity", key: "project_required_inside_humid", sec: "brown", src: "std" },
+  {
+    label: "Req. Inside Temp",
+    key: "project_required_inside_temp",
+    sec: "brown",
+    src: "std",
+  },
+  {
+    label: "Req. Inside Humidity",
+    key: "project_required_inside_humid",
+    sec: "brown",
+    src: "std",
+  },
   { label: "Max Temp (°C)", key: "project_max_temp", sec: "brown", src: "std" },
   { label: "Min Temp (°C)", key: "project_min_temp", sec: "brown", src: "std" },
-  { label: "Min Humidity (%)", key: "project_relative_min_humid", sec: "brown", src: "std" },
-  { label: "Max Humidity (%)", key: "project_relative_max_humid", sec: "brown", src: "std" },
-  { label: "Heat Flow Velocity", key: "heating_flow_velocity", sec: "brown", src: "std" },
-  { label: "Cool Flow Velocity", key: "cooling_flow_velocity", sec: "brown", src: "std" },
-  { label: "Pipe Configuration", key: "pipe_configuration", sec: "brown", src: "std" },
-  { label: "Static Pressure (Supply)", key: "static_Pressure_Supply", sec: "brown", src: "std" },
-  { label: "Static Pressure (Exhaust)", key: "static_Pressure_Exhaust", sec: "brown", src: "std" },
-  { label: "Filtration Stages (Supply)", key: "number_of_Filtrations_Supply", sec: "brown", src: "std" },
-  { label: "Filtration Stages (Exhaust)", key: "number_of_Filtrations_Exhaust", sec: "brown", src: "std" },
+  {
+    label: "Min Humidity (%)",
+    key: "project_relative_min_humid",
+    sec: "brown",
+    src: "std",
+  },
+  {
+    label: "Max Humidity (%)",
+    key: "project_relative_max_humid",
+    sec: "brown",
+    src: "std",
+  },
+  {
+    label: "Heat Flow Velocity",
+    key: "heating_flow_velocity",
+    sec: "brown",
+    src: "std",
+  },
+  {
+    label: "Cool Flow Velocity",
+    key: "cooling_flow_velocity",
+    sec: "brown",
+    src: "std",
+  },
+  {
+    label: "Pipe Configuration",
+    key: "pipe_configuration",
+    sec: "brown",
+    src: "std",
+  },
+  {
+    label: "Static Pressure (Supply)",
+    key: "static_Pressure_Supply",
+    sec: "brown",
+    src: "std",
+  },
+  {
+    label: "Static Pressure (Exhaust)",
+    key: "static_Pressure_Exhaust",
+    sec: "brown",
+    src: "std",
+  },
+  {
+    label: "Filtration Stages (Supply)",
+    key: "number_of_Filtrations_Supply",
+    sec: "brown",
+    src: "std",
+  },
+  {
+    label: "Filtration Stages (Exhaust)",
+    key: "number_of_Filtrations_Exhaust",
+    sec: "brown",
+    src: "std",
+  },
 
   // ================= AIRFLOW =================
-  { label: "Area (m²)", key: "project_Area", sec: "airflow", src: "result", zoneCol: "zone_Area" },
-  { label: "Volume (m³)", key: "project_Volume", sec: "airflow", src: "result", zoneCol: "zone_Volume" },
-  { label: "Room CFM", key: "project_RoomCfm", sec: "airflow", src: "result", zoneCol: "zone_RoomCfm" },
-  { label: "Fresh Air (CFM)", key: "project_FreshAir", sec: "airflow", src: "result", zoneCol: "zone_FreshAir" },
-  { label: "Resultant Supply Air (CFM)", key: "project_ResultantSupplyAir", sec: "airflow", src: "result", zoneCol: "zone_ResultantSupplyAir" },
-  { label: "Resultant Exhaust Air (CFM)", key: "project_ExhaustAir", sec: "airflow", src: "result", zoneCol: "zone_ExhaustAir" },
+  {
+    label: "Area (m²)",
+    key: "project_Area",
+    sec: "airflow",
+    src: "result",
+    zoneCol: "zone_Area",
+  },
+  {
+    label: "Volume (m³)",
+    key: "project_Volume",
+    sec: "airflow",
+    src: "result",
+    zoneCol: "zone_Volume",
+  },
+  {
+    label: "Room CFM",
+    key: "project_RoomCfm",
+    sec: "airflow",
+    src: "result",
+    zoneCol: "zone_RoomCfm",
+  },
+  {
+    label: "Fresh Air (CFM)",
+    key: "project_FreshAir",
+    sec: "airflow",
+    src: "result",
+    zoneCol: "zone_FreshAir",
+  },
+  {
+    label: "Resultant Supply Air (CFM)",
+    key: "project_ResultantSupplyAir",
+    sec: "airflow",
+    src: "result",
+    zoneCol: "zone_ResultantSupplyAir",
+  },
+  {
+    label: "Resultant Exhaust Air (CFM)",
+    key: "project_ExhaustAir",
+    sec: "airflow",
+    src: "result",
+    zoneCol: "zone_ExhaustAir",
+  },
 
   // ================= EXHAUST AHU DESIGN =================
-  { label: "AHU Cfm", key: "boq_AHUCfm", sec: "exhaustAhu", src: "result", ahuFor: "exhaust" },
-  { label: "AHU Length", key: "boq_AHULength", sec: "exhaustAhu", src: "result", ahuFor: "exhaust" },
-  { label: "AHU Width", key: "boq_AHUWidth", sec: "exhaustAhu", src: "result", ahuFor: "exhaust" },
-  { label: "AHU Height", key: "boq_AHUHeight", sec: "exhaustAhu", src: "result", ahuFor: "exhaust" },
-  { label: "Static Pressure (Exhaust)", key: "boq_StaticPressureExhaust", sec: "exhaustAhu", src: "result", ahuFor: "exhaust" },
-  { label: "Blower Model BDB", key: "boq_BlowerModelBDB", sec: "exhaustAhu", src: "result", ahuFor: "exhaust" },
-  { label: "Motor Selected in Hp", key: "boq_MotorSelectedInHp", sec: "exhaustAhu", src: "result", ahuFor: "exhaust" },
-  { label: "No. Of Stages of Filtr.", key: "boq_NoOfStagesOfFiltrExhaust", sec: "exhaustAhu", src: "result", ahuFor: "exhaust" },
+  {
+    label: "AHU Cfm",
+    key: "boq_AHUCfm",
+    sec: "exhaustAhu",
+    src: "result",
+    ahuFor: "exhaust",
+  },
+  {
+    label: "AHU Length",
+    key: "boq_AHULength",
+    sec: "exhaustAhu",
+    src: "result",
+    ahuFor: "exhaust",
+  },
+  {
+    label: "AHU Width",
+    key: "boq_AHUWidth",
+    sec: "exhaustAhu",
+    src: "result",
+    ahuFor: "exhaust",
+  },
+  {
+    label: "AHU Height",
+    key: "boq_AHUHeight",
+    sec: "exhaustAhu",
+    src: "result",
+    ahuFor: "exhaust",
+  },
+  {
+    label: "Static Pressure (Exhaust)",
+    key: "boq_StaticPressureExhaust",
+    sec: "exhaustAhu",
+    src: "result",
+    ahuFor: "exhaust",
+  },
+  {
+    label: "Blower Model BDB",
+    key: "boq_BlowerModelBDB",
+    sec: "exhaustAhu",
+    src: "result",
+    ahuFor: "exhaust",
+  },
+  {
+    label: "Motor Selected in Hp",
+    key: "boq_MotorSelectedInHp",
+    sec: "exhaustAhu",
+    src: "result",
+    ahuFor: "exhaust",
+  },
+  {
+    label: "No. Of Stages of Filtr.",
+    key: "boq_NoOfStagesOfFiltrExhaust",
+    sec: "exhaustAhu",
+    src: "result",
+    ahuFor: "exhaust",
+  },
 
   // ================= VENTILATION SUPPLY AHU DESIGN =================
-  { label: "AHU Cfm", key: "boq_AHUCfm", sec: "supplyAhu", src: "result", ahuFor: "ventilationsupply" },
-  { label: "AHU Length", key: "boq_AHULength", sec: "supplyAhu", src: "result", ahuFor: "ventilationsupply" },
-  { label: "AHU Width", key: "boq_AHUWidth", sec: "supplyAhu", src: "result", ahuFor: "ventilationsupply" },
-  { label: "AHU Height", key: "boq_AHUHeight", sec: "supplyAhu", src: "result", ahuFor: "ventilationsupply" },
-  { label: "Static Pressure (Supply)", key: "boq_StaticPressureSupply", sec: "supplyAhu", src: "result", ahuFor: "ventilationsupply" },
-  { label: "Blower Model BDB", key: "boq_BlowerModelBDB", sec: "supplyAhu", src: "result", ahuFor: "ventilationsupply" },
-  { label: "Motor Selected in Hp", key: "boq_MotorSelectedInHp", sec: "supplyAhu", src: "result", ahuFor: "ventilationsupply" },
-  { label: "No. Of Stages of Filtr.", key: "boq_NoOfStagesOfFiltrSupply", sec: "supplyAhu", src: "result", ahuFor: "ventilationsupply" },
+  {
+    label: "AHU Cfm",
+    key: "boq_AHUCfm",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "ventilationsupply",
+  },
+  {
+    label: "AHU Length",
+    key: "boq_AHULength",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "ventilationsupply",
+  },
+  {
+    label: "AHU Width",
+    key: "boq_AHUWidth",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "ventilationsupply",
+  },
+  {
+    label: "AHU Height",
+    key: "boq_AHUHeight",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "ventilationsupply",
+  },
+  {
+    label: "Static Pressure (Supply)",
+    key: "boq_StaticPressureSupply",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "ventilationsupply",
+  },
+  {
+    label: "Blower Model BDB",
+    key: "boq_BlowerModelBDB",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "ventilationsupply",
+  },
+  {
+    label: "Motor Selected in Hp",
+    key: "boq_MotorSelectedInHp",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "ventilationsupply",
+  },
+  {
+    label: "No. Of Stages of Filtr.",
+    key: "boq_NoOfStagesOfFiltrSupply",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "ventilationsupply",
+  },
 
   // ================= VENTILATION EXHAUST AHU DESIGN =================
-  { label: "AHU Cfm", key: "boq_AHUCfm", sec: "supplyAhu", src: "result", ahuFor: "ventilationexhaust" },
-  { label: "AHU Length", key: "boq_AHULength", sec: "supplyAhu", src: "result", ahuFor: "ventilationexhaust" },
-  { label: "AHU Width", key: "boq_AHUWidth", sec: "supplyAhu", src: "result", ahuFor: "ventilationexhaust" },
-  { label: "AHU Height", key: "boq_AHUHeight", sec: "supplyAhu", src: "result", ahuFor: "ventilationexhaust" },
-  { label: "Static Pressure (Exhaust)", key: "boq_StaticPressureExhaust", sec: "supplyAhu", src: "result", ahuFor: "ventilationexhaust" },
-  { label: "Blower Model BDB", key: "boq_BlowerModelBDB", sec: "supplyAhu", src: "result", ahuFor: "ventilationexhaust" },
-  { label: "Motor Selected in Hp", key: "boq_MotorSelectedInHp", sec: "supplyAhu", src: "result", ahuFor: "ventilationexhaust" },
-  { label: "No. Of Stages of Filtr.", key: "boq_NoOfStagesOfFiltrExhaust", sec: "supplyAhu", src: "result", ahuFor: "ventilationexhaust" },
+  {
+    label: "AHU Cfm",
+    key: "boq_AHUCfm",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "ventilationexhaust",
+  },
+  {
+    label: "AHU Length",
+    key: "boq_AHULength",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "ventilationexhaust",
+  },
+  {
+    label: "AHU Width",
+    key: "boq_AHUWidth",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "ventilationexhaust",
+  },
+  {
+    label: "AHU Height",
+    key: "boq_AHUHeight",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "ventilationexhaust",
+  },
+  {
+    label: "Static Pressure (Exhaust)",
+    key: "boq_StaticPressureExhaust",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "ventilationexhaust",
+  },
+  {
+    label: "Blower Model BDB",
+    key: "boq_BlowerModelBDB",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "ventilationexhaust",
+  },
+  {
+    label: "Motor Selected in Hp",
+    key: "boq_MotorSelectedInHp",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "ventilationexhaust",
+  },
+  {
+    label: "No. Of Stages of Filtr.",
+    key: "boq_NoOfStagesOfFiltrExhaust",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "ventilationexhaust",
+  },
 
   // ================= COOLING =================
-  { label: "Dehumid CFM", key: "project_DehumidCfm", sec: "cooling", src: "result", zoneCol: "zone_DehumidCfm" },
-  { label: "Rem. Water Vapour", key: "project_Rem_Water_Vapour", sec: "cooling", src: "result", zoneCol: "zone_Rem_Water_Vapour" },
-  { label: "Result CFM (Cooling)", key: "project_ResultCfm", sec: "cooling", src: "result", zoneCol: "zone_ResultCfm" },
-  { label: "Terminal Mod (Cool)", key: "project_Room_Termi_Supply_Mod", sec: "cooling", src: "result", zoneCol: "zone_Room_Termi_Supply_Mod" },
-  { label: "Room AC Load (TR)", key: "project_Room_AC_Load_TR", sec: "cooling", src: "result", zoneCol: "zone_Room_AC_Load_TR" },
-  { label: "CFM AC Load (TR)", key: "project_Cfm_AC_Load_TR", sec: "cooling", src: "result", zoneCol: "zone_Cfm_AC_Load_TR" },
-  { label: "Res. Cooling Load (TR)", key: "project_Res_Cooling_Load_TR", sec: "cooling", src: "result", zoneCol: "zone_Res_Cooling_Load_TR" },
+  {
+    label: "Dehumid CFM",
+    key: "project_DehumidCfm",
+    sec: "cooling",
+    src: "result",
+    zoneCol: "zone_DehumidCfm",
+  },
+  {
+    label: "Rem. Water Vapour",
+    key: "project_Rem_Water_Vapour",
+    sec: "cooling",
+    src: "result",
+    zoneCol: "zone_Rem_Water_Vapour",
+  },
+  {
+    label: "Result CFM (Cooling)",
+    key: "project_ResultCfm",
+    sec: "cooling",
+    src: "result",
+    zoneCol: "zone_ResultCfm",
+  },
+  {
+    label: "Terminal Mod (Cool)",
+    key: "project_Room_Termi_Supply_Mod",
+    sec: "cooling",
+    src: "result",
+    zoneCol: "zone_Room_Termi_Supply_Mod",
+  },
+  {
+    label: "Room AC Load (TR)",
+    key: "project_Room_AC_Load_TR",
+    sec: "cooling",
+    src: "result",
+    zoneCol: "zone_Room_AC_Load_TR",
+  },
+  {
+    label: "CFM AC Load (TR)",
+    key: "project_Cfm_AC_Load_TR",
+    sec: "cooling",
+    src: "result",
+    zoneCol: "zone_Cfm_AC_Load_TR",
+  },
+  {
+    label: "Res. Cooling Load (TR)",
+    key: "project_Res_Cooling_Load_TR",
+    sec: "cooling",
+    src: "result",
+    zoneCol: "zone_Res_Cooling_Load_TR",
+  },
 
   // ================= COOLING AHU DESIGN =================
-  { label: "AHU Cfm", key: "boq_AHUCfm", sec: "supplyAhu", src: "result", ahuFor: "cooling" },
-  { label: "AHU Length", key: "boq_AHULength", sec: "supplyAhu", src: "result", ahuFor: "cooling" },
-  { label: "AHU Width", key: "boq_AHUWidth", sec: "supplyAhu", src: "result", ahuFor: "cooling" },
-  { label: "AHU Height", key: "boq_AHUHeight", sec: "supplyAhu", src: "result", ahuFor: "cooling" },
-  { label: "Static Pressure (Supply)", key: "boq_StaticPressureSupply", sec: "supplyAhu", src: "result", ahuFor: "cooling" },
-  { label: "Blower Model BDB", key: "boq_BlowerModelBDB", sec: "supplyAhu", src: "result", ahuFor: "cooling" },
-  { label: "Motor Selected in Hp", key: "boq_MotorSelectedInHp", sec: "supplyAhu", src: "result", ahuFor: "cooling" },
-  { label: "No. of Rows of Cooling Coil", key: "boq_NoOfRowsOfCoil", sec: "supplyAhu", src: "result", ahuFor: "cooling" },
-  { label: "AHU Cooling Load in TR", key: "boq_AHULoadInTR", sec: "supplyAhu", src: "result", ahuFor: "cooling" },
-  { label: "No. Of Stages of Filtr.", key: "boq_NoOfStagesOfFiltrSupply", sec: "supplyAhu", src: "result", ahuFor: "cooling" },
-  { label: "Chilled Water in GPM", key: "boq_GPM", sec: "supplyAhu", src: "result", ahuFor: "cooling" },
-  { label: "Chilled Water in L/s", key: "boq_Ls", sec: "supplyAhu", src: "result", ahuFor: "cooling" },
-  { label: "Flow Velocity in m/s", key: "boq_FlowVelocityCooling", sec: "supplyAhu", src: "result", ahuFor: "cooling" },
-  { label: "Pipe Size in mm", key: "boq_PipeSizeCooling", sec: "supplyAhu", src: "result", ahuFor: "cooling" },
+  {
+    label: "AHU Cfm",
+    key: "boq_AHUCfm",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "cooling",
+  },
+  {
+    label: "AHU Length",
+    key: "boq_AHULength",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "cooling",
+  },
+  {
+    label: "AHU Width",
+    key: "boq_AHUWidth",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "cooling",
+  },
+  {
+    label: "AHU Height",
+    key: "boq_AHUHeight",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "cooling",
+  },
+  {
+    label: "Static Pressure (Supply)",
+    key: "boq_StaticPressureSupply",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "cooling",
+  },
+  {
+    label: "Blower Model BDB",
+    key: "boq_BlowerModelBDB",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "cooling",
+  },
+  {
+    label: "Motor Selected in Hp",
+    key: "boq_MotorSelectedInHp",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "cooling",
+  },
+  {
+    label: "No. of Rows of Cooling Coil",
+    key: "boq_NoOfRowsOfCoil",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "cooling",
+  },
+  {
+    label: "AHU Cooling Load in TR",
+    key: "boq_AHULoadInTR",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "cooling",
+  },
+  {
+    label: "No. Of Stages of Filtr.",
+    key: "boq_NoOfStagesOfFiltrSupply",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "cooling",
+  },
+  {
+    label: "Chilled Water in GPM",
+    key: "boq_GPM",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "cooling",
+  },
+  {
+    label: "Chilled Water in L/s",
+    key: "boq_Ls",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "cooling",
+  },
+  {
+    label: "Flow Velocity in m/s",
+    key: "boq_FlowVelocityCooling",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "cooling",
+  },
+  {
+    label: "Pipe Size in mm",
+    key: "boq_PipeSizeCooling",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "cooling",
+  },
 
   // ================= HEATING =================
-  { label: "Add. Water Vapour", key: "project_add_Water_Vapour", sec: "heating", src: "result", zoneCol: "zone_add_Water_Vapour" },
-  { label: "Humid CFM", key: "project_HumidCfm", sec: "heating", src: "result", zoneCol: "zone_HumidCfm" },
-  { label: "Result CFM (Heating)", key: "project_ResultCfm_Hot", sec: "heating", src: "result", zoneCol: "zone_ResultCfm_Hot" },
-  { label: "Terminal Mod (Heat)", key: "project_Room_Term_Supply_Mod", sec: "heating", src: "result", zoneCol: "zone_Room_Term_Supply_Mod" },
-  { label: "Room Heat Load (TR)", key: "project_Room_Heating_Load_TR", sec: "heating", src: "result", zoneCol: "zone_Room_Heating_Load_TR" },
-  { label: "CFM Heat Load (TR)", key: "project_Cfm_Heating_Load_TR", sec: "heating", src: "result", zoneCol: "zone_Cfm_Heating_Load_TR" },
-  { label: "Res. Heat Load (TR)", key: "project_Result_Heating_Load_TR", sec: "heating", src: "result", zoneCol: "zone_Result_Heating_Load_TR" },
+  {
+    label: "Add. Water Vapour",
+    key: "project_add_Water_Vapour",
+    sec: "heating",
+    src: "result",
+    zoneCol: "zone_add_Water_Vapour",
+  },
+  {
+    label: "Humid CFM",
+    key: "project_HumidCfm",
+    sec: "heating",
+    src: "result",
+    zoneCol: "zone_HumidCfm",
+  },
+  {
+    label: "Result CFM (Heating)",
+    key: "project_ResultCfm_Hot",
+    sec: "heating",
+    src: "result",
+    zoneCol: "zone_ResultCfm_Hot",
+  },
+  {
+    label: "Terminal Mod (Heat)",
+    key: "project_Room_Term_Supply_Mod",
+    sec: "heating",
+    src: "result",
+    zoneCol: "zone_Room_Term_Supply_Mod",
+  },
+  {
+    label: "Room Heat Load (TR)",
+    key: "project_Room_Heating_Load_TR",
+    sec: "heating",
+    src: "result",
+    zoneCol: "zone_Room_Heating_Load_TR",
+  },
+  {
+    label: "CFM Heat Load (TR)",
+    key: "project_Cfm_Heating_Load_TR",
+    sec: "heating",
+    src: "result",
+    zoneCol: "zone_Cfm_Heating_Load_TR",
+  },
+  {
+    label: "Res. Heat Load (TR)",
+    key: "project_Result_Heating_Load_TR",
+    sec: "heating",
+    src: "result",
+    zoneCol: "zone_Result_Heating_Load_TR",
+  },
 
   /// ================= HEATING AHU DESIGN =================
-  { label: "AHU Cfm", key: "boq_AHUCfm", sec: "supplyAhu", src: "result", ahuFor: "heating" },
-  { label: "AHU Length", key: "boq_AHULength", sec: "supplyAhu", src: "result", ahuFor: "heating" },
-  { label: "AHU Width", key: "boq_AHUWidth", sec: "supplyAhu", src: "result", ahuFor: "heating" },
-  { label: "AHU Height", key: "boq_AHUHeight", sec: "supplyAhu", src: "result", ahuFor: "heating" },
-  { label: "Static Pressure (Supply)", key: "boq_StaticPressureSupply", sec: "supplyAhu", src: "result", ahuFor: "heating" },
-  { label: "Blower Model BDB", key: "boq_BlowerModelBDB", sec: "supplyAhu", src: "result", ahuFor: "heating" },
-  { label: "Motor Selected in Hp", key: "boq_MotorSelectedInHp", sec: "supplyAhu", src: "result", ahuFor: "heating" },
-  { label: "No. of Rows of Heating Coil", key: "boq_NoOfRowsOfCoil", sec: "supplyAhu", src: "result", ahuFor: "heating" },
-  { label: "AHU Heating Load in TR", key: "boq_AHULoadInTR", sec: "supplyAhu", src: "result", ahuFor: "heating" },
-  { label: "No. Of Stages of Filtr.", key: "boq_NoOfStagesOfFiltrSupply", sec: "supplyAhu", src: "result", ahuFor: "heating" },
-  { label: "Hot Water or Steam in GPM", key: "boq_GPM", sec: "supplyAhu", src: "result", ahuFor: "heating" },
-  { label: "Hot Water or Steam in L/s", key: "boq_Ls", sec: "supplyAhu", src: "result", ahuFor: "heating" },
-  { label: "Flow Velocity in m/s", key: "boq_FlowVelocityHeating", sec: "supplyAhu", src: "result", ahuFor: "heating" },
-  { label: "Pipe Size in mm", key: "boq_PipeSizeHeating", sec: "supplyAhu", src: "result", ahuFor: "heating" },
+  {
+    label: "AHU Cfm",
+    key: "boq_AHUCfm",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "heating",
+  },
+  {
+    label: "AHU Length",
+    key: "boq_AHULength",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "heating",
+  },
+  {
+    label: "AHU Width",
+    key: "boq_AHUWidth",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "heating",
+  },
+  {
+    label: "AHU Height",
+    key: "boq_AHUHeight",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "heating",
+  },
+  {
+    label: "Static Pressure (Supply)",
+    key: "boq_StaticPressureSupply",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "heating",
+  },
+  {
+    label: "Blower Model BDB",
+    key: "boq_BlowerModelBDB",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "heating",
+  },
+  {
+    label: "Motor Selected in Hp",
+    key: "boq_MotorSelectedInHp",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "heating",
+  },
+  {
+    label: "No. of Rows of Heating Coil",
+    key: "boq_NoOfRowsOfCoil",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "heating",
+  },
+  {
+    label: "AHU Heating Load in TR",
+    key: "boq_AHULoadInTR",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "heating",
+  },
+  {
+    label: "No. Of Stages of Filtr.",
+    key: "boq_NoOfStagesOfFiltrSupply",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "heating",
+  },
+  {
+    label: "Hot Water or Steam in GPM",
+    key: "boq_GPM",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "heating",
+  },
+  {
+    label: "Hot Water or Steam in L/s",
+    key: "boq_Ls",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "heating",
+  },
+  {
+    label: "Flow Velocity in m/s",
+    key: "boq_FlowVelocityHeating",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "heating",
+  },
+  {
+    label: "Pipe Size in mm",
+    key: "boq_PipeSizeHeating",
+    sec: "supplyAhu",
+    src: "result",
+    ahuFor: "heating",
+  },
 ];
 
 const TEXT_KEYS = new Set([
@@ -282,7 +859,10 @@ const TEXT_KEYS = new Set([
   "project_temp_Unit",
 ]);
 
-function borderForVisibleIndex(colIdx: number, visibleCols: Col[]): ReturnType<typeof B> {
+function borderForVisibleIndex(
+  colIdx: number,
+  visibleCols: Col[],
+): ReturnType<typeof B> {
   const current = visibleCols[colIdx];
   const prev = visibleCols[colIdx - 1];
   const next = visibleCols[colIdx + 1];
@@ -290,7 +870,8 @@ function borderForVisibleIndex(colIdx: number, visibleCols: Col[]): ReturnType<t
   if (!current) return B();
 
   if (current.sec !== prev?.sec && current.sec !== "cyan") return BDivLeft();
-  if (current.sec !== next?.sec && current.sec !== "heating") return BDivRight();
+  if (current.sec !== next?.sec && current.sec !== "heating")
+    return BDivRight();
 
   return B();
 }
@@ -318,9 +899,12 @@ function getSystemFlags(systemTypeRaw: any) {
   return {
     isCoolingSystem: has("cooling") && !has("heating") && !has("ventilation"),
     isHeatingSystem: has("heating") && !has("cooling") && !has("ventilation"),
-    isVentilationSystem: has("ventilation") && !has("cooling") && !has("heating"),
-    isCoolingVentilation: has("cooling") && has("ventilation") && !has("heating"),
-    isHeatingVentilation: has("heating") && has("ventilation") && !has("cooling"),
+    isVentilationSystem:
+      has("ventilation") && !has("cooling") && !has("heating"),
+    isCoolingVentilation:
+      has("cooling") && has("ventilation") && !has("heating"),
+    isHeatingVentilation:
+      has("heating") && has("ventilation") && !has("cooling"),
     isCoolingHeating: has("cooling") && has("heating"),
   };
 }
@@ -365,7 +949,9 @@ function hasThermalValues(result: any): boolean {
 
 function sameZone(room: any, result: any): boolean {
   const roomZoneId = String(room.zone_id ?? room.project_zone_id ?? "").trim();
-  const resultZoneId = String(result.zone_id ?? result.project_zone_id ?? result.project_ZoneId ?? "").trim();
+  const resultZoneId = String(
+    result.zone_id ?? result.project_zone_id ?? result.project_ZoneId ?? "",
+  ).trim();
 
   if (!roomZoneId || !resultZoneId) return true;
 
@@ -375,10 +961,10 @@ function sameZone(room: any, result: any): boolean {
 function getZoneId(obj: any): string {
   return String(
     obj.zone_id ??
-    obj.project_zone_id ??
-    obj.project_ZoneId ??
-    obj.zoneId ??
-    ""
+      obj.project_zone_id ??
+      obj.project_ZoneId ??
+      obj.zoneId ??
+      "",
   ).trim();
 }
 
@@ -393,17 +979,23 @@ function normalizeResultRoomName(name: any): string {
     .trim();
 }
 
-function getAllResultRowsForRoom(room: any, resByName: Map<string, any[]>): any[] {
+function getAllResultRowsForRoom(
+  room: any,
+  resByName: Map<string, any[]>,
+): any[] {
   const key = resultMapKey(
     room.project_id,
     room.zone_id,
-    room.project_RoomName
+    room.project_RoomName,
   );
 
   return resByName.get(key) || [];
 }
 
-function getVentilationResultForRoom(room: any, resByName: Map<string, any[]>): any {
+function getVentilationResultForRoom(
+  room: any,
+  resByName: Map<string, any[]>,
+): any {
   const allRows = getAllResultRowsForRoom(room, resByName);
 
   return allRows.find((r) => !hasThermalValues(r)) || {};
@@ -440,7 +1032,7 @@ function getResultForRoom(
   room: any,
   resByName: Map<string, any[]>,
   tableKind: TableKind,
-  tableSide: TableSide
+  tableSide: TableSide,
 ): any {
   const allRows = getAllResultRowsForRoom(room, resByName);
 
@@ -465,7 +1057,9 @@ function getResultForRoom(
     return sideMatchedRows.find((r) => hasHeatingValues(r)) || {};
   }
 
-  return sideMatchedRows.find((r) => hasThermalValues(r)) || sideMatchedRows[0] || {};
+  return (
+    sideMatchedRows.find((r) => hasThermalValues(r)) || sideMatchedRows[0] || {}
+  );
 }
 
 function calculateDbFilteredTotals(
@@ -473,7 +1067,7 @@ function calculateDbFilteredTotals(
   resByName: Map<string, any[]>,
   col: Col,
   tableKind: TableKind,
-  tableSide: TableSide
+  tableSide: TableSide,
 ): number {
   if (!col.zoneCol) return 0;
 
@@ -541,7 +1135,8 @@ function buildProjectInfoSheet(project: any): XLSXStyle.WorkSheet {
   ws["!cols"] = [{ wch: 8 }, { wch: 34 }, { wch: 55 }, { wch: 8 }];
   ws["!rows"] = allRows.map((row) => {
     const v = (row[1] as any)?.v;
-    if (v === "PROJECT INFORMATION" || v === "CUSTOMER INFORMATION") return { hpt: 28 };
+    if (v === "PROJECT INFORMATION" || v === "CUSTOMER INFORMATION")
+      return { hpt: 28 };
     if (v === "Field") return { hpt: 40 };
     return { hpt: 20 };
   });
@@ -562,7 +1157,6 @@ function normalizeBOQResponse(res: any): any[] {
     res;
 
   if (Array.isArray(possible)) {
-
     return Array.isArray(possible[0]) ? possible[0] : possible;
   }
 
@@ -599,7 +1193,7 @@ function getMatchingBOQRow(
   boqRows: any[],
   tableKind: TableKind,
   tableSide: TableSide,
-  zoneName: string
+  zoneName: string,
 ): any {
   const lowerZoneName = zoneName.toLowerCase();
   const isVentilation = lowerZoneName.includes("ventilation");
@@ -618,8 +1212,25 @@ function getMatchingBOQRow(
               : tableKind === "heating" && tableSide === "exhaust"
                 ? ["HEATING_EXHAUST", "HE"]
                 : tableSide === "exhaust"
-                  ? ["EXHAUST", "E", "CE", "HE", "VE", "COOLING_EXHAUST", "HEATING_EXHAUST"]
-                  : ["SUPPLY", "S", "CS", "HS", "VS", "COOLING_SUPPLY", "HEATING_SUPPLY", "VENTILATION_SUPPLY"];
+                  ? [
+                      "EXHAUST",
+                      "E",
+                      "CE",
+                      "HE",
+                      "VE",
+                      "COOLING_EXHAUST",
+                      "HEATING_EXHAUST",
+                    ]
+                  : [
+                      "SUPPLY",
+                      "S",
+                      "CS",
+                      "HS",
+                      "VS",
+                      "COOLING_SUPPLY",
+                      "HEATING_SUPPLY",
+                      "VENTILATION_SUPPLY",
+                    ];
 
   return boqRows.find((row) => allowedFlags.includes(getBOQFlag(row))) || {};
 }
@@ -658,10 +1269,15 @@ function getBOQValue(boq: any, key: string): any {
   const normalizedWantedKeys = keys.map((k) => k.toLowerCase());
 
   const matchedKey = Object.keys(boq).find((actualKey) =>
-    normalizedWantedKeys.includes(actualKey.toLowerCase())
+    normalizedWantedKeys.includes(actualKey.toLowerCase()),
   );
 
-  if (matchedKey && boq[matchedKey] !== undefined && boq[matchedKey] !== null && boq[matchedKey] !== "") {
+  if (
+    matchedKey &&
+    boq[matchedKey] !== undefined &&
+    boq[matchedKey] !== null &&
+    boq[matchedKey] !== ""
+  ) {
     return boq[matchedKey];
   }
 
@@ -673,7 +1289,7 @@ function buildZoneSheet(
   rooms: any[],
   results: any[],
   zones: any[],
-  boqByZone: Map<string, any[]> = new Map()
+  boqByZone: Map<string, any[]> = new Map(),
 ): XLSXStyle.WorkSheet {
   const allRows: CO[][] = [];
   const merges: ReturnType<typeof mg>[] = [];
@@ -687,7 +1303,10 @@ function buildZoneSheet(
     return ws;
   }
 
-  const zoneMap = new Map<string, { name: string; zoneId: string; rooms: any[] }>();
+  const zoneMap = new Map<
+    string,
+    { name: string; zoneId: string; rooms: any[] }
+  >();
 
   for (const room of rooms) {
     const zid = String(room.zone_id ?? "");
@@ -703,11 +1322,7 @@ function buildZoneSheet(
   const resByName = new Map<string, any[]>();
 
   for (const r of results ?? []) {
-    const key = resultMapKey(
-      r.project_id,
-      r.zone_id,
-      r.project_RoomName
-    );
+    const key = resultMapKey(r.project_id, r.zone_id, r.project_RoomName);
 
     if (!resByName.has(key)) {
       resByName.set(key, []);
@@ -730,10 +1345,11 @@ function buildZoneSheet(
     zoneName: string,
     zoneRooms: any[],
     tableKind: TableKind,
-    tableSide: TableSide
+    tableSide: TableSide,
   ): Col[] {
     const firstRoom = zoneRooms[0] ?? {};
-    const std = stdById.get(String(firstRoom.project_standard_id ?? "")) ?? firstStd;
+    const std =
+      stdById.get(String(firstRoom.project_standard_id ?? "")) ?? firstStd;
 
     const systemTypeRaw =
       firstRoom.project_system ||
@@ -746,7 +1362,6 @@ function buildZoneSheet(
     const isVentilationTable = zoneName.toLowerCase().includes("ventilation");
 
     return COLS.filter((col) => {
-
       if (isVentilationTable) {
         if (col.sec === "supplyAhu") {
           if (tableSide === "supply") {
@@ -765,9 +1380,7 @@ function buildZoneSheet(
         }
 
         return (
-          col.sec === "cyan" ||
-          col.sec === "brown" ||
-          col.sec === "airflow"
+          col.sec === "cyan" || col.sec === "brown" || col.sec === "airflow"
         );
       }
 
@@ -819,13 +1432,19 @@ function buildZoneSheet(
     const supplyAhuStart = visibleCols.findIndex((c) => c.sec === "supplyAhu");
     const supplyAhuEnd = visibleCols.map((c) => c.sec).lastIndexOf("supplyAhu");
 
-    const exhaustAhuStart = visibleCols.findIndex((c) => c.sec === "exhaustAhu");
-    const exhaustAhuEnd = visibleCols.map((c) => c.sec).lastIndexOf("exhaustAhu");
+    const exhaustAhuStart = visibleCols.findIndex(
+      (c) => c.sec === "exhaustAhu",
+    );
+    const exhaustAhuEnd = visibleCols
+      .map((c) => c.sec)
+      .lastIndexOf("exhaustAhu");
 
     const brownLastIndex = (() => {
       const reversed = visibleCols.slice().reverse();
       const indexInReversed = reversed.findIndex((c) => c.sec === "brown");
-      return indexInReversed === -1 ? -1 : visibleCols.length - 1 - indexInReversed;
+      return indexInReversed === -1
+        ? -1
+        : visibleCols.length - 1 - indexInReversed;
     })();
 
     merges.push(mg(ri, ri, 0, Math.min(lastIndex, brownLastIndex)));
@@ -847,10 +1466,8 @@ function buildZoneSheet(
         lowerZoneName.includes("exhaust");
 
       titleRow[supplyAhuStart] = yTitle(
-        isVentilationExhaust
-          ? "Exhaust AHU Details"
-          : "Supply AHU Details",
-        BDivLeft()
+        isVentilationExhaust ? "Exhaust AHU Details" : "Supply AHU Details",
+        BDivLeft(),
       );
 
       merges.push(mg(ri, ri, supplyAhuStart, supplyAhuEnd));
@@ -870,7 +1487,7 @@ function buildZoneSheet(
     zoneId: string,
     zoneRooms: any[],
     tableKind: TableKind,
-    tableSide: TableSide
+    tableSide: TableSide,
   ) {
     if (!zoneRooms.length) return;
 
@@ -890,11 +1507,8 @@ function buildZoneSheet(
 
     if (tableKind === "ventilation") {
       for (const room of zoneRooms) {
-
-        const isRoomSupply = isSupplyByRoomInput(room);
         const isRoomExhaust = isExhaustByRoomInput(room);
 
-        if (tableSide === "supply" && !isRoomSupply) continue;
         if (tableSide === "exhaust" && !isRoomExhaust) continue;
 
         const res = getVentilationResultForRoom(room, resByName);
@@ -910,11 +1524,8 @@ function buildZoneSheet(
         const resultRows = getAllResultRowsForRoom(room, resByName);
 
         for (const res of resultRows) {
-
-          const isRoomSupply = isSupplyByRoomInput(room);
           const isRoomExhaust = isExhaustByRoomInput(room);
 
-          if (tableSide === "supply" && !isRoomSupply) continue;
           if (tableSide === "exhaust" && !isRoomExhaust) continue;
 
           if (tableKind === "cooling") {
@@ -1004,7 +1615,7 @@ function buildZoneSheet(
       zoneName,
       tableRows.map((x) => x.room),
       tableKind,
-      tableSide
+      tableSide,
     );
 
     maxCols = Math.max(maxCols, tableVisibleCols.length);
@@ -1013,8 +1624,8 @@ function buildZoneSheet(
 
     allRows.push(
       tableVisibleCols.map((col, i) =>
-        yHdr(col.label, borderForVisibleIndex(i, tableVisibleCols))
-      )
+        yHdr(col.label, borderForVisibleIndex(i, tableVisibleCols)),
+      ),
     );
     rowHeights.push({ hpt: 80 });
     ri++;
@@ -1025,7 +1636,7 @@ function buildZoneSheet(
       boqRowsForZone,
       tableKind,
       tableSide,
-      zoneName
+      zoneName,
     );
 
     console.log("AHU BOQ DEBUG:", {
@@ -1039,7 +1650,8 @@ function buildZoneSheet(
     });
 
     for (const { room, res } of tableRows) {
-      const std = stdById.get(String(room.project_standard_id ?? "")) ?? firstStd;
+      const std =
+        stdById.get(String(room.project_standard_id ?? "")) ?? firstStd;
 
       const dataRow: CO[] = tableVisibleCols.map((col, i) => {
         let raw: any;
@@ -1098,15 +1710,19 @@ function buildZoneSheet(
         }
       });
     }
-    
+
     allRows.push(Array.from({ length: tableVisibleCols.length }, () => eW()));
     rowHeights.push({ hpt: 12 });
     ri++;
   }
 
-  for (const [zoneId, { name: zoneName, rooms: zoneRooms }] of zoneMap.entries()) {
+  for (const [
+    zoneId,
+    { name: zoneName, rooms: zoneRooms },
+  ] of zoneMap.entries()) {
     const firstRoom = zoneRooms[0] ?? {};
-    const std = stdById.get(String(firstRoom.project_standard_id ?? "")) ?? firstStd;
+    const std =
+      stdById.get(String(firstRoom.project_standard_id ?? "")) ?? firstStd;
 
     const systemTypeRaw =
       firstRoom.project_system ||
@@ -1118,30 +1734,109 @@ function buildZoneSheet(
     const flags = getSystemFlags(systemTypeRaw);
 
     if (flags.isCoolingVentilation || flags.isHeatingVentilation) {
-      const typeLabel = flags.isCoolingVentilation ? "Air Cooling System" : "Air Heating System";
-      const mainKind: TableKind = flags.isCoolingVentilation ? "cooling" : "heating";
+      const typeLabel = flags.isCoolingVentilation
+        ? "Air Cooling System"
+        : "Air Heating System";
+      const mainKind: TableKind = flags.isCoolingVentilation
+        ? "cooling"
+        : "heating";
 
-      renderTable(`${zoneName} ${typeLabel} (Recirculatory)`, zoneId, zoneRooms, mainKind, "supply");
-      renderTable(`${zoneName} ${typeLabel} (Exhaust)`, zoneId, zoneRooms, mainKind, "exhaust");
+      renderTable(
+        `${zoneName} ${typeLabel} (Recirculatory)`,
+        zoneId,
+        zoneRooms,
+        mainKind,
+        "supply",
+      );
+      renderTable(
+        `${zoneName} ${typeLabel} (Exhaust)`,
+        zoneId,
+        zoneRooms,
+        mainKind,
+        "exhaust",
+      );
 
-      renderTable(`${zoneName} Ventilation System (Supply)`, zoneId, zoneRooms, "ventilation", "supply");
-      renderTable(`${zoneName} Ventilation System (Exhaust)`, zoneId, zoneRooms, "ventilation", "exhaust");
-
+      renderTable(
+        `${zoneName} Ventilation System (Supply)`,
+        zoneId,
+        zoneRooms,
+        "ventilation",
+        "supply",
+      );
+      renderTable(
+        `${zoneName} Ventilation System (Exhaust)`,
+        zoneId,
+        zoneRooms,
+        "ventilation",
+        "exhaust",
+      );
     } else if (flags.isHeatingSystem) {
-      renderTable(`${zoneName} Air Heating System (Supply)`, zoneId, zoneRooms, "heating", "supply");
-      renderTable(`${zoneName} Air Heating System (Exhaust)`, zoneId, zoneRooms, "heating", "exhaust");
-
+      renderTable(
+        `${zoneName} Air Heating System (Supply)`,
+        zoneId,
+        zoneRooms,
+        "heating",
+        "supply",
+      );
+      renderTable(
+        `${zoneName} Air Heating System (Exhaust)`,
+        zoneId,
+        zoneRooms,
+        "heating",
+        "exhaust",
+      );
     } else if (flags.isCoolingSystem) {
-      renderTable(`${zoneName} Air Cooling System (Recirculatory)`, zoneId, zoneRooms, "cooling", "supply");
-      renderTable(`${zoneName} Air Cooling System (Exhaust)`, zoneId, zoneRooms, "cooling", "exhaust");
-
+      renderTable(
+        `${zoneName} Air Cooling System (Recirculatory)`,
+        zoneId,
+        zoneRooms,
+        "cooling",
+        "supply",
+      );
+      renderTable(
+        `${zoneName} Air Cooling System (Exhaust)`,
+        zoneId,
+        zoneRooms,
+        "cooling",
+        "exhaust",
+      );
     } else if (flags.isVentilationSystem) {
-      renderTable(`${zoneName} Ventilation System (Supply)`, zoneId, zoneRooms, "ventilation", "supply");
-      renderTable(`${zoneName} Ventilation System (Exhaust)`, zoneId, zoneRooms, "ventilation", "exhaust");
+      renderTable(
+        `${zoneName} Ventilation System (Supply)`,
+        zoneId,
+        zoneRooms,
+        "ventilation",
+        "supply",
+      );
+      renderTable(
+        `${zoneName} Ventilation System (Exhaust)`,
+        zoneId,
+        zoneRooms,
+        "ventilation",
+        "exhaust",
+      );
     } else {
-      renderTable(`${zoneName} Air Cooling and Heating System - Cooling (Recirculatory)`, zoneId, zoneRooms, "cooling", "supply");
-      renderTable(`${zoneName} Air Cooling and Heating System - Heating (Supply)`, zoneId, zoneRooms, "heating", "supply");
-      renderTable(`${zoneName} Air Cooling and Heating System (Exhaust)`, zoneId, zoneRooms, "normal", "exhaust");
+      renderTable(
+        `${zoneName} Air Cooling and Heating System - Cooling (Recirculatory)`,
+        zoneId,
+        zoneRooms,
+        "cooling",
+        "supply",
+      );
+      renderTable(
+        `${zoneName} Air Cooling and Heating System - Heating (Supply)`,
+        zoneId,
+        zoneRooms,
+        "heating",
+        "supply",
+      );
+      renderTable(
+        `${zoneName} Air Cooling and Heating System (Exhaust)`,
+        zoneId,
+        zoneRooms,
+        "normal",
+        "exhaust",
+      );
     }
   }
 
@@ -1161,7 +1856,13 @@ function normalizeExcelOutputData(data: any) {
       : [];
 
   // If API already returns old structure, keep it as-is
-  if (data?.project || data?.rooms || data?.results || data?.zones || data?.standards) {
+  if (
+    data?.project ||
+    data?.rooms ||
+    data?.results ||
+    data?.zones ||
+    data?.standards
+  ) {
     return data;
   }
 
@@ -1229,7 +1930,7 @@ function normalizeExcelOutputData(data: any) {
 export async function downloadProjectXLSX(
   projectId: number,
   projectUniqueId: string,
-  fetchFn: (id: number) => Promise<any>
+  fetchFn: (id: number) => Promise<any>,
 ) {
   const rawData = await fetchFn(projectId);
   const data = normalizeExcelOutputData(rawData);
@@ -1246,15 +1947,15 @@ export async function downloadProjectXLSX(
         ...(results ?? []).map((r: any) => r.zone_id),
       ]
         .filter((id) => id !== undefined && id !== null && id !== "")
-        .map((id) => String(id))
-    )
+        .map((id) => String(id)),
+    ),
   );
 
   await Promise.all(
     zoneIds.map(async (zoneId) => {
       const boqResponse = await getBOQResultsByZoneId(Number(zoneId));
       boqByZone.set(zoneId, normalizeBOQResponse(boqResponse));
-    })
+    }),
   );
 
   const wb = XLSXStyle.utils.book_new();
@@ -1262,13 +1963,19 @@ export async function downloadProjectXLSX(
   XLSXStyle.utils.book_append_sheet(
     wb,
     buildProjectInfoSheet(project),
-    "Project Info"
+    "Project Info",
   );
 
   XLSXStyle.utils.book_append_sheet(
     wb,
-    buildZoneSheet(standards ?? [], rooms ?? [], results ?? [], zones ?? [], boqByZone),
-    "Zone"
+    buildZoneSheet(
+      standards ?? [],
+      rooms ?? [],
+      results ?? [],
+      zones ?? [],
+      boqByZone,
+    ),
+    "Zone",
   );
 
   //XLSXStyle.utils.book_append_sheet(wb, buildBOQSheet(), "BOQ");

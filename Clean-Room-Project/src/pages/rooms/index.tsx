@@ -1065,6 +1065,27 @@ export default function Room() {
           getExcelValue(row, "ACPH Value") ||
           getExcelValue(row, "ACPH") ||
           String(selectedAcph || "");
+        const numericBaseAcphValue = Number(baseAcphValue);
+
+        if (!Number.isFinite(numericBaseAcphValue)) {
+          throw new Error(
+            `Row ${index + 2}: ACPH Value is required and must be a valid number.`,
+          );
+        }
+
+        if (acphMin != null && acphMax != null) {
+          const minRange = Math.min(Number(acphMin), Number(acphMax));
+          const maxRange = Math.max(Number(acphMin), Number(acphMax));
+
+          if (
+            numericBaseAcphValue < minRange ||
+            numericBaseAcphValue > maxRange
+          ) {
+            throw new Error(
+              `Row ${index + 2}: ACPH Value ${numericBaseAcphValue} is outside the accepted range. Please enter ACPH Value between ${minRange} and ${maxRange}.`,
+            );
+          }
+        }
 
         const acphDeviationValue = getExcelValue(row, "ACPH Deviation") || "0";
 

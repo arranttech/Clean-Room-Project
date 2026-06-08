@@ -38,8 +38,6 @@ type StandardItem = {
 };
 type StandardJson = { standards: StandardItem[]; text: any };
 
-
-
 const data = standardDataJson as unknown as StandardJson;
 const standardsData = data.standards;
 const t = data.text;
@@ -177,7 +175,9 @@ export default function Standard() {
   });
 
   const [modalMessage, setModalMessage] = useState("");
-  const [existingZones, setExistingZones] = useState<{id: number, name: string}[]>([]);
+  const [existingZones, setExistingZones] = useState<
+    { id: number; name: string }[]
+  >([]);
 
   // ──when room.tsx passes resetKey via navigate state (addAnotherZone),
   useEffect(() => {
@@ -259,7 +259,7 @@ export default function Standard() {
         const dbZones = Array.isArray(data?.zones)
           ? data.zones.map((z: any) => ({
               id: z.zone_id,
-              name: String(z.zone_name || "").trim()
+              name: String(z.zone_name || "").trim(),
             }))
           : [];
 
@@ -322,10 +322,7 @@ export default function Standard() {
       (f: any) => f.industry === industry && f.subIndustry === subIndustry,
     );
 
-    if (
-      activeFilter &&
-      activeFilter.allowedClassifications
-    ) {
+    if (activeFilter && activeFilter.allowedClassifications) {
       const allowedMap = activeFilter.allowedClassifications;
       const title = selectedStandard.title;
       if (allowedMap[title]) {
@@ -621,7 +618,9 @@ export default function Standard() {
     if (!getZoneSuffix(value)) return "Zone name is required";
 
     const isDuplicate = existingZones.some(
-      (z) => z.name.toLowerCase() === enteredZoneName.toLowerCase() && z.id !== zoneIdFromRedux
+      (z) =>
+        z.name.toLowerCase() === enteredZoneName.toLowerCase() &&
+        z.id !== zoneIdFromRedux,
     );
 
     if (isDuplicate) return "Zone already exist, please enter unique name";
@@ -1140,45 +1139,19 @@ export default function Standard() {
                   </div>
                   <div className={s.field}>
                     <label className={s.label}>
-                      {t.labels.acph} <span className={s.required}>*</span>
+                      ACPH Range <span className={s.required}>*</span>
                       <Tooltip
                         id="acph"
                         content={constants.Tooltip.acphTooltip}
                       />
                     </label>
-                    <select
-                      className={!acphDisabled ? s.select : s.selectDisabled}
-                      disabled={acphDisabled}
-                      value={acph}
-                      onChange={(e) =>
-                        dispatch(
-                          updateStandardsField({
-                            field: "acph",
-                            value: e.target.value,
-                          }),
-                        )
-                      }
-                      required
-                    >
-                      {acphDisabled ? (
-                        <option value="">{t.placeholders.acphDisabled}</option>
-                      ) : (
-                        acphOptions.map((v) => (
-                          <option key={v} value={v}>
-                            {v}
-                          </option>
-                        ))
-                      )}
-                    </select>
-                    {selectedClass?.minAir != null &&
-                      selectedClass?.maxAir != null && (
-                        <div className={s.range}>
-                          {t.misc.rangeLabel}{" "}
-                          <span className={s.rangeValue}>
-                            {selectedClass.minAir} - {selectedClass.maxAir}
-                          </span>
-                        </div>
-                      )}
+
+                    <div className={selectedClass ? s.input : s.selectDisabled}>
+                      {selectedClass?.minAir != null &&
+                      selectedClass?.maxAir != null
+                        ? `${selectedClass.minAir} - ${selectedClass.maxAir}`
+                        : "Select classification to view ACPH range"}
+                    </div>
                   </div>
                 </div>
               </div>

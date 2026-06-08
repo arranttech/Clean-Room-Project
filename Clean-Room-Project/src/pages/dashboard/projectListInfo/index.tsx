@@ -6,6 +6,7 @@ import { MdApartment } from "react-icons/md";
 import Header from "../../../components/header";
 import { useAppSelector } from "../../../redux/hooks";
 import { getCompletedProjects } from "../../../backend/controller/projectController";
+import standardDataJson from "../../../json/standardData.json";
 
 type Room = {
   project_RoomName: string;
@@ -54,8 +55,6 @@ const InfoItem = ({ label, value }: any) => (
 );
 
 const RoomSection = ({ room, index }: { room: Room; index: number }) => (
-
-
   <div className="bg-gray-100 border rounded-xl p-6 mb-6 shadow-sm">
     <div className="flex justify-between mb-4">
       <h3 className="text-lg font-semibold">{room.project_RoomName}</h3>
@@ -76,6 +75,24 @@ const RoomSection = ({ room, index }: { room: Room; index: number }) => (
   </div>
 );
 
+const getAcphRange = (standardName: string, classificationName: string) => {
+  const standards = (standardDataJson as any).standards || [];
+
+  const selectedStandard = standards.find(
+    (item: any) => item.title === standardName,
+  );
+
+  const selectedClass = selectedStandard?.classifications?.find(
+    (item: any) => item.name === classificationName,
+  );
+
+  if (selectedClass?.minAir == null || selectedClass?.maxAir == null) {
+    return "__";
+  }
+
+  return `${selectedClass.minAir} - ${selectedClass.maxAir}`;
+};
+
 export default function ProjectListInfo() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeTabs, setActiveTabs] = useState<Record<number, number>>({});
@@ -85,7 +102,9 @@ export default function ProjectListInfo() {
   function formatDate(raw: string): string {
     try {
       return new Date(raw).toLocaleDateString("en-US", {
-        year: "numeric", month: "short", day: "numeric",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
       });
     } catch {
       return raw;
@@ -114,7 +133,6 @@ export default function ProjectListInfo() {
     return <p>No project selected.</p>;
   }
 
-
   // Convert to number
   const projectIdNumber = parseInt(projectId!, 10);
   if (isNaN(projectIdNumber)) {
@@ -126,20 +144,18 @@ export default function ProjectListInfo() {
 
     const loadProjects = async () => {
       try {
-       
         const res = await getCompletedProjects(
           loggedInUser.user_login_id,
-          loggedInUser.customer_id
+          loggedInUser.customer_id,
         );
 
-      
-        const rows = res.projects.filter((p: any) => p.project_id === projectIdNumber);
+        const rows = res.projects.filter(
+          (p: any) => p.project_id === projectIdNumber,
+        );
 
-       
         const projectMap: Record<number, any> = {};
 
         rows.forEach((row: any, index: number) => {
-
           console.log(`\n========= PROCESSING ROW ${index} =========`);
           console.log("Project:", row.project_id);
           console.log("Standard:", row.project_standard);
@@ -147,7 +163,6 @@ export default function ProjectListInfo() {
 
           // PROJECT
           if (!projectMap[row.project_id]) {
-
             console.log("Creating PROJECT:", row.project_id);
 
             projectMap[row.project_id] = {
@@ -165,17 +180,18 @@ export default function ProjectListInfo() {
               project_Location: row.project_Location,
               project_Industry: row.project_Industry,
               project_Handling: row.project_Handling,
-              standards: {}
+              standards: {},
             };
           }
 
           // STANDARD
           if (!projectMap[row.project_id].standards[row.project_standard_id]) {
-
             console.log(
               "Creating STANDARD:",
               row.project_standard,
-              "(ID:", row.project_standard_id, ")"
+              "(ID:",
+              row.project_standard_id,
+              ")",
             );
 
             projectMap[row.project_id].standards[row.project_standard_id] = {
@@ -183,7 +199,7 @@ export default function ProjectListInfo() {
               project_standard: row.project_standard,
               project_classification_name: row.project_classification_name,
               project_ACPH: row.project_ACPH,
-              rooms: []
+              rooms: [],
             };
           }
 
@@ -192,17 +208,16 @@ export default function ProjectListInfo() {
 
           console.log(
             "Rooms BEFORE insert:",
-            standard.rooms.map((r: Room) => r.project_RoomName)
+            standard.rooms.map((r: Room) => r.project_RoomName),
           );
 
           const exists = standard.rooms.some(
-            (r: Room) => r.project_RoomName === row.project_RoomName
+            (r: Room) => r.project_RoomName === row.project_RoomName,
           );
 
           if (!exists) {
-
             console.log(
-              `Adding ROOM '${row.project_RoomName}' to STANDARD '${row.project_standard}'`
+              `Adding ROOM '${row.project_RoomName}' to STANDARD '${row.project_standard}'`,
             );
 
             standard.rooms.push({
@@ -216,26 +231,22 @@ export default function ProjectListInfo() {
               room_FreshAir: row.room_FreshAir,
               room_ExhaustAir: row.room_ExhaustAir,
               room_ExhaustAirCfm: row.room_ExhaustAirCfm,
-
             });
-
           } else {
-
             console.log("Room already exists, skipping:", row.project_RoomName);
-
           }
 
           console.log(
             "Rooms AFTER insert:",
-            standard.rooms.map((r: Room) => r.project_RoomName)
+            standard.rooms.map((r: Room) => r.project_RoomName),
           );
         });
 
         const finalProjects: Project[] = Object.values(projectMap).map(
           (p: any) => ({
             ...p,
-            standards: Object.values(p.standards)
-          })
+            standards: Object.values(p.standards),
+          }),
         );
 
         console.log("\n========= FINAL GROUPED STRUCTURE =========");
@@ -249,7 +260,6 @@ export default function ProjectListInfo() {
         });
 
         setActiveTabs(tabs);
-
       } catch (err) {
         console.error("Project load error:", err);
       }
@@ -259,17 +269,11 @@ export default function ProjectListInfo() {
   }, [loggedInUser?.user_login_id, loggedInUser?.customer_id]);
 
   const handleTabClick = (projectId: number, standardId: number) => {
-
-    console.log(
-      "Switching TAB → Project:",
-      projectId,
-      "Standard:",
-      standardId
-    );
+    console.log("Switching TAB → Project:", projectId, "Standard:", standardId);
 
     setActiveTabs((prev) => ({
       ...prev,
-      [projectId]: standardId
+      [projectId]: standardId,
     }));
   };
   if (!projects.length) {
@@ -288,25 +292,23 @@ export default function ProjectListInfo() {
       <Header />
 
       {projects.map((p) => {
-
         console.log("\nRendering PROJECT:", p.project_name);
         console.log("Standards:", p.standards);
 
         const activeStandard =
           p.standards.find(
-            (s) => s.project_standard_id === activeTabs[p.project_id]
+            (s) => s.project_standard_id === activeTabs[p.project_id],
           ) || p.standards[0];
 
         console.log(
           "Active STANDARD:",
           activeStandard?.project_standard,
           "Rooms:",
-          activeStandard?.rooms.map(r => r.project_RoomName)
+          activeStandard?.rooms.map((r) => r.project_RoomName),
         );
 
         return (
           <div key={p.project_id} className="bg-gray-100 min-h-screen p-10">
-
             <Link to="/projects" className={s.backButton}>
               <FaArrowLeft /> Back to Projects
             </Link>
@@ -314,29 +316,30 @@ export default function ProjectListInfo() {
             <div className={s.projectInfoCard}>
               <div className={s.sectionHeader}>
                 <h1 className={s.projectTitle}>{p.project_name}</h1>
-                <span className={s.projectProgress}>
-                  Completed
-                </span>
+                <span className={s.projectProgress}>Completed</span>
               </div>
 
-
-              <p className={s.projectID}><span className={s.projectLabel}>Project ID:</span> {p.project_unique_id}</p>
-              <p className={s.createdDate}>
-                <span className={s.projectLabel}>Created:</span> {formatDate(p.created_at)}
+              <p className={s.projectID}>
+                <span className={s.projectLabel}>Project ID:</span>{" "}
+                {p.project_unique_id}
               </p>
               <p className={s.createdDate}>
-                <span className={s.projectLabel}>Created By:</span> {p.created_by || "—"}
+                <span className={s.projectLabel}>Created:</span>{" "}
+                {formatDate(p.created_at)}
               </p>
-
+              <p className={s.createdDate}>
+                <span className={s.projectLabel}>Created By:</span>{" "}
+                {p.created_by || "—"}
+              </p>
             </div>
 
             <div className={s.customerInfoCard}>
               <h2 className={s.cardTitle}>
-                <MdApartment className="text-blue-700 text-3xl" /> Customer Information
+                <MdApartment className="text-blue-700 text-3xl" /> Customer
+                Information
               </h2>
 
               <div className={s.infoGrid}>
-
                 <div>
                   <p className={s.projectLabel}>Customer Name</p>
                   <p className={s.projectValues}>{p.customer_name || "—"}</p>
@@ -344,7 +347,9 @@ export default function ProjectListInfo() {
 
                 <div>
                   <p className={s.projectLabel}>Unit/Branch Name</p>
-                  <p className={s.projectValues}>{parseJsonArray(p.project_unit_branch) || "—"}</p>
+                  <p className={s.projectValues}>
+                    {parseJsonArray(p.project_unit_branch) || "—"}
+                  </p>
                 </div>
 
                 <div>
@@ -364,7 +369,9 @@ export default function ProjectListInfo() {
 
                 <div>
                   <p className={s.projectLabel}>Email</p>
-                  <p className={s.projectValues + " text-blue-600"}>{p.customer_email_id || "—"}</p>
+                  <p className={s.projectValues + " text-blue-600"}>
+                    {p.customer_email_id || "—"}
+                  </p>
                 </div>
 
                 <div>
@@ -415,7 +422,6 @@ export default function ProjectListInfo() {
                     )}
                   </div>
                 </div>
-
               </div>
             </div>
 
@@ -428,55 +434,65 @@ export default function ProjectListInfo() {
                   onClick={() =>
                     handleTabClick(p.project_id, std.project_standard_id)
                   }
-                  className={`px-4 py-2 rounded ${activeTabs[p.project_id] === std.project_standard_id
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200"
-                    }`}
+                  className={`px-4 py-2 rounded ${
+                    activeTabs[p.project_id] === std.project_standard_id
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-200"
+                  }`}
                 >
-
                   {/* {std.project_standard} */}
                   Zone {index + 1}
-
                 </button>
-
               ))}
-
             </div>
 
-            {activeStandard && (<div className={s.customerInfoCard}>
-              <h2 className={s.cardTitle}>
-                <FaLayerGroup className="text-blue-700 text-2xl" /> Classification Details
-              </h2>
+            {activeStandard && (
+              <div className={s.customerInfoCard}>
+                <h2 className={s.cardTitle}>
+                  <FaLayerGroup className="text-blue-700 text-2xl" />{" "}
+                  Classification Details
+                </h2>
 
-              <div className={s.projectDetails}>
-                <div>
-                  <p className={s.projectLabel}>Standard</p>
-                  <p className={s.projectValues}>{activeStandard.project_standard || "—"}</p>
-                </div>
+                <div className={s.projectDetails}>
+                  <div>
+                    <p className={s.projectLabel}>Standard</p>
+                    <p className={s.projectValues}>
+                      {activeStandard.project_standard || "—"}
+                    </p>
+                  </div>
 
-                <div>
-                  <p className={s.projectLabel}>Class</p>
-                  <p className={s.projectValues}>{activeStandard.project_classification_name || "—"}</p>
-                </div>
+                  <div>
+                    <p className={s.projectLabel}>Class</p>
+                    <p className={s.projectValues}>
+                      {activeStandard.project_classification_name || "—"}
+                    </p>
+                  </div>
 
-                {/* <div>
+                  {/* <div>
               <p className={s.projectLabel}>ACPH Range</p>
               <p className={s.projectValues}>30 - 60</p>
             </div> */}
 
-                <div>
-                  <p className={s.projectLabel}>Selected ACPH</p>
-                  <p className={s.projectValues}>{activeStandard.project_ACPH ? activeStandard.project_ACPH.toString() : "__"}</p>
+                  <div>
+                    <p className={s.projectLabel}>ACPH Range</p>
+                    <p className={s.projectValues}>
+                      {getAcphRange(
+                        activeStandard.project_standard,
+                        activeStandard.project_classification_name,
+                      )}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>)}
+            )}
 
             {/* ROOMS */}
 
             {activeStandard && (
               <div className={s.customerInfoCard}>
                 <h2 className={s.cardTitle}>
-                  <FaCalculator className="text-blue-700 text-2xl" /> Rooms ({activeStandard.rooms.length})
+                  <FaCalculator className="text-blue-700 text-2xl" /> Rooms (
+                  {activeStandard.rooms.length})
                 </h2>
                 <div className={s.roomCardInfo}>
                   <div className={s.roomCardValue}>
@@ -484,10 +500,7 @@ export default function ProjectListInfo() {
                       <RoomSection key={i} room={room} index={i} />
                     ))}
                   </div>
-
-
                 </div>
-
               </div>
             )}
           </div>

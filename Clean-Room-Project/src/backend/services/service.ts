@@ -277,7 +277,7 @@ export function airflowService(
     if (!showCooling) return 0;
 
     if (showCooling && isTempValid) {
-      const baseAirflow = roomCfm + freshAir + exhaustAir;
+      const baseAirflow = roomCfm + baseFreshAir + exhaustAir;
       resultantCfm =
         Math.ceil(Math.max(baseAirflow, Number(dehumidValue || 0)) / 25) * 25;
     }
@@ -432,9 +432,10 @@ export function airflowService(
 
     if (showHeating && isTempValid) {
       const humidValNum = typeof humidValue === "number" ? humidValue : 0;
+      const baseHeatingAirflow = roomCfm + baseFreshAir + exhaustAir;
       resultantheatCfm =
         Math.ceil(
-          Math.max(roomCfm + freshAir + exhaustAir, humidValNum) / 25
+          Math.max(baseHeatingAirflow, humidValNum) / 25
         ) * 25;
     }
     return resultantheatCfm;
@@ -572,10 +573,8 @@ export function airflowService(
     const freshAirPrimary =
       (eaFactor === 0 && exhaustCfm === 0)
         ? baseFreshAir
-        : (eaFactor + faFactor) * roomCfm;
-
-    const exhaustAirPrimary = exhaustAir;
-
+        : (eaFactor + faFactor) * roomCfm;  
+          const exhaustAirPrimary = exhaustAir;
     const primaryResult: AirflowResults = {
       ...result,
       freshAir: Number(freshAirPrimary.toFixed(3)),

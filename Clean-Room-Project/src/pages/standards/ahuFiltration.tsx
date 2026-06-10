@@ -757,8 +757,19 @@ const AHUFiltration = () => {
   }
 
   const isHeatingCooling = system === "Air Cooling and Air Heating System";
-  const flowMedium = isHeating ? heatingMethod : coolingMethod;
+
+  const useCoolingFlowVelocity =
+    system === "Air Cooling and Air Heating System" &&
+    pipeConfiguration === "Single Pipe";
+
+  const flowMedium = useCoolingFlowVelocity
+    ? coolingMethod
+    : isHeating
+      ? heatingMethod
+      : coolingMethod;
+
   const flowRange = getFlowVelocityRange(flowMedium);
+
   const heatingFlowRange = getFlowVelocityRange(heatingMethod);
   const coolingFlowRange = getFlowVelocityRange(coolingMethod);
 
@@ -1580,9 +1591,11 @@ const AHUFiltration = () => {
                                 max={flowRange.max}
                                 step={0.1}
                                 value={
-                                  isHeating
-                                    ? heatingFlowVelocity
-                                    : coolingFlowVelocity
+                                  useCoolingFlowVelocity
+                                    ? coolingFlowVelocity
+                                    : isHeating
+                                      ? heatingFlowVelocity
+                                      : coolingFlowVelocity
                                 }
                                 onChange={(e) => {
                                   const val = clamp(
@@ -1590,10 +1603,14 @@ const AHUFiltration = () => {
                                     flowRange.min,
                                     flowRange.max,
                                   );
-                                  if (isHeating)
-                                    handleChange("heatingFlowVelocity", val);
-                                  if (isCooling)
+                                  if (useCoolingFlowVelocity) {
                                     handleChange("coolingFlowVelocity", val);
+                                  } else {
+                                    if (isHeating)
+                                      handleChange("heatingFlowVelocity", val);
+                                    if (isCooling)
+                                      handleChange("coolingFlowVelocity", val);
+                                  }
                                 }}
                               />
                               <div className={s.dualFlowMax}>
@@ -1603,9 +1620,11 @@ const AHUFiltration = () => {
                                 className={s.dualFlowValueBox}
                                 inputMode="decimal"
                                 value={
-                                  isHeating
-                                    ? heatingFlowVelocity
-                                    : coolingFlowVelocity
+                                  useCoolingFlowVelocity
+                                    ? coolingFlowVelocity
+                                    : isHeating
+                                      ? heatingFlowVelocity
+                                      : coolingFlowVelocity
                                 }
                                 required={true}
                                 onChange={(e) => {
@@ -1618,16 +1637,24 @@ const AHUFiltration = () => {
                                         flowRange.min,
                                         flowRange.max,
                                       );
-                                      if (isHeating)
-                                        handleChange(
-                                          "heatingFlowVelocity",
-                                          val,
-                                        );
-                                      if (isCooling)
+                                      if (useCoolingFlowVelocity) {
                                         handleChange(
                                           "coolingFlowVelocity",
                                           val,
                                         );
+                                      } else {
+                                        if (isHeating)
+                                          handleChange(
+                                            "heatingFlowVelocity",
+                                            val,
+                                          );
+
+                                        if (isCooling)
+                                          handleChange(
+                                            "coolingFlowVelocity",
+                                            val,
+                                          );
+                                      }
                                     }
                                   }
                                 }}
